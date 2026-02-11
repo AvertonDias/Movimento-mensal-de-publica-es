@@ -14,7 +14,7 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-2xl font-black tracking-tight text-foreground uppercase font-headline">Movimento Mensal</h1>
-              <p className="text-sm text-muted-foreground font-semibold uppercase tracking-[0.2em]">Publicações • JW Hub</p>
+              <p className="text-sm text-muted-foreground font-semibold uppercase tracking-[0.2em]">Publicações • JW</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
