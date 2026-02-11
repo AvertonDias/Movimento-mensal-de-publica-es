@@ -19,7 +19,6 @@ import {
   ChevronRight,
   Loader2,
   Info,
-  Plus,
   ArrowUp,
   ArrowDown,
   Edit2
@@ -199,11 +198,6 @@ export function InventoryTable() {
     }
   };
 
-  const openAddDialog = (category: string) => {
-    setActiveCategory(category);
-    setIsAddDialogOpen(true);
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
@@ -269,16 +263,8 @@ export function InventoryTable() {
                   return (
                     <TableRow key={item.id} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
                       <TableCell colSpan={columns.length} className="py-2.5 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
-                        <div className="flex justify-between items-center">
+                        <div className="flex items-center">
                           <span>{item.item}</span>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 px-4 text-[9px] gap-2 hover:bg-primary/20 border border-primary/20 bg-white font-black shadow-sm"
-                            onClick={() => openAddDialog(item.item)}
-                          >
-                            <Plus className="h-3.5 w-3.5" /> Adicionar Linha
-                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
