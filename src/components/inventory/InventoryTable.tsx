@@ -268,7 +268,6 @@ export function InventoryTable() {
                           <div className="flex justify-between items-center gap-2 min-w-[240px]">
                             <span className="text-sm font-medium text-foreground">{item.item}</span>
                             {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded uppercase">{item.abbr}</span>}
-                            {item.isCustom && <span className="text-[7px] font-bold text-primary uppercase ml-auto">Personalizado</span>}
                           </div>
                         ) : (
                           <Input
