@@ -15,10 +15,6 @@ import { collection, getDocs } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
-const MONTH_LABELS = [
-  "set./mar.", "out./abr.", "nov./mai.", "dez./jun.", "jan./jul.", "fev./ago."
-];
-
 interface PublicationItem {
   code: string;
   name: string;
@@ -187,7 +183,7 @@ export function HistoryTable() {
             <TableHead className="text-[12px] font-black text-black p-2 align-bottom">Publicações</TableHead>
             
             {/* First Month Headers */}
-            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Ant.</TableHead>
+            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-[1.1] uppercase">Estoque<br/>anterior</TableHead>
             <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Rec.</TableHead>
             <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Est.</TableHead>
             <TableHead className="text-[8px] font-black text-black p-0 text-center leading-none uppercase bg-neutral-200">Saída</TableHead>
