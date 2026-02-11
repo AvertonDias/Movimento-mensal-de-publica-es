@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useMemo, useEffect, useState } from 'react';
@@ -9,10 +10,9 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 import { useFirestore, useUser } from '@/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { format, subMonths, startOfMonth } from 'date-fns';
+import { format, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
 interface PublicationItem {
@@ -100,7 +100,7 @@ export function HistoryTable() {
   const [historyData, setHistoryData] = useState<Record<string, Record<string, any>>>({});
   const [loading, setLoading] = useState(true);
 
-  // Calcula os últimos 6 meses (baseado no mês anterior ao atual)
+  // Calcula os últimos 6 meses (ciclo semestral do formulário S-28-T)
   const lastSixMonths = useMemo(() => {
     const months = [];
     const baseDate = subMonths(new Date(), 1);
@@ -108,7 +108,7 @@ export function HistoryTable() {
       const date = subMonths(baseDate, i);
       months.push({
         key: format(date, 'yyyy-MM'),
-        label: format(date, 'MMM yy', { locale: ptBR })
+        label: format(date, 'MMM/yy', { locale: ptBR })
       });
     }
     return months;
@@ -155,42 +155,36 @@ export function HistoryTable() {
   };
 
   return (
-    <div className="border border-black relative">
+    <div className="border border-black relative overflow-x-auto">
       {loading && (
-        <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-[1px]">
+        <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-[1px] print:hidden">
           <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse">Sincronizando registros...</span>
         </div>
       )}
-      <Table className="border-collapse table-fixed w-full">
+      <Table className="border-collapse table-fixed w-full min-w-[1200px]">
         <TableHeader>
-          {/* Row 1: Months */}
+          {/* Row 1: Months Labels */}
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-10">
             <TableHead className="w-[80px] text-[10px] font-black uppercase text-black p-1 text-center align-bottom border-black">MÊS E ANO</TableHead>
             <TableHead className="w-[280px] border-l-0"></TableHead>
             {lastSixMonths.map((month) => (
               <TableHead 
                 key={month.key} 
-                colSpan={month === lastSixMonths[0] ? 4 : 3} 
+                colSpan={3} 
                 className="text-center text-[10px] font-black uppercase text-black p-0 h-10 border-l border-black bg-neutral-50/50"
               >
                 {month.label}
               </TableHead>
             ))}
           </TableRow>
-          {/* Row 2: Sub-labels */}
+          {/* Row 2: Sub-labels (Estoque anterior, Recebido, Estoque, Saída) */}
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-12">
             <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none">N.º do item</TableHead>
             <TableHead className="text-[12px] font-black text-black p-2 align-bottom">Publicações</TableHead>
             
-            {/* First Month Headers */}
-            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-[1.1] uppercase">Estoque<br/>anterior</TableHead>
-            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Recebido</TableHead>
-            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Estoque</TableHead>
-            <TableHead className="text-[8px] font-black text-black p-0 text-center leading-none uppercase bg-neutral-200">Saída</TableHead>
-            
-            {/* Other Months Headers */}
-            {lastSixMonths.slice(1).map((m) => (
+            {lastSixMonths.map((m) => (
               <React.Fragment key={m.key}>
+                <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-[1.1] uppercase">Estoque<br/>anterior</TableHead>
                 <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Recebido</TableHead>
                 <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Estoque</TableHead>
                 <TableHead className="text-[8px] font-black text-black p-0 text-center leading-none uppercase bg-neutral-200">Saída</TableHead>
@@ -204,7 +198,7 @@ export function HistoryTable() {
               return (
                 <TableRow key={idx} className="border-b-2 border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-7">
                   <TableCell className="p-0 border-r border-black"></TableCell>
-                  <TableCell colSpan={20} className="text-[11px] font-black uppercase px-2 py-1 tracking-wider text-black">
+                  <TableCell colSpan={26} className="text-[11px] font-black uppercase px-2 py-1 tracking-wider text-black">
                     {item.name}
                   </TableCell>
                 </TableRow>
@@ -219,15 +213,9 @@ export function HistoryTable() {
                   {item.abbr && <span className="font-bold ml-1 text-[9px] min-w-[30px] text-right">{item.abbr}</span>}
                 </TableCell>
                 
-                {/* 1st Month Data */}
-                <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(lastSixMonths[0].key, itemId, 'previous')}</TableCell>
-                <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(lastSixMonths[0].key, itemId, 'received')}</TableCell>
-                <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(lastSixMonths[0].key, itemId, 'current')}</TableCell>
-                <TableCell className="text-[10px] text-center p-0 font-black bg-neutral-200">{calculateOutgoing(lastSixMonths[0].key, itemId)}</TableCell>
-
-                {/* Other Months Data */}
-                {lastSixMonths.slice(1).map((m) => (
+                {lastSixMonths.map((m) => (
                   <React.Fragment key={m.key}>
+                    <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(m.key, itemId, 'previous')}</TableCell>
                     <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(m.key, itemId, 'received')}</TableCell>
                     <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(m.key, itemId, 'current')}</TableCell>
                     <TableCell className="text-[10px] text-center p-0 font-black bg-neutral-200">{calculateOutgoing(m.key, itemId)}</TableCell>

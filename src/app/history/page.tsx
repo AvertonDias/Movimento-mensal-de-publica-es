@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use } from 'react';
@@ -9,6 +10,7 @@ import { Button } from "@/components/ui/button";
 /**
  * Página de Histórico (Formulário S-28-T 8/24)
  * Esta página é um espelho exato do formulário oficial de papel.
+ * O botão de imprimir utiliza a função nativa do navegador, que permite "Salvar como PDF".
  */
 export default function HistoryPage(props: {
   params: Promise<any>;
@@ -28,7 +30,11 @@ export default function HistoryPage(props: {
               Voltar ao Inventário
             </Button>
           </Link>
-          <Button variant="outline" className="gap-2 bg-white" onClick={() => window.print()}>
+          <Button 
+            variant="outline" 
+            className="gap-2 bg-white" 
+            onClick={() => window.print()}
+          >
             <Printer className="h-4 w-4" />
             Imprimir S-28-T (8/24)
           </Button>
