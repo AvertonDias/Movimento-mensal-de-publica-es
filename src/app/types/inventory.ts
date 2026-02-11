@@ -127,7 +127,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '', item: 'Despertai! N.º 1 2023*', abbr: 'g23.1', category: 'Revistas', imageKey: 'g24' },
   { code: '', item: 'Despertai! N.º 1 2024*', abbr: 'g24.1', category: 'Revistas', imageKey: 'g24' },
   
-  { code: '', item: 'Sentinela N.º 1 2018*', abbr: 'wp18.1', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 1 2018*', abbr: 'wp18.1', category: 'Revistas', imageKey: 'wp18.1' },
   { code: '', item: 'Sentinela N.º 2 2018*', abbr: 'wp18.2', category: 'Revistas', imageKey: 'wp24' },
   { code: '', item: 'Sentinela N.º 3 2018*', abbr: 'wp18.3', category: 'Revistas', imageKey: 'wp24' },
   { code: '', item: 'Sentinela N.º 1 2019*', abbr: 'wp19.1', category: 'Revistas', imageKey: 'wp24' },

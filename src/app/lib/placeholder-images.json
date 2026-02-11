@@ -32,6 +32,12 @@
       "imageHint": "magazine cover"
     },
     {
+      "id": "wp18.1",
+      "description": "A Sentinela N.º 1 2018",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201901/T/pt/wp_T_201901_lg.jpg",
+      "imageHint": "magazine cover"
+    },
+    {
       "id": "g24",
       "description": "Despertai! 2024",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/T/pt/g_T_lg.jpg",
