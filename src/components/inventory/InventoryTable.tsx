@@ -185,10 +185,10 @@ export function InventoryTable() {
       const currentRef = doc(db, 'users', user.uid, 'inventory', currentItem.id);
       const targetRef = doc(db, 'users', user.uid, 'inventory', targetItem.id);
 
-      // Usar timestamp atual se não houver sortOrder para garantir unicidade inicial
-      const currentOrder = Number(currentItem.sortOrder) || (Date.now() - 100);
-      const targetOrder = Number(targetItem.sortOrder) || Date.now();
+      const currentOrder = Number(currentItem.sortOrder) || Date.now();
+      const targetOrder = Number(targetItem.sortOrder) || (Date.now() + 1);
 
+      // Troca os valores de ordem
       updateDocumentNonBlocking(currentRef, { sortOrder: targetOrder });
       updateDocumentNonBlocking(targetRef, { sortOrder: currentOrder });
 
@@ -292,7 +292,7 @@ export function InventoryTable() {
                     {columns.map((col) => (
                       <TableCell key={col.id} className="p-1 px-3 border-r last:border-0">
                         {col.id === 'move' ? (
-                          <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center justify-center gap-1">
                             {item.isCustom && (
                               <>
                                 <Button 
