@@ -26,13 +26,13 @@
     },
     {
       "id": "wp24",
-      "description": "A Sentinela 2024",
+      "description": "A Sentinela",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/T/pt/wp_T_lg.jpg",
       "imageHint": "magazine cover"
     },
     {
       "id": "g24",
-      "description": "Despertai! 2024",
+      "description": "Despertai!",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/T/pt/g_T_lg.jpg",
       "imageHint": "news magazine"
     },
@@ -140,7 +140,7 @@
     },
     {
       "id": "lfb",
-      "description": "Lições que Você Pode Aprender da Bíblia",
+      "description": "Lições da Bíblia",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lfb/T/pt/lfb_T_lg.jpg",
       "imageHint": "bible lessons stories"
     },
@@ -347,6 +347,18 @@
       "description": "Capa do livro Instrutor",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lr/T/pt/lr_T_lg.jpg",
       "imageHint": "teacher book"
+    },
+    {
+      "id": "sjj",
+      "description": "Cancioneiro Cante de Coração",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/sjj/T/pt/sjj_T_lg.jpg",
+      "imageHint": "songbook cover"
+    },
+    {
+      "id": "scl",
+      "description": "Livro Princípios Bíblicos",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/scl/T/pt/scl_T_lg.jpg",
+      "imageHint": "bible principles"
     }
   ]
 }

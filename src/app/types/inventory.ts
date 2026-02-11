@@ -33,7 +33,7 @@ export const DEFAULT_COLUMNS: InventoryColumn[] = [
 
 /**
  * Lista exaustiva de publicações oficiais com mapeamento de imagem.
- * As imagens usam os domínios cfp2.jw-cdn.org e cms-imgp.jw-cdn.org.
+ * Seguindo exatamente a ordem do formulário S-28-T 8/24.
  */
 export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'received' | 'current'>[] = [
   { code: '', item: 'Bíblias', category: 'Bíblias', isCategory: true },
@@ -50,7 +50,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '5419', item: 'Imite a Sua Fé', abbr: 'ia', category: 'Livros', imageKey: 'ia' },
   { code: '5425', item: 'Jesus — O Caminho', abbr: 'jy', category: 'Livros', imageKey: 'jy' },
   { code: '5422', item: 'O Reino de Deus já Governa!', abbr: 'kr', category: 'Livros', imageKey: 'kr' },
-  { code: '5427', item: 'Histórias da Bíblia', abbr: 'lfb', category: 'Livros', imageKey: 'lfb' },
+  { code: '5427', item: 'Lições que Você Pode Aprender da Bíblia', abbr: 'lfb', category: 'Livros', imageKey: 'lfb' },
   { code: '5445', item: 'Seja Feliz para Sempre! (livro)*', abbr: 'lff', category: 'Livros', imageKey: 'lff' },
   { code: '5415', item: 'Instrutor', abbr: 'lr', category: 'Livros', imageKey: 'lr' },
   { code: '5343', item: 'Continue', abbr: 'lvs', category: 'Livros', imageKey: 'lvs' },
@@ -87,6 +87,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '6684', item: '10 Perguntas', abbr: 'ypq', category: 'Brochuras', imageKey: 'ypq' },
   { code: '6620', item: 'Um Livro para Todas as Pessoas', abbr: 'ba', category: 'Brochuras', imageKey: 'ba' },
   { code: '6625', item: 'Testemunhas de Jeová — Quem São?', abbr: 'jt', category: 'Brochuras', imageKey: 'jt' },
+  { code: '', item: 'Outras brochuras e livretos', category: 'Brochuras' },
   
   { code: '', item: 'Folhetos e convites (1 maço de 2,5 cm = 300)', category: 'Folhetos', isCategory: true },
   { code: '7305', item: 'Convite para reuniões cristãs*', abbr: 'inv', category: 'Folhetos', imageKey: 'inv' },
@@ -100,14 +101,47 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '7137', item: 'Respostas Importantes*', abbr: 'T-37', category: 'Folhetos', imageKey: 'T-37' },
   { code: '7138', item: 'O Reino de Deus — O que é para você?*', abbr: 'T-38', category: 'Folhetos', imageKey: 'T-38' },
   { code: '7139', item: 'Onde encontrar as respostas?*', abbr: 'T-39', category: 'Folhetos', imageKey: 'T-39' },
+  { code: '', item: 'Outros folhetos e convites', category: 'Folhetos' },
   
   { code: '', item: 'Cartões de visita', category: 'Cartões', isCategory: true },
   { code: '8410', item: 'Cartão de visita (imagem da Bíblia aberta)*', abbr: 'jwcd1', category: 'Cartões', imageKey: 'jwcd1' },
   { code: '8521', item: 'Cartão de visita (apenas o logo do jw.org)*', abbr: 'jwcd4', category: 'Cartões', imageKey: 'jwcd4' },
   { code: '8569', item: 'Cartão de visita (curso bíblico presencial)*', abbr: 'jwcd9', category: 'Cartões', imageKey: 'jwcd9' },
   { code: '8570', item: 'Cartão de visita (curso bíblico pela internet)*', abbr: 'jwcd10', category: 'Cartões', imageKey: 'jwcd10' },
+  { code: '', item: 'Outros cartões de visita', category: 'Cartões' },
   
   { code: '', item: 'Revistas para o público', category: 'Revistas', isCategory: true },
+  { code: '', item: 'Despertai! N.º 1 2018*', abbr: 'g18.1', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 2 2018*', abbr: 'g18.2', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 3 2018*', abbr: 'g18.3', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 1 2019*', abbr: 'g19.1', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 2 2019*', abbr: 'g19.2', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 3 2019*', abbr: 'g19.3', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 1 2020*', abbr: 'g20.1', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 2 2020*', abbr: 'g20.2', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 3 2020*', abbr: 'g20.3', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 1 2021*', abbr: 'g21.1', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 2 2021*', abbr: 'g21.2', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 3 2021*', abbr: 'g21.3', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 1 2022*', abbr: 'g22.1', category: 'Revistas', imageKey: 'g24' },
+  { code: '', item: 'Despertai! N.º 1 2023*', abbr: 'g23.1', category: 'Revistas', imageKey: 'g24' },
   { code: '', item: 'Despertai! N.º 1 2024*', abbr: 'g24.1', category: 'Revistas', imageKey: 'g24' },
+  
+  { code: '', item: 'Sentinela N.º 1 2018*', abbr: 'wp18.1', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 2 2018*', abbr: 'wp18.2', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 3 2018*', abbr: 'wp18.3', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 1 2019*', abbr: 'wp19.1', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 2 2019*', abbr: 'wp19.2', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 3 2019*', abbr: 'wp19.3', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 1 2020*', abbr: 'wp20.1', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 2 2020*', abbr: 'wp20.2', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 3 2020*', abbr: 'wp20.3', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 1 2021*', abbr: 'wp21.1', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 2 2021*', abbr: 'wp21.2', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 3 2021*', abbr: 'wp21.3', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 1 2022*', abbr: 'wp22.1', category: 'Revistas', imageKey: 'wp24' },
+  { code: '', item: 'Sentinela N.º 1 2023*', abbr: 'wp23.1', category: 'Revistas', imageKey: 'wp24' },
   { code: '', item: 'Sentinela N.º 1 2024*', abbr: 'wp24.1', category: 'Revistas', imageKey: 'wp24' },
+  
+  { code: '', item: 'Todas as outras revistas para o público', category: 'Revistas' },
 ];
