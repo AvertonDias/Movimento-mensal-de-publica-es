@@ -62,8 +62,6 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '5442', item: 'Cante de Coração — Apenas Letras', abbr: 'sjjyls', category: 'Livros', imageKey: 'sjj' },
   { code: '5339', item: 'Jovens Perguntam, Volume 1', abbr: 'yp1', category: 'Livros', imageKey: 'yp1' },
   { code: '5336', item: 'Jovens Perguntam, Volume 2', abbr: 'yp2', category: 'Livros', imageKey: 'yp2' },
-  { code: '5001', item: 'Estudo Perspicaz, Vol. 1', abbr: 'it-1', category: 'Livros', imageKey: 'it1' },
-  { code: '5002', item: 'Estudo Perspicaz, Vol. 2', abbr: 'it-2', category: 'Livros', imageKey: 'it2' },
   
   { code: '', item: 'Brochuras e livretos', category: 'Brochuras', isCategory: true },
   { code: '6618', item: 'Leitura e Escrita', abbr: 'ay', category: 'Brochuras', imageKey: 'ay' },
