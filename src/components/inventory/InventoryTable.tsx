@@ -308,7 +308,7 @@ export function InventoryTable() {
                                 </Button>
                               )}
                             </div>
-                            {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded uppercase shrink-0">{item.abbr}</span>}
+                            {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded shrink-0">{item.abbr}</span>}
                           </div>
                         ) : (
                           <Input
