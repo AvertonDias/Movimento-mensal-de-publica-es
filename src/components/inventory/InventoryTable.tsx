@@ -166,24 +166,37 @@ export function InventoryTable() {
   const handleMoveItem = (item: InventoryItem, direction: 'up' | 'down') => {
     if (!user || !db || !customDefinitions) return;
 
-    const categoryCustomItems = customDefinitions
+    // Obtém todos os itens personalizados desta categoria, ordenados pelo valor atual
+    const categoryCustomItems = [...customDefinitions]
       .filter(cd => cd.category === item.category)
       .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
 
     const currentIndex = categoryCustomItems.findIndex(i => i.id === item.id);
+    if (currentIndex === -1) return;
+
     const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
 
+    // Verifica se o movimento é possível dentro dos limites da categoria
     if (targetIndex >= 0 && targetIndex < categoryCustomItems.length) {
+      const currentItem = categoryCustomItems[currentIndex];
       const targetItem = categoryCustomItems[targetIndex];
       
-      const currentRef = doc(db, 'users', user.uid, 'inventory', item.id);
+      const currentRef = doc(db, 'users', user.uid, 'inventory', currentItem.id);
       const targetRef = doc(db, 'users', user.uid, 'inventory', targetItem.id);
 
-      const currentOrder = Number(item.sortOrder) || Date.now();
-      const targetOrder = Number(targetItem.sortOrder) || Date.now();
+      // Pegamos os valores de ordem ou usamos o timestamp como fallback
+      const currentOrder = Number(currentItem.sortOrder) || Date.now();
+      const targetOrder = Number(targetItem.sortOrder) || (direction === 'up' ? currentOrder - 100 : currentOrder + 100);
 
-      setDocumentNonBlocking(currentRef, { sortOrder: targetOrder }, { merge: true });
-      setDocumentNonBlocking(targetRef, { sortOrder: currentOrder }, { merge: true });
+      // Se por algum motivo forem iguais, forçamos uma diferença
+      if (currentOrder === targetOrder) {
+        const offset = direction === 'up' ? -1 : 1;
+        setDocumentNonBlocking(currentRef, { sortOrder: currentOrder + offset }, { merge: true });
+      } else {
+        // Trocamos os valores de ordem
+        setDocumentNonBlocking(currentRef, { sortOrder: targetOrder }, { merge: true });
+        setDocumentNonBlocking(targetRef, { sortOrder: currentOrder }, { merge: true });
+      }
     }
   };
 
@@ -284,16 +297,18 @@ export function InventoryTable() {
                                 <Button 
                                   variant="ghost" 
                                   size="icon" 
-                                  className="h-5 w-5 text-muted-foreground hover:text-primary"
+                                  className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"
                                   onClick={() => handleMoveItem(item, 'up')}
+                                  title="Mover para cima"
                                 >
                                   <ArrowUp className="h-3 w-3" />
                                 </Button>
                                 <Button 
                                   variant="ghost" 
                                   size="icon" 
-                                  className="h-5 w-5 text-muted-foreground hover:text-primary"
+                                  className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"
                                   onClick={() => handleMoveItem(item, 'down')}
+                                  title="Mover para baixo"
                                 >
                                   <ArrowDown className="h-3 w-3" />
                                 </Button>
