@@ -40,6 +40,18 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'assets.jw.org',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'b.jw-cdn.org',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
