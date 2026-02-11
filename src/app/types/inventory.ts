@@ -88,9 +88,6 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '6667', item: 'Melhore', abbr: 'th', category: 'Brochuras', imageKey: 'th' },
   { code: '6670', item: 'Aprenda com a Sabedoria de Jesus', abbr: 'wfg', category: 'Brochuras', imageKey: 'wfg' },
   { code: '6684', item: '10 Perguntas', abbr: 'ypq', category: 'Brochuras', imageKey: 'ypq' },
-  { code: '6620', item: 'Um Livro para Todas as Pessoas', abbr: 'ba', category: 'Brochuras', imageKey: 'ba' },
-  { code: '6625', item: 'Testemunhas de Jeová — Quem São?', abbr: 'jt', category: 'Brochuras', imageKey: 'jt' },
-  { code: '', item: 'Outras brochuras e livretos', category: 'Brochuras' },
   
   { code: '', item: 'Folhetos e convites (1 maço de 2,5 cm = 300)', category: 'Folhetos', isCategory: true },
   { code: '7305', item: 'Convite para reuniões cristãs*', abbr: 'inv', category: 'Folhetos', imageKey: 'inv' },
