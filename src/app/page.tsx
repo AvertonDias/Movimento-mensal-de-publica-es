@@ -3,7 +3,14 @@ import { BookOpen, History } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
-export default function Home() {
+export default async function Home(props: {
+  params: Promise<any>;
+  searchParams: Promise<any>;
+}) {
+  // Unwrap dynamic values for Next.js 15
+  await props.params;
+  await props.searchParams;
+
   return (
     <div className="min-h-screen pb-12 bg-background/50">
       <header className="bg-white border-b border-border py-6 px-6 mb-8 sticky top-0 z-20 shadow-sm">

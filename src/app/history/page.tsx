@@ -1,5 +1,6 @@
 'use client';
 
+import { use } from 'react';
 import { HistoryTable } from "@/components/inventory/HistoryTable";
 import { ChevronLeft, Printer } from "lucide-react";
 import Link from "next/link";
@@ -9,7 +10,14 @@ import { Button } from "@/components/ui/button";
  * Página de Histórico (Formulário S-28-T 8/24)
  * Esta página é um espelho exato do formulário oficial de papel.
  */
-export default function HistoryPage() {
+export default function HistoryPage(props: {
+  params: Promise<any>;
+  searchParams: Promise<any>;
+}) {
+  // Unwrap dynamic values for Next.js 15
+  use(props.params);
+  use(props.searchParams);
+
   return (
     <div className="min-h-screen bg-neutral-200 py-12 px-4 print:p-0 print:bg-white overflow-x-auto font-body">
       <div className="max-w-[1250px] mx-auto space-y-4">
