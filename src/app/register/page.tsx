@@ -25,7 +25,6 @@ function RegisterForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
-  // Verifica se há um convite ativo vindo do link
   useEffect(() => {
     async function checkInvite() {
       if (token && db) {
@@ -40,7 +39,6 @@ function RegisterForm() {
     checkInvite();
   }, [token, db]);
 
-  // Após o cadastro/login, processa o convite pendente
   useEffect(() => {
     if (user && !user.isAnonymous && db) {
       const pendingToken = localStorage.getItem('pending_invite_token');
@@ -51,13 +49,11 @@ function RegisterForm() {
           if (snap.exists()) {
             const inviteData = snap.data();
             
-            // Atualiza o convite original com o ID do novo ajudante
             updateDocumentNonBlocking(inviteRef, {
               helperId: user.uid,
               label: user.displayName || user.email?.split('@')[0] || 'Ajudante'
             });
             
-            // Cria um atalho de acesso rápido no perfil do ajudante
             const myAccessRef = doc(db, 'invites', user.uid);
             setDocumentNonBlocking(myAccessRef, {
               id: user.uid,
@@ -101,7 +97,7 @@ function RegisterForm() {
           {inviteOwner ? "Aceitar Convite" : "Criar Conta"}
         </CardTitle>
         <CardDescription className="uppercase text-[10px] font-bold tracking-widest text-muted-foreground">
-          {inviteOwner ? `Cadastre-se para ajudar ${inviteOwner}` : "Junte-se ao Inventário Fácil"}
+          {inviteOwner ? `Cadastre-se para ajudar ${inviteOwner}` : "MOVIMENTO MENSAL DE PUBLICAÇÕES"}
         </CardDescription>
       </CardHeader>
       <CardContent>

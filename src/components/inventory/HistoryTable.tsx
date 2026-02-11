@@ -17,7 +17,7 @@ import { ptBR } from 'date-fns/locale';
 import { OFFICIAL_PUBLICATIONS, InventoryItem } from "@/app/types/inventory";
 
 interface HistoryTableProps {
-  targetUserId?: string; // UID opcional para visualização de convidado
+  targetUserId?: string;
 }
 
 export function HistoryTable({ targetUserId }: HistoryTableProps) {
@@ -26,7 +26,6 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   const [historyData, setHistoryData] = useState<Record<string, Record<string, any>>>({});
   const [loading, setLoading] = useState(true);
 
-  // Determina qual UID usar (o logado ou o passado via prop)
   const activeUserId = targetUserId || currentUser?.uid;
 
   const lastSixMonths = useMemo(() => {
@@ -150,7 +149,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               return (
                 <TableRow key={idx} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-5">
                   <TableCell className="p-0 border-r border-black"></TableCell>
-                  <TableCell colSpan={20} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black">
+                  <TableCell colSpan={18} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black">
                     {item.item}
                   </TableCell>
                 </TableRow>
