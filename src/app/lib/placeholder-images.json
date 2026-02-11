@@ -242,63 +242,63 @@
       "imageHint": "jehovahs witnesses who"
     },
     {
-      "id": "t-30",
+      "id": "T-30",
       "description": "Folheto O Que Você Acha da Bíblia?",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-30/T/pt/T-30_T_lg.jpg",
       "imageHint": "tract 30"
     },
     {
-      "id": "t-31",
+      "id": "T-31",
       "description": "Folheto O Que Você Espera do Futuro?",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-31/T/pt/T-31_T_lg.jpg",
       "imageHint": "tract 31"
     },
     {
-      "id": "t-32",
+      "id": "T-32",
       "description": "Folheto Segredo para Família Feliz",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-32/T/pt/T-32_T_lg.jpg",
       "imageHint": "tract 32"
     },
     {
-      "id": "t-33",
+      "id": "T-33",
       "description": "Folheto Quem Controla o Mundo?",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-33/T/pt/T-33_T_lg.jpg",
       "imageHint": "tract 33"
     },
     {
-      "id": "t-34",
+      "id": "T-34",
       "description": "Folheto O Sofrimento Vai Acabar?",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-34/T/pt/T-34_T_lg.jpg",
       "imageHint": "tract 34"
     },
     {
-      "id": "t-35",
+      "id": "T-35",
       "description": "Folheto Voltar a Viver",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-35/T/pt/T-35_T_lg.jpg",
       "imageHint": "tract 35"
     },
     {
-      "id": "t-36",
+      "id": "T-36",
       "description": "Folheto Reino",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-36/T/pt/T-36_T_lg.jpg",
       "imageHint": "tract 36"
     },
     {
-      "id": "t-37",
+      "id": "T-37",
       "description": "Folheto Respostas Importantes",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-37/T/pt/T-37_T_lg.jpg",
       "imageHint": "tract 37"
     },
     {
-      "id": "t-38",
+      "id": "T-38",
       "description": "Folheto O Reino de Deus",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-36/T/pt/T-36_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-38/T/pt/T-38_T_lg.jpg",
       "imageHint": "tract 38"
     },
     {
-      "id": "t-39",
+      "id": "T-39",
       "description": "Folheto Onde encontrar as respostas?",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-37/T/pt/T-37_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-39/T/pt/T-39_T_lg.jpg",
       "imageHint": "tract 39"
     },
     {
@@ -349,7 +349,7 @@
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/scl/T/pt/scl_T_lg.jpg",
       "imageHint": "bible principles"
     },
-    { "id": "g18.1", "description": "Despertai! 1 2018", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201801/T/pt/g_T_201801_lg.jpg", "imageHint": "awake 18-1" },
+    { "id": "g18.1", "description": "Despertai! 1 2018", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201803/T/pt/g_T_201803_lg.jpg", "imageHint": "awake 18-1" },
     { "id": "g18.2", "description": "Despertai! 2 2018", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201802/T/pt/g_T_201802_lg.jpg", "imageHint": "awake 18-2" },
     { "id": "g18.3", "description": "Despertai! 3 2018", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201803/T/pt/g_T_201803_lg.jpg", "imageHint": "awake 18-3" },
     { "id": "g19.1", "description": "Despertai! 1 2019", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201901/T/pt/g_T_201901_lg.jpg", "imageHint": "awake 19-1" },
