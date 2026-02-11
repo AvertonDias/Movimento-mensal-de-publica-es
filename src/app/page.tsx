@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { BookOpen, History, LogOut, User as UserIcon, ArrowRightLeft, ShieldCheck, Users } from "lucide-react";
+import { BookOpen, History, LogOut, User as UserIcon, ShieldCheck, Users } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
-import { cn } from "@/lib/utils";
 
 export default function Home() {
   const { user, isUserLoading } = useUser();
@@ -29,7 +28,6 @@ export default function Home() {
   
   const [viewMode, setViewMode] = useState<'personal' | 'shared'>('personal');
   const [sharedOwnerId, setSharedOwnerId] = useState<string | null>(null);
-  const [sharedOwnerName, setSharedOwnerName] = useState<string>('');
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -45,12 +43,15 @@ export default function Home() {
   const { data: helperInvite } = useDoc(helperInviteRef);
   const isHelper = !!helperInvite;
 
+  // Força o modo compartilhado se for ajudante
   useEffect(() => {
-    if (helperInvite && helperInvite.ownerId) {
+    if (isHelper && helperInvite?.ownerId) {
+      setViewMode('shared');
       setSharedOwnerId(helperInvite.ownerId);
-      setSharedOwnerName(helperInvite.ownerName || 'Proprietário');
+    } else {
+      setViewMode('personal');
     }
-  }, [helperInvite]);
+  }, [isHelper, helperInvite]);
 
   const handleSignOut = () => {
     initiateSignOut(auth);
@@ -81,28 +82,20 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tight text-foreground uppercase font-headline">
-                {viewMode === 'shared' ? 'Inventário Compartilhado' : 'Movimento Mensal'}
+                {isHelper ? 'Inventário Compartilhado' : 'Movimento Mensal'}
               </h1>
               <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-[0.2em]">
-                {viewMode === 'shared' ? 'Ajudante Ativo' : 'Publicações • JW'}
+                {isHelper ? 'Ajudante Ativo' : 'Publicações • JW'}
               </p>
             </div>
           </div>
           
           <div className="flex items-center gap-4">
             {isHelper && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setViewMode(prev => prev === 'personal' ? 'shared' : 'personal')}
-                className={cn(
-                  "gap-2 font-black uppercase text-[10px] tracking-widest h-9",
-                  viewMode === 'shared' ? "bg-accent/10 border-accent text-accent-foreground" : ""
-                )}
-              >
-                <ArrowRightLeft className="h-3.5 w-3.5" />
-                {viewMode === 'shared' ? 'Meu Inventário' : 'Ajudante'}
-              </Button>
+              <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg">
+                <ShieldCheck className="h-4 w-4 text-accent-foreground" />
+                <span className="text-[10px] font-black uppercase text-accent-foreground tracking-widest">Modo Ajudante</span>
+              </div>
             )}
 
             <div className="hidden md:flex items-center gap-2">
@@ -143,18 +136,18 @@ export default function Home() {
                 <DropdownMenuSeparator />
                 {!isHelper && (
                   <Link href="/helpers">
-                    <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest">
+                    <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                       <Users className="mr-2 h-4 w-4" /> Ajudantes
                     </DropdownMenuItem>
                   </Link>
                 )}
                 <Link href="/history">
-                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest">
+                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                     <History className="mr-2 h-4 w-4" /> Histórico S-28-T
                   </DropdownMenuItem>
                 </Link>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive font-bold uppercase text-[10px] tracking-widest">
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" /> Sair
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -164,16 +157,15 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 space-y-8">
-        {viewMode === 'shared' && (
+        {isHelper && (
           <div className="bg-accent/10 border border-accent/20 p-4 rounded-xl flex items-center justify-between">
             <div className="flex items-center gap-3">
               <ShieldCheck className="h-5 w-5 text-accent-foreground" />
               <div>
-                <p className="text-xs font-black uppercase text-accent-foreground">Modo Ajudante Ativo</p>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase">As alterações feitas aqui serão aplicadas ao inventário compartilhado.</p>
+                <p className="text-xs font-black uppercase text-accent-foreground">Acesso Autorizado</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase">Você está ajudando a gerenciar este inventário.</p>
               </div>
             </div>
-            <Button size="sm" variant="ghost" className="text-[10px] font-black uppercase tracking-widest" onClick={() => setViewMode('personal')}>Sair do modo ajudante</Button>
           </div>
         )}
         <InventoryTable targetUserId={activeUserId} />
