@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -20,8 +21,7 @@ import {
   Info,
   Plus,
   ArrowUp,
-  ArrowDown,
-  Book
+  ArrowDown
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -169,7 +169,6 @@ export function InventoryTable() {
   const handleMoveItem = (item: InventoryItem, direction: 'up' | 'down') => {
     if (!user || !db || !customDefinitions) return;
 
-    // Obtém todos os itens personalizados desta categoria, ordenados pelo valor atual
     const categoryCustomItems = [...customDefinitions]
       .filter(cd => cd.category === item.category)
       .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
@@ -179,7 +178,6 @@ export function InventoryTable() {
 
     const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
 
-    // Verifica se o movimento é possível dentro dos limites da categoria
     if (targetIndex >= 0 && targetIndex < categoryCustomItems.length) {
       const currentItem = categoryCustomItems[currentIndex];
       const targetItem = categoryCustomItems[targetIndex];
@@ -339,7 +337,7 @@ export function InventoryTable() {
                                       {item.item}
                                     </span>
                                   </TooltipTrigger>
-                                  <TooltipContent side="right" className="p-0 border-none shadow-xl overflow-hidden rounded-lg bg-transparent">
+                                  <TooltipContent side="right" className="p-0 border-none shadow-xl overflow-hidden rounded-lg">
                                     <div className="relative w-[200px] h-[300px] bg-white">
                                       <Image 
                                         src={imagePlaceholder.imageUrl} 
