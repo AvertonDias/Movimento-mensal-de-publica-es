@@ -146,6 +146,114 @@
       "imageHint": "bible lessons stories"
     },
     {
+      "id": "ay",
+      "description": "Capa da brochura Leitura e Escrita",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ay/T/pt/ay_T_lg.jpg",
+      "imageHint": "reading writing"
+    },
+    {
+      "id": "ed",
+      "description": "Capa da brochura Educação",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ed/T/pt/ed_T_lg.jpg",
+      "imageHint": "education brochure"
+    },
+    {
+      "id": "hf",
+      "description": "Capa da brochura Família",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/hf/T/pt/hf_T_lg.jpg",
+      "imageHint": "family brochure"
+    },
+    {
+      "id": "hl",
+      "description": "Capa da brochura Vida Feliz",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/hl/T/pt/hl_T_lg.jpg",
+      "imageHint": "happy life"
+    },
+    {
+      "id": "la",
+      "description": "Capa da brochura Vida Satisfatória",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/la/T/pt/la_T_lg.jpg",
+      "imageHint": "satisfying life"
+    },
+    {
+      "id": "lc",
+      "description": "Capa da brochura A Vida — Teve um Criador?",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lc/T/pt/lc_T_lg.jpg",
+      "imageHint": "life creator"
+    },
+    {
+      "id": "ld",
+      "description": "Capa da brochura Escute a Deus",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ld/T/pt/ld_T_lg.jpg",
+      "imageHint": "listen god"
+    },
+    {
+      "id": "lf",
+      "description": "Capa da brochura Origem da Vida",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lf/T/pt/lf_T_lg.jpg",
+      "imageHint": "origin life"
+    },
+    {
+      "id": "ol",
+      "description": "Capa da brochura Caminho para a Vida",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ol/T/pt/ol_T_lg.jpg",
+      "imageHint": "road life"
+    },
+    {
+      "id": "pc",
+      "description": "Capa da brochura Verdadeira Paz e Felicidade",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/pc/T/pt/pc_T_lg.jpg",
+      "imageHint": "peace happiness"
+    },
+    {
+      "id": "ph",
+      "description": "Capa da brochura Caminho",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ph/T/pt/ph_T_lg.jpg",
+      "imageHint": "pathway brochure"
+    },
+    {
+      "id": "rj",
+      "description": "Capa da brochura Volte para Jeová",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/rj/T/pt/rj_T_lg.jpg",
+      "imageHint": "return jehovah"
+    },
+    {
+      "id": "rk",
+      "description": "Capa da brochura Verdadeira Fé",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/rk/T/pt/rk_T_lg.jpg",
+      "imageHint": "real faith"
+    },
+    {
+      "id": "sp",
+      "description": "Capa da brochura Espíritos dos Mortos",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/sp/T/pt/sp_T_lg.jpg",
+      "imageHint": "spirits dead"
+    },
+    {
+      "id": "wfg",
+      "description": "Capa da brochura Aprenda com a Sabedoria de Jesus",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wfg/T/pt/wfg_T_lg.jpg",
+      "imageHint": "jesus wisdom"
+    },
+    {
+      "id": "ypq",
+      "description": "Capa da brochura 10 Perguntas",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ypq/T/pt/ypq_T_lg.jpg",
+      "imageHint": "10 questions"
+    },
+    {
+      "id": "ba",
+      "description": "Capa da brochura Um Livro para Todas as Pessoas",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ba/T/pt/ba_T_lg.jpg",
+      "imageHint": "book all people"
+    },
+    {
+      "id": "jt",
+      "description": "Capa da brochura Testemunhas de Jeová — Quem São?",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jt/T/pt/jt_T_lg.jpg",
+      "imageHint": "jehovahs witnesses who"
+    },
+    {
       "id": "T-30",
       "description": "Folheto O Que Você Acha da Bíblia?",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-30/T/pt/T-30_T_lg.jpg",
