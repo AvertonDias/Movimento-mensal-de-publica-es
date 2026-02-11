@@ -1,3 +1,4 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -7,42 +8,18 @@ service cloud.firestore {
      * This ruleset enforces a strict user-ownership model for a personal inventory management system. 
      * Security is handled through path-based authorization, ensuring that users can only access 
      * data nested under their unique identifier (/users/{userId}).
-     *
-     * DATA STRUCTURE
-     * The hierarchy is organized as follows:
-     * - /users/{userId}/inventory/{inventoryItemId}: Main inventory records.
-     * - /users/{userId}/inventory/{inventoryItemId}/history/{historyId}: Temporal logs of stock changes.
-     *
-     * KEY SECURITY DECISIONS
-     * 1. Path-Based Ownership: Authorization is derived directly from the {userId} wildcard in the path.
-     * 2. Relational Integrity: On document creation, we enforce that internal reference IDs (like inventoryItemId) 
-     *    match the path parameters to prevent "orphaned" or mismatched records.
-     * 3. Immutability: Critical relational links are protected from modification after creation.
-     * 4. Prototyping Flexibility: Data types and general schemas are not enforced to allow rapid development 
-     *    and the use of custom fields.
      */
 
     // --- HELPER FUNCTIONS ---
 
-    /**
-     * @description Basic check to see if the request is from an authenticated user.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
 
-    /**
-     * @description Checks if the authenticated user matches the provided userId from the path.
-     * @param userId The UID provided in the document path.
-     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    /**
-     * @description Combines ownership check with document existence for destructive operations.
-     * @param userId The UID provided in the document path.
-     */
     function isExistingOwner(userId) {
       return resource != null && isOwner(userId);
     }
@@ -50,11 +27,16 @@ service cloud.firestore {
     // --- COLLECTION RULES ---
 
     /**
+     * @description Rules for monthly inventory records.
+     * @path /users/{userId}/monthly_records/{month}/items/{itemId}
+     */
+    match /users/{userId}/monthly_records/{month}/items/{itemId} {
+      allow read, write: if isOwner(userId);
+    }
+
+    /**
      * @description Rules for individual inventory items.
      * @path /users/{userId}/inventory/{inventoryItemId}
-     * @allow Authenticated user "user_123" (get) on "/users/user_123/inventory/item_abc"
-     * @deny Authenticated user "user_123" (create) on "/users/user_999/inventory/item_abc"
-     * @principle Restricts access to a user's own data tree and validates path consistency.
      */
     match /users/{userId}/inventory/{inventoryItemId} {
       allow get, list: if isOwner(userId);
@@ -67,13 +49,6 @@ service cloud.firestore {
         
       allow delete: if isExistingOwner(userId);
 
-      /**
-       * @description Rules for historical logs of inventory changes (Received, Issued, etc).
-       * @path /users/{userId}/inventory/{inventoryItemId}/history/{historyId}
-       * @allow Authenticated user "user_123" (list) on "/users/user_123/inventory/item_abc/history"
-       * @deny Authenticated user "user_123" (update) attempting to change "inventoryItemId" link.
-       * @principle Deeply nested ownership verification with relational immutability.
-       */
       match /history/{historyId} {
         allow get, list: if isOwner(userId);
         
@@ -96,7 +71,7 @@ service cloud.firestore {
       allow create: if isOwner(userId);
       allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
-      allow list: if false; // Users cannot be listed/crawled.
+      allow list: if false;
     }
   }
 }

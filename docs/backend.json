@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "InventoryItem": {
@@ -109,7 +110,7 @@
           "schema": {
             "$ref": "#/backend/entities/InventoryItem"
           },
-          "description": "Stores inventory items specific to a user. Only the authenticated user can create, read, update, or delete items within their own inventory. Includes custom fields.",
+          "description": "Stores inventory items specific to a user.",
           "params": [
             {
               "name": "userId",
@@ -123,30 +124,29 @@
         }
       },
       {
-        "path": "/users/{userId}/inventory/{inventoryItemId}/history/{inventoryHistoryId}",
+        "path": "/users/{userId}/monthly_records/{month}/items/{itemId}",
         "definition": {
-          "entityName": "InventoryHistory",
+          "entityName": "InventoryItem",
           "schema": {
-            "$ref": "#/backend/entities/InventoryHistory"
+            "$ref": "#/backend/entities/InventoryItem"
           },
-          "description": "Stores the history of changes for an inventory item. Only the authenticated user can read or write to the history of items within their inventory. This supports tracking inventory changes and allows users to review historical data.",
+          "description": "Stores monthly inventory records for a user.",
           "params": [
             {
               "name": "userId",
               "description": "The unique identifier of the user."
             },
             {
-              "name": "inventoryItemId",
-              "description": "The unique identifier of the inventory item."
+              "name": "month",
+              "description": "The month key (e.g., 2026-02)."
             },
             {
-              "name": "inventoryHistoryId",
-              "description": "The unique identifier of the inventory history record."
+              "name": "itemId",
+              "description": "The unique identifier of the item."
             }
           ]
         }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to mirror the spreadsheet functionality described in the user's request, focusing on ease of use, customization, and data integrity. Each user has their own inventory and history data. The `InventoryItem` documents store the current state of each item, while `InventoryHistory` subcollection tracks changes over time. This design allows the user to edit, add, and remove inventory items and columns easily, enabling customized data input and flexible inventory management. The structure enables the addition of calculated fields (Estoque, Recebido, Saída) and ensures that the automatic calculations and user-defined filters can function efficiently. It also supports the generation of summaries by the JW Hub integration.\n\n**Authorization Independence:** The structure leverages path-based ownership for user data, ensuring that security rules can be written without relying on `get()` calls. Access to inventory items and their history is controlled by the user's ID, enabling secure and atomic operations. The use of subcollections under the user's document ensures that only the authenticated user can access their own inventory data.\n\n**QAPs (Rules are not Filters):** The segregation of data by user (`/users/{userId}/inventory/{inventoryItemId}`) ensures that `list` operations can be securely performed. A user can only list the items within their own inventory, preventing unauthorized access to other users' data. Similarly, access to the inventory history is restricted to the specific user and inventory item.\n\nThe `customFields` field allows users to add custom properties to the `InventoryItem` entity, accommodating the need for flexible data entry. This structure supports the core features of the application, including customizable data entry, adding/removing lines and columns, automatic calculations, filters and searches, and data export. This design meets all application requirements and provides a solid foundation for future enhancements."
+    ]
   }
 }
