@@ -122,7 +122,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             {lastSixMonths.map((month) => (
               <TableHead 
                 key={month.key} 
-                colSpan={4} 
+                colSpan={3} 
                 className="text-center text-[8px] font-black uppercase text-black p-0 h-7 border-l border-black bg-neutral-50/50"
               >
                 {month.label}
@@ -135,7 +135,6 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             
             {lastSixMonths.map((m) => (
               <React.Fragment key={m.key}>
-                <TableHead className="text-[6px] font-bold text-black p-0 text-center uppercase leading-[1]">Estoque<br/>anterior</TableHead>
                 <TableHead className="text-[6px] font-bold text-black p-0 text-center uppercase leading-[1]">Recebido</TableHead>
                 <TableHead className="text-[6px] font-bold text-black p-0 text-center uppercase leading-[1]">Est.</TableHead>
                 <TableHead className="text-[6px] font-black text-black p-0 text-center uppercase bg-neutral-200 leading-[1]">Saída</TableHead>
@@ -151,7 +150,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               return (
                 <TableRow key={idx} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-5">
                   <TableCell className="p-0 border-r border-black"></TableCell>
-                  <TableCell colSpan={26} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black">
+                  <TableCell colSpan={20} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black">
                     {item.item}
                   </TableCell>
                 </TableRow>
@@ -168,7 +167,6 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
                 
                 {lastSixMonths.map((m) => (
                   <React.Fragment key={m.key}>
-                    <TableCell className="text-[8px] text-center p-0 font-bold leading-none">{getValue(m.key, itemId, 'previous')}</TableCell>
                     <TableCell className="text-[8px] text-center p-0 font-bold leading-none">{getValue(m.key, itemId, 'received')}</TableCell>
                     <TableCell className="text-[8px] text-center p-0 font-bold leading-none">{getValue(m.key, itemId, 'current')}</TableCell>
                     <TableCell className="text-[8px] text-center p-0 font-black bg-neutral-200 leading-none">{calculateOutgoing(m.key, itemId)}</TableCell>
