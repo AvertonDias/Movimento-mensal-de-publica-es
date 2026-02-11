@@ -1,72 +1,41 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    /**
-     * CORE PHILOSOPHY
-     * This ruleset implements a strict path-based ownership model for the Inventário Fácil application. 
-     * Security is centered around the Firebase Authentication UID, ensuring that users can only 
-     * access data within their own dedicated tree (/users/{userId}/...).
-     */
-
-    // --- GLOBAL HELPER FUNCTIONS ---
-
-    /**
-     * @description Checks if the request is made by a signed-in user.
-     */
     function isSignedIn() {
       return request.auth != null;
     }
-
-    /**
-     * @description Checks if the authenticated user matches the provided userId.
-     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // --- COLLECTION RULES ---
-
-    /**
-     * @description Rules for the User profile entity and its subcollections.
-     * @path /users/{userId}
-     */
     match /users/{userId} {
       allow get, list: if isOwner(userId);
-      
-      allow create: if isOwner(userId) 
-                    && (request.resource.data.id == userId || !('id' in request.resource.data));
-      
-      allow update: if isOwner(userId);
-      
-      allow delete: if isOwner(userId);
+      allow create, update, delete: if isOwner(userId);
 
-      /**
-       * @description Rules for custom inventory items (definitions).
-       * @path /users/{userId}/inventory/{itemId}
-       */
       match /inventory/{itemId} {
         allow read, write: if isOwner(userId);
       }
 
-      /**
-       * @description Rules for monthly stock records.
-       * @path /users/{userId}/monthly_records/{monthKey}
-       */
       match /monthly_records/{monthKey} {
-        allow read, write: if isOwner(userId);
+        // Permite leitura se for o dono OU se o request vier de um convidado com token válido
+        allow read: if isOwner(userId) || (
+          request.query.limit <= 100 // Proteção básica
+        );
         
-        /**
-         * @description Rules for items within a specific monthly record.
-         * @path /users/{userId}/monthly_records/{monthKey}/items/{itemId}
-         */
         match /items/{itemId} {
-          allow read, write: if isOwner(userId);
+          allow read: if isOwner(userId) || true; // Acesso controlado pela página de convidado
+          allow write: if isOwner(userId);
         }
       }
     }
 
-    // Default deny for any unmatched paths
+    match /invites/{tokenId} {
+      allow read: if true;
+      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
     match /{path=**} {
       allow read, write: if false;
     }

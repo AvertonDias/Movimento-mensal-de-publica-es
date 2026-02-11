@@ -16,11 +16,18 @@ import { format, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { OFFICIAL_PUBLICATIONS, InventoryItem } from "@/app/types/inventory";
 
-export function HistoryTable() {
-  const { user } = useUser();
+interface HistoryTableProps {
+  targetUserId?: string; // UID opcional para visualização de convidado
+}
+
+export function HistoryTable({ targetUserId }: HistoryTableProps) {
+  const { user: currentUser } = useUser();
   const db = useFirestore();
   const [historyData, setHistoryData] = useState<Record<string, Record<string, any>>>({});
   const [loading, setLoading] = useState(true);
+
+  // Determina qual UID usar (o logado ou o passado via prop)
+  const activeUserId = targetUserId || currentUser?.uid;
 
   const lastSixMonths = useMemo(() => {
     const months = [];
@@ -35,11 +42,10 @@ export function HistoryTable() {
     return months;
   }, []);
 
-  // Busca definições de itens personalizados para incluir no histórico
   const customItemsQuery = useMemoFirebase(() => {
-    if (!db || !user) return null;
-    return collection(db, 'users', user.uid, 'inventory');
-  }, [db, user]);
+    if (!db || !activeUserId) return null;
+    return collection(db, 'users', activeUserId, 'inventory');
+  }, [db, activeUserId]);
 
   const { data: customDefinitions } = useCollection(customItemsQuery);
 
@@ -48,7 +54,6 @@ export function HistoryTable() {
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
       combined.push({ ...pub, id: pub.code || `cat_${idx}` } as InventoryItem);
       
-      // Se for uma categoria, insere itens personalizados desta categoria logo após, ordenados
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
           .filter(cd => cd.category === pub.item)
@@ -62,13 +67,13 @@ export function HistoryTable() {
 
   useEffect(() => {
     async function fetchHistory() {
-      if (!user || !db) return;
+      if (!activeUserId || !db) return;
       setLoading(true);
       const allMonthsData: Record<string, Record<string, any>> = {};
 
       try {
         for (const month of lastSixMonths) {
-          const colRef = collection(db, 'users', user.uid, 'monthly_records', month.key, 'items');
+          const colRef = collection(db, 'users', activeUserId, 'monthly_records', month.key, 'items');
           const snapshot = await getDocs(colRef);
           const monthItems: Record<string, any> = {};
           snapshot.forEach(doc => {
@@ -85,7 +90,7 @@ export function HistoryTable() {
     }
 
     fetchHistory();
-  }, [user, db, lastSixMonths]);
+  }, [activeUserId, db, lastSixMonths]);
 
   const getValue = (monthKey: string, itemId: string, field: string) => {
     const val = historyData[monthKey]?.[itemId]?.[field];

@@ -2,7 +2,7 @@
 'use client';
 
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { BookOpen, History, LogOut, User as UserIcon, LogIn } from "lucide-react";
+import { BookOpen, History, LogOut, User as UserIcon, LogIn, Users } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser } from "@/firebase";
@@ -40,12 +40,20 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-4">
-            <Link href="/history" className="hidden sm:block">
-              <Button variant="ghost" className="gap-2 font-bold uppercase text-xs tracking-wider border hover:bg-neutral-50 h-9">
-                <History className="h-4 w-4" />
-                S-28-T Histórico
-              </Button>
-            </Link>
+            <div className="hidden md:flex items-center gap-2">
+              <Link href="/helpers">
+                <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
+                  <Users className="h-4 w-4" />
+                  Ajudantes
+                </Button>
+              </Link>
+              <Link href="/history">
+                <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border hover:bg-neutral-50 h-9">
+                  <History className="h-4 w-4" />
+                  S-28-T Histórico
+                </Button>
+              </Link>
+            </div>
 
             {!isUserLoading && user && !user.isAnonymous ? (
               <DropdownMenu>
@@ -67,8 +75,13 @@ export default function Home() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <Link href="/helpers">
+                    <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest">
+                      <Users className="mr-2 h-4 w-4" /> Ajudantes
+                    </DropdownMenuItem>
+                  </Link>
                   <Link href="/history">
-                    <DropdownMenuItem className="sm:hidden font-bold uppercase text-[10px] tracking-widest">
+                    <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest">
                       <History className="mr-2 h-4 w-4" /> Histórico S-28-T
                     </DropdownMenuItem>
                   </Link>
@@ -96,7 +109,7 @@ export default function Home() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
           <p>© {new Date().getFullYear()} Gestão de Publicações • Formulário S-28-T (8/24)</p>
           <div className="flex gap-8">
-            <a href="#" className="hover:text-primary transition-colors">Relatórios</a>
+            <Link href="/helpers" className="hover:text-primary transition-colors">Ajudantes</Link>
             <a href="#" className="hover:text-primary transition-colors">Instruções</a>
             <a href="#" className="hover:text-primary transition-colors">Suporte</a>
           </div>

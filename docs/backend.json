@@ -24,15 +24,6 @@
           "type": "string",
           "description": "Timestamp indicating when the user account was created.",
           "format": "date-time"
-        },
-        "lastLogin": {
-          "type": "string",
-          "description": "Timestamp indicating the last time the user logged in.",
-          "format": "date-time"
-        },
-        "googleId": {
-          "type": "string",
-          "description": "Unique identifier from Google OAuth, if the user registered with Google."
         }
       },
       "required": [
@@ -41,6 +32,18 @@
         "name",
         "createdAt"
       ]
+    },
+    "Invite": {
+      "title": "Invite",
+      "type": "object",
+      "description": "A token that allows a guest to view a user's inventory history.",
+      "properties": {
+        "id": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "label": { "type": "string", "description": "A name for this helper (e.g., 'João Ajudante')" }
+      },
+      "required": ["id", "ownerId", "createdAt"]
     }
   },
   "auth": {
@@ -56,39 +59,26 @@
         "path": "/users/{userId}",
         "definition": {
           "entityName": "User",
-          "schema": {
-            "$ref": "#/backend/entities/User"
-          },
-          "description": "Stores user profile data. The document ID is the user's unique Firebase Auth ID.  This structure is chosen for path-based ownership.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user, obtained from Firebase Authentication."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/User" },
+          "description": "Stores user profile data."
+        }
+      },
+      {
+        "path": "/invites/{tokenId}",
+        "definition": {
+          "entityName": "Invite",
+          "schema": { "$ref": "#/backend/entities/Invite" },
+          "description": "Publicly accessible invitation tokens."
         }
       },
       {
         "path": "/users/{userId}/inventories/{inventoryId}",
         "definition": {
           "entityName": "Inventory",
-          "schema": {
-            "$ref": "#/backend/entities/Inventory"
-          },
-          "description": "Stores inventory data for a specific user.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user who owns the inventory."
-            },
-            {
-              "name": "inventoryId",
-              "description": "The unique ID of the inventory."
-            }
-          ]
+          "schema": { "$ref": "#/backend/entities/Inventory" },
+          "description": "Stores inventory data for a specific user."
         }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to support user authentication, user profiles, and inventory data management. It prioritizes authorization independence by avoiding `get()` calls in security rules. User data is stored in `/users/{userId}`. This structure allows for easy management of user profiles and simplifies security rules based on user ID."
+    ]
   }
 }
