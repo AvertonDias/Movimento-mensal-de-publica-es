@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState } from 'react';
@@ -41,6 +42,7 @@ export function AddCustomItemDialog({ isOpen, onClose, category }: AddCustomItem
       abbr: abbr || '',
       category,
       isCustom: true,
+      sortOrder: Date.now(), // Adiciona o campo de ordem
       createdAt: new Date().toISOString()
     }, { merge: true });
 

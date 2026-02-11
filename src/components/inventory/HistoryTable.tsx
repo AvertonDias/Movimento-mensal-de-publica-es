@@ -47,10 +47,14 @@ export function HistoryTable() {
     const combined: InventoryItem[] = [];
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
       combined.push({ ...pub, id: pub.code || `cat_${idx}` } as InventoryItem);
+      
+      // Se for uma categoria, insere itens personalizados desta categoria logo após, ordenados
       if (pub.isCategory && customDefinitions) {
-        customDefinitions
+        const categoryCustomItems = customDefinitions
           .filter(cd => cd.category === pub.item)
-          .forEach(cd => combined.push(cd as InventoryItem));
+          .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+
+        categoryCustomItems.forEach(cd => combined.push(cd as InventoryItem));
       }
     });
     return combined;
@@ -121,7 +125,7 @@ export function HistoryTable() {
             ))}
           </TableRow>
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-7">
-            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none">N.º</TableHead>
+            <TableHead className="w-[35px] text-[7px] font-bold text-black p-0 text-center leading-none">N.º</TableHead>
             <TableHead className="text-[10px] font-black text-black px-1 py-0 align-middle">Publicações</TableHead>
             
             {lastSixMonths.map((m) => (
@@ -155,7 +159,6 @@ export function HistoryTable() {
                 <TableCell className="text-[9px] px-1 py-0 border-black flex justify-between items-center h-full overflow-hidden">
                   <span className="truncate leading-none">{item.item}</span>
                   {item.abbr && <span className="font-bold ml-1 text-[7px] text-neutral-500">{item.abbr}</span>}
-                  {item.isCustom && <span className="text-[6px] text-primary ml-1 font-bold">*</span>}
                 </TableCell>
                 
                 {lastSixMonths.map((m) => (

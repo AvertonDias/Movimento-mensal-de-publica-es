@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -18,7 +19,9 @@ import {
   ChevronRight,
   Loader2,
   Info,
-  Plus
+  Plus,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -79,6 +82,7 @@ export function InventoryTable() {
   const { data: remoteItems, isLoading: isFetchingMonth } = useCollection(monthItemsQuery);
 
   const columns: InventoryColumn[] = [
+    { id: 'move', header: '', type: 'text' },
     { id: 'code', header: 'N.º', type: 'text' },
     { id: 'item', header: 'Publicação', type: 'text' },
     { id: 'previous', header: 'Estoque Anterior', type: 'number' },
@@ -104,20 +108,22 @@ export function InventoryTable() {
         current: local.current ?? remote?.current ?? 0,
       } as InventoryItem);
 
-      // Se for uma categoria, insere itens personalizados desta categoria logo após
+      // Se for uma categoria, insere itens personalizados desta categoria logo após, ordenados
       if (pub.isCategory && customDefinitions) {
-        customDefinitions
+        const categoryCustomItems = customDefinitions
           .filter(cd => cd.category === pub.item)
-          .forEach(cd => {
-            const remoteCustom = remoteItems?.find(i => i.id === cd.id);
-            const localCustom = localData[cd.id] || {};
-            combined.push({
-              ...cd,
-              previous: localCustom.previous ?? remoteCustom?.previous ?? 0,
-              received: localCustom.received ?? remoteCustom?.received ?? 0,
-              current: localCustom.current ?? remoteCustom?.current ?? 0,
-            } as InventoryItem);
-          });
+          .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+
+        categoryCustomItems.forEach(cd => {
+          const remoteCustom = remoteItems?.find(i => i.id === cd.id);
+          const localCustom = localData[cd.id] || {};
+          combined.push({
+            ...cd,
+            previous: localCustom.previous ?? remoteCustom?.previous ?? 0,
+            received: localCustom.received ?? remoteCustom?.received ?? 0,
+            current: localCustom.current ?? remoteCustom?.current ?? 0,
+          } as InventoryItem);
+        });
       }
     });
 
@@ -154,6 +160,30 @@ export function InventoryTable() {
         [field]: value,
         updatedAt: new Date().toISOString()
       }, { merge: true });
+    }
+  };
+
+  const handleMoveItem = (item: InventoryItem, direction: 'up' | 'down') => {
+    if (!user || !db || !customDefinitions) return;
+
+    const categoryCustomItems = customDefinitions
+      .filter(cd => cd.category === item.category)
+      .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
+
+    const currentIndex = categoryCustomItems.findIndex(i => i.id === item.id);
+    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+
+    if (targetIndex >= 0 && targetIndex < categoryCustomItems.length) {
+      const targetItem = categoryCustomItems[targetIndex];
+      
+      const currentRef = doc(db, 'users', user.uid, 'inventory', item.id);
+      const targetRef = doc(db, 'users', user.uid, 'inventory', targetItem.id);
+
+      const currentOrder = Number(item.sortOrder) || Date.now();
+      const targetOrder = Number(targetItem.sortOrder) || Date.now();
+
+      setDocumentNonBlocking(currentRef, { sortOrder: targetOrder }, { merge: true });
+      setDocumentNonBlocking(targetRef, { sortOrder: currentOrder }, { merge: true });
     }
   };
 
@@ -212,7 +242,10 @@ export function InventoryTable() {
             <TableHeader className="bg-primary/5">
               <TableRow>
                 {columns.map((col) => (
-                  <TableHead key={col.id} className="font-bold text-foreground py-4 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0">
+                  <TableHead key={col.id} className={cn(
+                    "font-bold text-foreground py-4 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0",
+                    col.id === 'move' && "w-[60px]"
+                  )}>
                     {col.header}
                   </TableHead>
                 ))}
@@ -244,7 +277,30 @@ export function InventoryTable() {
                   <TableRow key={item.id} className="hover:bg-accent/5 transition-colors border-b last:border-0 group">
                     {columns.map((col) => (
                       <TableCell key={col.id} className="p-1 px-3 border-r last:border-0">
-                        {col.id === 'outgoing' ? (
+                        {col.id === 'move' ? (
+                          <div className="flex flex-col items-center justify-center gap-0.5">
+                            {item.isCustom && (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-5 w-5 text-muted-foreground hover:text-primary"
+                                  onClick={() => handleMoveItem(item, 'up')}
+                                >
+                                  <ArrowUp className="h-3 w-3" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-5 w-5 text-muted-foreground hover:text-primary"
+                                  onClick={() => handleMoveItem(item, 'down')}
+                                >
+                                  <ArrowDown className="h-3 w-3" />
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        ) : col.id === 'outgoing' ? (
                           <div className={cn(
                             "py-2 font-black rounded text-sm text-center",
                             calculateOutgoing(item) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10"
