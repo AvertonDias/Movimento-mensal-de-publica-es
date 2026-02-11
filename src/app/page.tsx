@@ -1,4 +1,3 @@
-
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { BookOpen, History } from "lucide-react";
 import Link from "next/link";
@@ -30,14 +29,6 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 space-y-8">
-        <section className="bg-white p-8 rounded-2xl border border-border shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 pointer-events-none" />
-          <div className="space-y-2 relative z-10">
-            <h2 className="text-3xl font-black text-foreground font-headline">Controle de Inventário</h2>
-            <p className="text-muted-foreground text-lg">Gerencie o fluxo mensal de publicações com persistência automática.</p>
-          </div>
-        </section>
-
         <InventoryTable />
       </main>
       
