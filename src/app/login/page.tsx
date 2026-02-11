@@ -45,7 +45,7 @@ export default function LoginPage() {
           </div>
           <CardTitle className="text-2xl font-black uppercase tracking-tight">Entrar</CardTitle>
           <CardDescription className="uppercase text-[10px] font-bold tracking-widest text-muted-foreground">
-            Acesse seu Inventário Fácil
+            MOVIMENTO MENSAL DE PUBLICAÇÕES
           </CardDescription>
         </CardHeader>
         <CardContent>
