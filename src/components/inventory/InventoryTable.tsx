@@ -156,13 +156,13 @@ export function InventoryTable() {
           </div>
         </div>
 
-        <div className="relative w-full md:w-80">
+        <div className="relative w-full md:flex-1 md:max-w-2xl">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
-            placeholder="Pesquisar..." 
+            placeholder="Pesquisar por publicação, código ou sigla..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-11"
+            className="pl-10 h-11 w-full"
           />
         </div>
       </div>
