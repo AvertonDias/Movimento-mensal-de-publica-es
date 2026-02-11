@@ -82,10 +82,10 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tight text-foreground uppercase font-headline">
-                {isHelper ? 'Inventário Compartilhado' : 'Movimento Mensal'}
+                Movimento Mensal
               </h1>
               <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-[0.2em]">
-                {isHelper ? 'Ajudante Ativo' : 'Publicações • JW'}
+                Publicações • JW
               </p>
             </div>
           </div>
