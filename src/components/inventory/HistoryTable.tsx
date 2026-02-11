@@ -69,6 +69,58 @@ const ITEMS: PublicationItem[] = [
   { code: '6671', name: 'Volte para Jeová', abbr: 'rj', type: 'item' },
   { code: '6656', name: 'Verdadeira Fé', abbr: 'rk', type: 'item' },
   { code: '6630', name: 'Espíritos dos Mortos', abbr: 'sp', type: 'item' },
+  // Início da Página 2
+  { code: '6667', name: 'Melhore', abbr: 'th', type: 'item' },
+  { code: '6670', name: 'Aprenda com a Sabedoria de Jesus', abbr: 'wfg', type: 'item' },
+  { code: '6684', name: '10 Perguntas', abbr: 'ypq', type: 'item' },
+  { code: '', name: 'Outras brochuras e livretos', type: 'item' },
+  { code: '', name: 'Folhetos e convites (1 maço de 2,5 cm = 300)', type: 'category' },
+  { code: '7305', name: 'Convite para reuniões cristãs*', abbr: 'inv', type: 'item' },
+  { code: '7130', name: 'O Que Você Acha da Bíblia?*', abbr: 'T-30', type: 'item' },
+  { code: '7131', name: 'O Que Você Espera do Futuro?*', abbr: 'T-31', type: 'item' },
+  { code: '7132', name: 'Segredo para Família Feliz*', abbr: 'T-32', type: 'item' },
+  { code: '7133', name: 'Quem Controla o Mundo?*', abbr: 'T-33', type: 'item' },
+  { code: '7134', name: 'O Sofrimento Vai Acabar?*', abbr: 'T-34', type: 'item' },
+  { code: '7135', name: 'Voltar a Viver*', abbr: 'T-35', type: 'item' },
+  { code: '7136', name: 'Reino*', abbr: 'T-36', type: 'item' },
+  { code: '7137', name: 'Respostas Importantes*', abbr: 'T-37', type: 'item' },
+  { code: '', name: 'Outros folhetos e convites', type: 'item' },
+  { code: '', name: 'Cartões de visita', type: 'category' },
+  { code: '8410', name: 'Cartão de visita (imagem da Bíblia aberta)*', abbr: 'jwcd1', type: 'item' },
+  { code: '8521', name: 'Cartão de visita (apenas o logo do jw.org)*', abbr: 'jwcd4', type: 'item' },
+  { code: '8569', name: 'Cartão de visita (curso bíblico presencial)*', abbr: 'jwcd9', type: 'item' },
+  { code: '8570', name: 'Cartão de visita (curso bíblico pela internet)*', abbr: 'jwcd10', type: 'item' },
+  { code: '', name: 'Outros cartões de visita', type: 'item' },
+  { code: '', name: 'Revistas para o público', type: 'category' },
+  { code: '', name: 'Despertai! N.º 1 2018*', abbr: 'g18.1', type: 'item' },
+  { code: '', name: 'Despertai! N.º 2 2018*', abbr: 'g18.2', type: 'item' },
+  { code: '', name: 'Despertai! N.º 3 2018*', abbr: 'g18.3', type: 'item' },
+  { code: '', name: 'Despertai! N.º 1 2019*', abbr: 'g19.1', type: 'item' },
+  { code: '', name: 'Despertai! N.º 2 2019*', abbr: 'g19.2', type: 'item' },
+  { code: '', name: 'Despertai! N.º 3 2019*', abbr: 'g19.3', type: 'item' },
+  { code: '', name: 'Despertai! N.º 1 2020*', abbr: 'g20.1', type: 'item' },
+  { code: '', name: 'Despertai! N.º 2 2020*', abbr: 'g20.2', type: 'item' },
+  { code: '', name: 'Despertai! N.º 3 2020*', abbr: 'g20.3', type: 'item' },
+  { code: '', name: 'Despertai! N.º 1 2021*', abbr: 'g21.1', type: 'item' },
+  { code: '', name: 'Despertai! N.º 2 2021*', abbr: 'g21.2', type: 'item' },
+  { code: '', name: 'Despertai! N.º 3 2021*', abbr: 'g21.3', type: 'item' },
+  { code: '', name: 'Despertai! N.º 1 2022*', abbr: 'g22.1', type: 'item' },
+  { code: '', name: 'Despertai! N.º 1 2023*', abbr: 'g23.1', type: 'item' },
+  { code: '', name: 'Sentinela N.º 1 2018*', abbr: 'wp18.1', type: 'item' },
+  { code: '', name: 'Sentinela N.º 2 2018*', abbr: 'wp18.2', type: 'item' },
+  { code: '', name: 'Sentinela N.º 3 2018*', abbr: 'wp18.3', type: 'item' },
+  { code: '', name: 'Sentinela N.º 1 2019*', abbr: 'wp19.1', type: 'item' },
+  { code: '', name: 'Sentinela N.º 2 2019*', abbr: 'wp19.2', type: 'item' },
+  { code: '', name: 'Sentinela N.º 3 2019*', abbr: 'wp19.3', type: 'item' },
+  { code: '', name: 'Sentinela N.º 1 2020*', abbr: 'wp20.1', type: 'item' },
+  { code: '', name: 'Sentinela N.º 2 2020*', abbr: 'wp20.2', type: 'item' },
+  { code: '', name: 'Sentinela N.º 3 2020*', abbr: 'wp20.3', type: 'item' },
+  { code: '', name: 'Sentinela N.º 1 2021*', abbr: 'wp21.1', type: 'item' },
+  { code: '', name: 'Sentinela N.º 2 2021*', abbr: 'wp21.2', type: 'item' },
+  { code: '', name: 'Sentinela N.º 3 2021*', abbr: 'wp21.3', type: 'item' },
+  { code: '', name: 'Sentinela N.º 1 2022*', abbr: 'wp22.1', type: 'item' },
+  { code: '', name: 'Sentinela N.º 1 2023*', abbr: 'wp23.1', type: 'item' },
+  { code: '', name: 'Todas as outras revistas para o público', type: 'item' },
 ];
 
 export function HistoryTable() {
@@ -93,7 +145,7 @@ export function HistoryTable() {
           {/* Row 2: Sub-labels */}
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-12">
             <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none">N.º do item</TableHead>
-            <TableHead className="text-[12px] font-black text-black p-2 align-bottom">Bíblias</TableHead>
+            <TableHead className="text-[12px] font-black text-black p-2 align-bottom">Publicações</TableHead>
             {/* First Month Headers */}
             <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Estoque anterior</TableHead>
             <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Recebido</TableHead>
@@ -110,31 +162,6 @@ export function HistoryTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {/* Row Exemplo */}
-          <TableRow className="border-b border-black divide-x divide-black h-8 bg-white hover:bg-white italic font-bold">
-            <TableCell className="p-0"></TableCell>
-            <TableCell className="text-[12px] text-center px-4 font-black">Exemplo</TableCell>
-            <TableCell className="text-[11px] text-center p-0">212</TableCell>
-            <TableCell className="text-[11px] text-center p-0">+0</TableCell>
-            <TableCell className="text-[11px] text-center p-0">-181</TableCell>
-            <TableCell className="text-[11px] text-center p-0 bg-neutral-300/80 font-black">=31</TableCell>
-            <TableCell className="text-[11px] text-center p-0">0</TableCell>
-            <TableCell className="text-[11px] text-center p-0">140</TableCell>
-            <TableCell className="text-[11px] text-center p-0 bg-neutral-300/80 font-black">41</TableCell>
-            <TableCell className="text-[11px] text-center p-0">0</TableCell>
-            <TableCell className="text-[11px] text-center p-0">32</TableCell>
-            <TableCell className="text-[11px] text-center p-0 bg-neutral-300/80 font-black">108</TableCell>
-            <TableCell className="text-[11px] text-center p-0">100</TableCell>
-            <TableCell className="text-[11px] text-center p-0">111</TableCell>
-            <TableCell className="text-[11px] text-center p-0 bg-neutral-300/80 font-black">21</TableCell>
-            <TableCell className="text-[11px] text-center p-0">0</TableCell>
-            <TableCell className="text-[11px] text-center p-0">78</TableCell>
-            <TableCell className="text-[11px] text-center p-0 bg-neutral-300/80 font-black">33</TableCell>
-            <TableCell className="text-[11px] text-center p-0">100</TableCell>
-            <TableCell className="text-[11px] text-center p-0">70</TableCell>
-            <TableCell className="text-[11px] text-center p-0 bg-neutral-300/80 font-black">108</TableCell>
-          </TableRow>
-
           {ITEMS.map((item, idx) => {
             if (item.type === 'category') {
               return (

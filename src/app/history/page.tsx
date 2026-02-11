@@ -60,6 +60,7 @@ export default function HistoryPage() {
 
           <div className="mt-8 flex justify-between items-end border-t border-neutral-200 pt-4">
             <span className="text-[10px] font-bold text-neutral-500 italic">S-28-T 8/24</span>
+            <span className="text-[10px] font-bold text-black">1 / 2</span>
           </div>
         </div>
       </div>
