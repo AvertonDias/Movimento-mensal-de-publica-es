@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo } from 'react';
@@ -16,7 +17,6 @@ import {
   Trash2, 
   Download, 
   Search,
-  FileSpreadsheet,
   Calculator
 } from "lucide-react";
 import { 
@@ -26,7 +26,6 @@ import {
 } from "@/app/types/inventory";
 import { cn } from "@/lib/utils";
 import { ColumnManager } from "./ColumnManager";
-import { AIInsights } from "./AIInsights";
 
 export function InventoryTable() {
   const [columns, setColumns] = useState<InventoryColumn[]>(DEFAULT_COLUMNS);
@@ -191,43 +190,45 @@ export function InventoryTable() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <AIInsights inventoryData={JSON.stringify(items)} />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="md:col-span-1 lg:col-span-1">
+          <div className="bg-primary/10 p-6 rounded-xl border border-primary/20 h-full flex flex-col justify-center">
+            <h3 className="font-bold text-primary mb-2 flex items-center gap-2">
+              <Calculator className="h-4 w-4" /> Dica de Preenchimento
+            </h3>
+            <p className="text-xs text-primary-foreground/80 italic leading-relaxed">
+              * A "Saída" é calculada automaticamente: (Anterior + Recebido) - Estoque Atual. 
+              Certifique-se de realizar a contagem física mensal antes de preencher o "Estoque Atual".
+            </p>
+          </div>
         </div>
-        <div className="space-y-4">
+        
+        <div className="md:col-span-1 lg:col-span-2">
           <div className="bg-white p-6 rounded-xl shadow-sm border border-border space-y-6">
             <h3 className="font-bold flex items-center gap-2 text-lg text-primary">
               <Calculator className="h-5 w-5" />
-              Resumo Consolidado
+              Resumo Consolidado do Mês
             </h3>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center pb-2 border-b border-dashed">
-                <span className="text-muted-foreground text-sm">Total Anterior:</span>
-                <span className="font-bold">{items.reduce((acc, curr) => acc + (Number(curr.previous) || 0), 0)}</span>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="p-4 bg-muted/20 rounded-lg border border-dashed text-center">
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Total Anterior</p>
+                <p className="text-xl font-black">{items.reduce((acc, curr) => acc + (Number(curr.previous) || 0), 0)}</p>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-dashed">
-                <span className="text-muted-foreground text-sm">Total Recebido:</span>
-                <span className="font-bold text-primary">{items.reduce((acc, curr) => acc + (Number(curr.received) || 0), 0)}</span>
+              <div className="p-4 bg-primary/5 rounded-lg border border-dashed border-primary/30 text-center">
+                <p className="text-[10px] text-primary/70 uppercase font-bold mb-1">Total Recebido</p>
+                <p className="text-xl font-black text-primary">{items.reduce((acc, curr) => acc + (Number(curr.received) || 0), 0)}</p>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-dashed">
-                <span className="text-muted-foreground text-sm">Estoque Atual:</span>
-                <span className="font-bold">{items.reduce((acc, curr) => acc + (Number(curr.current) || 0), 0)}</span>
+              <div className="p-4 bg-muted/20 rounded-lg border border-dashed text-center">
+                <p className="text-[10px] text-muted-foreground uppercase font-bold mb-1">Estoque Atual</p>
+                <p className="text-xl font-black">{items.reduce((acc, curr) => acc + (Number(curr.current) || 0), 0)}</p>
               </div>
-              <div className="flex justify-between items-center pt-2">
-                <span className="font-bold text-foreground">Total de Saídas:</span>
-                <div className="bg-accent px-3 py-1 rounded-full text-accent-foreground font-black text-lg">
+              <div className="p-4 bg-accent/10 rounded-lg border border-accent/20 text-center">
+                <p className="text-[10px] text-accent-foreground/70 uppercase font-bold mb-1">Total de Saídas</p>
+                <p className="text-xl font-black text-accent-foreground">
                   {items.reduce((acc, curr) => acc + calculateOutgoing(curr), 0)}
-                </div>
+                </p>
               </div>
             </div>
-          </div>
-
-          <div className="bg-primary/10 p-4 rounded-xl border border-primary/20">
-            <p className="text-xs text-primary-foreground/80 italic leading-relaxed">
-              * A "Saída" é calculada automaticamente: (Anterior + Recebido) - Estoque Atual. 
-              Certifique-se de preencher o "Estoque Atual" após a conferência física.
-            </p>
           </div>
         </div>
       </div>
