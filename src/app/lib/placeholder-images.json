@@ -322,25 +322,25 @@
     {
       "id": "jwcd1",
       "description": "Cartão de visita Bíblia",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd1/T/pt/jwcd1_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_1_T_lg.jpg",
       "imageHint": "contact card bible"
     },
     {
       "id": "jwcd4",
       "description": "Cartão de visita Logo",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd4/T/pt/jwcd4_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_4_T_lg.jpg",
       "imageHint": "contact card logo"
     },
     {
       "id": "jwcd9",
       "description": "Cartão de visita Curso Presencial",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd9/T/pt/jwcd9_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_9_T_lg.jpg",
       "imageHint": "contact card course"
     },
     {
       "id": "jwcd10",
       "description": "Cartão de visita Curso Online",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd10/T/pt/jwcd10_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_10_T_lg.jpg",
       "imageHint": "contact card online"
     },
     {
@@ -348,6 +348,18 @@
       "description": "Capa do livro Instrutor",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lr/T/pt/lr_T_lg.jpg",
       "imageHint": "teacher book"
+    },
+    {
+      "id": "sjj",
+      "description": "Cancioneiro Cante de Coração",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/sjj/T/pt/sjj_T_lg.jpg",
+      "imageHint": "songbook cover"
+    },
+    {
+      "id": "scl",
+      "description": "Livro Princípios Bíblicos",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/scl/T/pt/scl_T_lg.jpg",
+      "imageHint": "bible principles"
     }
   ]
 }
