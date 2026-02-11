@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -347,7 +348,7 @@ export function InventoryTable() {
                                       fill
                                       sizes="180px"
                                       className="object-cover"
-                                      priority
+                                      priority={true}
                                     />
                                     <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-white text-[10px] font-black uppercase text-center backdrop-blur-md">
                                       {item.item}
