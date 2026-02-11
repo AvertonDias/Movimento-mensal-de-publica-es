@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -18,7 +17,8 @@ import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Loader2
+  Loader2,
+  Info
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -154,17 +154,25 @@ export function InventoryTable() {
     <div className="space-y-6">
       {/* Header Controls */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
-        <div className="flex items-center gap-3 bg-neutral-100 p-1 rounded-lg border">
-          <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-9 w-9">
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex items-center gap-2 px-4 font-bold text-sm uppercase tracking-wider min-w-[180px] justify-center">
-            <CalendarIcon className="h-4 w-4 text-primary" />
-            {monthName}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-3 bg-neutral-100 p-1 rounded-lg border">
+            <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-9 w-9">
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center gap-2 px-4 font-bold text-sm uppercase tracking-wider min-w-[180px] justify-center">
+              <CalendarIcon className="h-4 w-4 text-primary" />
+              {monthName}
+            </div>
+            <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-9 w-9">
+              <ChevronRight className="h-4 w-4" />
+            </Button>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-9 w-9">
-            <ChevronRight className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center gap-1.5 px-1">
+            <Info className="h-3 w-3 text-muted-foreground" />
+            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+              Nota: Os lançamentos devem ser referentes ao fechamento do mês anterior.
+            </p>
+          </div>
         </div>
 
         <div className="relative w-full md:w-80">
