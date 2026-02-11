@@ -28,6 +28,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cms-imgp.jw-cdn.org',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
