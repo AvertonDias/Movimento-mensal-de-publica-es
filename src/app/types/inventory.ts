@@ -75,7 +75,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '6654', item: 'A Vida — Teve um Criador?*', abbr: 'lc', category: 'Brochuras', imageKey: 'lc' },
   { code: '6658', item: 'Escute a Deus', abbr: 'ld', category: 'Brochuras', imageKey: 'ld' },
   { code: '6655', item: 'Origem da Vida*', abbr: 'lf', category: 'Brochuras', imageKey: 'lf' },
-  { code: '6545', item: 'Seja Feliz para Sempre! (brochura)*', abbr: 'lffi', category: 'Brochuras', imageKey: 'lff' },
+  { code: '65445', item: 'Seja Feliz para Sempre! (brochura)*', abbr: 'lffi', category: 'Brochuras', imageKey: 'lff' },
   { code: '6669', item: 'Ame as Pessoas', abbr: 'lmd', category: 'Brochuras', imageKey: 'lmd' },
   { code: '6663', item: 'Minhas Lições da Bíblia', abbr: 'mb', category: 'Brochuras', imageKey: 'mb' },
   { code: '6648', item: 'Caminho para a Vida', abbr: 'ol', category: 'Brochuras', imageKey: 'ol' },
