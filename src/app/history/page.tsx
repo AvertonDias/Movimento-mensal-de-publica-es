@@ -60,7 +60,6 @@ export default function HistoryPage(props: {
 
           <div className="mt-4 flex justify-between items-end border-t border-neutral-200 pt-2 print:mt-2">
             <span className="text-[8px] font-bold text-neutral-500 italic uppercase">S-28-T 8/24</span>
-            <span className="text-[8px] font-bold text-black text-right uppercase">Registro digital sincronizado com a tela principal.</span>
           </div>
         </div>
       </div>
