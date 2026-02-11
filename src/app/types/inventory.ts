@@ -50,7 +50,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '5419', item: 'Imite a Sua Fé', abbr: 'ia', category: 'Livros', imageKey: 'ia' },
   { code: '5425', item: 'Jesus — O Caminho', abbr: 'jy', category: 'Livros', imageKey: 'jy' },
   { code: '5422', item: 'O Reino de Deus já Governa!', abbr: 'kr', category: 'Livros', imageKey: 'kr' },
-  { code: '5427', item: 'Lições que Você Pode Aprender da Bíblia', abbr: 'lfb', category: 'Livros', imageKey: 'lfb' },
+  { code: '5427', item: 'Historias da Bíblia', abbr: 'lfb', category: 'Livros', imageKey: 'lfb' },
   { code: '5445', item: 'Seja Feliz para Sempre! (livro)*', abbr: 'lff', category: 'Livros', imageKey: 'lff' },
   { code: '5415', item: 'Instrutor', abbr: 'lr', category: 'Livros', imageKey: 'lr' },
   { code: '5343', item: 'Continue', abbr: 'lvs', category: 'Livros', imageKey: 'lvs' },
