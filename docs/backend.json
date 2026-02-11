@@ -1,97 +1,44 @@
-
 {
   "entities": {
-    "InventoryItem": {
+    "User": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "InventoryItem",
+      "title": "User",
       "type": "object",
-      "description": "Represents an item in the inventory.",
+      "description": "Represents a user of the Inventário Fácil application.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the inventory item."
+          "description": "Unique identifier for the user entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
         },
         "name": {
           "type": "string",
-          "description": "Name of the inventory item."
+          "description": "Full name of the user."
         },
-        "category": {
+        "createdAt": {
           "type": "string",
-          "description": "Category of the inventory item."
-        },
-        "stock": {
-          "type": "number",
-          "description": "Current stock level of the item."
-        },
-        "received": {
-          "type": "number",
-          "description": "Quantity of the item received."
-        },
-        "issued": {
-          "type": "number",
-          "description": "Quantity of the item issued."
-        },
-        "unit": {
-          "type": "string",
-          "description": "Unit of measure for the item."
-        },
-        "dateAdded": {
-          "type": "string",
-          "description": "Date when the item was added to the inventory.",
+          "description": "Timestamp indicating when the user account was created.",
           "format": "date-time"
         },
-        "customFields": {
+        "lastLogin": {
           "type": "string",
-          "description": "JSON string of any custom fields required",
-          "format": "string"
+          "description": "Timestamp indicating the last time the user logged in.",
+          "format": "date-time"
+        },
+        "googleId": {
+          "type": "string",
+          "description": "Unique identifier from Google OAuth, if the user registered with Google."
         }
       },
       "required": [
         "id",
+        "email",
         "name",
-        "stock",
-        "received",
-        "issued"
-      ]
-    },
-    "InventoryHistory": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "InventoryHistory",
-      "type": "object",
-      "description": "Represents a historical record of inventory changes.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the inventory history record."
-        },
-        "inventoryItemId": {
-          "type": "string",
-          "description": "Reference to InventoryItem. (Relationship: InventoryItem 1:N InventoryHistory)"
-        },
-        "date": {
-          "type": "string",
-          "description": "Date of the inventory change.",
-          "format": "date-time"
-        },
-        "type": {
-          "type": "string",
-          "description": "Type of inventory change (e.g., Received, Issued, Adjustment)."
-        },
-        "quantity": {
-          "type": "number",
-          "description": "Quantity of items changed."
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of why the history record was written."
-        }
-      },
-      "required": [
-        "id",
-        "inventoryItemId",
-        "date",
-        "type",
-        "quantity"
+        "createdAt"
       ]
     }
   },
@@ -104,49 +51,42 @@
   "firestore": {
     "structure": [
       {
-        "path": "/users/{userId}/inventory/{inventoryItemId}",
+        "path": "/users/{userId}",
         "definition": {
-          "entityName": "InventoryItem",
+          "entityName": "User",
           "schema": {
-            "$ref": "#/backend/entities/InventoryItem"
+            "$ref": "#/backend/entities/User"
           },
-          "description": "Stores inventory items specific to a user.",
+          "description": "Stores user profile data. The document ID is the user's unique Firebase Auth ID.  This structure is chosen for path-based ownership.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "inventoryItemId",
-              "description": "The unique identifier of the inventory item."
+              "description": "The unique ID of the user, obtained from Firebase Authentication."
             }
           ]
         }
       },
       {
-        "path": "/users/{userId}/monthly_records/{month}/items/{itemId}",
+        "path": "/users/{userId}/inventories/{inventoryId}",
         "definition": {
-          "entityName": "InventoryItem",
+          "entityName": "Inventory",
           "schema": {
-            "$ref": "#/backend/entities/InventoryItem"
+            "$ref": "#/backend/entities/Inventory"
           },
-          "description": "Stores monthly inventory records for a user.",
+          "description": "Stores inventory data for a specific user.",
           "params": [
             {
               "name": "userId",
-              "description": "The unique identifier of the user."
+              "description": "The unique ID of the user who owns the inventory."
             },
             {
-              "name": "month",
-              "description": "The month key (e.g., 2026-02)."
-            },
-            {
-              "name": "itemId",
-              "description": "The unique identifier of the item."
+              "name": "inventoryId",
+              "description": "The unique ID of the inventory."
             }
           ]
         }
       }
-    ]
+    ],
+    "reasoning": "The Firestore structure is designed to support user authentication, user profiles, and inventory data management. It prioritizes authorization independence by avoiding `get()` calls in security rules. User data is stored in `/users/{userId}`. This structure allows for easy management of user profiles and simplifies security rules based on user ID.\n\nThe structure also supports the required features:\n*   **Entrada de Dados Personalizável:** Data fields for items can be added to Inventory item documents in `/users/{userId}/inventories/{inventoryId}`\n*   **Adicionar/Remover Linhas e Colunas**: This will be implemented in the UI. The database does not restrict the addition/removal of fields on a document.\n*   **Cálculos Automáticos**: This will be handled client side with formulas based on the data in each document.\n*   **Filtros e Pesquisas**: Firestore queries will be used to perform filtering and searching on the data.\n*   **Exportação de Dados**: UI implementation using client side tools to export from Firebase data into CSV/Excel.\n*   **Integração com o JW Hub (Generativo)**: The data will be provided to a Generative AI system that will be separate from the Firebase database."
   }
 }

@@ -4,27 +4,90 @@ service cloud.firestore {
 
     /**
      * CORE PHILOSOPHY
-     * Personal inventory management system with a strict user-ownership model.
-     * All data nested under /users/{userId} is owned and accessible only by that user.
+     * This ruleset implements a strict path-based ownership model for the Inventário Fácil application. 
+     * Security is centered around the Firebase Authentication UID, ensuring that users can only 
+     * access data within their own dedicated tree (/users/{userId}/...).
+     * 
+     * DATA STRUCTURE
+     * The database follows a hierarchical user-centric structure:
+     * - /users/{userId}: Profile information for the authenticated user.
+     * - /users/{userId}/inventories/{inventoryId}: Private inventory documents owned by the user.
+     * 
+     * KEY SECURITY DECISIONS
+     * 1. Path-Based Authorization: We rely on the {userId} wildcard in the path to authorize 
+     *    requests, matching it against the request.auth.uid. This provides high performance by 
+     *    avoiding cross-document lookups (get() calls).
+     * 2. Strict Privacy: There are no public collections. Users cannot list or read other users' profiles.
+     * 3. Relational Integrity: On creation of a user profile, we enforce that the 'id' field within 
+     *    the document matches the document ID and the user's authenticated UID.
+     * 4. Prototyping Flexibility: While ownership is strictly enforced, the specific data fields 
+     *    (schema) within inventory documents are flexible to allow for "Customizable Data Entry."
      */
 
+    // --- GLOBAL HELPER FUNCTIONS ---
+
+    /**
+     * @description Checks if the request is made by a signed-in user.
+     */
     function isSignedIn() {
       return request.auth != null;
     }
 
+    /**
+     * @description Checks if the authenticated user matches the provided userId.
+     */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    // Root user document rules
-    match /users/{userId} {
-      allow get, create, update, delete: if isOwner(userId);
-      allow list: if false;
+    /**
+     * @description Ensures the user is the owner and the document exists for state-changing operations.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
 
-      // Allow recursive access to all subcollections for the owner
-      match /{document=**} {
-        allow read, write: if isOwner(userId);
+    // --- COLLECTION RULES ---
+
+    /**
+     * @description Rules for the User profile entity. Allows users to manage their own profile.
+     * @path /users/{userId}
+     * @allow Authenticated user (create) where uid == userId.
+     * @deny Any user (get) trying to read a profile that is not their own.
+     * @principle Enforces self-creation and strict document ownership based on the Auth UID.
+     */
+    match /users/{userId} {
+      allow get, list: if isOwner(userId);
+      
+      allow create: if isOwner(userId) 
+                    && request.resource.data.id == userId;
+      
+      allow update: if isExistingOwner(userId)
+                    && request.resource.data.id == resource.data.id;
+      
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Rules for Inventories nested under a user.
+       * @path /users/{userId}/inventories/{inventoryId}
+       * @allow User 'abc' (list) their own inventories at /users/abc/inventories.
+       * @deny User 'abc' (update) an inventory at /users/xyz/inventories/123.
+       * @principle Hierarchical ownership: access to subcollections is predicated on parent path ownership.
+       */
+      match /inventories/{inventoryId} {
+        allow get, list: if isOwner(userId);
+        
+        allow create: if isOwner(userId);
+        
+        allow update: if isExistingOwner(userId);
+        
+        allow delete: if isExistingOwner(userId);
       }
+    }
+
+    // Default deny for any unmatched paths
+    match /{path=**} {
+      allow read, write: if false;
     }
   }
 }
