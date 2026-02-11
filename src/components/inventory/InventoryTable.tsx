@@ -57,6 +57,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -173,7 +174,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               <ChevronLeft className="h-4 w-4" />
             </Button>
             
-            <Popover>
+            <Popover open={isMonthPopoverOpen} onOpenChange={setIsMonthPopoverOpen}>
               <PopoverTrigger asChild>
                 <Button variant="ghost" className="px-2 font-bold text-xs uppercase tracking-wider min-w-[140px] justify-center gap-2 h-8">
                   <CalendarIcon className="h-3.5 w-3.5 text-primary" />
@@ -203,7 +204,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             "h-9 text-[10px] font-bold uppercase",
                             isSelected && "bg-primary text-primary-foreground"
                           )}
-                          onClick={() => setSelectedMonth(date)}
+                          onClick={() => {
+                            setSelectedMonth(date);
+                            setIsMonthPopoverOpen(false);
+                          }}
                         >
                           {format(date, 'MMM', { locale: ptBR })}
                         </Button>
