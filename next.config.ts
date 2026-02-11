@@ -34,6 +34,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cfp2.jw-cdn.org',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
