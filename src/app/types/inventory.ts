@@ -75,7 +75,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '6654', item: 'A Vida — Teve um Criador?*', abbr: 'lc', category: 'Brochuras', imageKey: 'lc' },
   { code: '6658', item: 'Escute a Deus', abbr: 'ld', category: 'Brochuras', imageKey: 'ld' },
   { code: '6655', item: 'Origem da Vida*', abbr: 'lf', category: 'Brochuras', imageKey: 'lf' },
-  { code: '65445', item: 'Seja Feliz para Sempre! (brochura)*', abbr: 'lffi', category: 'Brochuras', imageKey: 'lff' },
+  { code: '654445', item: 'Seja Feliz para Sempre! (brochura)*', abbr: 'lffi', category: 'Brochuras', imageKey: 'lff' },
   { code: '6657', item: 'Escute e Viva*', abbr: 'll', category: 'Brochuras' },
   { code: '6669', item: 'Ame as Pessoas', abbr: 'lmd', category: 'Brochuras', imageKey: 'lmd' },
   { code: '6663', item: 'Minhas Lições da Bíblia', abbr: 'mb', category: 'Brochuras', imageKey: 'mb' },
@@ -99,9 +99,6 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '7135', item: 'Voltar a Viver*', abbr: 't-35', category: 'Folhetos', imageKey: 't-35' },
   { code: '7136', item: 'Reino*', abbr: 't-36', category: 'Folhetos', imageKey: 't-36' },
   { code: '7137', item: 'Respostas Importantes*', abbr: 't-37', category: 'Folhetos', imageKey: 't-37' },
-  { code: '7138', item: 'O Reino de Deus — O que é para você?*', abbr: 't-38', category: 'Folhetos', imageKey: 't-38' },
-  { code: '7139', item: 'Onde encontrar as respostas?*', abbr: 't-39', category: 'Folhetos', imageKey: 't-39' },
-  { code: '', item: 'Outros folhetos e convites', category: 'Folhetos' },
   
   { code: '', item: 'Cartões de visita', category: 'Cartões', isCategory: true },
   { code: '8410', item: 'Cartão de visita (imagem da Bíblia aberta)*', abbr: 'jwcd1', category: 'Cartões', imageKey: 'jwcd1' },
