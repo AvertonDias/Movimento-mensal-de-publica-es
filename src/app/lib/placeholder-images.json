@@ -26,16 +26,40 @@
       "imageHint": "spiritual guide"
     },
     {
-      "id": "wp",
-      "description": "Capa da revista A Sentinela",
-      "imageUrl": "https://images.unsplash.com/photo-1620482060657-38b4bb0ab9c8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxtYWdhemluZSUyMGNvdmVyfGVufDB8fHx8MTc3MDc4MzI0MHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "magazine cover"
+      "id": "ia",
+      "description": "Capa do livro Imite a Sua Fé",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ia/T/pt/ia_T_lg.jpg",
+      "imageHint": "faith book"
     },
     {
-      "id": "g",
-      "description": "Capa da revista Despertai!",
-      "imageUrl": "https://images.unsplash.com/photo-1579947661804-4247c26fcdec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxuZXdzJTIwbWFnYXppbmV8ZW58MHx8fHwxNzcwODEwMjI3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "news magazine"
+      "id": "jy",
+      "description": "Capa do livro Jesus — O Caminho",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jy/T/pt/jy_T_lg.jpg",
+      "imageHint": "jesus life"
+    },
+    {
+      "id": "fg",
+      "description": "Capa da brochura Boas Notícias",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/fg/T/pt/fg_T_lg.jpg",
+      "imageHint": "good news"
+    },
+    {
+      "id": "th",
+      "description": "Capa da brochura Melhore",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/th/T/pt/th_T_lg.jpg",
+      "imageHint": "teaching brochure"
+    },
+    {
+      "id": "wp24",
+      "description": "A Sentinela 2024",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/T/pt/wp_T_lg.jpg",
+      "imageHint": "watchtower 2024"
+    },
+    {
+      "id": "g24",
+      "description": "Despertai! 2024",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/T/pt/g_T_lg.jpg",
+      "imageHint": "awake 2024"
     }
   ]
 }
