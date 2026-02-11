@@ -10,21 +10,22 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow get, list: if isOwner(userId);
-      allow create, update, delete: if isOwner(userId);
+      // Permite leitura do perfil para identificar o dono no convite
+      allow get: if true;
+      allow list, create, update, delete: if isOwner(userId);
 
       match /inventory/{itemId} {
-        allow read, write: if isOwner(userId);
+        // Ajudantes precisam ler as definições de itens customizados
+        allow read: if true;
+        allow write: if isOwner(userId);
       }
 
       match /monthly_records/{monthKey} {
-        // Permite leitura se for o dono OU se o request vier de um convidado com token válido
-        allow read: if isOwner(userId) || (
-          request.query.limit <= 100 // Proteção básica
-        );
+        // Ajudantes precisam ler o histórico compartilhado
+        allow read: if true;
         
         match /items/{itemId} {
-          allow read: if isOwner(userId) || true; // Acesso controlado pela página de convidado
+          allow read: if true;
           allow write: if isOwner(userId);
         }
       }
