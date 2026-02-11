@@ -20,12 +20,6 @@
       "imageHint": "study book"
     },
     {
-      "id": "lff",
-      "description": "Capa oficial do Seja Feliz para Sempre!",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lffi/T/pt/lffi_T_lg.jpg",
-      "imageHint": "spiritual guide"
-    },
-    {
       "id": "ia",
       "description": "Capa do livro Imite a Sua Fé",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ia/T/pt/ia_T_lg.jpg",
@@ -50,6 +44,12 @@
       "imageHint": "teaching brochure"
     },
     {
+      "id": "lff",
+      "description": "Capa oficial do Seja Feliz para Sempre!",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lffi/T/pt/lffi_T_lg.jpg",
+      "imageHint": "spiritual guide"
+    },
+    {
       "id": "wp24",
       "description": "A Sentinela 2024",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/T/pt/wp_T_lg.jpg",
@@ -60,6 +60,84 @@
       "description": "Despertai! 2024",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/T/pt/g_T_lg.jpg",
       "imageHint": "awake 2024"
+    },
+    {
+      "id": "cl",
+      "description": "Capa do livro Achegue-se",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/cl/T/pt/cl_T_lg.jpg",
+      "imageHint": "draw close"
+    },
+    {
+      "id": "bt",
+      "description": "Capa do livro Testemunho Cabal",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/bt/T/pt/bt_T_lg.jpg",
+      "imageHint": "bearing witness"
+    },
+    {
+      "id": "cf",
+      "description": "Capa do livro Meu Seguidor",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/cf/T/pt/cf_T_lg.jpg",
+      "imageHint": "come follow"
+    },
+    {
+      "id": "kr",
+      "description": "Capa do livro O Reino de Deus já Governa",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/kr/T/pt/kr_T_lg.jpg",
+      "imageHint": "gods kingdom"
+    },
+    {
+      "id": "lvs",
+      "description": "Capa do livro Continue",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lvs/T/pt/lvs_T_lg.jpg",
+      "imageHint": "remain god"
+    },
+    {
+      "id": "od",
+      "description": "Capa do livro Organizados",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/od/T/pt/od_T_lg.jpg",
+      "imageHint": "organized book"
+    },
+    {
+      "id": "rr",
+      "description": "Capa do livro Adoração Pura",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/rr/T/pt/rr_T_lg.jpg",
+      "imageHint": "pure worship"
+    },
+    {
+      "id": "yp1",
+      "description": "Jovens Perguntam Vol 1",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/yp1/T/pt/yp1_T_lg.jpg",
+      "imageHint": "youth questions"
+    },
+    {
+      "id": "yp2",
+      "description": "Jovens Perguntam Vol 2",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/yp2/T/pt/yp2_T_lg.jpg",
+      "imageHint": "youth questions 2"
+    },
+    {
+      "id": "mb",
+      "description": "Minhas Lições da Bíblia",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/mb/T/pt/mb_T_lg.jpg",
+      "imageHint": "bible lessons"
+    },
+    {
+      "id": "lmd",
+      "description": "Ame as Pessoas",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lmd/T/pt/lmd_T_lg.jpg",
+      "imageHint": "love people"
+    },
+    {
+      "id": "it1",
+      "description": "Estudo Perspicaz Vol 1",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/it1/T/pt/it1_T_lg.jpg",
+      "imageHint": "insight vol 1"
+    },
+    {
+      "id": "it2",
+      "description": "Estudo Perspicaz Vol 2",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/it2/T/pt/it2_T_lg.jpg",
+      "imageHint": "insight vol 2"
     }
   ]
 }
