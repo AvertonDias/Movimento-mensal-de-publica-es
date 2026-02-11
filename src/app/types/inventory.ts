@@ -27,6 +27,7 @@ export interface InventoryItem {
 export const DEFAULT_COLUMNS: InventoryColumn[] = [
   { id: 'code', header: 'N.º', type: 'text' },
   { id: 'item', header: 'Publicação', type: 'text' },
+  { id: 'previous', header: 'Estoque Anterior', type: 'number' },
   { id: 'received', header: 'Recebido', type: 'number' },
   { id: 'current', header: 'Estoque Atual', type: 'number' },
   { id: 'outgoing', header: 'Saída', type: 'calculated' },
