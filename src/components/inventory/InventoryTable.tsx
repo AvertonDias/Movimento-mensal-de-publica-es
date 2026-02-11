@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -336,17 +335,21 @@ export function InventoryTable() {
                                     {item.item}
                                   </span>
                                 </PopoverTrigger>
-                                <PopoverContent side="right" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg z-[100] w-[220px]">
+                                <PopoverContent 
+                                  side="top" 
+                                  align="center" 
+                                  className="p-0 border-none shadow-2xl overflow-hidden rounded-lg z-[100] w-[180px] mb-2"
+                                >
                                   <div className="relative w-full aspect-[2/3] bg-white">
                                     <Image 
                                       src={imagePlaceholder.imageUrl} 
                                       alt={imagePlaceholder.description}
                                       fill
-                                      sizes="220px"
+                                      sizes="180px"
                                       className="object-cover"
                                       priority
                                     />
-                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-3 text-white text-[11px] font-black uppercase text-center backdrop-blur-md">
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-white text-[10px] font-black uppercase text-center backdrop-blur-md">
                                       {item.item}
                                     </div>
                                   </div>
