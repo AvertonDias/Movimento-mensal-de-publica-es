@@ -13,8 +13,6 @@ import { cn } from "@/lib/utils";
 
 /**
  * Página de Gerenciamento de Ajudantes
- * Permite ao usuário gerar links de acesso único para seu histórico.
- * O nome do ajudante é preenchido automaticamente quando ele acessa o link.
  */
 export default function HelpersPage() {
   const { user } = useUser();
@@ -32,14 +30,14 @@ export default function HelpersPage() {
   const handleCreateInvite = () => {
     if (!user || !db) return;
 
-    // Gera um ID de token aleatório e seguro
     const tokenId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const inviteRef = doc(db, 'invites', tokenId);
 
     setDocumentNonBlocking(inviteRef, {
       id: tokenId,
       ownerId: user.uid,
-      label: 'Aguardando acesso...', // Texto padrão até o ajudante entrar
+      ownerName: user.displayName || user.email?.split('@')[0] || 'Dono',
+      label: 'Aguardando cadastro...',
       createdAt: new Date().toISOString()
     }, { merge: true });
 
@@ -50,11 +48,12 @@ export default function HelpersPage() {
   };
 
   const copyToClipboard = (tokenId: string) => {
-    const url = `${window.location.origin}/guest/${tokenId}`;
+    // Agora o link leva para a página de registro com o token
+    const url = `${window.location.origin}/register?token=${tokenId}`;
     navigator.clipboard.writeText(url);
     toast({
       title: "Link copiado!",
-      description: "O link de acesso único está na sua área de transferência.",
+      description: "Envie este link para que o ajudante se cadastre e acesse seu inventário.",
     });
   };
 
@@ -83,10 +82,10 @@ export default function HelpersPage() {
           <CardHeader>
             <CardTitle className="uppercase text-lg flex items-center gap-2">
               <LinkIcon className="h-5 w-5 text-primary" />
-              Novo Link de Acesso
+              Novo Link de Convite
             </CardTitle>
             <CardDescription className="text-xs font-bold uppercase tracking-wider">
-              Gere um link para que outros vejam seu histórico S-28-T. O nome do ajudante será preenchido automaticamente assim que ele fizer o primeiro acesso.
+              Gere um link para que outra pessoa se cadastre no app e ajude a gerenciar seu inventário.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -94,20 +93,20 @@ export default function HelpersPage() {
               onClick={handleCreateInvite} 
               className="w-full bg-primary hover:bg-primary/90 font-bold uppercase text-xs py-6 shadow-md transition-all active:scale-95"
             >
-              <Plus className="h-5 w-5 mr-2" /> Gerar Novo Link de Acesso
+              <Plus className="h-5 w-5 mr-2" /> Gerar Novo Link de Convite
             </Button>
           </CardContent>
         </Card>
 
         <div className="space-y-4">
           <h2 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-            Links Ativos ({myInvites.length})
+            Convites Ativos ({myInvites.length})
           </h2>
           
           {myInvites.length === 0 ? (
             <div className="bg-white p-12 text-center rounded-xl border border-dashed border-neutral-300">
               <Users className="h-12 w-12 text-neutral-200 mx-auto mb-4" />
-              <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Nenhum link gerado</p>
+              <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Nenhum convite gerado</p>
             </div>
           ) : (
             <div className="grid gap-4">
@@ -117,7 +116,7 @@ export default function HelpersPage() {
                     <div className="space-y-1 text-center sm:text-left">
                       <p className={cn(
                         "font-black text-sm uppercase",
-                        invite.label === 'Aguardando acesso...' ? "text-muted-foreground italic" : "text-foreground"
+                        invite.label === 'Aguardando cadastro...' ? "text-muted-foreground italic" : "text-foreground"
                       )}>
                         {invite.label}
                       </p>
@@ -134,11 +133,6 @@ export default function HelpersPage() {
                       >
                         <Copy className="h-3.5 w-3.5" /> Copiar Link
                       </Button>
-                      <Link href={`/guest/${invite.id}`} target="_blank">
-                        <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-primary/10">
-                          <ExternalLink className="h-4 w-4 text-primary" />
-                        </Button>
-                      </Link>
                       <Button 
                         variant="ghost" 
                         size="icon" 

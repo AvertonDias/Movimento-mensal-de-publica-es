@@ -8,33 +8,35 @@ service cloud.firestore {
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
+    
+    // Função que verifica se o usuário é um ajudante autorizado para aquele proprietário
+    function isAuthorizedHelper(ownerId) {
+      return isSignedIn() && exists(/databases/$(database)/documents/invites/$(request.auth.uid)) && 
+             get(/databases/$(database)/documents/invites/$(request.auth.uid)).data.ownerId == ownerId;
+    }
 
     match /users/{userId} {
-      // Permite leitura do perfil para identificar o dono no convite
       allow get: if true;
       allow list, create, update, delete: if isOwner(userId);
 
       match /inventory/{itemId} {
-        // Ajudantes precisam ler as definições de itens customizados
         allow read: if true;
-        allow write: if isOwner(userId);
+        allow write: if isOwner(userId) || isAuthorizedHelper(userId);
       }
 
       match /monthly_records/{monthKey} {
-        // Ajudantes precisam ler o histórico compartilhado
         allow read: if true;
         
         match /items/{itemId} {
           allow read: if true;
-          allow write: if isOwner(userId);
+          allow write: if isOwner(userId) || isAuthorizedHelper(userId);
         }
       }
     }
 
     match /invites/{tokenId} {
       allow read: if true;
-      allow create: if isSignedIn() && request.resource.data.ownerId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.ownerId == request.auth.uid;
+      allow create, update, delete: if isSignedIn();
     }
 
     match /{path=**} {

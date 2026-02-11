@@ -48,7 +48,11 @@ import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
 
-export function InventoryTable() {
+interface InventoryTableProps {
+  targetUserId?: string;
+}
+
+export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const db = useFirestore();
@@ -64,6 +68,9 @@ export function InventoryTable() {
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
 
+  // UID ativo: se for passado um targetUserId (visão compartilhada), usamos ele. Caso contrário, o do usuário logado.
+  const activeUid = targetUserId || user?.uid;
+
   useEffect(() => {
     if (!isUserLoading && !user) {
       initiateAnonymousSignIn(auth);
@@ -71,16 +78,16 @@ export function InventoryTable() {
   }, [user, isUserLoading, auth]);
 
   const customItemsQuery = useMemoFirebase(() => {
-    if (!db || !user) return null;
-    return collection(db, 'users', user.uid, 'inventory');
-  }, [db, user]);
+    if (!db || !activeUid) return null;
+    return collection(db, 'users', activeUid, 'inventory');
+  }, [db, activeUid]);
 
   const { data: customDefinitions } = useCollection(customItemsQuery);
 
   const monthItemsQuery = useMemoFirebase(() => {
-    if (!db || !user) return null;
-    return collection(db, 'users', user.uid, 'monthly_records', monthKey, 'items');
-  }, [db, user, monthKey]);
+    if (!db || !activeUid || !monthKey) return null;
+    return collection(db, 'users', activeUid, 'monthly_records', monthKey, 'items');
+  }, [db, activeUid, monthKey]);
 
   const { data: remoteItems, isLoading: isFetchingMonth } = useCollection(monthItemsQuery);
 
@@ -136,14 +143,14 @@ export function InventoryTable() {
   };
 
   const handleUpdateItem = (id: string, field: string, value: number) => {
-    if (!user || !db) return;
+    if (!activeUid || !db) return;
 
     setLocalData(prev => ({
       ...prev,
       [id]: { ...prev[id], [field]: value }
     }));
 
-    const docRef = doc(db, 'users', user.uid, 'monthly_records', monthKey, 'items', id);
+    const docRef = doc(db, 'users', activeUid, 'monthly_records', monthKey, 'items', id);
     const itemData = items.find(i => i.id === id);
     if (itemData) {
       setDocumentNonBlocking(docRef, {
@@ -289,7 +296,7 @@ export function InventoryTable() {
                               ) : (
                                 <span className="text-sm font-medium text-foreground truncate">{item.item}</span>
                               )}
-                              {item.isCustom && (
+                              {item.isCustom && activeUid === user?.uid && (
                                 <Button 
                                   variant="ghost" 
                                   size="icon" 
@@ -321,7 +328,7 @@ export function InventoryTable() {
         </div>
       </div>
       
-      {activeCategory && (
+      {activeCategory && activeUid === user?.uid && (
         <AddCustomItemDialog 
           isOpen={isAddDialogOpen} 
           onClose={() => setIsAddDialogOpen(false)} 
@@ -329,7 +336,7 @@ export function InventoryTable() {
         />
       )}
 
-      {editingItem && (
+      {editingItem && activeUid === user?.uid && (
         <EditCustomItemDialog 
           item={editingItem} 
           onClose={() => setEditingItem(null)} 

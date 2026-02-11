@@ -36,12 +36,14 @@
     "Invite": {
       "title": "Invite",
       "type": "object",
-      "description": "A token that allows a guest to view a user's inventory history.",
+      "description": "A token that allows a registered helper to access a user's inventory.",
       "properties": {
         "id": { "type": "string" },
         "ownerId": { "type": "string" },
+        "helperId": { "type": "string", "description": "UID of the user who accepted the invite." },
+        "ownerName": { "type": "string" },
         "createdAt": { "type": "string", "format": "date-time" },
-        "label": { "type": "string", "description": "A name for this helper (e.g., 'João Ajudante')" }
+        "label": { "type": "string", "description": "Name of the helper." }
       },
       "required": ["id", "ownerId", "createdAt"]
     },
