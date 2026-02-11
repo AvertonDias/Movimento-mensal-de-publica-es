@@ -106,26 +106,26 @@ export default function Home() {
             )}
 
             <div className="hidden lg:flex items-center gap-2">
-              {!isHelper && (
-                <Link href="/helpers">
-                  <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
-                    <Users className="h-4 w-4" />
-                    Ajudantes
-                  </Button>
-                </Link>
-              )}
+              <Link href="/history">
+                <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
+                  <History className="h-4 w-4" />
+                  Histórico S-28-T
+                </Button>
+              </Link>
               <Link href="/stats">
                 <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
                   <BarChart3 className="h-4 w-4" />
                   Estatísticas
                 </Button>
               </Link>
-              <Link href="/history">
-                <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border hover:bg-neutral-50 h-9">
-                  <History className="h-4 w-4" />
-                  S-28-T Histórico
-                </Button>
-              </Link>
+              {!isHelper && (
+                <Link href="/helpers">
+                  <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border hover:bg-neutral-50 h-9">
+                    <Users className="h-4 w-4" />
+                    Ajudantes
+                  </Button>
+                </Link>
+              )}
             </div>
 
             <DropdownMenu>
@@ -147,6 +147,16 @@ export default function Home() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <Link href="/history">
+                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                    <History className="mr-2 h-4 w-4" /> Histórico S-28-T
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/stats">
+                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                    <BarChart3 className="mr-2 h-4 w-4" /> Estatísticas
+                  </DropdownMenuItem>
+                </Link>
                 {!isHelper && (
                   <Link href="/helpers">
                     <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
@@ -154,16 +164,6 @@ export default function Home() {
                     </DropdownMenuItem>
                   </Link>
                 )}
-                <Link href="/stats">
-                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <BarChart3 className="mr-2 h-4 w-4" /> Estatísticas
-                  </DropdownMenuItem>
-                </Link>
-                <Link href="/history">
-                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <History className="mr-2 h-4 w-4" /> Histórico S-28-T
-                  </DropdownMenuItem>
-                </Link>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" /> Sair
