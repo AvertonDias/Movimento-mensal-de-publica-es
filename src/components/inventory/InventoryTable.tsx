@@ -40,6 +40,7 @@ import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
@@ -61,7 +62,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
   
-  // Cálculo do mês anterior para buscar o estoque inicial
   const prevMonth = startOfMonth(subMonths(selectedMonth, 1));
   const prevMonthKey = format(prevMonth, 'yyyy-MM');
 
@@ -81,7 +81,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const { data: remoteItems, isLoading: isFetchingMonth } = useCollection(monthItemsQuery);
   
-  // Busca dos itens do mês anterior para preencher o Estoque Anterior
   const prevMonthItemsQuery = useMemoFirebase(() => {
     if (!db || !activeUid || !prevMonthKey) return null;
     return collection(db, 'users', activeUid, 'monthly_records', prevMonthKey, 'items');
@@ -98,8 +97,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const prevRemote = prevRemoteItems?.find(i => i.id === id);
       const local = localData[id] || {};
       
-      // O Estoque Anterior é SEMPRE o Estoque Atual do mês passado
-      const previousValue = prevRemote?.current ?? remote?.previous ?? 0;
+      const previousValue = local.previous ?? remote?.previous ?? prevRemote?.current ?? 0;
       
       combined.push({
         ...pub,
@@ -119,7 +117,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           const prevRemoteCustom = prevRemoteItems?.find(i => i.id === cd.id);
           const localCustom = localData[cd.id] || {};
           
-          const prevCustomValue = prevRemoteCustom?.current ?? remoteCustom?.previous ?? 0;
+          const prevCustomValue = localCustom.previous ?? remoteCustom?.previous ?? prevRemoteCustom?.current ?? 0;
           
           combined.push({
             ...cd,
@@ -143,7 +141,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [items, searchTerm]);
 
   const calculateOutgoing = (item: InventoryItem) => {
-    // Fórmula oficial: (Estoque Anterior + Recebido) - Estoque Atual
     const total = (Number(item.previous) || 0) + (Number(item.received) || 0);
     const current = Number(item.current) || 0;
     return total - current;
@@ -176,10 +173,25 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => subMonths(prev, 1))} className="h-8 w-8">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <div className="flex items-center gap-2 px-2 font-bold text-xs uppercase tracking-wider min-w-[140px] justify-center">
-              <CalendarIcon className="h-3.5 w-3.5 text-primary" />
-              {monthName}
-            </div>
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" className="px-2 font-bold text-xs uppercase tracking-wider min-w-[140px] justify-center gap-2 h-8">
+                  <CalendarIcon className="h-3.5 w-3.5 text-primary" />
+                  {monthName}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={selectedMonth}
+                  onSelect={(date) => date && setSelectedMonth(startOfMonth(date))}
+                  initialFocus
+                  locale={ptBR}
+                />
+              </PopoverContent>
+            </Popover>
+
             <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8">
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -323,7 +335,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             onChange={(e) => handleUpdateItem(item.id, col.id, Number(e.target.value))}
                             className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-9 text-sm text-center font-bold transition-all bg-transparent group-hover:bg-white/50"
                             placeholder="0"
-                            disabled={(activeUid !== user?.uid && !targetUserId) || col.id === 'previous'}
+                            disabled={(activeUid !== user?.uid && !targetUserId)}
                           />
                         )}
                       </TableCell>
