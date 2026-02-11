@@ -144,6 +144,72 @@
       "description": "Lições que Você Pode Aprender da Bíblia",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lfb/T/pt/lfb_T_lg.jpg",
       "imageHint": "bible lessons stories"
+    },
+    {
+      "id": "T-30",
+      "description": "Folheto O Que Você Acha da Bíblia?",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-30/T/pt/T-30_T_lg.jpg",
+      "imageHint": "tract 30"
+    },
+    {
+      "id": "T-31",
+      "description": "Folheto O Que Você Espera do Futuro?",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-31/T/pt/T-31_T_lg.jpg",
+      "imageHint": "tract 31"
+    },
+    {
+      "id": "T-32",
+      "description": "Folheto Segredo para Família Feliz",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-32/T/pt/T-32_T_lg.jpg",
+      "imageHint": "tract 32"
+    },
+    {
+      "id": "T-33",
+      "description": "Folheto Quem Controla o Mundo?",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-33/T/pt/T-33_T_lg.jpg",
+      "imageHint": "tract 33"
+    },
+    {
+      "id": "T-34",
+      "description": "Folheto O Sofrimento Vai Acabar?",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-34/T/pt/T-34_T_lg.jpg",
+      "imageHint": "tract 34"
+    },
+    {
+      "id": "T-35",
+      "description": "Folheto Voltar a Viver",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-35/T/pt/T-35_T_lg.jpg",
+      "imageHint": "tract 35"
+    },
+    {
+      "id": "T-36",
+      "description": "Folheto Reino",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-36/T/pt/T-36_T_lg.jpg",
+      "imageHint": "tract 36"
+    },
+    {
+      "id": "T-37",
+      "description": "Folheto Respostas Importantes",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-37/T/pt/T-37_T_lg.jpg",
+      "imageHint": "tract 37"
+    },
+    {
+      "id": "T-38",
+      "description": "Folheto O Reino de Deus",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-38/T/pt/T-38_T_lg.jpg",
+      "imageHint": "tract 38"
+    },
+    {
+      "id": "T-39",
+      "description": "Folheto Onde encontrar as respostas?",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-39/T/pt/T-39_T_lg.jpg",
+      "imageHint": "tract 39"
+    },
+    {
+      "id": "inv",
+      "description": "Convite para reuniões cristãs",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/inv/T/pt/inv_T_lg.jpg",
+      "imageHint": "invitation"
     }
   ]
 }
