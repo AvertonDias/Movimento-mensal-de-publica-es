@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "User": {
@@ -45,7 +46,8 @@
   "auth": {
     "providers": [
       "password",
-      "anonymous"
+      "anonymous",
+      "google.com"
     ]
   },
   "firestore": {
@@ -87,6 +89,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore structure is designed to support user authentication, user profiles, and inventory data management. It prioritizes authorization independence by avoiding `get()` calls in security rules. User data is stored in `/users/{userId}`. This structure allows for easy management of user profiles and simplifies security rules based on user ID.\n\nThe structure also supports the required features:\n*   **Entrada de Dados Personalizável:** Data fields for items can be added to Inventory item documents in `/users/{userId}/inventories/{inventoryId}`\n*   **Adicionar/Remover Linhas e Colunas**: This will be implemented in the UI. The database does not restrict the addition/removal of fields on a document.\n*   **Cálculos Automáticos**: This will be handled client side with formulas based on the data in each document.\n*   **Filtros e Pesquisas**: Firestore queries will be used to perform filtering and searching on the data.\n*   **Exportação de Dados**: UI implementation using client side tools to export from Firebase data into CSV/Excel.\n*   **Integração com o JW Hub (Generativo)**: The data will be provided to a Generative AI system that will be separate from the Firebase database."
+    "reasoning": "The Firestore structure is designed to support user authentication, user profiles, and inventory data management. It prioritizes authorization independence by avoiding `get()` calls in security rules. User data is stored in `/users/{userId}`. This structure allows for easy management of user profiles and simplifies security rules based on user ID."
   }
 }
