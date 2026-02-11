@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -40,6 +39,7 @@ import { useAuth } from '@/firebase/provider';
 import { format, subMonths, addMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
+import { EditCustomItemDialog } from "./EditCustomItemDialog";
 
 export function InventoryTable() {
   const { user, isUserLoading } = useUser();
@@ -51,6 +51,7 @@ export function InventoryTable() {
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -251,7 +252,18 @@ export function InventoryTable() {
                             {calculateOutgoing(item)}
                           </div>
                         ) : col.id === 'code' ? (
-                          <div className="text-center text-[11px] font-bold text-neutral-400">{item.code}</div>
+                          <div 
+                            className={cn(
+                              "text-center text-[11px] font-bold py-2 rounded transition-colors",
+                              item.isCustom 
+                                ? "text-primary cursor-pointer hover:bg-primary/10 hover:underline" 
+                                : "text-neutral-400"
+                            )}
+                            onClick={() => item.isCustom && setEditingItem(item)}
+                            title={item.isCustom ? "Clique para editar ou excluir" : undefined}
+                          >
+                            {item.code || (item.isCustom ? '?' : '')}
+                          </div>
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px]">
                             <span className="text-sm font-medium text-foreground">{item.item}</span>
@@ -281,6 +293,13 @@ export function InventoryTable() {
           isOpen={isAddDialogOpen} 
           onClose={() => setIsAddDialogOpen(false)} 
           category={activeCategory} 
+        />
+      )}
+
+      {editingItem && (
+        <EditCustomItemDialog 
+          item={editingItem} 
+          onClose={() => setEditingItem(null)} 
         />
       )}
 
