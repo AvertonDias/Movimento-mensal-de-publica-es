@@ -9,8 +9,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { BookOpen, UserPlus, Info } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth, useUser, useFirestore, updateDocumentNonBlocking } from "@/firebase";
-import { initiateEmailSignUp } from "@/firebase/non-blocking-login";
+import { useAuth, useUser, useFirestore, updateDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase";
+import { initiateEmailSignUp, initiateGoogleSignIn } from "@/firebase/non-blocking-login";
 import { doc, getDoc } from "firebase/firestore";
 
 function RegisterForm() {
@@ -25,7 +25,7 @@ function RegisterForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
-  // Verifica se há um convite ativo
+  // Verifica se há um convite ativo vindo do link
   useEffect(() => {
     async function checkInvite() {
       if (token && db) {
@@ -40,24 +40,36 @@ function RegisterForm() {
     checkInvite();
   }, [token, db]);
 
-  // Após o cadastro, processa o convite
+  // Após o cadastro/login, processa o convite pendente
   useEffect(() => {
     if (user && !user.isAnonymous && db) {
       const pendingToken = localStorage.getItem('pending_invite_token');
       if (pendingToken) {
         const inviteRef = doc(db, 'invites', pendingToken);
-        // Atualiza o convite com o ID do novo ajudante
-        updateDocumentNonBlocking(inviteRef, {
-          helperId: user.uid,
-          label: user.displayName || user.email?.split('@')[0] || 'Ajudante'
+        
+        getDoc(inviteRef).then(snap => {
+          if (snap.exists()) {
+            const inviteData = snap.data();
+            
+            // Atualiza o convite original com o ID do novo ajudante
+            updateDocumentNonBlocking(inviteRef, {
+              helperId: user.uid,
+              label: user.displayName || user.email?.split('@')[0] || 'Ajudante'
+            });
+            
+            // Cria um atalho de acesso rápido no perfil do ajudante
+            const myAccessRef = doc(db, 'invites', user.uid);
+            setDocumentNonBlocking(myAccessRef, {
+              id: user.uid,
+              ownerId: inviteData.ownerId,
+              helperId: user.uid,
+              ownerName: inviteData.ownerName,
+              label: inviteData.ownerName,
+              createdAt: new Date().toISOString()
+            }, { merge: true });
+          }
         });
-        // Também cria um atalho de acesso rápido para o ajudante (usando o token como ID do atalho)
-        const myAccessRef = doc(db, 'invites', user.uid);
-        updateDocumentNonBlocking(myAccessRef, {
-          id: user.uid,
-          ownerId: (inviteRef as any).ownerId || '', // Precisamos do ownerId original, o localStorage ou o snap inicial podem ajudar
-          helperId: user.uid
-        });
+        
         localStorage.removeItem('pending_invite_token');
       }
       router.push('/');
@@ -71,6 +83,10 @@ function RegisterForm() {
       return;
     }
     initiateEmailSignUp(auth, email, password);
+  };
+
+  const handleGoogleRegister = () => {
+    initiateGoogleSignIn(auth);
   };
 
   return (
@@ -93,7 +109,7 @@ function RegisterForm() {
           <div className="mb-6 p-3 bg-primary/10 rounded-lg flex items-start gap-2 border border-primary/20">
             <Info className="h-4 w-4 text-primary shrink-0 mt-0.5" />
             <p className="text-[10px] font-bold uppercase leading-tight text-primary">
-              Você foi convidado por <strong>{inviteOwner}</strong>. Cadastre-se agora para ter acesso à página inicial e gerenciar as publicações.
+              Você foi convidado por <strong>{inviteOwner}</strong>. Cadastre-se para acessar o inventário compartilhado.
             </p>
           </div>
         )}
@@ -133,6 +149,41 @@ function RegisterForm() {
             <UserPlus className="mr-2 h-4 w-4" /> Finalizar Cadastro
           </Button>
         </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-muted" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase font-bold text-muted-foreground">
+            <span className="bg-card px-2">Ou use sua conta</span>
+          </div>
+        </div>
+
+        <Button 
+          variant="outline" 
+          className="w-full font-bold uppercase tracking-wider gap-2 h-11" 
+          onClick={handleGoogleRegister}
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24">
+            <path
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              fill="#4285F4"
+            />
+            <path
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              fill="#34A853"
+            />
+            <path
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.26.81-.58z"
+              fill="#FBBC05"
+            />
+            <path
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              fill="#EA4335"
+            />
+          </svg>
+          Cadastrar com Google
+        </Button>
       </CardContent>
       <CardFooter className="flex justify-center">
         <p className="text-sm text-muted-foreground uppercase font-bold tracking-wider text-xs">
