@@ -21,7 +21,8 @@ import {
   Info,
   Plus,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Edit2
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -47,11 +48,13 @@ import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { useToast } from "@/hooks/use-toast";
 
 export function InventoryTable() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const db = useFirestore();
+  const { toast } = useToast();
   
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
@@ -69,7 +72,6 @@ export function InventoryTable() {
     }
   }, [user, isUserLoading, auth]);
 
-  // Busca definições de itens personalizados do usuário
   const customItemsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return collection(db, 'users', user.uid, 'inventory');
@@ -77,7 +79,6 @@ export function InventoryTable() {
 
   const { data: customDefinitions } = useCollection(customItemsQuery);
 
-  // Busca valores do mês selecionado
   const monthItemsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return collection(db, 'users', user.uid, 'monthly_records', monthKey, 'items');
@@ -86,7 +87,7 @@ export function InventoryTable() {
   const { data: remoteItems, isLoading: isFetchingMonth } = useCollection(monthItemsQuery);
 
   const columns: InventoryColumn[] = [
-    { id: 'move', header: '', type: 'text' },
+    { id: 'move', header: 'Ordem', type: 'text' },
     { id: 'code', header: 'N.º', type: 'text' },
     { id: 'item', header: 'Publicação', type: 'text' },
     { id: 'previous', header: 'Estoque Anterior', type: 'number' },
@@ -95,7 +96,6 @@ export function InventoryTable() {
     { id: 'outgoing', header: 'Saída', type: 'calculated' },
   ];
 
-  // Mescla lista oficial + itens personalizados + dados do mês
   const items = useMemo(() => {
     const combined: InventoryItem[] = [];
     
@@ -112,7 +112,6 @@ export function InventoryTable() {
         current: local.current ?? remote?.current ?? 0,
       } as InventoryItem);
 
-      // Se for uma categoria, insere itens personalizados desta categoria logo após, ordenados
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
           .filter(cd => cd.category === pub.item)
@@ -186,12 +185,17 @@ export function InventoryTable() {
       const currentRef = doc(db, 'users', user.uid, 'inventory', currentItem.id);
       const targetRef = doc(db, 'users', user.uid, 'inventory', targetItem.id);
 
-      const currentOrder = Number(currentItem.sortOrder) || (currentIndex * 1000);
-      const targetOrder = Number(targetItem.sortOrder) || (targetIndex * 1000);
+      // Usar timestamp atual se não houver sortOrder para garantir unicidade inicial
+      const currentOrder = Number(currentItem.sortOrder) || (Date.now() - 100);
+      const targetOrder = Number(targetItem.sortOrder) || Date.now();
 
-      // Swapping order values
       updateDocumentNonBlocking(currentRef, { sortOrder: targetOrder });
       updateDocumentNonBlocking(targetRef, { sortOrder: currentOrder });
+
+      toast({
+        title: "Ordem alterada",
+        description: `Posição de "${item.item}" atualizada.`,
+      });
     }
   };
 
@@ -230,7 +234,7 @@ export function InventoryTable() {
             placeholder="Pesquisar por publicação, código ou sigla..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-11 w-full"
+            className="pl-10 h-11 w-full font-medium"
           />
         </div>
       </div>
@@ -252,7 +256,7 @@ export function InventoryTable() {
                 {columns.map((col) => (
                   <TableHead key={col.id} className={cn(
                     "font-bold text-foreground py-4 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0",
-                    col.id === 'move' && "w-[80px]"
+                    col.id === 'move' && "w-[90px]"
                   )}>
                     {col.header}
                   </TableHead>
@@ -264,16 +268,16 @@ export function InventoryTable() {
                 if (item.isCategory) {
                   return (
                     <TableRow key={item.id} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
-                      <TableCell colSpan={columns.length} className="py-2 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
+                      <TableCell colSpan={columns.length} className="py-2.5 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
                         <div className="flex justify-between items-center">
                           <span>{item.item}</span>
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="h-7 px-3 text-[9px] gap-1 hover:bg-primary/20 border border-primary/20"
+                            className="h-8 px-4 text-[9px] gap-2 hover:bg-primary/20 border border-primary/20 bg-white font-black shadow-sm"
                             onClick={() => openAddDialog(item.item)}
                           >
-                            <Plus className="h-3 w-3" /> Adicionar Linha
+                            <Plus className="h-3.5 w-3.5" /> Adicionar Linha
                           </Button>
                         </div>
                       </TableCell>
@@ -288,7 +292,7 @@ export function InventoryTable() {
                     {columns.map((col) => (
                       <TableCell key={col.id} className="p-1 px-3 border-r last:border-0">
                         {col.id === 'move' ? (
-                          <div className="flex items-center justify-center gap-1">
+                          <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             {item.isCustom && (
                               <>
                                 <Button 
@@ -296,6 +300,7 @@ export function InventoryTable() {
                                   size="icon" 
                                   className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                                   onClick={() => handleMoveItem(item, 'up')}
+                                  title="Subir"
                                 >
                                   <ArrowUp className="h-4 w-4" />
                                 </Button>
@@ -304,6 +309,7 @@ export function InventoryTable() {
                                   size="icon" 
                                   className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                                   onClick={() => handleMoveItem(item, 'down')}
+                                  title="Descer"
                                 >
                                   <ArrowDown className="h-4 w-4" />
                                 </Button>
@@ -318,58 +324,63 @@ export function InventoryTable() {
                             {calculateOutgoing(item)}
                           </div>
                         ) : col.id === 'code' ? (
-                          <div 
-                            className={cn(
-                              "text-center text-[11px] font-bold py-2 rounded transition-colors",
-                              item.isCustom 
-                                  ? "text-primary cursor-pointer hover:bg-primary/10 hover:underline" 
-                                  : "text-neutral-400"
-                            )}
-                            onClick={() => item.isCustom && setEditingItem(item)}
-                          >
-                            {item.code || (item.isCustom ? '?' : '')}
+                          <div className="text-center text-[11px] font-bold py-2 text-neutral-400">
+                            {item.code || (item.isCustom ? '---' : '')}
                           </div>
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px]">
-                            {imagePlaceholder ? (
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <span className="text-sm font-medium text-foreground cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary hover:border-primary transition-colors">
-                                    {item.item}
-                                  </span>
-                                </PopoverTrigger>
-                                <PopoverContent 
-                                  side="top" 
-                                  align="center" 
-                                  className="p-0 border-none shadow-2xl overflow-hidden rounded-lg z-[100] w-[180px] mb-2"
-                                >
-                                  <div className="relative w-full aspect-[2/3] bg-white">
-                                    <Image 
-                                      src={imagePlaceholder.imageUrl} 
-                                      alt={imagePlaceholder.description}
-                                      fill
-                                      sizes="180px"
-                                      className="object-cover"
-                                      priority={true}
-                                      unoptimized={true}
-                                    />
-                                    <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-white text-[10px] font-black uppercase text-center backdrop-blur-md">
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              {imagePlaceholder ? (
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <span className="text-sm font-medium text-foreground cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary hover:border-primary transition-colors truncate">
                                       {item.item}
+                                    </span>
+                                  </PopoverTrigger>
+                                  <PopoverContent 
+                                    side="top" 
+                                    align="center" 
+                                    className="p-0 border-none shadow-2xl overflow-hidden rounded-lg z-[100] w-[180px] mb-2"
+                                  >
+                                    <div className="relative w-full aspect-[2/3] bg-white">
+                                      <Image 
+                                        src={imagePlaceholder.imageUrl} 
+                                        alt={imagePlaceholder.description}
+                                        fill
+                                        sizes="180px"
+                                        className="object-cover"
+                                        priority={true}
+                                        unoptimized={true}
+                                      />
+                                      <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-white text-[10px] font-black uppercase text-center backdrop-blur-md">
+                                        {item.item}
+                                      </div>
                                     </div>
-                                  </div>
-                                </PopoverContent>
-                              </Popover>
-                            ) : (
-                              <span className="text-sm font-medium text-foreground">{item.item}</span>
-                            )}
-                            {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded uppercase">{item.abbr}</span>}
+                                  </PopoverContent>
+                                </Popover>
+                              ) : (
+                                <span className="text-sm font-medium text-foreground truncate">{item.item}</span>
+                              )}
+                              {item.isCustom && (
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-6 w-6 text-muted-foreground/50 hover:text-primary"
+                                  onClick={() => setEditingItem(item)}
+                                >
+                                  <Edit2 className="h-3 w-3" />
+                                </Button>
+                              )}
+                            </div>
+                            {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded uppercase shrink-0">{item.abbr}</span>}
                           </div>
                         ) : (
                           <Input
                             type="number"
-                            value={item[col.id] as number}
+                            value={item[col.id] as number || ''}
                             onChange={(e) => handleUpdateItem(item.id, col.id, Number(e.target.value))}
                             className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-9 text-sm text-center font-bold transition-all bg-transparent group-hover:bg-white/50"
+                            placeholder="0"
                           />
                         )}
                       </TableCell>
@@ -398,7 +409,7 @@ export function InventoryTable() {
       )}
 
       <div className="text-center">
-        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest bg-white/50 py-2 rounded-full border border-white/20 inline-block px-6">
           Os dados são salvos automaticamente para o mês de {monthName}
         </p>
       </div>
