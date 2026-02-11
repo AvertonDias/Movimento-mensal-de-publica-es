@@ -25,7 +25,8 @@ import {
 import { 
   InventoryItem, 
   InventoryColumn, 
-  OFFICIAL_PUBLICATIONS
+  OFFICIAL_PUBLICATIONS,
+  DEFAULT_COLUMNS
 } from "@/app/types/inventory";
 import { cn } from "@/lib/utils";
 import { 
@@ -82,15 +83,6 @@ export function InventoryTable() {
   }, [db, user, monthKey]);
 
   const { data: remoteItems, isLoading: isFetchingMonth } = useCollection(monthItemsQuery);
-
-  const columns: InventoryColumn[] = [
-    { id: 'code', header: 'N.º', type: 'text' },
-    { id: 'item', header: 'Publicação', type: 'text' },
-    { id: 'previous', header: 'Estoque Anterior', type: 'number' },
-    { id: 'received', header: 'Recebido', type: 'number' },
-    { id: 'current', header: 'Estoque Atual', type: 'number' },
-    { id: 'outgoing', header: 'Saída', type: 'calculated' },
-  ];
 
   const items = useMemo(() => {
     const combined: InventoryItem[] = [];
@@ -222,7 +214,7 @@ export function InventoryTable() {
           <Table>
             <TableHeader className="bg-primary/5">
               <TableRow>
-                {columns.map((col) => (
+                {DEFAULT_COLUMNS.map((col) => (
                   <TableHead key={col.id} className={cn(
                     "font-bold text-foreground py-4 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0",
                     col.id === 'item' && "text-left"
@@ -237,7 +229,7 @@ export function InventoryTable() {
                 if (item.isCategory) {
                   return (
                     <TableRow key={item.id} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
-                      <TableCell colSpan={columns.length} className="py-2.5 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
+                      <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
                         <div className="flex items-center">
                           <span>{item.item}</span>
                         </div>
@@ -250,7 +242,7 @@ export function InventoryTable() {
 
                 return (
                   <TableRow key={item.id} className="hover:bg-accent/5 transition-colors border-b last:border-0 group">
-                    {columns.map((col) => (
+                    {DEFAULT_COLUMNS.map((col) => (
                       <TableCell key={col.id} className="p-1 px-3 border-r last:border-0">
                         {col.id === 'outgoing' ? (
                           <div className={cn(

@@ -27,7 +27,6 @@ export interface InventoryItem {
 export const DEFAULT_COLUMNS: InventoryColumn[] = [
   { id: 'code', header: 'N.º', type: 'text' },
   { id: 'item', header: 'Publicação', type: 'text' },
-  { id: 'previous', header: 'Estoque Anterior', type: 'number' },
   { id: 'received', header: 'Recebido', type: 'number' },
   { id: 'current', header: 'Estoque Atual', type: 'number' },
   { id: 'outgoing', header: 'Saída', type: 'calculated' },
@@ -105,7 +104,6 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '8521', item: 'Cartão de visita (apenas o logo do jw.org)*', abbr: 'jwcd4', category: 'Cartões', imageKey: 'jwcd4' },
   { code: '8569', item: 'Cartão de visita (curso bíblico presencial)*', abbr: 'jwcd9', category: 'Cartões', imageKey: 'jwcd9' },
   { code: '8570', item: 'Cartão de visita (curso bíblico pela internet)*', abbr: 'jwcd10', category: 'Cartões', imageKey: 'jwcd10' },
-  { code: '', item: 'Outros cartões de visita', category: 'Cartões' },
 
   { code: '', item: 'Despertai!', category: 'Revistas', isCategory: true },
   { code: '', item: 'Despertai! N.º 1 2018*', abbr: 'g18.1', category: 'Revistas', imageKey: 'g18.1' },
@@ -123,7 +121,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '', item: 'Despertai! N.º 1 2022*', abbr: 'g22.1', category: 'Revistas', imageKey: 'g22.1' },
   { code: '', item: 'Despertai! N.º 1 2023*', abbr: 'g23.1', category: 'Revistas', imageKey: 'g23.1' },
   { code: '', item: 'Despertai! N.º 1 2024*', abbr: 'g24.1', category: 'Revistas', imageKey: 'g24.1' },
-  { code: '', item: 'Despertai! N.º 1 2025*', abbr: 'g25.1', category: 'Revistas', imageKey: 'g25.1' },
+  { code: '', item: 'Despertai! N.º 1 2025*', abbr: 'g25.1', category: 'Revistas' },
   
   { code: '', item: 'Sentinela N.º 1 2018*', abbr: 'wp18.1', category: 'Revistas', imageKey: 'wp18.1' },
   { code: '', item: 'Sentinela N.º 2 2018*', abbr: 'wp18.2', category: 'Revistas', imageKey: 'wp18.2' },
@@ -140,7 +138,5 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '', item: 'Sentinela N.º 1 2022*', abbr: 'wp22.1', category: 'Revistas', imageKey: 'wp22.1' },
   { code: '', item: 'Sentinela N.º 1 2023*', abbr: 'wp23.1', category: 'Revistas', imageKey: 'wp23.1' },
   { code: '', item: 'Sentinela N.º 1 2024*', abbr: 'wp24.1', category: 'Revistas', imageKey: 'wp24.1' },
-  { code: '', item: 'Sentinela N.º 1 2025*', abbr: 'wp25.1', category: 'Revistas', imageKey: 'wp25.1' },
-  
-  { code: '', item: 'Todas as outras revistas para o público', category: 'Revistas' },
+  { code: '', item: 'Sentinela N.º 1 2025*', abbr: 'wp25.1', category: 'Revistas' },
 ];
