@@ -222,7 +222,7 @@ export default function Home() {
               </DialogContent>
             </Dialog>
 
-            <a href="#" className="hover:text-primary transition-colors">Suporte</a>
+            <a href="https://wa.me/5535991210466" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Suporte</a>
           </div>
         </div>
       </footer>
