@@ -1,0 +1,152 @@
+{
+  "entities": {
+    "InventoryItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "InventoryItem",
+      "type": "object",
+      "description": "Represents an item in the inventory.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the inventory item."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the inventory item."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the inventory item."
+        },
+        "stock": {
+          "type": "number",
+          "description": "Current stock level of the item."
+        },
+        "received": {
+          "type": "number",
+          "description": "Quantity of the item received."
+        },
+        "issued": {
+          "type": "number",
+          "description": "Quantity of the item issued."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Unit of measure for the item."
+        },
+        "dateAdded": {
+          "type": "string",
+          "description": "Date when the item was added to the inventory.",
+          "format": "date-time"
+        },
+        "customFields": {
+          "type": "string",
+          "description": "JSON string of any custom fields required",
+          "format": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "stock",
+        "received",
+        "issued"
+      ]
+    },
+    "InventoryHistory": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "InventoryHistory",
+      "type": "object",
+      "description": "Represents a historical record of inventory changes.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the inventory history record."
+        },
+        "inventoryItemId": {
+          "type": "string",
+          "description": "Reference to InventoryItem. (Relationship: InventoryItem 1:N InventoryHistory)"
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the inventory change.",
+          "format": "date-time"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of inventory change (e.g., Received, Issued, Adjustment)."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of items changed."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of why the history record was written."
+        }
+      },
+      "required": [
+        "id",
+        "inventoryItemId",
+        "date",
+        "type",
+        "quantity"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}/inventory/{inventoryItemId}",
+        "definition": {
+          "entityName": "InventoryItem",
+          "schema": {
+            "$ref": "#/backend/entities/InventoryItem"
+          },
+          "description": "Stores inventory items specific to a user. Only the authenticated user can create, read, update, or delete items within their own inventory. Includes custom fields.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "inventoryItemId",
+              "description": "The unique identifier of the inventory item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/inventory/{inventoryItemId}/history/{inventoryHistoryId}",
+        "definition": {
+          "entityName": "InventoryHistory",
+          "schema": {
+            "$ref": "#/backend/entities/InventoryHistory"
+          },
+          "description": "Stores the history of changes for an inventory item. Only the authenticated user can read or write to the history of items within their inventory. This supports tracking inventory changes and allows users to review historical data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "inventoryItemId",
+              "description": "The unique identifier of the inventory item."
+            },
+            {
+              "name": "inventoryHistoryId",
+              "description": "The unique identifier of the inventory history record."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to mirror the spreadsheet functionality described in the user's request, focusing on ease of use, customization, and data integrity. Each user has their own inventory and history data. The `InventoryItem` documents store the current state of each item, while `InventoryHistory` subcollection tracks changes over time. This design allows the user to edit, add, and remove inventory items and columns easily, enabling customized data input and flexible inventory management. The structure enables the addition of calculated fields (Estoque, Recebido, Saída) and ensures that the automatic calculations and user-defined filters can function efficiently. It also supports the generation of summaries by the JW Hub integration.\n\n**Authorization Independence:** The structure leverages path-based ownership for user data, ensuring that security rules can be written without relying on `get()` calls. Access to inventory items and their history is controlled by the user's ID, enabling secure and atomic operations. The use of subcollections under the user's document ensures that only the authenticated user can access their own inventory data.\n\n**QAPs (Rules are not Filters):** The segregation of data by user (`/users/{userId}/inventory/{inventoryItemId}`) ensures that `list` operations can be securely performed. A user can only list the items within their own inventory, preventing unauthorized access to other users' data. Similarly, access to the inventory history is restricted to the specific user and inventory item.\n\nThe `customFields` field allows users to add custom properties to the `InventoryItem` entity, accommodating the need for flexible data entry. This structure supports the core features of the application, including customizable data entry, adding/removing lines and columns, automatic calculations, filters and searches, and data export. This design meets all application requirements and provides a solid foundation for future enhancements."
+  }
+}
