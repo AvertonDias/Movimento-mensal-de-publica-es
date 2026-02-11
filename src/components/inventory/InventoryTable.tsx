@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -198,7 +199,7 @@ export function InventoryTable() {
   };
 
   return (
-    <TooltipProvider delayDuration={300}>
+    <TooltipProvider delayDuration={0}>
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
           <div className="flex flex-col gap-2">
@@ -336,7 +337,7 @@ export function InventoryTable() {
                                       {item.item}
                                     </span>
                                   </TooltipTrigger>
-                                  <TooltipContent side="right" className="p-0 border-none shadow-xl overflow-hidden rounded-lg">
+                                  <TooltipContent side="right" className="p-0 border-none shadow-xl overflow-hidden rounded-lg z-50">
                                     <div className="relative w-[200px] h-[300px] bg-white">
                                       <Image 
                                         src={imagePlaceholder.imageUrl} 
@@ -344,7 +345,7 @@ export function InventoryTable() {
                                         fill
                                         sizes="200px"
                                         className="object-cover"
-                                        data-ai-hint={imagePlaceholder.imageHint}
+                                        priority
                                       />
                                       <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 text-white text-[10px] font-bold uppercase text-center backdrop-blur-sm">
                                         {item.item}
