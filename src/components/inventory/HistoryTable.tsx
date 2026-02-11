@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useMemo, useEffect, useState } from 'react';
@@ -9,11 +10,11 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { format, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { OFFICIAL_PUBLICATIONS } from "@/app/types/inventory";
+import { OFFICIAL_PUBLICATIONS, InventoryItem } from "@/app/types/inventory";
 
 export function HistoryTable() {
   const { user } = useUser();
@@ -21,7 +22,6 @@ export function HistoryTable() {
   const [historyData, setHistoryData] = useState<Record<string, Record<string, any>>>({});
   const [loading, setLoading] = useState(true);
 
-  // Calcula os últimos 6 meses (ciclo do S-28-T)
   const lastSixMonths = useMemo(() => {
     const months = [];
     const baseDate = subMonths(new Date(), 1);
@@ -34,6 +34,27 @@ export function HistoryTable() {
     }
     return months;
   }, []);
+
+  // Busca definições de itens personalizados para incluir no histórico
+  const customItemsQuery = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return collection(db, 'users', user.uid, 'inventory');
+  }, [db, user]);
+
+  const { data: customDefinitions } = useCollection(customItemsQuery);
+
+  const combinedItems = useMemo(() => {
+    const combined: InventoryItem[] = [];
+    OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
+      combined.push({ ...pub, id: pub.code || `cat_${idx}` } as InventoryItem);
+      if (pub.isCategory && customDefinitions) {
+        customDefinitions
+          .filter(cd => cd.category === pub.item)
+          .forEach(cd => combined.push(cd as InventoryItem));
+      }
+    });
+    return combined;
+  }, [customDefinitions]);
 
   useEffect(() => {
     async function fetchHistory() {
@@ -86,7 +107,6 @@ export function HistoryTable() {
       )}
       <Table className="border-collapse table-fixed w-full min-w-[1250px] print:min-w-0">
         <TableHeader>
-          {/* Linha de Cabeçalho dos Meses */}
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-7">
             <TableHead className="w-[35px] text-[8px] font-black uppercase text-black p-0.5 text-center border-black">MÊS</TableHead>
             <TableHead className="w-[160px] border-l-0"></TableHead>
@@ -100,15 +120,14 @@ export function HistoryTable() {
               </TableHead>
             ))}
           </TableRow>
-          {/* Linha de Cabeçalho das Colunas por Mês */}
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-7">
             <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none">N.º</TableHead>
             <TableHead className="text-[10px] font-black text-black px-1 py-0 align-middle">Publicações</TableHead>
             
             {lastSixMonths.map((m) => (
               <React.Fragment key={m.key}>
-                <TableHead className="text-[6px] font-bold text-black p-0 text-center uppercase leading-[1]">Estoque<br/>ant.</TableHead>
-                <TableHead className="text-[6px] font-bold text-black p-0 text-center uppercase leading-[1]">Rec.</TableHead>
+                <TableHead className="text-[6px] font-bold text-black p-0 text-center uppercase leading-[1]">Estoque<br/>anterior</TableHead>
+                <TableHead className="text-[6px] font-bold text-black p-0 text-center uppercase leading-[1]">Recebido</TableHead>
                 <TableHead className="text-[6px] font-bold text-black p-0 text-center uppercase leading-[1]">Est.</TableHead>
                 <TableHead className="text-[6px] font-black text-black p-0 text-center uppercase bg-neutral-200 leading-[1]">Saída</TableHead>
               </React.Fragment>
@@ -116,8 +135,8 @@ export function HistoryTable() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {OFFICIAL_PUBLICATIONS.map((item, idx) => {
-            const itemId = item.code || `item_${idx}`;
+          {combinedItems.map((item, idx) => {
+            const itemId = item.id || `item_${idx}`;
             
             if (item.isCategory) {
               return (
@@ -136,6 +155,7 @@ export function HistoryTable() {
                 <TableCell className="text-[9px] px-1 py-0 border-black flex justify-between items-center h-full overflow-hidden">
                   <span className="truncate leading-none">{item.item}</span>
                   {item.abbr && <span className="font-bold ml-1 text-[7px] text-neutral-500">{item.abbr}</span>}
+                  {item.isCustom && <span className="text-[6px] text-primary ml-1 font-bold">*</span>}
                 </TableCell>
                 
                 {lastSixMonths.map((m) => (

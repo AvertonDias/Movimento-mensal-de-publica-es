@@ -18,7 +18,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
-  Info
+  Info,
+  Plus
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -38,28 +39,37 @@ import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
 import { useAuth } from '@/firebase/provider';
 import { format, subMonths, addMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { AddCustomItemDialog } from "./AddCustomItemDialog";
 
 export function InventoryTable() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const db = useFirestore();
   
-  // Define o mês inicial como o mês anterior ao atual
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
 
-  // Sign in anonymously if not authenticated
   useEffect(() => {
     if (!isUserLoading && !user) {
       initiateAnonymousSignIn(auth);
     }
   }, [user, isUserLoading, auth]);
 
-  // Query to fetch items for the selected month
+  // Busca definições de itens personalizados do usuário
+  const customItemsQuery = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return collection(db, 'users', user.uid, 'inventory');
+  }, [db, user]);
+
+  const { data: customDefinitions } = useCollection(customItemsQuery);
+
+  // Busca valores do mês selecionado
   const monthItemsQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
     return collection(db, 'users', user.uid, 'monthly_records', monthKey, 'items');
@@ -67,7 +77,6 @@ export function InventoryTable() {
 
   const { data: remoteItems, isLoading: isFetchingMonth } = useCollection(monthItemsQuery);
 
-  // Columns definition (without the calculated "Total")
   const columns: InventoryColumn[] = [
     { id: 'code', header: 'N.º', type: 'text' },
     { id: 'item', header: 'Publicação', type: 'text' },
@@ -77,22 +86,42 @@ export function InventoryTable() {
     { id: 'outgoing', header: 'Saída', type: 'calculated' },
   ];
 
-  // Merge official list with remote data
+  // Mescla lista oficial + itens personalizados + dados do mês
   const items = useMemo(() => {
-    return OFFICIAL_PUBLICATIONS.map((pub, idx) => {
+    const combined: InventoryItem[] = [];
+    
+    OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
       const id = pub.code || `cat_${idx}`;
       const remote = remoteItems?.find(i => i.id === id);
       const local = localData[id] || {};
       
-      return {
+      combined.push({
         ...pub,
         id,
         previous: local.previous ?? remote?.previous ?? 0,
         received: local.received ?? remote?.received ?? 0,
         current: local.current ?? remote?.current ?? 0,
-      } as InventoryItem;
+      } as InventoryItem);
+
+      // Se for uma categoria, insere itens personalizados desta categoria logo após
+      if (pub.isCategory && customDefinitions) {
+        customDefinitions
+          .filter(cd => cd.category === pub.item)
+          .forEach(cd => {
+            const remoteCustom = remoteItems?.find(i => i.id === cd.id);
+            const localCustom = localData[cd.id] || {};
+            combined.push({
+              ...cd,
+              previous: localCustom.previous ?? remoteCustom?.previous ?? 0,
+              received: localCustom.received ?? remoteCustom?.received ?? 0,
+              current: localCustom.current ?? remoteCustom?.current ?? 0,
+            } as InventoryItem);
+          });
+      }
     });
-  }, [remoteItems, localData]);
+
+    return combined;
+  }, [remoteItems, localData, customDefinitions]);
 
   const filteredItems = useMemo(() => {
     return items.filter(item => 
@@ -111,13 +140,11 @@ export function InventoryTable() {
   const handleUpdateItem = (id: string, field: string, value: number) => {
     if (!user || !db) return;
 
-    // Update local state for immediate feedback
     setLocalData(prev => ({
       ...prev,
       [id]: { ...prev[id], [field]: value }
     }));
 
-    // Persist to Firestore
     const docRef = doc(db, 'users', user.uid, 'monthly_records', monthKey, 'items', id);
     const itemData = items.find(i => i.id === id);
     if (itemData) {
@@ -129,23 +156,24 @@ export function InventoryTable() {
     }
   };
 
-  const handlePrevMonth = () => setSelectedMonth(prev => subMonths(prev, 1));
-  const handleNextMonth = () => setSelectedMonth(prev => addMonths(prev, 1));
+  const openAddDialog = (category: string) => {
+    setActiveCategory(category);
+    setIsAddDialogOpen(true);
+  };
 
   return (
     <div className="space-y-6">
-      {/* Header Controls */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
-            <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-8 w-8">
+            <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => subMonths(prev, 1))} className="h-8 w-8">
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <div className="flex items-center gap-2 px-2 font-bold text-xs uppercase tracking-wider min-w-[140px] justify-center">
               <CalendarIcon className="h-3.5 w-3.5 text-primary" />
               {monthName}
             </div>
-            <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-8 w-8">
+            <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -168,7 +196,6 @@ export function InventoryTable() {
         </div>
       </div>
 
-      {/* Loading Overlay */}
       <div className="relative bg-white rounded-xl shadow-md border border-border overflow-hidden">
         {isFetchingMonth && (
           <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
@@ -196,7 +223,17 @@ export function InventoryTable() {
                   return (
                     <TableRow key={item.id} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
                       <TableCell colSpan={columns.length} className="py-2 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
-                        {item.item}
+                        <div className="flex justify-between items-center">
+                          <span>{item.item}</span>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="h-6 px-2 text-[9px] gap-1 hover:bg-primary/20"
+                            onClick={() => openAddDialog(item.item)}
+                          >
+                            <Plus className="h-3 w-3" /> Adicionar Linha
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
@@ -219,6 +256,7 @@ export function InventoryTable() {
                           <div className="flex justify-between items-center gap-2 min-w-[240px]">
                             <span className="text-sm font-medium text-foreground">{item.item}</span>
                             {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded uppercase">{item.abbr}</span>}
+                            {item.isCustom && <span className="text-[7px] font-bold text-primary uppercase ml-auto">Personalizado</span>}
                           </div>
                         ) : (
                           <Input
@@ -238,6 +276,14 @@ export function InventoryTable() {
         </div>
       </div>
       
+      {activeCategory && (
+        <AddCustomItemDialog 
+          isOpen={isAddDialogOpen} 
+          onClose={() => setIsAddDialogOpen(false)} 
+          category={activeCategory} 
+        />
+      )}
+
       <div className="text-center">
         <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
           Os dados são salvos automaticamente para o mês de {monthName}
