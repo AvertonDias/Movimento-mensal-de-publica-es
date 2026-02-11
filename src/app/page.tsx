@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { BookOpen, History, LogOut, User as UserIcon, ShieldCheck, Users, Info } from "lucide-react";
+import { BookOpen, History, LogOut, User as UserIcon, ShieldCheck, Users, Info, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -105,7 +105,7 @@ export default function Home() {
               </div>
             )}
 
-            <div className="hidden md:flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-2">
               {!isHelper && (
                 <Link href="/helpers">
                   <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
@@ -114,6 +114,12 @@ export default function Home() {
                   </Button>
                 </Link>
               )}
+              <Link href="/stats">
+                <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
+                  <BarChart3 className="h-4 w-4" />
+                  Estatísticas
+                </Button>
+              </Link>
               <Link href="/history">
                 <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border hover:bg-neutral-50 h-9">
                   <History className="h-4 w-4" />
@@ -148,6 +154,11 @@ export default function Home() {
                     </DropdownMenuItem>
                   </Link>
                 )}
+                <Link href="/stats">
+                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                    <BarChart3 className="mr-2 h-4 w-4" /> Estatísticas
+                  </DropdownMenuItem>
+                </Link>
                 <Link href="/history">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                     <History className="mr-2 h-4 w-4" /> Histórico S-28-T

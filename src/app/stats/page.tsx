@@ -1,0 +1,91 @@
+
+'use client';
+
+import React, { useEffect } from 'react';
+import { StatsDashboard } from "@/components/inventory/StatsDashboard";
+import { ChevronLeft, BarChart3 } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/firebase';
+
+export default function StatsPage() {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+        <div className="text-center space-y-4">
+          <BarChart3 className="h-12 w-12 text-primary animate-pulse mx-auto" />
+          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Carregando estatísticas...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-neutral-50 py-8 px-4 font-body">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
+          <Link href="/">
+            <Button variant="ghost" className="gap-2 font-bold uppercase text-xs">
+              <ChevronLeft className="h-4 w-4" />
+              Voltar ao Inventário
+            </Button>
+          </Link>
+          <div className="flex items-center gap-3">
+            <div className="bg-primary p-2 rounded-lg shadow-sm">
+              <BarChart3 className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <h1 className="text-xl font-black uppercase tracking-tight font-headline">Painel de Estatísticas</h1>
+          </div>
+        </div>
+
+        <div className="bg-white shadow-xl rounded-2xl border border-neutral-200 overflow-hidden">
+          <div className="p-6 border-b border-neutral-100 bg-neutral-50/50">
+            <h2 className="text-sm font-black uppercase tracking-widest text-neutral-500">Visão Geral de Movimentação</h2>
+            <p className="text-xs text-muted-foreground mt-1 uppercase font-bold">Análise baseada nos últimos 6 meses de registros</p>
+          </div>
+          
+          <div className="p-6">
+            <StatsDashboard />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm">
+            <h3 className="text-sm font-black uppercase mb-4 text-primary">Dicas de Análise</h3>
+            <ul className="space-y-3 text-xs font-bold uppercase text-muted-foreground leading-relaxed">
+              <li className="flex gap-2">
+                <span className="text-primary">•</span>
+                <span>Observe os picos de saída para planejar pedidos com antecedência.</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary">•</span>
+                <span>Itens com saída zero por vários meses podem estar obsoletos (consulte a S-60).</span>
+              </li>
+              <li className="flex gap-2">
+                <span className="text-primary">•</span>
+                <span>Mantenha o estoque anterior sempre atualizado para garantir a precisão dos cálculos.</span>
+              </li>
+            </ul>
+          </div>
+          
+          <div className="bg-primary/5 p-6 rounded-2xl border border-primary/10 shadow-sm flex flex-col justify-center items-center text-center">
+            <p className="text-[10px] font-black uppercase text-primary tracking-[0.2em] mb-2">Relatório S-28-T</p>
+            <p className="text-sm font-bold text-neutral-700 leading-snug">
+              Este painel ajuda a preencher o JW Hub visualizando as tendências de forma clara.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

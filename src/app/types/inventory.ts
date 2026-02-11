@@ -1,3 +1,4 @@
+
 export type ColumnType = 'text' | 'number' | 'calculated';
 
 export interface InventoryColumn {
