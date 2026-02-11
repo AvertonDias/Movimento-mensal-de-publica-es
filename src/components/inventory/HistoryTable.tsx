@@ -62,7 +62,7 @@ const ITEMS: PublicationItem[] = [
   { code: '6545', name: 'Seja Feliz para Sempre! (brochura)*', abbr: 'lffi', type: 'item' },
   { code: '6657', name: 'Escute e Viva*', abbr: 'll', type: 'item' },
   { code: '6669', name: 'Ame as Pessoas', abbr: 'lmd', type: 'item' },
-  { code: '6663', name: 'Minhas Lições da Bíbliamb', type: 'item' },
+  { code: '6663', name: 'Minhas Lições da Bíblia', abbr: 'mb', type: 'item' },
   { code: '6648', name: 'Caminho para a Vida', abbr: 'ol', type: 'item' },
   { code: '6639', name: 'Verdadeira Paz e Felicidade', abbr: 'pc', type: 'item' },
   { code: '6653', name: 'Caminho', abbr: 'ph', type: 'item' },
@@ -184,15 +184,15 @@ export function HistoryTable() {
             
             {/* First Month Headers */}
             <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-[1.1] uppercase">Estoque<br/>anterior</TableHead>
-            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Rec.</TableHead>
-            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Est.</TableHead>
+            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Recebido</TableHead>
+            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Estoque</TableHead>
             <TableHead className="text-[8px] font-black text-black p-0 text-center leading-none uppercase bg-neutral-200">Saída</TableHead>
             
             {/* Other Months Headers */}
             {lastSixMonths.slice(1).map((m) => (
               <React.Fragment key={m.key}>
-                <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Rec.</TableHead>
-                <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Est.</TableHead>
+                <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Recebido</TableHead>
+                <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Estoque</TableHead>
                 <TableHead className="text-[8px] font-black text-black p-0 text-center leading-none uppercase bg-neutral-200">Saída</TableHead>
               </React.Fragment>
             ))}
