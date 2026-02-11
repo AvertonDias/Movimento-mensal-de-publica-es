@@ -1,3 +1,4 @@
+
 export type ColumnType = 'text' | 'number' | 'calculated';
 
 export interface InventoryColumn {
@@ -46,7 +47,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '5422', item: 'O Reino de Deus já Governa!', abbr: 'kr', category: 'Livros', imageKey: 'kr' },
   { code: '5427', item: 'Histórias da Bíblia', abbr: 'lfb', category: 'Livros', imageKey: 'lfb' },
   { code: '5445', item: 'Seja Feliz para Sempre! (livro)*', abbr: 'lff', category: 'Livros', imageKey: 'lff' },
-  { code: '5415', item: 'Instrutor', abbr: 'lr', category: 'Livros' },
+  { code: '5415', item: 'Instrutor', abbr: 'lr', category: 'Livros', imageKey: 'lr' },
   { code: '5343', item: 'Continue', abbr: 'lvs', category: 'Livros', imageKey: 'lvs' },
   { code: '5332', item: 'Organizados', abbr: 'od', category: 'Livros', imageKey: 'od' },
   { code: '5435', item: 'Adoração Pura', abbr: 'rr', category: 'Livros', imageKey: 'rr' },

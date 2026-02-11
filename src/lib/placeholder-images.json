@@ -341,6 +341,12 @@
       "description": "Cartão de visita Curso Online",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd10/T/pt/jwcd10_T_lg.jpg",
       "imageHint": "contact card online"
+    },
+    {
+      "id": "lr",
+      "description": "Capa do livro Instrutor",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lr/T/pt/lr_T_lg.jpg",
+      "imageHint": "teacher book"
     }
   ]
 }
