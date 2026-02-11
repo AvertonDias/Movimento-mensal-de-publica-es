@@ -333,6 +333,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             type="number"
                             value={item[col.id] as number || ''}
                             onChange={(e) => handleUpdateItem(item.id, col.id, Number(e.target.value))}
+                            onWheel={(e) => e.currentTarget.blur()}
                             className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-9 text-sm text-center font-bold transition-all bg-transparent group-hover:bg-white/50"
                             placeholder="0"
                             disabled={(activeUid !== user?.uid && !targetUserId)}
