@@ -20,7 +20,8 @@ import {
   Info,
   Plus,
   ArrowUp,
-  ArrowDown
+  ArrowDown,
+  Book
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -42,6 +43,9 @@ import { format, subMonths, addMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import Image from "next/image";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export function InventoryTable() {
   const { user, isUserLoading } = useUser();
@@ -183,20 +187,11 @@ export function InventoryTable() {
       const currentRef = doc(db, 'users', user.uid, 'inventory', currentItem.id);
       const targetRef = doc(db, 'users', user.uid, 'inventory', targetItem.id);
 
-      // Pegamos os valores de ordem. Se não houver, usamos uma escala baseada no índice
-      const currentOrder = Number(currentItem.sortOrder) || (currentIndex * 1000);
       const targetOrder = Number(targetItem.sortOrder) || (targetIndex * 1000);
+      const currentOrder = Number(currentItem.sortOrder) || (currentIndex * 1000);
 
-      // Realiza a troca de ordens
-      if (currentOrder === targetOrder) {
-        // Se as ordens forem iguais por algum motivo, forçamos um distanciamento
-        const offset = direction === 'up' ? -100 : 100;
-        setDocumentNonBlocking(currentRef, { sortOrder: currentOrder + offset }, { merge: true });
-      } else {
-        // Trocamos os valores
-        setDocumentNonBlocking(currentRef, { sortOrder: targetOrder }, { merge: true });
-        setDocumentNonBlocking(targetRef, { sortOrder: currentOrder }, { merge: true });
-      }
+      setDocumentNonBlocking(currentRef, { sortOrder: targetOrder }, { merge: true });
+      setDocumentNonBlocking(targetRef, { sortOrder: currentOrder }, { merge: true });
     }
   };
 
@@ -265,94 +260,119 @@ export function InventoryTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredItems.map((item) => {
-                if (item.isCategory) {
+              <TooltipProvider>
+                {filteredItems.map((item) => {
+                  if (item.isCategory) {
+                    return (
+                      <TableRow key={item.id} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
+                        <TableCell colSpan={columns.length} className="py-2 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
+                          <div className="flex justify-between items-center">
+                            <span>{item.item}</span>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-6 px-2 text-[9px] gap-1 hover:bg-primary/20"
+                              onClick={() => openAddDialog(item.item)}
+                            >
+                              <Plus className="h-3 w-3" /> Adicionar Linha
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  }
+
+                  const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
+
                   return (
-                    <TableRow key={item.id} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
-                      <TableCell colSpan={columns.length} className="py-2 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
-                        <div className="flex justify-between items-center">
-                          <span>{item.item}</span>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-6 px-2 text-[9px] gap-1 hover:bg-primary/20"
-                            onClick={() => openAddDialog(item.item)}
-                          >
-                            <Plus className="h-3 w-3" /> Adicionar Linha
-                          </Button>
-                        </div>
-                      </TableCell>
+                    <TableRow key={item.id} className="hover:bg-accent/5 transition-colors border-b last:border-0 group">
+                      {columns.map((col) => (
+                        <TableCell key={col.id} className="p-1 px-3 border-r last:border-0">
+                          {col.id === 'move' ? (
+                            <div className="flex flex-col items-center justify-center gap-0.5">
+                              {item.isCustom && (
+                                <>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"
+                                    onClick={() => handleMoveItem(item, 'up')}
+                                  >
+                                    <ArrowUp className="h-3 w-3" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="icon" 
+                                    className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"
+                                    onClick={() => handleMoveItem(item, 'down')}
+                                  >
+                                    <ArrowDown className="h-3 w-3" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          ) : col.id === 'outgoing' ? (
+                            <div className={cn(
+                              "py-2 font-black rounded text-sm text-center",
+                              calculateOutgoing(item) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10"
+                            )}>
+                              {calculateOutgoing(item)}
+                            </div>
+                          ) : col.id === 'code' ? (
+                            <div 
+                              className={cn(
+                                "text-center text-[11px] font-bold py-2 rounded transition-colors",
+                                item.isCustom 
+                                  ? "text-primary cursor-pointer hover:bg-primary/10 hover:underline" 
+                                  : "text-neutral-400"
+                              )}
+                              onClick={() => item.isCustom && setEditingItem(item)}
+                            >
+                              {item.code || (item.isCustom ? '?' : '')}
+                            </div>
+                          ) : col.id === 'item' ? (
+                            <div className="flex justify-between items-center gap-2 min-w-[240px]">
+                              {imagePlaceholder ? (
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="text-sm font-medium text-foreground cursor-help border-b border-dotted border-muted-foreground/50 hover:text-primary hover:border-primary transition-colors">
+                                      {item.item}
+                                    </span>
+                                  </TooltipTrigger>
+                                  <TooltipContent side="right" className="p-0 border-none shadow-xl overflow-hidden rounded-lg bg-transparent">
+                                    <div className="relative w-[200px] h-[300px] bg-white">
+                                      <Image 
+                                        src={imagePlaceholder.imageUrl} 
+                                        alt={imagePlaceholder.description}
+                                        fill
+                                        className="object-cover"
+                                        data-ai-hint={imagePlaceholder.imageHint}
+                                      />
+                                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-2 text-white text-[10px] font-bold uppercase text-center backdrop-blur-sm">
+                                        {item.item}
+                                      </div>
+                                    </div>
+                                  </TooltipContent>
+                                </Tooltip>
+                              ) : (
+                                <span className="text-sm font-medium text-foreground">{item.item}</span>
+                              )}
+                              {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded uppercase">{item.abbr}</span>}
+                            </div>
+                          ) : (
+                            <Input
+                              type="number"
+                              value={item[col.id] as number}
+                              onChange={(e) => handleUpdateItem(item.id, col.id, Number(e.target.value))}
+                              className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-9 text-sm text-center font-bold transition-all bg-transparent group-hover:bg-white/50"
+                            />
+                          )}
+                        </TableCell>
+                      ))}
                     </TableRow>
                   );
-                }
-
-                return (
-                  <TableRow key={item.id} className="hover:bg-accent/5 transition-colors border-b last:border-0 group">
-                    {columns.map((col) => (
-                      <TableCell key={col.id} className="p-1 px-3 border-r last:border-0">
-                        {col.id === 'move' ? (
-                          <div className="flex flex-col items-center justify-center gap-0.5">
-                            {item.isCustom && (
-                              <>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"
-                                  onClick={() => handleMoveItem(item, 'up')}
-                                  title="Mover para cima"
-                                >
-                                  <ArrowUp className="h-3 w-3" />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"
-                                  onClick={() => handleMoveItem(item, 'down')}
-                                  title="Mover para baixo"
-                                >
-                                  <ArrowDown className="h-3 w-3" />
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        ) : col.id === 'outgoing' ? (
-                          <div className={cn(
-                            "py-2 font-black rounded text-sm text-center",
-                            calculateOutgoing(item) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10"
-                          )}>
-                            {calculateOutgoing(item)}
-                          </div>
-                        ) : col.id === 'code' ? (
-                          <div 
-                            className={cn(
-                              "text-center text-[11px] font-bold py-2 rounded transition-colors",
-                              item.isCustom 
-                                ? "text-primary cursor-pointer hover:bg-primary/10 hover:underline" 
-                                : "text-neutral-400"
-                            )}
-                            onClick={() => item.isCustom && setEditingItem(item)}
-                            title={item.isCustom ? "Clique para editar ou excluir" : undefined}
-                          >
-                            {item.code || (item.isCustom ? '?' : '')}
-                          </div>
-                        ) : col.id === 'item' ? (
-                          <div className="flex justify-between items-center gap-2 min-w-[240px]">
-                            <span className="text-sm font-medium text-foreground">{item.item}</span>
-                            {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded uppercase">{item.abbr}</span>}
-                          </div>
-                        ) : (
-                          <Input
-                            type="number"
-                            value={item[col.id] as number}
-                            onChange={(e) => handleUpdateItem(item.id, col.id, Number(e.target.value))}
-                            className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-9 text-sm text-center font-bold transition-all bg-transparent group-hover:bg-white/50"
-                          />
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                );
-              })}
+                })}
+              </TooltipProvider>
             </TableBody>
           </Table>
         </div>

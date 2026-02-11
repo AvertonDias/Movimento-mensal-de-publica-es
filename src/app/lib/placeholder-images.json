@@ -1,0 +1,40 @@
+{
+  "placeholderImages": [
+    {
+      "id": "nwt",
+      "description": "Capa da Tradução do Novo Mundo",
+      "imageUrl": "https://picsum.photos/seed/nwt/200/300",
+      "imageHint": "bible book"
+    },
+    {
+      "id": "be",
+      "description": "Capa do livro Beneficie-se",
+      "imageUrl": "https://picsum.photos/seed/be/200/300",
+      "imageHint": "textbook education"
+    },
+    {
+      "id": "bhs",
+      "description": "Capa do livro Entenda a Bíblia",
+      "imageUrl": "https://picsum.photos/seed/bhs/200/300",
+      "imageHint": "study book"
+    },
+    {
+      "id": "lff",
+      "description": "Capa do livro Seja Feliz para Sempre",
+      "imageUrl": "https://picsum.photos/seed/lff/200/300",
+      "imageHint": "spiritual guide"
+    },
+    {
+      "id": "wp",
+      "description": "Capa da revista A Sentinela",
+      "imageUrl": "https://picsum.photos/seed/wp/200/300",
+      "imageHint": "magazine cover"
+    },
+    {
+      "id": "g",
+      "description": "Capa da revista Despertai!",
+      "imageUrl": "https://picsum.photos/seed/g/200/300",
+      "imageHint": "news magazine"
+    }
+  ]
+}
