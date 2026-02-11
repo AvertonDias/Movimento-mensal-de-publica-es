@@ -42,7 +42,7 @@ export default function HistoryPage(props: {
             </h1>
             <div className="flex items-center gap-4">
               <span className="text-sm font-bold uppercase">IDIOMA:</span>
-              <div className="border-b-2 border-black w-64 h-6"></div>
+              <div className="border-b-2 border-black w-64 h-6 flex items-end px-2 font-bold text-sm">Português</div>
             </div>
           </div>
 
