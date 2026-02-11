@@ -75,7 +75,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '6654', item: 'A Vida — Teve um Criador?*', abbr: 'lc', category: 'Brochuras', imageKey: 'lc' },
   { code: '6658', item: 'Escute a Deus', abbr: 'ld', category: 'Brochuras', imageKey: 'ld' },
   { code: '6655', item: 'Origem da Vida*', abbr: 'lf', category: 'Brochuras', imageKey: 'lf' },
-  { code: '654445', item: 'Seja Feliz para Sempre! (brochura)*', abbr: 'lffi', category: 'Brochuras', imageKey: 'lff' },
+  { code: '65445', item: 'Seja Feliz para Sempre! (brochura)*', abbr: 'lffi', category: 'Brochuras', imageKey: 'lff' },
   { code: '6657', item: 'Escute e Viva*', abbr: 'll', category: 'Brochuras' },
   { code: '6669', item: 'Ame as Pessoas', abbr: 'lmd', category: 'Brochuras', imageKey: 'lmd' },
   { code: '6663', item: 'Minhas Lições da Bíblia', abbr: 'mb', category: 'Brochuras', imageKey: 'mb' },
@@ -125,7 +125,6 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '', item: 'Despertai! N.º 1 2024*', abbr: 'g24.1', category: 'Revistas', imageKey: 'g24.1' },
   { code: '', item: 'Despertai! N.º 1 2025*', abbr: 'g25.1', category: 'Revistas', imageKey: 'g25.1' },
   
-  { code: '', item: 'Sentinela', category: 'Revistas', isCategory: true },
   { code: '', item: 'Sentinela N.º 1 2018*', abbr: 'wp18.1', category: 'Revistas', imageKey: 'wp18.1' },
   { code: '', item: 'Sentinela N.º 2 2018*', abbr: 'wp18.2', category: 'Revistas', imageKey: 'wp18.2' },
   { code: '', item: 'Sentinela N.º 3 2018*', abbr: 'wp18.3', category: 'Revistas', imageKey: 'wp18.3' },
