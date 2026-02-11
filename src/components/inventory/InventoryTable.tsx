@@ -18,13 +18,11 @@ import {
   Calendar as CalendarIcon,
   ChevronLeft,
   ChevronRight,
-  Save,
   Loader2
 } from "lucide-react";
 import { 
   InventoryItem, 
   InventoryColumn, 
-  DEFAULT_COLUMNS,
   OFFICIAL_PUBLICATIONS
 } from "@/app/types/inventory";
 import { cn } from "@/lib/utils";
@@ -35,7 +33,7 @@ import {
   useMemoFirebase,
   setDocumentNonBlocking 
 } from '@/firebase';
-import { collection, doc, query, where, getDocs, limit, orderBy } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
 import { useAuth } from '@/firebase/provider';
 import { format, subMonths, addMonths, startOfMonth } from 'date-fns';
@@ -46,7 +44,8 @@ export function InventoryTable() {
   const auth = useAuth();
   const db = useFirestore();
   
-  const [selectedMonth, setSelectedMonth] = useState<Date>(startOfMonth(new Date()));
+  // Define o mês inicial como o mês anterior ao atual
+  const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
   
