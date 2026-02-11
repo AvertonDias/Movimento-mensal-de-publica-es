@@ -4,7 +4,7 @@
 import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useFirestore, useUser, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { useFirestore, useUser, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking, useDoc } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { ChevronLeft, Copy, Plus, Trash2, Users, LinkIcon } from "lucide-react";
 import Link from "next/link";
@@ -18,11 +18,22 @@ export default function HelpersPage() {
   const { toast } = useToast();
   const router = useRouter();
 
+  const helperInviteRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, 'invites', user.uid);
+  }, [db, user]);
+
+  const { data: helperInvite, isLoading: isCheckingRole } = useDoc(helperInviteRef);
+
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
-  }, [user, isUserLoading, router]);
+    // Se o usuário já for um ajudante de alguém, ele não deve gerenciar outros ajudantes
+    if (!isCheckingRole && helperInvite) {
+      router.push('/');
+    }
+  }, [user, isUserLoading, router, helperInvite, isCheckingRole]);
 
   const invitesQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -67,7 +78,7 @@ export default function HelpersPage() {
     deleteDocumentNonBlocking(inviteRef);
   };
 
-  if (isUserLoading || !user) return null;
+  if (isUserLoading || isCheckingRole || !user || helperInvite) return null;
 
   return (
     <div className="min-h-screen bg-neutral-50 p-6 font-body">
