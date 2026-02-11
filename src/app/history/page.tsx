@@ -1,8 +1,15 @@
+'use client';
+
 import { HistoryTable } from "@/components/inventory/HistoryTable";
 import { ChevronLeft, Printer, FileText } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
+/**
+ * Página de Histórico (Formulário S-28-T)
+ * Esta página é um espelho do formulário oficial de papel.
+ * Agora é um Client Component para permitir a funcionalidade de impressão e interatividade.
+ */
 export default function HistoryPage() {
   return (
     <div className="min-h-screen bg-neutral-100 py-12 px-4 print:p-0 print:bg-white">
@@ -23,7 +30,7 @@ export default function HistoryPage() {
         </div>
 
         <div className="bg-white shadow-2xl rounded-sm border border-neutral-300 overflow-hidden print:shadow-none print:border-none">
-          {/* Cabeçalho que imita o formulário de papel */}
+          {/* Cabeçalho que imita o formulário de papel S-28-T */}
           <div className="p-8 border-b-2 border-black flex justify-between items-start bg-neutral-50/50">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
@@ -45,11 +52,13 @@ export default function HistoryPage() {
               <div className="flex gap-8">
                 <div className="border-b border-black pb-1">
                   <span className="text-[9px] font-bold uppercase block">Mês</span>
-                  <span className="text-sm font-bold uppercase">Fevereiro</span>
+                  <span className="text-sm font-bold uppercase">
+                    {new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(new Date())}
+                  </span>
                 </div>
                 <div className="border-b border-black pb-1">
                   <span className="text-[9px] font-bold uppercase block">Ano</span>
-                  <span className="text-sm font-bold uppercase">2024</span>
+                  <span className="text-sm font-bold uppercase">{new Date().getFullYear()}</span>
                 </div>
               </div>
             </div>
