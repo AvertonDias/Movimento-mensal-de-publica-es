@@ -1,23 +1,28 @@
 
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFirestore, useUser, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { ChevronLeft, Copy, Plus, Trash2, Users, ExternalLink, LinkIcon } from "lucide-react";
+import { ChevronLeft, Copy, Plus, Trash2, Users, LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useRouter } from 'next/navigation';
 
-/**
- * Página de Gerenciamento de Ajudantes
- */
 export default function HelpersPage() {
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
 
   const invitesQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -48,7 +53,6 @@ export default function HelpersPage() {
   };
 
   const copyToClipboard = (tokenId: string) => {
-    // Agora o link leva para a página de registro com o token
     const url = `${window.location.origin}/register?token=${tokenId}`;
     navigator.clipboard.writeText(url);
     toast({
@@ -62,6 +66,8 @@ export default function HelpersPage() {
     const inviteRef = doc(db, 'invites', id);
     deleteDocumentNonBlocking(inviteRef);
   };
+
+  if (isUserLoading || !user) return null;
 
   return (
     <div className="min-h-screen bg-neutral-50 p-6 font-body">

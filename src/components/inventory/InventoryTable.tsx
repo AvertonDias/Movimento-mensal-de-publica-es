@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import { 
   InventoryItem, 
-  InventoryColumn, 
   OFFICIAL_PUBLICATIONS,
   DEFAULT_COLUMNS
 } from "@/app/types/inventory";
@@ -37,8 +36,6 @@ import {
   setDocumentNonBlocking
 } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
-import { useAuth } from '@/firebase/provider';
 import { format, subMonths, addMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
@@ -46,7 +43,6 @@ import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { useToast } from "@/hooks/use-toast";
 
 interface InventoryTableProps {
   targetUserId?: string;
@@ -54,9 +50,7 @@ interface InventoryTableProps {
 
 export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const { user, isUserLoading } = useUser();
-  const auth = useAuth();
   const db = useFirestore();
-  const { toast } = useToast();
   
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,14 +62,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
 
-  // UID ativo: se for passado um targetUserId (visão compartilhada), usamos ele. Caso contrário, o do usuário logado.
   const activeUid = targetUserId || user?.uid;
-
-  useEffect(() => {
-    if (!isUserLoading && !user) {
-      initiateAnonymousSignIn(auth);
-    }
-  }, [user, isUserLoading, auth]);
 
   const customItemsQuery = useMemoFirebase(() => {
     if (!db || !activeUid) return null;
@@ -208,7 +195,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       </div>
 
       <div className="relative bg-white rounded-xl shadow-md border border-border overflow-hidden">
-        {isFetchingMonth && (
+        {(isFetchingMonth || isUserLoading) && (
           <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
             <div className="flex flex-col items-center gap-2">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -316,6 +303,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             onChange={(e) => handleUpdateItem(item.id, col.id, Number(e.target.value))}
                             className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-9 text-sm text-center font-bold transition-all bg-transparent group-hover:bg-white/50"
                             placeholder="0"
+                            disabled={activeUid !== user?.uid && !targetUserId}
                           />
                         )}
                       </TableCell>

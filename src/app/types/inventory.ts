@@ -33,14 +33,13 @@ export const DEFAULT_COLUMNS: InventoryColumn[] = [
 ];
 
 /**
- * Lista exaustiva de publicações oficiais atualizada.
- * Siglas padronizadas: T-30 a T-37 em CAIXA ALTA, demais em minúsculas.
+ * Lista exaustiva de publicações oficiais limpa e atualizada.
+ * Siglas T-30 a T-37 em CAIXA ALTA, demais em minúsculas.
  */
 export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'received' | 'current'>[] = [
   { code: '', item: 'Bíblias', category: 'Bíblias', isCategory: true },
   { code: '3140', item: 'Tradução do Novo Mundo', abbr: 'nwt', category: 'Bíblias', imageKey: 'nwt' },
   { code: '3142', item: 'Tradução do Novo Mundo (pequena)', abbr: 'nwtpkt', category: 'Bíblias', imageKey: 'nwt' },
-  { code: '', item: 'Outras Bíblias', category: 'Bíblias' },
   
   { code: '', item: 'Livros', category: 'Livros', isCategory: true },
   { code: '5414', item: 'Beneficie-se', abbr: 'be', category: 'Livros', imageKey: 'be' },
@@ -51,7 +50,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '5419', item: 'Imite a Sua Fé', abbr: 'ia', category: 'Livros', imageKey: 'ia' },
   { code: '5425', item: 'Jesus — O Caminho', abbr: 'jy', category: 'Livros', imageKey: 'jy' },
   { code: '5422', item: 'O Reino de Deus já Governa!', abbr: 'kr', category: 'Livros', imageKey: 'kr' },
-  { code: '5427', item: 'Histórias da Bíblia', abbr: 'lfb', category: 'Livros', imageKey: 'lfb' },
+  { code: '5427', item: 'Historias da Bíblia', abbr: 'lfb', category: 'Livros', imageKey: 'lfb' },
   { code: '5445', item: 'Seja Feliz para Sempre! (livro)*', abbr: 'lff', category: 'Livros', imageKey: 'lff' },
   { code: '5415', item: 'Instrutor', abbr: 'lr', category: 'Livros', imageKey: 'lr' },
   { code: '5343', item: 'Continue', abbr: 'lvs', category: 'Livros', imageKey: 'lvs' },
@@ -90,14 +89,14 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   
   { code: '', item: 'Folhetos e convites (1 maço de 2,5 cm = 300)', category: 'Folhetos', isCategory: true },
   { code: '7305', item: 'Convite para reuniões cristãs*', abbr: 'inv', category: 'Folhetos', imageKey: 'inv' },
-  { code: '7130', item: 'O Que Você Acha da Bíblia?*', abbr: 'T-30', category: 'Folhetos', imageKey: 't-30' },
-  { code: '7131', item: 'O Que Você Espera do Futuro?*', abbr: 'T-31', category: 'Folhetos', imageKey: 't-31' },
-  { code: '7132', item: 'Segredo para Família Feliz*', abbr: 'T-32', category: 'Folhetos', imageKey: 't-32' },
-  { code: '7133', item: 'Quem Controla o Mundo?*', abbr: 'T-33', category: 'Folhetos', imageKey: 't-33' },
-  { code: '7134', item: 'O Sofrimento Vai Acabar?*', abbr: 'T-34', category: 'Folhetos', imageKey: 't-34' },
-  { code: '7135', item: 'Voltar a Viver*', abbr: 'T-35', category: 'Folhetos', imageKey: 't-35' },
-  { code: '7136', item: 'Reino*', abbr: 'T-36', category: 'Folhetos', imageKey: 't-36' },
-  { code: '7137', item: 'Respostas Importantes*', abbr: 'T-37', category: 'Folhetos', imageKey: 't-37' },
+  { code: '7130', item: 'O Que Você Acha da Bíblia?*', abbr: 'T-30', category: 'Folhetos', imageKey: 'T-30' },
+  { code: '7131', item: 'O Que Você Espera do Futuro?*', abbr: 'T-31', category: 'Folhetos', imageKey: 'T-31' },
+  { code: '7132', item: 'Segredo para Família Feliz*', abbr: 'T-32', category: 'Folhetos', imageKey: 'T-32' },
+  { code: '7133', item: 'Quem Controla o Mundo?*', abbr: 'T-33', category: 'Folhetos', imageKey: 'T-33' },
+  { code: '7134', item: 'O Sofrimento Vai Acabar?*', abbr: 'T-34', category: 'Folhetos', imageKey: 'T-34' },
+  { code: '7135', item: 'Voltar a Viver*', abbr: 'T-35', category: 'Folhetos', imageKey: 'T-35' },
+  { code: '7136', item: 'Reino*', abbr: 'T-36', category: 'Folhetos', imageKey: 'T-36' },
+  { code: '7137', item: 'Respostas Importantes*', abbr: 'T-37', category: 'Folhetos', imageKey: 'T-37' },
   
   { code: '', item: 'Cartões de visita', category: 'Cartões', isCategory: true },
   { code: '8410', item: 'Cartão de visita (imagem da Bíblia aberta)*', abbr: 'jwcd1', category: 'Cartões', imageKey: 'jwcd1' },

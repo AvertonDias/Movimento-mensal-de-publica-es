@@ -18,18 +18,26 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { doc } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const db = useFirestore();
+  const router = useRouter();
   
-  // Controle de visão compartilhada
   const [viewMode, setViewMode] = useState<'personal' | 'shared'>('personal');
   const [sharedOwnerId, setSharedOwnerId] = useState<string | null>(null);
   const [sharedOwnerName, setSharedOwnerName] = useState<string>('');
 
-  // Busca se o usuário logado é um ajudante de alguém
+  // Proteção de Rota: Redireciona se não estiver logado
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user || user.isAnonymous) return null;
     return doc(db, 'invites', user.uid);
@@ -48,7 +56,20 @@ export default function Home() {
     initiateSignOut(auth);
   };
 
-  const activeUserId = (viewMode === 'shared' && sharedOwnerId) ? sharedOwnerId : user?.uid;
+  if (isUserLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <BookOpen className="h-12 w-12 text-primary animate-pulse" />
+          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) return null;
+
+  const activeUserId = (viewMode === 'shared' && sharedOwnerId) ? sharedOwnerId : user.uid;
 
   return (
     <div className="min-h-screen pb-12 bg-background/50 font-body">
@@ -69,7 +90,6 @@ export default function Home() {
           </div>
           
           <div className="flex items-center gap-4">
-            {/* Toggler de Visão para Ajudantes */}
             {sharedOwnerId && (
               <Button 
                 variant="outline" 
@@ -100,49 +120,41 @@ export default function Home() {
               </Link>
             </div>
 
-            {!isUserLoading && user && !user.isAnonymous ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                    <Avatar className="h-9 w-9 border-2 border-primary/20">
-                      <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ""} />
-                      <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                        {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase() || <UserIcon className="h-4 w-4" />}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-bold leading-none">{user.displayName || "Usuário"}</p>
-                      <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                    </div>
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <Link href="/helpers">
-                    <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest">
-                      <Users className="mr-2 h-4 w-4" /> Ajudantes
-                    </DropdownMenuItem>
-                  </Link>
-                  <Link href="/history">
-                    <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest">
-                      <History className="mr-2 h-4 w-4" /> Histórico S-28-T
-                    </DropdownMenuItem>
-                  </Link>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive font-bold uppercase text-[10px] tracking-widest">
-                    <LogOut className="mr-2 h-4 w-4" /> Sair
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Link href="/login">
-                <Button className="font-bold uppercase text-xs tracking-wider h-9">
-                  <LogIn className="mr-2 h-4 w-4" /> Entrar
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-9 w-9 rounded-full">
+                  <Avatar className="h-9 w-9 border-2 border-primary/20">
+                    <AvatarImage src={user.photoURL || undefined} alt={user.displayName || ""} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                      {user.displayName?.charAt(0) || user.email?.charAt(0).toUpperCase() || <UserIcon className="h-4 w-4" />}
+                    </AvatarFallback>
+                  </Avatar>
                 </Button>
-              </Link>
-            )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-bold leading-none">{user.displayName || "Usuário"}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <Link href="/helpers">
+                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest">
+                    <Users className="mr-2 h-4 w-4" /> Ajudantes
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/history">
+                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest">
+                    <History className="mr-2 h-4 w-4" /> Histórico S-28-T
+                  </DropdownMenuItem>
+                </Link>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive font-bold uppercase text-[10px] tracking-widest">
+                  <LogOut className="mr-2 h-4 w-4" /> Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </header>
@@ -175,8 +187,4 @@ export default function Home() {
       </footer>
     </div>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(' ');
 }

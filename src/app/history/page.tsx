@@ -1,23 +1,30 @@
+
 'use client';
 
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import { HistoryTable } from "@/components/inventory/HistoryTable";
 import { ChevronLeft, Printer } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/firebase';
 
-/**
- * Página de Histórico (Formulário S-28-T 8/24)
- * Esta página é um espelho exato do formulário oficial de papel.
- * O botão de imprimir utiliza a função nativa do navegador, que permite "Salvar como PDF".
- */
 export default function HistoryPage(props: {
   params: Promise<any>;
   searchParams: Promise<any>;
 }) {
-  // Unwrap dynamic values for Next.js 15 using use()
   use(props.params);
   use(props.searchParams);
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !user) return null;
 
   return (
     <div className="min-h-screen bg-neutral-200 py-6 px-4 print:p-0 print:bg-white overflow-x-auto font-body">
@@ -40,7 +47,6 @@ export default function HistoryPage(props: {
         </div>
 
         <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 min-w-[1250px] print:min-w-0">
-          {/* Top Header */}
           <div className="flex justify-between items-baseline border-b-2 border-black pb-1 mb-2">
             <h1 className="text-xl font-black tracking-tight uppercase font-headline">
               MOVIMENTO MENSAL DE PUBLICAÇÕES
@@ -51,7 +57,6 @@ export default function HistoryPage(props: {
             </div>
           </div>
 
-          {/* Instruções Compactas */}
           <div className="text-[9px] leading-[1.1] space-y-0.5 mb-2 text-justify print:mb-1">
             <p><span className="font-bold">INSTRUÇÕES:</span> 1. Todas as congregações coordenadoras de idioma devem fazer a contagem real das publicações todo mês. 2. Antes de fazer a contagem, recapitule a <span className="italic">Lista de Publicações a Serem Descartadas (S-60)</span>. 3. Se a sua congregação não puder enviar o relatório pelo JW Hub, preencha: <span className="font-bold">(1) Estoque</span> (fim do mês), <span className="font-bold">(2) Recebido</span> (durante o mês), <span className="font-bold">(3) Saída</span> (determinado pela soma do anterior + recebido - atual).</p>
           </div>

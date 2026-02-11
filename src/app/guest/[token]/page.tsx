@@ -7,18 +7,22 @@ import { BookOpen, ShieldCheck, Printer, AlertTriangle } from "lucide-react";
 import { useFirestore, useDoc, useMemoFirebase, useUser, updateDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Button } from "@/components/ui/button";
+import { useRouter } from 'next/navigation';
 
-/**
- * Página de Acesso para Convidados (Ajudantes)
- * Recebe um token via URL e exibe o histórico do dono do token.
- * Captura automaticamente o nome do ajudante caso ele esteja logado.
- */
 export default function GuestHistoryPage(props: {
   params: Promise<{ token: string }>;
 }) {
   const params = use(props.params);
   const db = useFirestore();
-  const { user: guestUser } = useUser();
+  const { user: guestUser, isUserLoading } = useUser();
+  const router = useRouter();
+
+  // Proteção de Rota: Redireciona para login se não estiver logado
+  useEffect(() => {
+    if (!isUserLoading && !guestUser) {
+      router.push(`/login?redirect=/guest/${params.token}`);
+    }
+  }, [guestUser, isUserLoading, router, params.token]);
 
   const inviteRef = useMemoFirebase(() => {
     if (!db || !params.token) return null;
@@ -27,11 +31,9 @@ export default function GuestHistoryPage(props: {
 
   const { data: invite, isLoading, error } = useDoc(inviteRef);
 
-  // Captura o nome do ajudante automaticamente ao entrar
   useEffect(() => {
     if (invite && guestUser && !guestUser.isAnonymous && db) {
-      // Se quem está acessando não é o dono e o label ainda é o padrão "Aguardando acesso..."
-      if (guestUser.uid !== invite.ownerId && invite.label === 'Aguardando acesso...') {
+      if (guestUser.uid !== invite.ownerId && invite.label === 'Aguardando cadastro...') {
         const helperName = guestUser.displayName || guestUser.email?.split('@')[0] || 'Ajudante Conectado';
         const docRef = doc(db, 'invites', invite.id);
         
@@ -42,7 +44,7 @@ export default function GuestHistoryPage(props: {
     }
   }, [invite, guestUser, db]);
 
-  if (isLoading) {
+  if (isUserLoading || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-100">
         <div className="text-center space-y-4">
@@ -53,9 +55,11 @@ export default function GuestHistoryPage(props: {
     );
   }
 
+  if (!guestUser) return null;
+
   if (error || !invite) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-neutral-100 p-6">
+      <div className="min-h-screen items-center justify-center bg-neutral-100 p-6 flex">
         <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl text-center space-y-6">
           <div className="bg-destructive/10 p-4 rounded-full w-fit mx-auto">
             <AlertTriangle className="h-12 w-12 text-destructive" />
@@ -65,7 +69,7 @@ export default function GuestHistoryPage(props: {
             <p className="text-sm text-muted-foreground">O link de acesso expirou ou foi removido pelo proprietário do inventário.</p>
           </div>
           <Button asChild className="w-full uppercase font-bold text-xs" variant="outline">
-            <a href="/">Voltar ao Início</a>
+            <Link href="/">Voltar ao Início</Link>
           </Button>
         </div>
       </div>
@@ -103,10 +107,6 @@ export default function GuestHistoryPage(props: {
               <span className="text-xs font-bold uppercase">IDIOMA:</span>
               <div className="border-b border-black w-48 h-5 flex items-end px-2 font-bold text-xs">Português</div>
             </div>
-          </div>
-
-          <div className="text-[9px] leading-[1.1] space-y-0.5 mb-2 text-justify print:mb-1">
-            <p><span className="font-bold">MODO DE AJUDANTE:</span> Você está visualizando uma cópia em tempo real do histórico oficial. Estes dados são sincronizados automaticamente com a nuvem.</p>
           </div>
 
           <HistoryTable targetUserId={invite.ownerId} />
