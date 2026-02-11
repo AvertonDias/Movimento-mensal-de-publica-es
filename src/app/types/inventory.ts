@@ -9,14 +9,21 @@ export interface InventoryColumn {
 
 export interface InventoryItem {
   id: string;
+  code: string;
+  item: string;
+  category: string;
+  previous: number;
+  received: number;
+  current: number;
   [key: string]: string | number;
 }
 
 export const DEFAULT_COLUMNS: InventoryColumn[] = [
-  { id: 'item', header: 'Nome do Item', type: 'text' },
+  { id: 'code', header: 'N.º do Item', type: 'text' },
+  { id: 'item', header: 'Publicação', type: 'text' },
   { id: 'category', header: 'Categoria', type: 'text' },
-  { id: 'initial', header: 'Estoque Inicial', type: 'number' },
+  { id: 'previous', header: 'Estoque Anterior', type: 'number' },
   { id: 'received', header: 'Recebido', type: 'number' },
-  { id: 'outgoing', header: 'Saída', type: 'number' },
-  { id: 'balance', header: 'Saldo Atual', type: 'calculated' },
+  { id: 'current', header: 'Estoque Atual', type: 'number' },
+  { id: 'outgoing', header: 'Saída (Calculada)', type: 'calculated' },
 ];
