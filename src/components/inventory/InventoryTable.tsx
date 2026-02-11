@@ -12,7 +12,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { 
-  Download, 
   Search,
   Calendar as CalendarIcon,
   ChevronLeft,
@@ -132,24 +131,6 @@ export function InventoryTable() {
   const handlePrevMonth = () => setSelectedMonth(prev => subMonths(prev, 1));
   const handleNextMonth = () => setSelectedMonth(prev => addMonths(prev, 1));
 
-  const handleExportCSV = () => {
-    const headers = columns.map(c => c.header).join(',');
-    const rows = filteredItems.filter(i => !i.isCategory).map(item => {
-      return columns.map(col => {
-        if (col.id === 'outgoing') return calculateOutgoing(item);
-        return item[col.id];
-      }).join(',');
-    });
-    const csvContent = "data:text/csv;charset=utf-8," + headers + "\n" + rows.join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `inventario_${monthKey}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
     <div className="space-y-6">
       {/* Header Controls */}
@@ -183,12 +164,6 @@ export function InventoryTable() {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 h-11"
           />
-        </div>
-
-        <div className="flex gap-2">
-          <Button onClick={handleExportCSV} variant="outline" className="gap-2 h-11 font-bold uppercase text-xs">
-            <Download className="h-4 w-4" /> Exportar
-          </Button>
         </div>
       </div>
 
