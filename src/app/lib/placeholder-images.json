@@ -298,7 +298,7 @@
     {
       "id": "T-39",
       "description": "Folheto Onde encontrar as respostas?",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-39/T/pt/T-39_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/T-37/T/pt/T-37_T_lg.jpg",
       "imageHint": "tract 39"
     },
     {
@@ -364,7 +364,7 @@
     { "id": "g22.1", "description": "Despertai! 1 2022", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202201/T/pt/g_T_202201_lg.jpg", "imageHint": "awake 22-1" },
     { "id": "g23.1", "description": "Despertai! 1 2023", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202301/T/pt/g_T_202301_lg.jpg", "imageHint": "awake 23-1" },
     { "id": "g24.1", "description": "Despertai! 1 2024", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202401/T/pt/g_T_202401_lg.jpg", "imageHint": "awake 24-1" },
-    { "id": "wp18.1", "description": "A Sentinela 1 2018", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201901/T/pt/wp_T_201901_lg.jpg", "imageHint": "watchtower 18-1" },
+    { "id": "wp18.1", "description": "A Sentinela 1 2018", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201801/T/pt/wp_T_201801_lg.jpg", "imageHint": "watchtower 18-1" },
     { "id": "wp18.2", "description": "A Sentinela 2 2018", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201802/T/pt/wp_T_201802_lg.jpg", "imageHint": "watchtower 18-2" },
     { "id": "wp18.3", "description": "A Sentinela 3 2018", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201803/T/pt/wp_T_201803_lg.jpg", "imageHint": "watchtower 18-3" },
     { "id": "wp19.1", "description": "A Sentinela 1 2019", "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201901/T/pt/wp_T_201901_lg.jpg", "imageHint": "watchtower 19-1" },
