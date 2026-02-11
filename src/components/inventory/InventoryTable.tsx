@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -136,21 +137,21 @@ export function InventoryTable() {
       {/* Header Controls */}
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3 bg-neutral-100 p-1 rounded-lg border">
-            <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-9 w-9">
+          <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
+            <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="h-8 w-8">
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <div className="flex items-center gap-2 px-4 font-bold text-sm uppercase tracking-wider min-w-[180px] justify-center">
-              <CalendarIcon className="h-4 w-4 text-primary" />
+            <div className="flex items-center gap-2 px-2 font-bold text-xs uppercase tracking-wider min-w-[140px] justify-center">
+              <CalendarIcon className="h-3.5 w-3.5 text-primary" />
               {monthName}
             </div>
-            <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-9 w-9">
+            <Button variant="ghost" size="icon" onClick={handleNextMonth} className="h-8 w-8">
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <div className="flex items-center gap-1.5 px-1">
-            <Info className="h-3 w-3 text-muted-foreground" />
-            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider">
+          <div className="flex items-start gap-1.5 px-1 max-w-[200px]">
+            <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
+            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
               Nota: Os lançamentos devem ser referentes ao fechamento do mês anterior.
             </p>
           </div>
