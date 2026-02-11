@@ -44,6 +44,17 @@
         "label": { "type": "string", "description": "A name for this helper (e.g., 'João Ajudante')" }
       },
       "required": ["id", "ownerId", "createdAt"]
+    },
+    "Inventory": {
+      "title": "Inventory Item",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "item": { "type": "string" },
+        "code": { "type": "string" },
+        "category": { "type": "string" },
+        "sortOrder": { "type": "number" }
+      }
     }
   },
   "auth": {
@@ -54,31 +65,21 @@
     ]
   },
   "firestore": {
-    "structure": [
-      {
-        "path": "/users/{userId}",
-        "definition": {
-          "entityName": "User",
-          "schema": { "$ref": "#/backend/entities/User" },
-          "description": "Stores user profile data."
-        }
-      },
-      {
-        "path": "/invites/{tokenId}",
-        "definition": {
-          "entityName": "Invite",
-          "schema": { "$ref": "#/backend/entities/Invite" },
-          "description": "Publicly accessible invitation tokens."
-        }
-      },
-      {
-        "path": "/users/{userId}/inventories/{inventoryId}",
-        "definition": {
-          "entityName": "Inventory",
-          "schema": { "$ref": "#/backend/entities/Inventory" },
-          "description": "Stores inventory data for a specific user."
-        }
-      }
-    ]
+    "/users/{userId}": {
+      "schema": { "$ref": "#/backend/entities/User" },
+      "description": "Stores user profile data."
+    },
+    "/invites/{tokenId}": {
+      "schema": { "$ref": "#/backend/entities/Invite" },
+      "description": "Publicly accessible invitation tokens."
+    },
+    "/users/{userId}/inventory/{itemId}": {
+      "schema": { "$ref": "#/backend/entities/Inventory" },
+      "description": "Stores custom inventory definitions for a specific user."
+    },
+    "/users/{userId}/monthly_records/{monthKey}/items/{itemId}": {
+      "schema": { "type": "object" },
+      "description": "Stores monthly inventory data snapshots."
+    }
   }
 }

@@ -34,7 +34,8 @@ import {
   useUser, 
   useCollection, 
   useMemoFirebase,
-  setDocumentNonBlocking 
+  setDocumentNonBlocking,
+  updateDocumentNonBlocking 
 } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
@@ -185,11 +186,12 @@ export function InventoryTable() {
       const currentRef = doc(db, 'users', user.uid, 'inventory', currentItem.id);
       const targetRef = doc(db, 'users', user.uid, 'inventory', targetItem.id);
 
-      const targetOrder = Number(targetItem.sortOrder) || (targetIndex * 1000);
       const currentOrder = Number(currentItem.sortOrder) || (currentIndex * 1000);
+      const targetOrder = Number(targetItem.sortOrder) || (targetIndex * 1000);
 
-      setDocumentNonBlocking(currentRef, { sortOrder: targetOrder }, { merge: true });
-      setDocumentNonBlocking(targetRef, { sortOrder: currentOrder }, { merge: true });
+      // Swapping order values
+      updateDocumentNonBlocking(currentRef, { sortOrder: targetOrder });
+      updateDocumentNonBlocking(targetRef, { sortOrder: currentOrder });
     }
   };
 
@@ -250,7 +252,7 @@ export function InventoryTable() {
                 {columns.map((col) => (
                   <TableHead key={col.id} className={cn(
                     "font-bold text-foreground py-4 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0",
-                    col.id === 'move' && "w-[60px]"
+                    col.id === 'move' && "w-[80px]"
                   )}>
                     {col.header}
                   </TableHead>
@@ -268,7 +270,7 @@ export function InventoryTable() {
                           <Button 
                             variant="ghost" 
                             size="sm" 
-                            className="h-6 px-2 text-[9px] gap-1 hover:bg-primary/20"
+                            className="h-7 px-3 text-[9px] gap-1 hover:bg-primary/20 border border-primary/20"
                             onClick={() => openAddDialog(item.item)}
                           >
                             <Plus className="h-3 w-3" /> Adicionar Linha
@@ -286,24 +288,24 @@ export function InventoryTable() {
                     {columns.map((col) => (
                       <TableCell key={col.id} className="p-1 px-3 border-r last:border-0">
                         {col.id === 'move' ? (
-                          <div className="flex flex-col items-center justify-center gap-0.5">
+                          <div className="flex items-center justify-center gap-1">
                             {item.isCustom && (
                               <>
                                 <Button 
                                   variant="ghost" 
                                   size="icon" 
-                                  className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"
+                                  className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                                   onClick={() => handleMoveItem(item, 'up')}
                                 >
-                                  <ArrowUp className="h-3 w-3" />
+                                  <ArrowUp className="h-4 w-4" />
                                 </Button>
                                 <Button 
                                   variant="ghost" 
                                   size="icon" 
-                                  className="h-5 w-5 text-muted-foreground hover:text-primary transition-colors"
+                                  className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
                                   onClick={() => handleMoveItem(item, 'down')}
                                 >
-                                  <ArrowDown className="h-3 w-3" />
+                                  <ArrowDown className="h-4 w-4" />
                                 </Button>
                               </>
                             )}
@@ -349,6 +351,7 @@ export function InventoryTable() {
                                       sizes="180px"
                                       className="object-cover"
                                       priority={true}
+                                      unoptimized={true}
                                     />
                                     <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-white text-[10px] font-black uppercase text-center backdrop-blur-md">
                                       {item.item}

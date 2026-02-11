@@ -2,25 +2,25 @@
   "placeholderImages": [
     {
       "id": "nwt",
-      "description": "Capa da Tradução do Novo Mundo",
+      "description": "Tradução do Novo Mundo",
       "imageUrl": "https://cfp2.jw-cdn.org/a/87d17d/1/ir/nwt_T_lg.jpg",
       "imageHint": "bible book"
     },
     {
       "id": "be",
-      "description": "Capa do livro Beneficie-se",
+      "description": "Beneficie-se",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/be/T/pt/be_T_lg.jpg",
       "imageHint": "textbook education"
     },
     {
       "id": "bhs",
-      "description": "Capa do livro Entenda a Bíblia",
+      "description": "Entenda a Bíblia",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/bhs/T/pt/bhs_T_lg.jpg",
       "imageHint": "study book"
     },
     {
       "id": "lff",
-      "description": "Capa oficial do Seja Feliz para Sempre!",
+      "description": "Seja Feliz para Sempre!",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lffi/T/pt/lffi_T_lg.jpg",
       "imageHint": "spiritual guide"
     },
@@ -38,67 +38,67 @@
     },
     {
       "id": "ia",
-      "description": "Capa do livro Imite a Sua Fé",
+      "description": "Imite a Sua Fé",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ia/T/pt/ia_T_lg.jpg",
       "imageHint": "faith book"
     },
     {
       "id": "jy",
-      "description": "Capa do livro Jesus — O Caminho",
+      "description": "Jesus — O Caminho",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jy/T/pt/jy_T_lg.jpg",
       "imageHint": "jesus life"
     },
     {
       "id": "fg",
-      "description": "Capa da brochura Boas Notícias",
+      "description": "Boas Notícias",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/fg/T/pt/fg_T_lg.jpg",
       "imageHint": "good news"
     },
     {
       "id": "th",
-      "description": "Capa da brochura Melhore",
+      "description": "Melhore",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/th/T/pt/th_T_lg.jpg",
       "imageHint": "teaching brochure"
     },
     {
       "id": "cl",
-      "description": "Capa do livro Achegue-se",
+      "description": "Achegue-se",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/cl/T/pt/cl_T_lg.jpg",
       "imageHint": "draw close"
     },
     {
       "id": "bt",
-      "description": "Capa do livro Testemunho Cabal",
+      "description": "Testemunho Cabal",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/bt/T/pt/bt_T_lg.jpg",
       "imageHint": "bearing witness"
     },
     {
       "id": "cf",
-      "description": "Capa do livro Meu Seguidor",
+      "description": "Meu Seguidor",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/cf/T/pt/cf_T_lg.jpg",
       "imageHint": "come follow"
     },
     {
       "id": "kr",
-      "description": "Capa do livro O Reino de Deus já Governa",
+      "description": "O Reino de Deus já Governa",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/kr/T/pt/kr_T_lg.jpg",
       "imageHint": "gods kingdom"
     },
     {
       "id": "lvs",
-      "description": "Capa do livro Continue",
+      "description": "Continue",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lvs/T/pt/lvs_T_lg.jpg",
       "imageHint": "remain god"
     },
     {
       "id": "od",
-      "description": "Capa do livro Organizados",
+      "description": "Organizados",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/od/T/pt/od_T_lg.jpg",
       "imageHint": "organized book"
     },
     {
       "id": "rr",
-      "description": "Capa do livro Adoração Pura",
+      "description": "Adoração Pura",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/rr/T/pt/rr_T_lg.jpg",
       "imageHint": "pure worship"
     },
@@ -129,13 +129,13 @@
     {
       "id": "it1",
       "description": "Estudo Perspicaz Vol 1",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/it1/T/pt/it1_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/it/T/pt/it_1_T_lg.jpg",
       "imageHint": "insight vol 1"
     },
     {
       "id": "it2",
       "description": "Estudo Perspicaz Vol 2",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/it2/T/pt/it2_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/it/T/pt/it_2_T_lg.jpg",
       "imageHint": "insight vol 2"
     },
     {
@@ -146,109 +146,109 @@
     },
     {
       "id": "ay",
-      "description": "Capa da brochura Leitura e Escrita",
+      "description": "Leitura e Escrita",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ay/T/pt/ay_T_lg.jpg",
       "imageHint": "reading writing"
     },
     {
       "id": "ed",
-      "description": "Capa da brochura Educação",
+      "description": "Educação",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ed/T/pt/ed_T_lg.jpg",
       "imageHint": "education brochure"
     },
     {
       "id": "hf",
-      "description": "Capa da brochura Família",
+      "description": "Família",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/hf/T/pt/hf_T_lg.jpg",
       "imageHint": "family brochure"
     },
     {
       "id": "hl",
-      "description": "Capa da brochura Vida Feliz",
+      "description": "Vida Feliz",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/hl/T/pt/hl_T_lg.jpg",
       "imageHint": "happy life"
     },
     {
       "id": "la",
-      "description": "Capa da brochura Vida Satisfatória",
+      "description": "Vida Satisfatória",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/la/T/pt/la_T_lg.jpg",
       "imageHint": "satisfying life"
     },
     {
       "id": "lc",
-      "description": "Capa da brochura A Vida — Teve um Criador?",
+      "description": "A Vida — Teve um Criador?",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lc/T/pt/lc_T_lg.jpg",
       "imageHint": "life creator"
     },
     {
       "id": "ld",
-      "description": "Capa da brochura Escute a Deus",
+      "description": "Escute a Deus",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ld/T/pt/ld_T_lg.jpg",
       "imageHint": "listen god"
     },
     {
       "id": "lf",
-      "description": "Capa da brochura Origem da Vida",
+      "description": "Origem da Vida",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lf/T/pt/lf_T_lg.jpg",
       "imageHint": "origin life"
     },
     {
       "id": "ol",
-      "description": "Capa da brochura Caminho para a Vida",
+      "description": "Caminho para a Vida",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ol/T/pt/ol_T_lg.jpg",
       "imageHint": "road life"
     },
     {
       "id": "pc",
-      "description": "Capa da brochura Verdadeira Paz e Felicidade",
+      "description": "Verdadeira Paz e Felicidade",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/pc/T/pt/pc_T_lg.jpg",
       "imageHint": "peace happiness"
     },
     {
       "id": "ph",
-      "description": "Capa da brochura Caminho",
+      "description": "Caminho",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ph/T/pt/ph_T_lg.jpg",
       "imageHint": "pathway brochure"
     },
     {
       "id": "rj",
-      "description": "Capa da brochura Volte para Jeová",
+      "description": "Volte para Jeová",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/rj/T/pt/rj_T_lg.jpg",
       "imageHint": "return jehovah"
     },
     {
       "id": "rk",
-      "description": "Capa da brochura Verdadeira Fé",
+      "description": "Verdadeira Fé",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/rk/T/pt/rk_T_lg.jpg",
       "imageHint": "real faith"
     },
     {
       "id": "sp",
-      "description": "Capa da brochura Espíritos dos Mortos",
+      "description": "Espíritos dos Mortos",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/sp/T/pt/sp_T_lg.jpg",
       "imageHint": "spirits dead"
     },
     {
       "id": "wfg",
-      "description": "Capa da brochura Aprenda com a Sabedoria de Jesus",
+      "description": "Sabedoria de Jesus",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wfg/T/pt/wfg_T_lg.jpg",
       "imageHint": "jesus wisdom"
     },
     {
       "id": "ypq",
-      "description": "Capa da brochura 10 Perguntas",
+      "description": "10 Perguntas",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ypq/T/pt/ypq_T_lg.jpg",
       "imageHint": "10 questions"
     },
     {
       "id": "ba",
-      "description": "Capa da brochura Um Livro para Todas as Pessoas",
+      "description": "Um Livro para Todos",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ba/T/pt/ba_T_lg.jpg",
       "imageHint": "book all people"
     },
     {
       "id": "jt",
-      "description": "Capa da brochura Testemunhas de Jeová — Quem São?",
+      "description": "Testemunhas de Jeová — Quem São?",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jt/T/pt/jt_T_lg.jpg",
       "imageHint": "jehovahs witnesses who"
     },
@@ -314,49 +314,49 @@
     },
     {
       "id": "inv",
-      "description": "Convite para reuniões cristãs",
+      "description": "Convite para reuniões",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/inv/T/pt/inv_T_lg.jpg",
       "imageHint": "invitation"
     },
     {
       "id": "jwcd1",
       "description": "Cartão de visita Bíblia",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd1/T/pt/jwcd1_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_1_T_lg.jpg",
       "imageHint": "contact card bible"
     },
     {
       "id": "jwcd4",
       "description": "Cartão de visita Logo",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd4/T/pt/jwcd4_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_4_T_lg.jpg",
       "imageHint": "contact card logo"
     },
     {
       "id": "jwcd9",
       "description": "Cartão de visita Curso Presencial",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd9/T/pt/jwcd9_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_9_T_lg.jpg",
       "imageHint": "contact card course"
     },
     {
       "id": "jwcd10",
       "description": "Cartão de visita Curso Online",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd10/T/pt/jwcd10_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_10_T_lg.jpg",
       "imageHint": "contact card online"
     },
     {
       "id": "lr",
-      "description": "Capa do livro Instrutor",
+      "description": "Instrutor",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lr/T/pt/lr_T_lg.jpg",
       "imageHint": "teacher book"
     },
     {
       "id": "sjj",
-      "description": "Cancioneiro Cante de Coração",
+      "description": "Cante de Coração",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/sjj/T/pt/sjj_T_lg.jpg",
       "imageHint": "songbook cover"
     },
     {
       "id": "scl",
-      "description": "Livro Princípios Bíblicos",
+      "description": "Princípios Bíblicos",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/scl/T/pt/scl_T_lg.jpg",
       "imageHint": "bible principles"
     }
