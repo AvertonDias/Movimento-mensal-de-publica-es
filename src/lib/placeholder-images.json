@@ -3,19 +3,19 @@
     {
       "id": "nwt",
       "description": "Capa da Tradução do Novo Mundo",
-      "imageUrl": "https://images.unsplash.com/photo-1640726803446-3474924918ad?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxiaWJsZSUyMGJvb2t8ZW58MHx8fHwxNzcwODEwMjI3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1640726750945-14e894ad64e9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiaWJsZSUyMGJvb2t8ZW58MHx8fHwxNzcwODEwMjI3fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "bible book"
     },
     {
       "id": "be",
       "description": "Capa do livro Beneficie-se",
-      "imageUrl": "https://images.unsplash.com/photo-1725869973689-425c74f79a48?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx0ZXh0Ym9vayUyMGVkdWNhdGlvbnxlbnwwfHx8fDE3NzA4MTAyMjd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1626885228113-0ac4b52e6cea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx0ZXh0Ym9vayUyMGVkdWNhdGlvbnxlbnwwfHx8fDE3NzA4MTAyMjd8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "textbook education"
     },
     {
       "id": "bhs",
       "description": "Capa do livro Entenda a Bíblia",
-      "imageUrl": "https://images.unsplash.com/photo-1617239098289-ad0ee436361e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzdHVkeSUyMGJvb2t8ZW58MHx8fHwxNzcwODEwMjI3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1643647247993-d4b1a7c0877f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxzdHVkeSUyMGJvb2t8ZW58MHx8fHwxNzcwODEwMjI3fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "study book"
     },
     {
@@ -27,13 +27,13 @@
     {
       "id": "wp",
       "description": "Capa da revista A Sentinela",
-      "imageUrl": "https://images.unsplash.com/photo-1684323750753-ddeb888f825a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxtYWdhemluZSUyMGNvdmVyfGVufDB8fHx8MTc3MDc4MzI0MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1620482060657-38b4bb0ab9c8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxtYWdhemluZSUyMGNvdmVyfGVufDB8fHx8MTc3MDc4MzI0MHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "magazine cover"
     },
     {
       "id": "g",
       "description": "Capa da revista Despertai!",
-      "imageUrl": "https://images.unsplash.com/photo-1760302356448-d3385b5e6272?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxuZXdzJTIwbWFnYXppbmV8ZW58MHx8fHwxNzcwODEwMjI3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1579947661804-4247c26fcdec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxuZXdzJTIwbWFnYXppbmV8ZW58MHx8fHwxNzcwODEwMjI3fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "news magazine"
     }
   ]

@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -199,66 +198,66 @@ export function InventoryTable() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
-            <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => subMonths(prev, 1))} className="h-8 w-8">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="flex items-center gap-2 px-2 font-bold text-xs uppercase tracking-wider min-w-[140px] justify-center">
-              <CalendarIcon className="h-3.5 w-3.5 text-primary" />
-              {monthName}
+    <TooltipProvider delayDuration={300}>
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
+              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => subMonths(prev, 1))} className="h-8 w-8">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="flex items-center gap-2 px-2 font-bold text-xs uppercase tracking-wider min-w-[140px] justify-center">
+                <CalendarIcon className="h-3.5 w-3.5 text-primary" />
+                {monthName}
+              </div>
+              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
-            <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8">
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+            <div className="flex items-start gap-1.5 px-1 max-w-[200px]">
+              <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
+              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
+                Nota: Os lançamentos devem ser referentes ao fechamento do mês anterior.
+              </p>
+            </div>
           </div>
-          <div className="flex items-start gap-1.5 px-1 max-w-[200px]">
-            <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
-            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-              Nota: Os lançamentos devem ser referentes ao fechamento do mês anterior.
-            </p>
+
+          <div className="relative w-full md:flex-1 md:max-w-2xl">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Pesquisar por publicação, código ou sigla..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-11 w-full"
+            />
           </div>
         </div>
 
-        <div className="relative w-full md:flex-1 md:max-w-2xl">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Pesquisar por publicação, código ou sigla..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-11 w-full"
-          />
-        </div>
-      </div>
-
-      <div className="relative bg-white rounded-xl shadow-md border border-border overflow-hidden">
-        {isFetchingMonth && (
-          <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
-            <div className="flex flex-col items-center gap-2">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="text-xs font-bold uppercase text-muted-foreground">Carregando dados...</span>
+        <div className="relative bg-white rounded-xl shadow-md border border-border overflow-hidden">
+          {isFetchingMonth && (
+            <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="text-xs font-bold uppercase text-muted-foreground">Carregando dados...</span>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-primary/5">
-              <TableRow>
-                {columns.map((col) => (
-                  <TableHead key={col.id} className={cn(
-                    "font-bold text-foreground py-4 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0",
-                    col.id === 'move' && "w-[60px]"
-                  )}>
-                    {col.header}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TooltipProvider>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-primary/5">
+                <TableRow>
+                  {columns.map((col) => (
+                    <TableHead key={col.id} className={cn(
+                      "font-bold text-foreground py-4 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0",
+                      col.id === 'move' && "w-[60px]"
+                    )}>
+                      {col.header}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {filteredItems.map((item) => {
                   if (item.isCategory) {
                     return (
@@ -343,6 +342,7 @@ export function InventoryTable() {
                                         src={imagePlaceholder.imageUrl} 
                                         alt={imagePlaceholder.description}
                                         fill
+                                        sizes="200px"
                                         className="object-cover"
                                         data-ai-hint={imagePlaceholder.imageHint}
                                       />
@@ -370,32 +370,32 @@ export function InventoryTable() {
                     </TableRow>
                   );
                 })}
-              </TooltipProvider>
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+        
+        {activeCategory && (
+          <AddCustomItemDialog 
+            isOpen={isAddDialogOpen} 
+            onClose={() => setIsAddDialogOpen(false)} 
+            category={activeCategory} 
+          />
+        )}
+
+        {editingItem && (
+          <EditCustomItemDialog 
+            item={editingItem} 
+            onClose={() => setEditingItem(null)} 
+          />
+        )}
+
+        <div className="text-center">
+          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+            Os dados são salvos automaticamente para o mês de {monthName}
+          </p>
         </div>
       </div>
-      
-      {activeCategory && (
-        <AddCustomItemDialog 
-          isOpen={isAddDialogOpen} 
-          onClose={() => setIsAddDialogOpen(false)} 
-          category={activeCategory} 
-        />
-      )}
-
-      {editingItem && (
-        <EditCustomItemDialog 
-          item={editingItem} 
-          onClose={() => setEditingItem(null)} 
-        />
-      )}
-
-      <div className="text-center">
-        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-          Os dados são salvos automaticamente para o mês de {monthName}
-        </p>
-      </div>
-    </div>
+    </TooltipProvider>
   );
 }
