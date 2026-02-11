@@ -16,7 +16,8 @@ import {
   Trash2, 
   Download, 
   Search,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Calculator
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -41,12 +42,14 @@ export function InventoryTable() {
   ]);
   const [searchTerm, setSearchTerm] = useState('');
 
+  const calculateTotal = (item: InventoryItem) => {
+    return (Number(item.previous) || 0) + (Number(item.received) || 0);
+  };
+
   const calculateOutgoing = (item: InventoryItem) => {
-    const previous = Number(item.previous) || 0;
-    const received = Number(item.received) || 0;
+    const total = calculateTotal(item);
     const current = Number(item.current) || 0;
-    const outgoing = (previous + received) - current;
-    return outgoing;
+    return total - current;
   };
 
   const filteredItems = useMemo(() => {
@@ -87,6 +90,7 @@ export function InventoryTable() {
     const headers = columns.map(c => c.header).join(',');
     const rows = filteredItems.map(item => {
       return columns.map(col => {
+        if (col.id === 'total') return calculateTotal(item);
         if (col.id === 'outgoing') return calculateOutgoing(item);
         return item[col.id];
       }).join(',');
@@ -95,7 +99,7 @@ export function InventoryTable() {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "movimento_publicacoes.csv");
+    link.setAttribute("download", "movimento_mensal_publicacoes.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -107,30 +111,30 @@ export function InventoryTable() {
         <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input 
-            placeholder="Pesquisar por código ou nome..." 
+            placeholder="Pesquisar publicação ou código..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
+            className="pl-10 h-11"
           />
         </div>
         <div className="flex flex-wrap gap-2 w-full md:w-auto">
           <ColumnManager columns={columns} setColumns={setColumns} />
-          <Button onClick={handleExportCSV} variant="outline" className="gap-2">
-            <Download className="h-4 w-4" /> Exportar CSV
+          <Button onClick={handleExportCSV} variant="outline" className="gap-2 h-11">
+            <Download className="h-4 w-4" /> Exportar
           </Button>
-          <Button onClick={handleAddItem} className="gap-2 bg-accent hover:bg-accent/90 text-accent-foreground font-bold">
-            <Plus className="h-4 w-4" /> Nova Publicação
+          <Button onClick={handleAddItem} className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold h-11">
+            <Plus className="h-4 w-4" /> Nova Linha
           </Button>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-border overflow-hidden">
+      <div className="bg-white rounded-xl shadow-md border border-border overflow-hidden">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-muted/30">
+            <TableHeader className="bg-primary/5">
               <TableRow>
                 {columns.map((col) => (
-                  <TableHead key={col.id} className="font-bold text-foreground">
+                  <TableHead key={col.id} className="font-bold text-foreground py-4 px-3 text-xs uppercase tracking-wider">
                     {col.header}
                   </TableHead>
                 ))}
@@ -139,13 +143,17 @@ export function InventoryTable() {
             </TableHeader>
             <TableBody>
               {filteredItems.map((item) => (
-                <TableRow key={item.id} className="hover:bg-accent/5 transition-colors">
+                <TableRow key={item.id} className="hover:bg-accent/5 transition-colors border-b last:border-0">
                   {columns.map((col) => (
-                    <TableCell key={col.id} className="p-2">
-                      {col.id === 'outgoing' ? (
+                    <TableCell key={col.id} className="p-1 px-3">
+                      {col.id === 'total' ? (
+                        <div className="bg-muted/50 font-bold text-center py-2 rounded text-sm text-muted-foreground">
+                          {calculateTotal(item)}
+                        </div>
+                      ) : col.id === 'outgoing' ? (
                         <div className={cn(
-                          "px-3 py-2 font-bold rounded-md text-sm text-center",
-                          calculateOutgoing(item) < 0 ? "text-destructive bg-destructive/10" : "text-primary-foreground bg-primary/20"
+                          "py-2 font-bold rounded text-sm text-center",
+                          calculateOutgoing(item) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/20"
                         )}>
                           {calculateOutgoing(item)}
                         </div>
@@ -154,7 +162,7 @@ export function InventoryTable() {
                           type={col.type === 'number' ? 'number' : 'text'}
                           value={item[col.id]}
                           onChange={(e) => handleUpdateItem(item.id, col.id, col.type === 'number' ? Number(e.target.value) : e.target.value)}
-                          className="border-transparent hover:border-input focus:border-primary focus:ring-1 focus:ring-primary h-9 text-sm"
+                          className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-9 text-sm text-foreground"
                         />
                       )}
                     </TableCell>
@@ -164,7 +172,7 @@ export function InventoryTable() {
                       variant="ghost" 
                       size="icon" 
                       onClick={() => handleRemoveItem(item.id)}
-                      className="text-muted-foreground hover:text-destructive transition-colors"
+                      className="text-muted-foreground hover:text-destructive transition-colors h-8 w-8"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
@@ -174,7 +182,7 @@ export function InventoryTable() {
               {filteredItems.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={columns.length + 1} className="h-32 text-center text-muted-foreground">
-                    Nenhuma publicação encontrada.
+                    Nenhum item encontrado no formulário.
                   </TableCell>
                 </TableRow>
               )}
@@ -188,25 +196,38 @@ export function InventoryTable() {
           <AIInsights inventoryData={JSON.stringify(items)} />
         </div>
         <div className="space-y-4">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-border space-y-4">
-            <h3 className="font-bold flex items-center gap-2">
-              <FileSpreadsheet className="h-5 w-5 text-accent" />
-              Resumo do Mês
+          <div className="bg-white p-6 rounded-xl shadow-sm border border-border space-y-6">
+            <h3 className="font-bold flex items-center gap-2 text-lg text-primary">
+              <Calculator className="h-5 w-5" />
+              Resumo Consolidado
             </h3>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total de Itens:</span>
-                <span className="font-bold">{items.length}</span>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center pb-2 border-b border-dashed">
+                <span className="text-muted-foreground text-sm">Total Anterior:</span>
+                <span className="font-bold">{items.reduce((acc, curr) => acc + (Number(curr.previous) || 0), 0)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Recebido:</span>
-                <span className="font-bold">{items.reduce((acc, curr) => acc + (Number(curr.received) || 0), 0)}</span>
+              <div className="flex justify-between items-center pb-2 border-b border-dashed">
+                <span className="text-muted-foreground text-sm">Total Recebido:</span>
+                <span className="font-bold text-primary">{items.reduce((acc, curr) => acc + (Number(curr.received) || 0), 0)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Total de Saídas:</span>
-                <span className="font-bold text-accent-foreground">{items.reduce((acc, curr) => acc + calculateOutgoing(curr), 0)}</span>
+              <div className="flex justify-between items-center pb-2 border-b border-dashed">
+                <span className="text-muted-foreground text-sm">Estoque Atual:</span>
+                <span className="font-bold">{items.reduce((acc, curr) => acc + (Number(curr.current) || 0), 0)}</span>
+              </div>
+              <div className="flex justify-between items-center pt-2">
+                <span className="font-bold text-foreground">Total de Saídas:</span>
+                <div className="bg-accent px-3 py-1 rounded-full text-accent-foreground font-black text-lg">
+                  {items.reduce((acc, curr) => acc + calculateOutgoing(curr), 0)}
+                </div>
               </div>
             </div>
+          </div>
+
+          <div className="bg-primary/10 p-4 rounded-xl border border-primary/20">
+            <p className="text-xs text-primary-foreground/80 italic leading-relaxed">
+              * A "Saída" é calculada automaticamente: (Anterior + Recebido) - Estoque Atual. 
+              Certifique-se de preencher o "Estoque Atual" após a conferência física.
+            </p>
           </div>
         </div>
       </div>
