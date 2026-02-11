@@ -1,14 +1,12 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useFirestore, useUser, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { ChevronLeft, Copy, Plus, Trash2, Users, ExternalLink } from "lucide-react";
+import { ChevronLeft, Copy, Plus, Trash2, Users, ExternalLink, LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 
@@ -16,7 +14,6 @@ export default function HelpersPage() {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
-  const [newLabel, setNewLabel] = useState('');
 
   const invitesQuery = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -27,7 +24,7 @@ export default function HelpersPage() {
   const myInvites = allInvites?.filter(inv => inv.ownerId === user?.uid) || [];
 
   const handleCreateInvite = () => {
-    if (!user || !db || !newLabel) return;
+    if (!user || !db) return;
 
     const tokenId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const inviteRef = doc(db, 'invites', tokenId);
@@ -35,14 +32,13 @@ export default function HelpersPage() {
     setDocumentNonBlocking(inviteRef, {
       id: tokenId,
       ownerId: user.uid,
-      label: newLabel,
+      label: 'Aguardando acesso...', // Nome padrão que será atualizado quando o ajudante entrar
       createdAt: new Date().toISOString()
     }, { merge: true });
 
-    setNewLabel('');
     toast({
-      title: "Convite gerado!",
-      description: "Agora você pode copiar o link e enviar para o seu ajudante.",
+      title: "Link de acesso gerado!",
+      description: "Copie o link abaixo e envie para o seu ajudante.",
     });
   };
 
@@ -76,34 +72,26 @@ export default function HelpersPage() {
           </div>
         </div>
 
-        <Card className="border-primary/20 shadow-lg">
+        <Card className="border-primary/20 shadow-lg bg-white">
           <CardHeader>
-            <CardTitle className="uppercase text-lg">Gerar Novo Link de Acesso</CardTitle>
+            <CardTitle className="uppercase text-lg flex items-center gap-2">
+              <LinkIcon className="h-5 w-5 text-primary" />
+              Novo Link de Acesso
+            </CardTitle>
             <CardDescription className="text-xs font-bold uppercase tracking-wider">
-              Crie um acesso temporário para que outros vejam seu histórico S-28-T.
+              Gere um link para que outros vejam seu histórico S-28-T. O nome do ajudante será preenchido automaticamente ao acessar.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="helper-name">Nome do Ajudante ou Congregação</Label>
-              <div className="flex gap-2">
-                <Input 
-                  id="helper-name"
-                  placeholder="Ex: Irmão Silva (Ajudante)" 
-                  value={newLabel}
-                  onChange={(e) => setNewLabel(e.target.value)}
-                />
-                <Button onClick={handleCreateInvite} disabled={!newLabel} className="bg-primary font-bold uppercase text-xs px-6">
-                  <Plus className="h-4 w-4 mr-2" /> Gerar Link
-                </Button>
-              </div>
-            </div>
+          <CardContent>
+            <Button onClick={handleCreateInvite} className="w-full bg-primary hover:bg-primary/90 font-bold uppercase text-xs py-6 shadow-md transition-all active:scale-95">
+              <Plus className="h-5 w-5 mr-2" /> Gerar Novo Link de Acesso
+            </Button>
           </CardContent>
         </Card>
 
         <div className="space-y-4">
           <h2 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-            Links Ativos ({myInvites.length})
+            Links Gerados ({myInvites.length})
           </h2>
           
           {myInvites.length === 0 ? (
@@ -114,25 +102,30 @@ export default function HelpersPage() {
           ) : (
             <div className="grid gap-4">
               {myInvites.map((invite) => (
-                <Card key={invite.id} className="overflow-hidden border-l-4 border-l-primary">
+                <Card key={invite.id} className="overflow-hidden border-l-4 border-l-primary hover:shadow-md transition-shadow">
                   <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
                     <div className="space-y-1 text-center sm:text-left">
-                      <p className="font-black text-sm uppercase">{invite.label}</p>
+                      <p className={cn(
+                        "font-black text-sm uppercase",
+                        invite.label === 'Aguardando acesso...' ? "text-muted-foreground italic" : "text-foreground"
+                      )}>
+                        {invite.label}
+                      </p>
                       <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">
-                        Criado em {new Date(invite.createdAt).toLocaleDateString('pt-BR')}
+                        Gerado em {new Date(invite.createdAt).toLocaleDateString('pt-BR')}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="gap-2 h-9 text-[10px] font-black uppercase tracking-widest"
+                        className="gap-2 h-9 text-[10px] font-black uppercase tracking-widest bg-white"
                         onClick={() => copyToClipboard(invite.id)}
                       >
                         <Copy className="h-3.5 w-3.5" /> Copiar Link
                       </Button>
                       <Link href={`/guest/${invite.id}`} target="_blank">
-                        <Button variant="ghost" size="icon" className="h-9 w-9">
+                        <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-primary/10">
                           <ExternalLink className="h-4 w-4 text-primary" />
                         </Button>
                       </Link>
@@ -155,3 +148,5 @@ export default function HelpersPage() {
     </div>
   );
 }
+
+import { cn } from "@/lib/utils";

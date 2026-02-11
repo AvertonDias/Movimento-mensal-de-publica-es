@@ -1,10 +1,10 @@
 
 'use client';
 
-import React, { use } from 'react';
+import React, { use, useEffect } from 'react';
 import { HistoryTable } from "@/components/inventory/HistoryTable";
 import { BookOpen, ShieldCheck, Printer, AlertTriangle } from "lucide-react";
-import { useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import { useFirestore, useDoc, useMemoFirebase, useUser, updateDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Button } from "@/components/ui/button";
 
@@ -17,6 +17,7 @@ export default function GuestHistoryPage(props: {
 }) {
   const params = use(props.params);
   const db = useFirestore();
+  const { user: guestUser } = useUser();
 
   const inviteRef = useMemoFirebase(() => {
     if (!db || !params.token) return null;
@@ -24,6 +25,21 @@ export default function GuestHistoryPage(props: {
   }, [db, params.token]);
 
   const { data: invite, isLoading, error } = useDoc(inviteRef);
+
+  // Lógica para capturar o nome do ajudante caso ele esteja logado (tenha cadastro)
+  useEffect(() => {
+    if (invite && guestUser && !guestUser.isAnonymous && db) {
+      // Se for um usuário diferente do dono e o nome ainda estiver como o padrão
+      if (guestUser.uid !== invite.ownerId && (invite.label === 'Aguardando acesso...' || !invite.label)) {
+        const helperName = guestUser.displayName || guestUser.email?.split('@')[0] || 'Ajudante';
+        const docRef = doc(db, 'invites', invite.id);
+        
+        updateDocumentNonBlocking(docRef, {
+          label: helperName
+        });
+      }
+    }
+  }, [invite, guestUser, db]);
 
   if (isLoading) {
     return (
