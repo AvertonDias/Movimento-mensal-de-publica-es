@@ -51,7 +51,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '5419', item: 'Imite a Sua Fé', abbr: 'ia', category: 'Livros', imageKey: 'ia' },
   { code: '5425', item: 'Jesus — O Caminho', abbr: 'jy', category: 'Livros', imageKey: 'jy' },
   { code: '5422', item: 'O Reino de Deus já Governa!', abbr: 'kr', category: 'Livros', imageKey: 'kr' },
-  { code: '5427', item: 'Historias da Bíblia', abbr: 'lfb', category: 'Livros', imageKey: 'lfb' },
+  { code: '5427', item: 'Histórias da Bíblia', abbr: 'lfb', category: 'Livros', imageKey: 'lfb' },
   { code: '5445', item: 'Seja Feliz para Sempre! (livro)*', abbr: 'lff', category: 'Livros', imageKey: 'lff' },
   { code: '5415', item: 'Instrutor', abbr: 'lr', category: 'Livros', imageKey: 'lr' },
   { code: '5343', item: 'Continue', abbr: 'lvs', category: 'Livros', imageKey: 'lvs' },
@@ -105,7 +105,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '8569', item: 'Cartão de visita (curso bíblico presencial)*', abbr: 'jwcd9', category: 'Cartões', imageKey: 'jwcd9' },
   { code: '8570', item: 'Cartão de visita (curso bíblico pela internet)*', abbr: 'jwcd10', category: 'Cartões', imageKey: 'jwcd10' },
 
-  { code: '', item: 'Despertai!', category: 'Revistas', isCategory: true },
+  { code: '', item: 'Revistas', category: 'Revistas', isCategory: true },
   { code: '', item: 'Despertai! N.º 1 2018*', abbr: 'g18.1', category: 'Revistas', imageKey: 'g18.1' },
   { code: '', item: 'Despertai! N.º 2 2018*', abbr: 'g18.2', category: 'Revistas', imageKey: 'g18.2' },
   { code: '', item: 'Despertai! N.º 3 2018*', abbr: 'g18.3', category: 'Revistas', imageKey: 'g18.3' },
