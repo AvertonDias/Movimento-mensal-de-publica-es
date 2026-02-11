@@ -1,5 +1,7 @@
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { BookOpen, ClipboardList } from "lucide-react";
+import { BookOpen, ClipboardList, History } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -15,9 +17,17 @@ export default function Home() {
               <p className="text-sm text-muted-foreground font-semibold uppercase tracking-[0.2em]">Publicações • JW Hub</p>
             </div>
           </div>
-          <div className="hidden md:flex items-center gap-2 bg-accent/10 px-4 py-2 rounded-full border border-accent/20">
-            <ClipboardList className="h-4 w-4 text-accent-foreground" />
-            <span className="text-xs font-bold text-accent-foreground uppercase tracking-wider">Formulário S-28-T</span>
+          <div className="flex items-center gap-4">
+            <Link href="/history">
+              <Button variant="ghost" className="gap-2 font-bold uppercase text-xs tracking-wider">
+                <History className="h-4 w-4" />
+                Histórico
+              </Button>
+            </Link>
+            <div className="hidden md:flex items-center gap-2 bg-accent/10 px-4 py-2 rounded-full border border-accent/20">
+              <ClipboardList className="h-4 w-4 text-accent-foreground" />
+              <span className="text-xs font-bold text-accent-foreground uppercase tracking-wider">Formulário S-28-T</span>
+            </div>
           </div>
         </div>
       </header>
