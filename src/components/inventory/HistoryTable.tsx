@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -10,8 +10,12 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { useFirestore, useUser } from '@/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import { format, subMonths, startOfMonth } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-const MONTHS = [
+const MONTH_LABELS = [
   "set./mar.", "out./abr.", "nov./mai.", "dez./jun.", "jan./jul.", "fev./ago."
 ];
 
@@ -62,14 +66,13 @@ const ITEMS: PublicationItem[] = [
   { code: '6545', name: 'Seja Feliz para Sempre! (brochura)*', abbr: 'lffi', type: 'item' },
   { code: '6657', name: 'Escute e Viva*', abbr: 'll', type: 'item' },
   { code: '6669', name: 'Ame as Pessoas', abbr: 'lmd', type: 'item' },
-  { code: '6663', name: 'Minhas Lições da Bíblia', abbr: 'mb', type: 'item' },
+  { code: '6663', name: 'Minhas Lições da Bíbliamb', type: 'item' },
   { code: '6648', name: 'Caminho para a Vida', abbr: 'ol', type: 'item' },
   { code: '6639', name: 'Verdadeira Paz e Felicidade', abbr: 'pc', type: 'item' },
   { code: '6653', name: 'Caminho', abbr: 'ph', type: 'item' },
   { code: '6671', name: 'Volte para Jeová', abbr: 'rj', type: 'item' },
   { code: '6656', name: 'Verdadeira Fé', abbr: 'rk', type: 'item' },
   { code: '6630', name: 'Espíritos dos Mortos', abbr: 'sp', type: 'item' },
-  // Início da Página 2
   { code: '6667', name: 'Melhore', abbr: 'th', type: 'item' },
   { code: '6670', name: 'Aprenda com a Sabedoria de Jesus', abbr: 'wfg', type: 'item' },
   { code: '6684', name: '10 Perguntas', abbr: 'ypq', type: 'item' },
@@ -92,53 +95,89 @@ const ITEMS: PublicationItem[] = [
   { code: '8570', name: 'Cartão de visita (curso bíblico pela internet)*', abbr: 'jwcd10', type: 'item' },
   { code: '', name: 'Outros cartões de visita', type: 'item' },
   { code: '', name: 'Revistas para o público', type: 'category' },
-  { code: '', name: 'Despertai! N.º 1 2018*', abbr: 'g18.1', type: 'item' },
-  { code: '', name: 'Despertai! N.º 2 2018*', abbr: 'g18.2', type: 'item' },
-  { code: '', name: 'Despertai! N.º 3 2018*', abbr: 'g18.3', type: 'item' },
-  { code: '', name: 'Despertai! N.º 1 2019*', abbr: 'g19.1', type: 'item' },
-  { code: '', name: 'Despertai! N.º 2 2019*', abbr: 'g19.2', type: 'item' },
-  { code: '', name: 'Despertai! N.º 3 2019*', abbr: 'g19.3', type: 'item' },
-  { code: '', name: 'Despertai! N.º 1 2020*', abbr: 'g20.1', type: 'item' },
-  { code: '', name: 'Despertai! N.º 2 2020*', abbr: 'g20.2', type: 'item' },
-  { code: '', name: 'Despertai! N.º 3 2020*', abbr: 'g20.3', type: 'item' },
-  { code: '', name: 'Despertai! N.º 1 2021*', abbr: 'g21.1', type: 'item' },
-  { code: '', name: 'Despertai! N.º 2 2021*', abbr: 'g21.2', type: 'item' },
-  { code: '', name: 'Despertai! N.º 3 2021*', abbr: 'g21.3', type: 'item' },
-  { code: '', name: 'Despertai! N.º 1 2022*', abbr: 'g22.1', type: 'item' },
-  { code: '', name: 'Despertai! N.º 1 2023*', abbr: 'g23.1', type: 'item' },
-  { code: '', name: 'Sentinela N.º 1 2018*', abbr: 'wp18.1', type: 'item' },
-  { code: '', name: 'Sentinela N.º 2 2018*', abbr: 'wp18.2', type: 'item' },
-  { code: '', name: 'Sentinela N.º 3 2018*', abbr: 'wp18.3', type: 'item' },
-  { code: '', name: 'Sentinela N.º 1 2019*', abbr: 'wp19.1', type: 'item' },
-  { code: '', name: 'Sentinela N.º 2 2019*', abbr: 'wp19.2', type: 'item' },
-  { code: '', name: 'Sentinela N.º 3 2019*', abbr: 'wp19.3', type: 'item' },
-  { code: '', name: 'Sentinela N.º 1 2020*', abbr: 'wp20.1', type: 'item' },
-  { code: '', name: 'Sentinela N.º 2 2020*', abbr: 'wp20.2', type: 'item' },
-  { code: '', name: 'Sentinela N.º 3 2020*', abbr: 'wp20.3', type: 'item' },
-  { code: '', name: 'Sentinela N.º 1 2021*', abbr: 'wp21.1', type: 'item' },
-  { code: '', name: 'Sentinela N.º 2 2021*', abbr: 'wp21.2', type: 'item' },
-  { code: '', name: 'Sentinela N.º 3 2021*', abbr: 'wp21.3', type: 'item' },
-  { code: '', name: 'Sentinela N.º 1 2022*', abbr: 'wp22.1', type: 'item' },
-  { code: '', name: 'Sentinela N.º 1 2023*', abbr: 'wp23.1', type: 'item' },
   { code: '', name: 'Todas as outras revistas para o público', type: 'item' },
 ];
 
 export function HistoryTable() {
+  const { user } = useUser();
+  const db = useFirestore();
+  const [historyData, setHistoryData] = useState<Record<string, Record<string, any>>>({});
+  const [loading, setLoading] = useState(true);
+
+  // Calcula os últimos 6 meses (baseado no mês anterior ao atual)
+  const lastSixMonths = useMemo(() => {
+    const months = [];
+    const baseDate = subMonths(new Date(), 1);
+    for (let i = 5; i >= 0; i--) {
+      const date = subMonths(baseDate, i);
+      months.push({
+        key: format(date, 'yyyy-MM'),
+        label: format(date, 'MMM yy', { locale: ptBR })
+      });
+    }
+    return months;
+  }, []);
+
+  useEffect(() => {
+    async function fetchHistory() {
+      if (!user || !db) return;
+      setLoading(true);
+      const allMonthsData: Record<string, Record<string, any>> = {};
+
+      try {
+        for (const month of lastSixMonths) {
+          const colRef = collection(db, 'users', user.uid, 'monthly_records', month.key, 'items');
+          const snapshot = await getDocs(colRef);
+          const monthItems: Record<string, any> = {};
+          snapshot.forEach(doc => {
+            monthItems[doc.id] = doc.data();
+          });
+          allMonthsData[month.key] = monthItems;
+        }
+        setHistoryData(allMonthsData);
+      } catch (e) {
+        console.error("Erro ao buscar histórico:", e);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchHistory();
+  }, [user, db, lastSixMonths]);
+
+  const getValue = (monthKey: string, itemId: string, field: string) => {
+    return historyData[monthKey]?.[itemId]?.[field] ?? '';
+  };
+
+  const calculateOutgoing = (monthKey: string, itemId: string) => {
+    const data = historyData[monthKey]?.[itemId];
+    if (!data) return '';
+    const prev = Number(data.previous) || 0;
+    const rec = Number(data.received) || 0;
+    const curr = Number(data.current) || 0;
+    return (prev + rec) - curr;
+  };
+
   return (
-    <div className="border border-black">
+    <div className="border border-black relative">
+      {loading && (
+        <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-[1px]">
+          <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse">Sincronizando registros...</span>
+        </div>
+      )}
       <Table className="border-collapse table-fixed w-full">
         <TableHeader>
           {/* Row 1: Months */}
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-10">
             <TableHead className="w-[80px] text-[10px] font-black uppercase text-black p-1 text-center align-bottom border-black">MÊS E ANO</TableHead>
             <TableHead className="w-[280px] border-l-0"></TableHead>
-            {MONTHS.map((month, idx) => (
+            {lastSixMonths.map((month) => (
               <TableHead 
-                key={month} 
-                colSpan={idx === 0 ? 4 : 3} 
-                className="text-center text-[11px] font-black uppercase text-black p-0 h-10 border-l border-black"
+                key={month.key} 
+                colSpan={month === lastSixMonths[0] ? 4 : 3} 
+                className="text-center text-[10px] font-black uppercase text-black p-0 h-10 border-l border-black bg-neutral-50/50"
               >
-                {month}
+                {month.label}
               </TableHead>
             ))}
           </TableRow>
@@ -146,17 +185,19 @@ export function HistoryTable() {
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-12">
             <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none">N.º do item</TableHead>
             <TableHead className="text-[12px] font-black text-black p-2 align-bottom">Publicações</TableHead>
+            
             {/* First Month Headers */}
-            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Estoque anterior</TableHead>
-            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Recebido</TableHead>
-            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Estoque</TableHead>
-            <TableHead className="text-[8px] font-black text-black p-0 text-center leading-none uppercase bg-neutral-300/80">Saída</TableHead>
+            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Ant.</TableHead>
+            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Rec.</TableHead>
+            <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Est.</TableHead>
+            <TableHead className="text-[8px] font-black text-black p-0 text-center leading-none uppercase bg-neutral-200">Saída</TableHead>
+            
             {/* Other Months Headers */}
-            {MONTHS.slice(1).map((m) => (
-              <React.Fragment key={m}>
-                <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Recebido</TableHead>
-                <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Estoque</TableHead>
-                <TableHead className="text-[8px] font-black text-black p-0 text-center leading-none uppercase bg-neutral-300/80">Saída</TableHead>
+            {lastSixMonths.slice(1).map((m) => (
+              <React.Fragment key={m.key}>
+                <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Rec.</TableHead>
+                <TableHead className="text-[7px] font-bold text-black p-0 text-center leading-none uppercase">Est.</TableHead>
+                <TableHead className="text-[8px] font-black text-black p-0 text-center leading-none uppercase bg-neutral-200">Saída</TableHead>
               </React.Fragment>
             ))}
           </TableRow>
@@ -173,6 +214,7 @@ export function HistoryTable() {
                 </TableRow>
               );
             }
+            const itemId = item.code || `item_${idx}`;
             return (
               <TableRow key={idx} className="border-b border-black divide-x divide-black h-6 hover:bg-transparent">
                 <TableCell className="text-[9px] text-center p-0 font-bold border-black">{item.code}</TableCell>
@@ -180,16 +222,20 @@ export function HistoryTable() {
                   <span className="truncate leading-none">{item.name}</span>
                   {item.abbr && <span className="font-bold ml-1 text-[9px] min-w-[30px] text-right">{item.abbr}</span>}
                 </TableCell>
-                {/* 19 Data Columns */}
-                {Array.from({ length: 19 }).map((_, i) => (
-                  <TableCell 
-                    key={i} 
-                    className={cn(
-                      "p-0 border-black",
-                      // Saída columns: index 3, 6, 9, 12, 15, 18
-                      (i === 3 || (i > 3 && (i - 3) % 3 === 0)) ? "bg-neutral-300/80" : ""
-                    )}
-                  ></TableCell>
+                
+                {/* 1st Month Data */}
+                <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(lastSixMonths[0].key, itemId, 'previous')}</TableCell>
+                <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(lastSixMonths[0].key, itemId, 'received')}</TableCell>
+                <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(lastSixMonths[0].key, itemId, 'current')}</TableCell>
+                <TableCell className="text-[10px] text-center p-0 font-black bg-neutral-200">{calculateOutgoing(lastSixMonths[0].key, itemId)}</TableCell>
+
+                {/* Other Months Data */}
+                {lastSixMonths.slice(1).map((m) => (
+                  <React.Fragment key={m.key}>
+                    <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(m.key, itemId, 'received')}</TableCell>
+                    <TableCell className="text-[9px] text-center p-0 font-bold">{getValue(m.key, itemId, 'current')}</TableCell>
+                    <TableCell className="text-[10px] text-center p-0 font-black bg-neutral-200">{calculateOutgoing(m.key, itemId)}</TableCell>
+                  </React.Fragment>
                 ))}
               </TableRow>
             );

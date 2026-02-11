@@ -7,7 +7,7 @@ export default async function Home(props: {
   params: Promise<any>;
   searchParams: Promise<any>;
 }) {
-  // Unwrap dynamic values for Next.js 15
+  // Explicitly await dynamic APIs in Next.js 15
   await props.params;
   await props.searchParams;
 

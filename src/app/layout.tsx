@@ -12,7 +12,7 @@ export default async function RootLayout(props: {
   children: React.ReactNode;
   params: Promise<any>;
 }) {
-  // Unwrap params to satisfy Next.js 15 requirements even if not directly used
+  // Explicitly await params to satisfy Next.js 15 requirements
   await props.params;
   
   return (

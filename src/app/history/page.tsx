@@ -14,13 +14,13 @@ export default function HistoryPage(props: {
   params: Promise<any>;
   searchParams: Promise<any>;
 }) {
-  // Unwrap dynamic values for Next.js 15
+  // Unwrap dynamic values for Next.js 15 using use()
   use(props.params);
   use(props.searchParams);
 
   return (
     <div className="min-h-screen bg-neutral-200 py-12 px-4 print:p-0 print:bg-white overflow-x-auto font-body">
-      <div className="max-w-[1250px] mx-auto space-y-4">
+      <div className="max-w-[1300px] mx-auto space-y-4">
         <div className="flex items-center justify-between print:hidden">
           <Link href="/">
             <Button variant="ghost" className="gap-2">
@@ -34,7 +34,7 @@ export default function HistoryPage(props: {
           </Button>
         </div>
 
-        <div className="bg-white shadow-2xl p-10 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-0 min-w-[1200px]">
+        <div className="bg-white shadow-2xl p-10 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-0 min-w-[1250px]">
           {/* Top Header */}
           <div className="flex justify-between items-baseline border-b-2 border-black pb-2 mb-4">
             <h1 className="text-2xl font-black tracking-tight uppercase font-headline">
@@ -54,12 +54,11 @@ export default function HistoryPage(props: {
               <li>Antes de fazer a contagem, recapitule a <span className="italic">Lista de Publicações a Serem Descartadas (S-60)</span> e siga as instruções sobre jogar fora os itens que aparecem na lista.</li>
               <li>Se a sua congregação não puder enviar todo mês um relatório do inventário de publicações pelo JW Hub, certifique-se de que as informações a seguir sejam preenchidas abaixo para cada mês:
                 <ul className="list-none pl-4 pt-1 space-y-1">
-                  <li><span className="font-bold">(1) Estoque:</span> Anote a quantidade em estoque no fim do mês. Com exceção do livro <span className="italic">Organizados</span>, itens de pedido especial não estão listados neste formulário, visto que eles não devem ficar em estoque. Se por algum motivo houver itens de pedido especial em estoque, anote as quantidades em uma das categorias gerais, como, por exemplo, "Outras Bíblias".</li>
+                  <li><span className="font-bold">(1) Estoque:</span> Anote a quantidade em estoque no fim do mês. Com exceção do livro <span className="italic">Organizados</span>, itens de pedido especial não estão listados neste formulário, visto que eles não devem ficar em estoque.</li>
                   <li><span className="font-bold">(2) Recebido:</span> Anote a quantidade de cada item recebido durante o mês.</li>
                   <li><span className="font-bold">(3) Saída:</span> Anote a quantidade de cada item que saiu durante o mês. Pode-se determinar essa quantidade por: (1) somar a quantidade em "Estoque" do mês anterior à quantidade anotada em "Recebido" durante o mês atual e depois (2) subtrair desse total a contagem real que acabou de ser feita ("Estoque").</li>
                 </ul>
               </li>
-              <li>Duas vezes por ano, Betel vai pedir que as congregações coordenadoras de idiomas enviem seu inventário pelo JW Hub, se possível. Para enviar um relatório do inventário de publicações, faça o seguinte: na página inicial do JW Hub, seção "Congregação", clique em "Publicações" &gt; "Relatórios de inventário". Veja na seção "Ajuda" instruções sobre como enviar relatórios.</li>
               <li>Neste formulário, um asterisco (*) depois do título ou da descrição de um item indica que ele faz parte do Kit de Ensino.</li>
             </ol>
           </div>
@@ -68,7 +67,7 @@ export default function HistoryPage(props: {
 
           <div className="mt-8 flex justify-between items-end border-t border-neutral-200 pt-4">
             <span className="text-[10px] font-bold text-neutral-500 italic">S-28-T 8/24</span>
-            <span className="text-[10px] font-bold text-black">1 / 2</span>
+            <span className="text-[10px] font-bold text-black text-right">Este documento é um registro digital das entradas feitas na tela principal.</span>
           </div>
         </div>
       </div>
