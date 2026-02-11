@@ -55,7 +55,9 @@ export function EditCustomItemDialog({ item, onClose }: EditCustomItemDialogProp
   const handleDelete = () => {
     if (!user || !db || !item) return;
     
-    if (confirm(`Tem certeza que deseja excluir "${item.item}"?`)) {
+    const confirmDelete = window.confirm(`Tem certeza que deseja excluir permanentemente a publicação "${item.item}"?`);
+    
+    if (confirmDelete) {
       const docRef = doc(db, 'users', user.uid, 'inventory', item.id);
       deleteDocumentNonBlocking(docRef);
       onClose();
@@ -63,7 +65,7 @@ export function EditCustomItemDialog({ item, onClose }: EditCustomItemDialogProp
   };
 
   return (
-    <Dialog open={!!item} onOpenChange={() => onClose()}>
+    <Dialog open={!!item} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Editar Item Personalizado</DialogTitle>
@@ -100,13 +102,13 @@ export function EditCustomItemDialog({ item, onClose }: EditCustomItemDialogProp
             />
           </div>
         </div>
-        <DialogFooter className="flex justify-between sm:justify-between items-center w-full">
-          <Button variant="destructive" onClick={handleDelete} className="gap-2">
+        <DialogFooter className="flex flex-col sm:flex-row justify-between items-center gap-2 w-full">
+          <Button variant="destructive" onClick={handleDelete} className="gap-2 w-full sm:w-auto">
             <Trash2 className="h-4 w-4" /> Excluir
           </Button>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button onClick={handleUpdate} className="bg-primary">Salvar</Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="outline" onClick={onClose} className="flex-1 sm:flex-none">Cancelar</Button>
+            <Button onClick={handleUpdate} className="bg-primary flex-1 sm:flex-none">Salvar</Button>
           </div>
         </DialogFooter>
       </DialogContent>

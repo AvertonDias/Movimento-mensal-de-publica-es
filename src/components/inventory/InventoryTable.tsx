@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -184,16 +183,17 @@ export function InventoryTable() {
       const currentRef = doc(db, 'users', user.uid, 'inventory', currentItem.id);
       const targetRef = doc(db, 'users', user.uid, 'inventory', targetItem.id);
 
-      // Pegamos os valores de ordem ou usamos o timestamp como fallback
-      const currentOrder = Number(currentItem.sortOrder) || Date.now();
-      const targetOrder = Number(targetItem.sortOrder) || (direction === 'up' ? currentOrder - 100 : currentOrder + 100);
+      // Pegamos os valores de ordem. Se não houver, usamos uma escala baseada no índice
+      const currentOrder = Number(currentItem.sortOrder) || (currentIndex * 1000);
+      const targetOrder = Number(targetItem.sortOrder) || (targetIndex * 1000);
 
-      // Se por algum motivo forem iguais, forçamos uma diferença
+      // Realiza a troca de ordens
       if (currentOrder === targetOrder) {
-        const offset = direction === 'up' ? -1 : 1;
+        // Se as ordens forem iguais por algum motivo, forçamos um distanciamento
+        const offset = direction === 'up' ? -100 : 100;
         setDocumentNonBlocking(currentRef, { sortOrder: currentOrder + offset }, { merge: true });
       } else {
-        // Trocamos os valores de ordem
+        // Trocamos os valores
         setDocumentNonBlocking(currentRef, { sortOrder: targetOrder }, { merge: true });
         setDocumentNonBlocking(targetRef, { sortOrder: currentOrder }, { merge: true });
       }
