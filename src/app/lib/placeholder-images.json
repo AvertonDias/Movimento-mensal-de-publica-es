@@ -1,4 +1,3 @@
-
 {
   "placeholderImages": [
     {
@@ -18,6 +17,24 @@
       "description": "Capa do livro Entenda a Bíblia",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/bhs/T/pt/bhs_T_lg.jpg",
       "imageHint": "study book"
+    },
+    {
+      "id": "lff",
+      "description": "Capa oficial do Seja Feliz para Sempre!",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lffi/T/pt/lffi_T_lg.jpg",
+      "imageHint": "spiritual guide"
+    },
+    {
+      "id": "wp24",
+      "description": "A Sentinela 2024",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/T/pt/wp_T_lg.jpg",
+      "imageHint": "magazine cover"
+    },
+    {
+      "id": "g24",
+      "description": "Despertai! 2024",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/T/pt/g_T_lg.jpg",
+      "imageHint": "news magazine"
     },
     {
       "id": "ia",
@@ -42,24 +59,6 @@
       "description": "Capa da brochura Melhore",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/th/T/pt/th_T_lg.jpg",
       "imageHint": "teaching brochure"
-    },
-    {
-      "id": "lff",
-      "description": "Capa oficial do Seja Feliz para Sempre!",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lffi/T/pt/lffi_T_lg.jpg",
-      "imageHint": "spiritual guide"
-    },
-    {
-      "id": "wp24",
-      "description": "A Sentinela 2024",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/T/pt/wp_T_lg.jpg",
-      "imageHint": "watchtower 2024"
-    },
-    {
-      "id": "g24",
-      "description": "Despertai! 2024",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/T/pt/g_T_lg.jpg",
-      "imageHint": "awake 2024"
     },
     {
       "id": "cl",
@@ -153,7 +152,7 @@
     },
     {
       "id": "ed",
-      "description": "Capa da brochura Educação",
+      "description": "Capa da brochura Education",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ed/T/pt/ed_T_lg.jpg",
       "imageHint": "education brochure"
     },
@@ -318,6 +317,30 @@
       "description": "Convite para reuniões cristãs",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/inv/T/pt/inv_T_lg.jpg",
       "imageHint": "invitation"
+    },
+    {
+      "id": "jwcd1",
+      "description": "Cartão de visita Bíblia",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd1/T/pt/jwcd1_T_lg.jpg",
+      "imageHint": "contact card bible"
+    },
+    {
+      "id": "jwcd4",
+      "description": "Cartão de visita Logo",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd4/T/pt/jwcd4_T_lg.jpg",
+      "imageHint": "contact card logo"
+    },
+    {
+      "id": "jwcd9",
+      "description": "Cartão de visita Curso Presencial",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd9/T/pt/jwcd9_T_lg.jpg",
+      "imageHint": "contact card course"
+    },
+    {
+      "id": "jwcd10",
+      "description": "Cartão de visita Curso Online",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd10/T/pt/jwcd10_T_lg.jpg",
+      "imageHint": "contact card online"
     }
   ]
 }

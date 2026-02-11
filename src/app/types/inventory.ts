@@ -1,4 +1,3 @@
-
 export type ColumnType = 'text' | 'number' | 'calculated';
 
 export interface InventoryColumn {
@@ -99,10 +98,10 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '7139', item: 'Onde encontrar as respostas?*', abbr: 'T-39', category: 'Folhetos', imageKey: 'T-39' },
   { code: '', item: 'Outros folhetos e convites', category: 'Folhetos' },
   { code: '', item: 'Cartões de visita', category: 'Cartões', isCategory: true },
-  { code: '8410', item: 'Cartão de visita (imagem da Bíblia aberta)*', abbr: 'jwcd1', category: 'Cartões' },
-  { code: '8521', item: 'Cartão de visita (apenas o logo do jw.org)*', abbr: 'jwcd4', category: 'Cartões' },
-  { code: '8569', item: 'Cartão de visita (curso bíblico presencial)*', abbr: 'jwcd9', category: 'Cartões' },
-  { code: '8570', item: 'Cartão de visita (curso bíblico pela internet)*', abbr: 'jwcd10', category: 'Cartões' },
+  { code: '8410', item: 'Cartão de visita (imagem da Bíblia aberta)*', abbr: 'jwcd1', category: 'Cartões', imageKey: 'jwcd1' },
+  { code: '8521', item: 'Cartão de visita (apenas o logo do jw.org)*', abbr: 'jwcd4', category: 'Cartões', imageKey: 'jwcd4' },
+  { code: '8569', item: 'Cartão de visita (curso bíblico presencial)*', abbr: 'jwcd9', category: 'Cartões', imageKey: 'jwcd9' },
+  { code: '8570', item: 'Cartão de visita (curso bíblico pela internet)*', abbr: 'jwcd10', category: 'Cartões', imageKey: 'jwcd10' },
   { code: '', item: 'Outros cartões de visita', category: 'Cartões' },
   { code: '', item: 'Revistas para o público', category: 'Revistas', isCategory: true },
   { code: '', item: 'Despertai! N.º 1 2024*', abbr: 'g24.1', category: 'Revistas', imageKey: 'g24' },
