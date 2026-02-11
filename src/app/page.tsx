@@ -4,6 +4,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 
 export default function Home() {
+  const previousMonthDate = new Date();
+  previousMonthDate.setMonth(previousMonthDate.getMonth() - 1);
+  const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(previousMonthDate);
+
   return (
     <div className="min-h-screen pb-12 bg-background/50">
       <header className="bg-white border-b border-border py-6 px-6 mb-8 sticky top-0 z-20 shadow-sm">
@@ -41,7 +45,7 @@ export default function Home() {
           <div className="flex gap-4">
              <div className="text-center">
                 <p className="text-[10px] text-muted-foreground uppercase font-bold">Mês de Referência</p>
-                <p className="text-xl font-black text-primary uppercase">{new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(new Date())}</p>
+                <p className="text-xl font-black text-primary uppercase">{monthName}</p>
              </div>
           </div>
         </section>
