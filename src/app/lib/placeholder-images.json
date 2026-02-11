@@ -138,6 +138,12 @@
       "description": "Estudo Perspicaz Vol 2",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/it2/T/pt/it2_T_lg.jpg",
       "imageHint": "insight vol 2"
+    },
+    {
+      "id": "lfb",
+      "description": "Lições que Você Pode Aprender da Bíblia",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lfb/T/pt/lfb_T_lg.jpg",
+      "imageHint": "bible lessons stories"
     }
   ]
 }
