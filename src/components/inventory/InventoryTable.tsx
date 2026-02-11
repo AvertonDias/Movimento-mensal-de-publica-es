@@ -35,12 +35,11 @@ import {
   setDocumentNonBlocking
 } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { format, subMonths, addMonths, startOfMonth } from 'date-fns';
+import { format, subMonths, addMonths, startOfMonth, setMonth, setYear } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
@@ -130,7 +129,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     });
 
     return combined;
-  }, [remoteItems, localData, customDefinitions, prevRemoteItems]);
+  }, [remoteItems, localData, customDefinitions, prevRemoteItems, OFFICIAL_PUBLICATIONS]);
 
   const filteredItems = useMemo(() => {
     return items.filter(item => 
@@ -181,14 +180,37 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   {monthName}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={selectedMonth}
-                  onSelect={(date) => date && setSelectedMonth(startOfMonth(date))}
-                  initialFocus
-                  locale={ptBR}
-                />
+              <PopoverContent className="w-64 p-3" align="start">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedMonth(prev => subMonths(prev, 12))}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-sm font-black uppercase">{format(selectedMonth, 'yyyy')}</span>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedMonth(prev => addMonths(prev, 12))}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {Array.from({ length: 12 }).map((_, i) => {
+                      const date = setMonth(selectedMonth, i);
+                      const isSelected = selectedMonth.getMonth() === i;
+                      return (
+                        <Button
+                          key={i}
+                          variant={isSelected ? "default" : "ghost"}
+                          className={cn(
+                            "h-9 text-[10px] font-bold uppercase",
+                            isSelected && "bg-primary text-primary-foreground"
+                          )}
+                          onClick={() => setSelectedMonth(date)}
+                        >
+                          {format(date, 'MMM', { locale: ptBR })}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
               </PopoverContent>
             </Popover>
 
