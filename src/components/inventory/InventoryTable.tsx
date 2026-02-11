@@ -19,7 +19,8 @@ import {
   ChevronRight,
   Loader2,
   Info,
-  Edit2
+  Edit2,
+  X
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -82,7 +83,6 @@ export function InventoryTable() {
 
   const { data: remoteItems, isLoading: isFetchingMonth } = useCollection(monthItemsQuery);
 
-  // Colunas do formulário oficial S-28-T
   const columns: InventoryColumn[] = [
     { id: 'code', header: 'N.º', type: 'text' },
     { id: 'item', header: 'Publicação', type: 'text' },
@@ -192,8 +192,19 @@ export function InventoryTable() {
             placeholder="Pesquisar por publicação, código ou sigla..." 
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 h-11 w-full font-medium"
+            className="pl-10 pr-10 h-11 w-full font-medium"
           />
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-transparent"
+              onClick={() => setSearchTerm('')}
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Limpar pesquisa</span>
+            </Button>
+          )}
         </div>
       </div>
 
