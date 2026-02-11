@@ -9,7 +9,13 @@ import { collection, doc } from 'firebase/firestore';
 import { ChevronLeft, Copy, Plus, Trash2, Users, ExternalLink, LinkIcon } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
+/**
+ * Página de Gerenciamento de Ajudantes
+ * Permite ao usuário gerar links de acesso único para seu histórico.
+ * O nome do ajudante é preenchido automaticamente quando ele acessa o link.
+ */
 export default function HelpersPage() {
   const { user } = useUser();
   const db = useFirestore();
@@ -26,13 +32,14 @@ export default function HelpersPage() {
   const handleCreateInvite = () => {
     if (!user || !db) return;
 
+    // Gera um ID de token aleatório e seguro
     const tokenId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const inviteRef = doc(db, 'invites', tokenId);
 
     setDocumentNonBlocking(inviteRef, {
       id: tokenId,
       ownerId: user.uid,
-      label: 'Aguardando acesso...', // Nome padrão que será atualizado quando o ajudante entrar
+      label: 'Aguardando acesso...', // Texto padrão até o ajudante entrar
       createdAt: new Date().toISOString()
     }, { merge: true });
 
@@ -79,11 +86,14 @@ export default function HelpersPage() {
               Novo Link de Acesso
             </CardTitle>
             <CardDescription className="text-xs font-bold uppercase tracking-wider">
-              Gere um link para que outros vejam seu histórico S-28-T. O nome do ajudante será preenchido automaticamente ao acessar.
+              Gere um link para que outros vejam seu histórico S-28-T. O nome do ajudante será preenchido automaticamente assim que ele fizer o primeiro acesso.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleCreateInvite} className="w-full bg-primary hover:bg-primary/90 font-bold uppercase text-xs py-6 shadow-md transition-all active:scale-95">
+            <Button 
+              onClick={handleCreateInvite} 
+              className="w-full bg-primary hover:bg-primary/90 font-bold uppercase text-xs py-6 shadow-md transition-all active:scale-95"
+            >
               <Plus className="h-5 w-5 mr-2" /> Gerar Novo Link de Acesso
             </Button>
           </CardContent>
@@ -91,13 +101,13 @@ export default function HelpersPage() {
 
         <div className="space-y-4">
           <h2 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-            Links Gerados ({myInvites.length})
+            Links Ativos ({myInvites.length})
           </h2>
           
           {myInvites.length === 0 ? (
             <div className="bg-white p-12 text-center rounded-xl border border-dashed border-neutral-300">
               <Users className="h-12 w-12 text-neutral-200 mx-auto mb-4" />
-              <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Nenhum link ativo no momento</p>
+              <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Nenhum link gerado</p>
             </div>
           ) : (
             <div className="grid gap-4">
@@ -112,7 +122,7 @@ export default function HelpersPage() {
                         {invite.label}
                       </p>
                       <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">
-                        Gerado em {new Date(invite.createdAt).toLocaleDateString('pt-BR')}
+                        Criado em {new Date(invite.createdAt).toLocaleDateString('pt-BR')}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -148,5 +158,3 @@ export default function HelpersPage() {
     </div>
   );
 }
-
-import { cn } from "@/lib/utils";

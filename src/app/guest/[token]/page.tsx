@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 /**
  * Página de Acesso para Convidados (Ajudantes)
  * Recebe um token via URL e exibe o histórico do dono do token.
+ * Captura automaticamente o nome do ajudante caso ele esteja logado.
  */
 export default function GuestHistoryPage(props: {
   params: Promise<{ token: string }>;
@@ -26,12 +27,12 @@ export default function GuestHistoryPage(props: {
 
   const { data: invite, isLoading, error } = useDoc(inviteRef);
 
-  // Lógica para capturar o nome do ajudante caso ele esteja logado (tenha cadastro)
+  // Captura o nome do ajudante automaticamente ao entrar
   useEffect(() => {
     if (invite && guestUser && !guestUser.isAnonymous && db) {
-      // Se for um usuário diferente do dono e o nome ainda estiver como o padrão
-      if (guestUser.uid !== invite.ownerId && (invite.label === 'Aguardando acesso...' || !invite.label)) {
-        const helperName = guestUser.displayName || guestUser.email?.split('@')[0] || 'Ajudante';
+      // Se quem está acessando não é o dono e o label ainda é o padrão "Aguardando acesso..."
+      if (guestUser.uid !== invite.ownerId && invite.label === 'Aguardando acesso...') {
+        const helperName = guestUser.displayName || guestUser.email?.split('@')[0] || 'Ajudante Conectado';
         const docRef = doc(db, 'invites', invite.id);
         
         updateDocumentNonBlocking(docRef, {
@@ -46,7 +47,7 @@ export default function GuestHistoryPage(props: {
       <div className="min-h-screen flex items-center justify-center bg-neutral-100">
         <div className="text-center space-y-4">
           <BookOpen className="h-12 w-12 text-primary animate-pulse mx-auto" />
-          <p className="text-xs font-black uppercase tracking-widest text-neutral-500">Validando acesso...</p>
+          <p className="text-xs font-black uppercase tracking-widest text-neutral-500">Autenticando convite...</p>
         </div>
       </div>
     );
@@ -60,9 +61,12 @@ export default function GuestHistoryPage(props: {
             <AlertTriangle className="h-12 w-12 text-destructive" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-xl font-black uppercase">Acesso Expirado ou Inválido</h1>
-            <p className="text-sm text-muted-foreground">O link que você tentou acessar não existe mais ou foi revogado pelo proprietário.</p>
+            <h1 className="text-xl font-black uppercase">Convite Inválido</h1>
+            <p className="text-sm text-muted-foreground">O link de acesso expirou ou foi removido pelo proprietário do inventário.</p>
           </div>
+          <Button asChild className="w-full uppercase font-bold text-xs" variant="outline">
+            <a href="/">Voltar ao Início</a>
+          </Button>
         </div>
       </div>
     );
@@ -77,7 +81,7 @@ export default function GuestHistoryPage(props: {
               <ShieldCheck className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase text-primary tracking-widest">Modo Ajudante</p>
+              <p className="text-[10px] font-black uppercase text-primary tracking-widest">Acesso Ajudante</p>
               <h2 className="text-sm font-bold uppercase">Visualizando histórico de {invite.label}</h2>
             </div>
           </div>
@@ -102,13 +106,13 @@ export default function GuestHistoryPage(props: {
           </div>
 
           <div className="text-[9px] leading-[1.1] space-y-0.5 mb-2 text-justify print:mb-1">
-            <p><span className="font-bold">MODO DE VISUALIZAÇÃO:</span> Este relatório é gerado a partir dos dados reais sincronizados pelo sistema. Para garantir a precisão, sempre confira a data da última atualização.</p>
+            <p><span className="font-bold">MODO DE AJUDANTE:</span> Você está visualizando uma cópia em tempo real do histórico oficial. Estes dados são sincronizados automaticamente com a nuvem.</p>
           </div>
 
           <HistoryTable targetUserId={invite.ownerId} />
 
           <div className="mt-4 flex justify-between items-end border-t border-neutral-200 pt-2 print:mt-2">
-            <span className="text-[8px] font-bold text-neutral-500 italic uppercase">S-28-T 8/24 (Acesso via Token)</span>
+            <span className="text-[8px] font-bold text-neutral-500 italic uppercase">S-28-T (Visualização de Convidado)</span>
           </div>
         </div>
       </div>
