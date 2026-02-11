@@ -25,18 +25,6 @@
       "imageHint": "spiritual guide"
     },
     {
-      "id": "wp24",
-      "description": "A Sentinela",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/T/pt/wp_T_lg.jpg",
-      "imageHint": "magazine cover"
-    },
-    {
-      "id": "g24",
-      "description": "Despertai!",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/T/pt/g_T_lg.jpg",
-      "imageHint": "news magazine"
-    },
-    {
       "id": "ia",
       "description": "Imite a Sua Fé",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ia/T/pt/ia_T_lg.jpg",
@@ -359,6 +347,198 @@
       "description": "Princípios Bíblicos",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/scl/T/pt/scl_T_lg.jpg",
       "imageHint": "bible principles"
+    },
+    {
+      "id": "g18.1",
+      "description": "Despertai! 1 2018",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201803/T/pt/g_T_201803_lg.jpg",
+      "imageHint": "awake 18-1"
+    },
+    {
+      "id": "g18.2",
+      "description": "Despertai! 2 2018",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201807/T/pt/g_T_201807_lg.jpg",
+      "imageHint": "awake 18-2"
+    },
+    {
+      "id": "g18.3",
+      "description": "Despertai! 3 2018",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201811/T/pt/g_T_201811_lg.jpg",
+      "imageHint": "awake 18-3"
+    },
+    {
+      "id": "g19.1",
+      "description": "Despertai! 1 2019",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201901/T/pt/g_T_201901_lg.jpg",
+      "imageHint": "awake 19-1"
+    },
+    {
+      "id": "g19.2",
+      "description": "Despertai! 2 2019",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201902/T/pt/g_T_201902_lg.jpg",
+      "imageHint": "awake 19-2"
+    },
+    {
+      "id": "g19.3",
+      "description": "Despertai! 3 2019",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201903/T/pt/g_T_201903_lg.jpg",
+      "imageHint": "awake 19-3"
+    },
+    {
+      "id": "g20.1",
+      "description": "Despertai! 1 2020",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202001/T/pt/g_T_202001_lg.jpg",
+      "imageHint": "awake 20-1"
+    },
+    {
+      "id": "g20.2",
+      "description": "Despertai! 2 2020",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202002/T/pt/g_T_202002_lg.jpg",
+      "imageHint": "awake 20-2"
+    },
+    {
+      "id": "g20.3",
+      "description": "Despertai! 3 2020",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202003/T/pt/g_T_202003_lg.jpg",
+      "imageHint": "awake 20-3"
+    },
+    {
+      "id": "g21.1",
+      "description": "Despertai! 1 2021",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202101/T/pt/g_T_202101_lg.jpg",
+      "imageHint": "awake 21-1"
+    },
+    {
+      "id": "g21.2",
+      "description": "Despertai! 2 2021",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202102/T/pt/g_T_202102_lg.jpg",
+      "imageHint": "awake 21-2"
+    },
+    {
+      "id": "g21.3",
+      "description": "Despertai! 3 2021",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202103/T/pt/g_T_202103_lg.jpg",
+      "imageHint": "awake 21-3"
+    },
+    {
+      "id": "g22.1",
+      "description": "Despertai! 1 2022",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202201/T/pt/g_T_202201_lg.jpg",
+      "imageHint": "awake 22-1"
+    },
+    {
+      "id": "g23.1",
+      "description": "Despertai! 1 2023",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202301/T/pt/g_T_202301_lg.jpg",
+      "imageHint": "awake 23-1"
+    },
+    {
+      "id": "g24.1",
+      "description": "Despertai! 1 2024",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/202401/T/pt/g_T_202401_lg.jpg",
+      "imageHint": "awake 24-1"
+    },
+    {
+      "id": "g25.1",
+      "description": "Despertai! 1 2025",
+      "imageUrl": "https://images.unsplash.com/photo-1623591586547-b17b9a71b614?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhd2FrZSUyMDI1LTF8ZW58MHx8fHwxNzcwODUzMzIyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "awake 25-1"
+    },
+    {
+      "id": "wp18.1",
+      "description": "A Sentinela 1 2018",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201801/T/pt/wp_T_201801_lg.jpg",
+      "imageHint": "watchtower 18-1"
+    },
+    {
+      "id": "wp18.2",
+      "description": "A Sentinela 2 2018",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201802/T/pt/wp_T_201802_lg.jpg",
+      "imageHint": "watchtower 18-2"
+    },
+    {
+      "id": "wp18.3",
+      "description": "A Sentinela 3 2018",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201803/T/pt/wp_T_201803_lg.jpg",
+      "imageHint": "watchtower 18-3"
+    },
+    {
+      "id": "wp19.1",
+      "description": "A Sentinela 1 2019",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201901/T/pt/wp_T_201901_lg.jpg",
+      "imageHint": "watchtower 19-1"
+    },
+    {
+      "id": "wp19.2",
+      "description": "A Sentinela 2 2019",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201902/T/pt/wp_T_201902_lg.jpg",
+      "imageHint": "watchtower 19-2"
+    },
+    {
+      "id": "wp19.3",
+      "description": "A Sentinela 3 2019",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/201903/T/pt/wp_T_201903_lg.jpg",
+      "imageHint": "watchtower 19-3"
+    },
+    {
+      "id": "wp20.1",
+      "description": "A Sentinela 1 2020",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/202001/T/pt/wp_T_202001_lg.jpg",
+      "imageHint": "watchtower 20-1"
+    },
+    {
+      "id": "wp20.2",
+      "description": "A Sentinela 2 2020",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/202002/T/pt/wp_T_202002_lg.jpg",
+      "imageHint": "watchtower 20-2"
+    },
+    {
+      "id": "wp20.3",
+      "description": "A Sentinela 3 2020",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/202003/T/pt/wp_T_202003_lg.jpg",
+      "imageHint": "watchtower 20-3"
+    },
+    {
+      "id": "wp21.1",
+      "description": "A Sentinela 1 2021",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/202101/T/pt/wp_T_202101_lg.jpg",
+      "imageHint": "watchtower 21-1"
+    },
+    {
+      "id": "wp21.2",
+      "description": "A Sentinela 2 2021",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/202102/T/pt/wp_T_202102_lg.jpg",
+      "imageHint": "watchtower 21-2"
+    },
+    {
+      "id": "wp21.3",
+      "description": "A Sentinela 3 2021",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/202103/T/pt/wp_T_202103_lg.jpg",
+      "imageHint": "watchtower 21-3"
+    },
+    {
+      "id": "wp22.1",
+      "description": "A Sentinela 1 2022",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/202201/T/pt/wp_T_202201_lg.jpg",
+      "imageHint": "watchtower 22-1"
+    },
+    {
+      "id": "wp23.1",
+      "description": "A Sentinela 1 2023",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/202301/T/pt/wp_T_202301_lg.jpg",
+      "imageHint": "watchtower 23-1"
+    },
+    {
+      "id": "wp24.1",
+      "description": "A Sentinela 1 2024",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wp/202401/T/pt/wp_T_202401_lg.jpg",
+      "imageHint": "watchtower 24-1"
+    },
+    {
+      "id": "wp25.1",
+      "description": "A Sentinela 1 2025",
+      "imageUrl": "https://picsum.photos/seed/wp25/600/400",
+      "imageHint": "watchtower 25-1"
     }
   ]
 }
