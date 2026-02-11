@@ -19,8 +19,6 @@ import {
   ChevronRight,
   Loader2,
   Info,
-  ArrowUp,
-  ArrowDown,
   Edit2
 } from "lucide-react";
 import { 
@@ -34,8 +32,7 @@ import {
   useUser, 
   useCollection, 
   useMemoFirebase,
-  setDocumentNonBlocking,
-  updateDocumentNonBlocking 
+  setDocumentNonBlocking
 } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { initiateAnonymousSignIn } from '@/firebase/non-blocking-login';
@@ -85,8 +82,8 @@ export function InventoryTable() {
 
   const { data: remoteItems, isLoading: isFetchingMonth } = useCollection(monthItemsQuery);
 
+  // Colunas do formulário oficial S-28-T
   const columns: InventoryColumn[] = [
-    { id: 'move', header: 'Ordem', type: 'text' },
     { id: 'code', header: 'N.º', type: 'text' },
     { id: 'item', header: 'Publicação', type: 'text' },
     { id: 'previous', header: 'Estoque Anterior', type: 'number' },
@@ -165,39 +162,6 @@ export function InventoryTable() {
     }
   };
 
-  const handleMoveItem = (item: InventoryItem, direction: 'up' | 'down') => {
-    if (!user || !db || !customDefinitions) return;
-
-    const categoryCustomItems = [...customDefinitions]
-      .filter(cd => cd.category === item.category)
-      .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
-
-    const currentIndex = categoryCustomItems.findIndex(i => i.id === item.id);
-    if (currentIndex === -1) return;
-
-    const targetIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
-
-    if (targetIndex >= 0 && targetIndex < categoryCustomItems.length) {
-      const currentItem = categoryCustomItems[currentIndex];
-      const targetItem = categoryCustomItems[targetIndex];
-      
-      const currentRef = doc(db, 'users', user.uid, 'inventory', currentItem.id);
-      const targetRef = doc(db, 'users', user.uid, 'inventory', targetItem.id);
-
-      const currentOrder = Number(currentItem.sortOrder) || Date.now();
-      const targetOrder = Number(targetItem.sortOrder) || (Date.now() + 1);
-
-      // Troca os valores de ordem
-      updateDocumentNonBlocking(currentRef, { sortOrder: targetOrder });
-      updateDocumentNonBlocking(targetRef, { sortOrder: currentOrder });
-
-      toast({
-        title: "Ordem alterada",
-        description: `Posição de "${item.item}" atualizada.`,
-      });
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
@@ -250,7 +214,7 @@ export function InventoryTable() {
                 {columns.map((col) => (
                   <TableHead key={col.id} className={cn(
                     "font-bold text-foreground py-4 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0",
-                    col.id === 'move' && "w-[90px]"
+                    col.id === 'item' && "text-left"
                   )}>
                     {col.header}
                   </TableHead>
@@ -277,32 +241,7 @@ export function InventoryTable() {
                   <TableRow key={item.id} className="hover:bg-accent/5 transition-colors border-b last:border-0 group">
                     {columns.map((col) => (
                       <TableCell key={col.id} className="p-1 px-3 border-r last:border-0">
-                        {col.id === 'move' ? (
-                          <div className="flex items-center justify-center gap-1">
-                            {item.isCustom && (
-                              <>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                                  onClick={() => handleMoveItem(item, 'up')}
-                                  title="Subir"
-                                >
-                                  <ArrowUp className="h-4 w-4" />
-                                </Button>
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-8 w-8 text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors"
-                                  onClick={() => handleMoveItem(item, 'down')}
-                                  title="Descer"
-                                >
-                                  <ArrowDown className="h-4 w-4" />
-                                </Button>
-                              </>
-                            )}
-                          </div>
-                        ) : col.id === 'outgoing' ? (
+                        {col.id === 'outgoing' ? (
                           <div className={cn(
                             "py-2 font-black rounded text-sm text-center",
                             calculateOutgoing(item) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10"
