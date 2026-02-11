@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState } from 'react';
@@ -27,6 +26,7 @@ export function AddCustomItemDialog({ isOpen, onClose, category }: AddCustomItem
   const db = useFirestore();
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
+  const [abbr, setAbbr] = useState('');
 
   const handleAdd = () => {
     if (!user || !db || !name) return;
@@ -38,6 +38,7 @@ export function AddCustomItemDialog({ isOpen, onClose, category }: AddCustomItem
       id,
       item: name,
       code: code || '',
+      abbr: abbr || '',
       category,
       isCustom: true,
       createdAt: new Date().toISOString()
@@ -45,6 +46,7 @@ export function AddCustomItemDialog({ isOpen, onClose, category }: AddCustomItem
 
     setName('');
     setCode('');
+    setAbbr('');
     onClose();
   };
 
@@ -76,6 +78,16 @@ export function AddCustomItemDialog({ isOpen, onClose, category }: AddCustomItem
               onChange={(e) => setCode(e.target.value)}
               className="col-span-3"
               placeholder="Ex: 7138"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="abbr" className="text-right">Sigla</Label>
+            <Input
+              id="abbr"
+              value={abbr}
+              onChange={(e) => setAbbr(e.target.value)}
+              className="col-span-3"
+              placeholder="Ex: T-38"
             />
           </div>
         </div>

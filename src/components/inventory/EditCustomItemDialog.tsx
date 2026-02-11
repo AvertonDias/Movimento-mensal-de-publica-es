@@ -27,11 +27,13 @@ export function EditCustomItemDialog({ item, onClose }: EditCustomItemDialogProp
   const db = useFirestore();
   const [name, setName] = useState('');
   const [code, setCode] = useState('');
+  const [abbr, setAbbr] = useState('');
 
   useEffect(() => {
     if (item) {
       setName(item.item);
       setCode(item.code || '');
+      setAbbr(item.abbr || '');
     }
   }, [item]);
 
@@ -43,6 +45,7 @@ export function EditCustomItemDialog({ item, onClose }: EditCustomItemDialogProp
     setDocumentNonBlocking(docRef, {
       item: name,
       code: code || '',
+      abbr: abbr || '',
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
@@ -84,6 +87,15 @@ export function EditCustomItemDialog({ item, onClose }: EditCustomItemDialogProp
               id="edit-code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
+              className="col-span-3"
+            />
+          </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="edit-abbr" className="text-right">Sigla</Label>
+            <Input
+              id="edit-abbr"
+              value={abbr}
+              onChange={(e) => setAbbr(e.target.value)}
               className="col-span-3"
             />
           </div>
