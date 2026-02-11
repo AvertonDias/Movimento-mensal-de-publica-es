@@ -64,7 +64,6 @@ export function InventoryTable() {
     const headers = columns.map(c => c.header).join(',');
     const rows = filteredItems.filter(i => !i.isCategory).map(item => {
       return columns.map(col => {
-        if (col.id === 'total') return calculateTotal(item);
         if (col.id === 'outgoing') return calculateOutgoing(item);
         return item[col.id];
       }).join(',');
@@ -126,11 +125,7 @@ export function InventoryTable() {
                   <TableRow key={item.id} className="hover:bg-accent/5 transition-colors border-b last:border-0">
                     {columns.map((col) => (
                       <TableCell key={col.id} className="p-1 px-3">
-                        {col.id === 'total' ? (
-                          <div className="bg-muted/50 font-bold text-center py-2 rounded text-sm text-muted-foreground">
-                            {calculateTotal(item)}
-                          </div>
-                        ) : col.id === 'outgoing' ? (
+                        {col.id === 'outgoing' ? (
                           <div className={cn(
                             "py-2 font-bold rounded text-sm text-center",
                             calculateOutgoing(item) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/20"

@@ -25,7 +25,6 @@ export const DEFAULT_COLUMNS: InventoryColumn[] = [
   { id: 'item', header: 'Publicação', type: 'text' },
   { id: 'previous', header: 'Estoque Anterior', type: 'number' },
   { id: 'received', header: 'Recebido', type: 'number' },
-  { id: 'total', header: 'Total (Ant + Rec)', type: 'calculated' },
   { id: 'current', header: 'Estoque Atual', type: 'number' },
   { id: 'outgoing', header: 'Saída', type: 'calculated' },
 ];
@@ -77,10 +76,6 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '6671', item: 'Volte para Jeová', abbr: 'rj', category: 'Brochuras' },
   { code: '6656', item: 'Verdadeira Fé', abbr: 'rk', category: 'Brochuras' },
   { code: '6630', item: 'Espíritos dos Mortos', abbr: 'sp', category: 'Brochuras' },
-  { code: '6667', item: 'Melhore', abbr: 'th', category: 'Brochuras' },
-  { code: '6670', item: 'Aprenda com a Sabedoria de Jesus', abbr: 'wfg', category: 'Brochuras' },
-  { code: '6684', item: '10 Perguntas', abbr: 'ypq', category: 'Brochuras' },
-  { code: '', item: 'Outras brochuras e livretos', category: 'Brochuras' },
   { code: '', item: 'Folhetos e convites', category: 'Folhetos', isCategory: true },
   { code: '7305', item: 'Convite para reuniões cristãs*', abbr: 'inv', category: 'Folhetos' },
   { code: '7130', item: 'O Que Você Acha da Bíblia?*', abbr: 'T-30', category: 'Folhetos' },
