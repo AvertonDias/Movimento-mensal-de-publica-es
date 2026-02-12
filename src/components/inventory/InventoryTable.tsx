@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -156,6 +155,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
     let updates: Record<string, any> = { [field]: value };
 
+    // Regra: Se colocar valor no estoque atual e o estoque anterior estiver preenchido, mas recebido vazio, coloca 0 em recebido
     if (field === 'current' && value !== null) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
         updates.received = 0;
@@ -251,7 +251,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         <div className="flex items-start gap-1.5 px-1">
           <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-            Nota: Se o estoque anterior estiver preenchido, ao informar o estoque atual os recebidos serão zerados automaticamente se estiverem em branco.
+            Nota: Ao informar o estoque atual, o campo recebidos será zerado automaticamente se estiver em branco e houver estoque anterior.
           </p>
         </div>
       </div>
@@ -266,10 +266,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         <div className="overflow-x-auto">
           <Table>
             <TableHeader className="bg-white shadow-sm border-b">
-              <TableRow className="bg-white hover:bg-white border-b border-neutral-200">
+              <TableRow className="bg-white hover:bg-white">
                 {DEFAULT_COLUMNS.map((col) => (
                   <TableHead key={col.id} className={cn(
-                    "font-bold text-foreground py-3 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0 h-10 bg-white",
+                    "font-bold text-foreground py-3 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white",
                     col.id === 'item' && "text-left"
                   )}>
                     {col.header}

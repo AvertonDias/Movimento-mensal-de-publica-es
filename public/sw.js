@@ -1,12 +1,17 @@
+const CACHE_NAME = 'movimento-v1';
+const ASSETS_TO_CACHE = [
+  '/',
+  '/manifest.json'
+];
 
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim());
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+  );
 });
 
 self.addEventListener('fetch', (event) => {
-  // Pass-through simple para permitir instalação do PWA
+  event.respondWith(
+    caches.match(event.request).then((response) => response || fetch(event.request))
+  );
 });
