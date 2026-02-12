@@ -38,7 +38,7 @@ import {
   setDocumentNonBlocking
 } from '@/firebase';
 import { collection, doc, getDocs } from 'firebase/firestore';
-import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears, isAfter } from 'date-fns';
+import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears, isAfter, isBefore } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
@@ -73,10 +73,11 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const activeUid = targetUserId || user?.uid;
 
-  // Função para verificar se uma data é futura
+  // Função para verificar se uma data é futura ou o mês atual (que ainda não fechou para o S-28-T)
   const isDateInFuture = (date: Date) => {
-    const today = startOfMonth(new Date());
-    return isAfter(startOfMonth(date), today);
+    const currentMonthStart = startOfMonth(new Date());
+    // Retorna true se a data for o mês atual ou posterior (bloqueando a seleção)
+    return !isBefore(startOfMonth(date), currentMonthStart);
   };
 
   useEffect(() => {
@@ -290,7 +291,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         variant="ghost" 
                         size="icon" 
                         className="h-7 w-7" 
-                        disabled={selectedMonth.getFullYear() >= new Date().getFullYear()}
+                        disabled={selectedMonth.getFullYear() >= subMonths(new Date(), 1).getFullYear()}
                         onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => addYears(prev, 1)); }}
                       >
                         <ChevronRight className="h-4 w-4" />
@@ -300,14 +301,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                       {Array.from({ length: 12 }).map((_, i) => {
                         const date = setMonth(selectedMonth, i);
                         const isSelected = selectedMonth.getMonth() === i;
-                        const isFuture = isDateInFuture(date);
+                        const isBlocked = isDateInFuture(date);
                         return (
                           <Button 
                             key={i} 
                             variant={isSelected ? "default" : "ghost"} 
                             className={cn("h-9 text-[10px] font-bold uppercase", isSelected && "bg-primary text-primary-foreground")} 
                             onClick={() => { setSelectedMonth(date); setIsMonthPopoverOpen(false); }}
-                            disabled={isFuture}
+                            disabled={isBlocked}
                           >
                             {format(date, 'MMM', { locale: ptBR })}
                           </Button>
