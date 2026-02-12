@@ -1,31 +1,49 @@
-import type {Metadata} from 'next';
+
+'use client';
+
+import React, { useEffect } from 'react';
 import './globals.css';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 
-export const metadata: Metadata = {
-  title: 'Movimento Mensal - Gestão de Publicações',
-  description: 'Sistema de inventário inteligente para publicações (Formulário S-28-T).',
-};
-
-export default async function RootLayout(props: {
+export default function RootLayout({
+  children,
+}: {
   children: React.ReactNode;
-  params: Promise<any>;
 }) {
-  // Explicitly await params to satisfy Next.js 15 requirements
-  await props.params;
+  useEffect(() => {
+    if ('serviceWorker' in navigator && process.env.NODE_ENV === 'production') {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then(
+          (registration) => {
+            console.log('SW registrado com sucesso:', registration.scope);
+          },
+          (err) => {
+            console.log('Falha ao registrar SW:', err);
+          }
+        );
+      });
+    }
+  }, []);
   
   return (
     <html lang="pt-BR">
       <head>
+        <title>Movimento Mensal - Gestão de Publicações</title>
+        <meta name="description" content="Sistema de inventário inteligente para publicações (Formulário S-28-T)." />
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#A0CFEC" />
+        <link rel="apple-touch-icon" href="https://picsum.photos/seed/pwa192/192/192" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased bg-background text-foreground">
         <FirebaseClientProvider>
-          {props.children}
+          {children}
           <Toaster />
+          <PWAInstallPrompt />
         </FirebaseClientProvider>
       </body>
     </html>
