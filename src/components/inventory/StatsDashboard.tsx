@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -19,11 +18,14 @@ import { useFirestore, useUser } from '@/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { format, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { OFFICIAL_PUBLICATIONS } from '@/app/types/inventory';
 import { Loader2, TrendingUp, Package, MoveUpRight, Layers } from 'lucide-react';
 
-export function StatsDashboard() {
-  const { user } = useUser();
+interface StatsDashboardProps {
+  targetUserId?: string;
+}
+
+export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
+  const { user: currentUser } = useUser();
   const db = useFirestore();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<{
@@ -42,6 +44,8 @@ export function StatsDashboard() {
     totals: { stock: 0, received: 0, outgoing: 0 }
   });
 
+  const activeUserId = targetUserId || currentUser?.uid;
+
   const lastSixMonths = useMemo(() => {
     const months = [];
     const baseDate = subMonths(new Date(), 1);
@@ -57,22 +61,22 @@ export function StatsDashboard() {
 
   useEffect(() => {
     async function fetchStats() {
-      if (!user || !db) return;
+      if (!activeUserId || !db) return;
       setLoading(true);
       
       try {
         const monthlyData = [];
         let totalStock = 0;
         let totalReceived = 0;
-        let totalOutgoing = 0;
+        let totalOutgoingValue = 0;
         const itemUsage: Record<string, { name: string; outgoing: number }> = {};
         const categoryMap: Record<string, number> = {};
 
         for (const month of lastSixMonths) {
-          const colRef = collection(db, 'users', user.uid, 'monthly_records', month.key, 'items');
+          const colRef = collection(db, 'users', activeUserId, 'monthly_records', month.key, 'items');
           const snapshot = await getDocs(colRef);
           
-          let monthOutgoing = 0;
+          let monthOutgoingTotal = 0;
           snapshot.forEach(doc => {
             const data = doc.data();
             const prev = Number(data.previous) || 0;
@@ -80,7 +84,7 @@ export function StatsDashboard() {
             const curr = Number(data.current) || 0;
             const outgoing = Math.max(0, (prev + rec) - curr);
 
-            monthOutgoing += outgoing;
+            monthOutgoingTotal += outgoing;
 
             // Agrega dados apenas do mês mais recente para estoque e categorias
             if (month.key === lastSixMonths[lastSixMonths.length - 1].key) {
@@ -99,27 +103,27 @@ export function StatsDashboard() {
 
           monthlyData.push({
             name: month.label,
-            saida: monthOutgoing
+            saida: monthOutgoingTotal
           });
           
           if (month.key === lastSixMonths[lastSixMonths.length - 1].key) {
-            totalOutgoing = monthOutgoing;
+            totalOutgoingValue = monthOutgoingTotal;
           }
         }
 
         const categoryDist = Object.entries(categoryMap).map(([name, value]) => ({ name, value }));
-        const topItems = Object.values(itemUsage)
+        const topItemsList = Object.values(itemUsage)
           .sort((a, b) => b.outgoing - a.outgoing)
           .slice(0, 5);
 
         setStats({
           monthlyOutgoing: monthlyData,
           categoryDistribution: categoryDist,
-          topItems,
+          topItems: topItemsList,
           totals: {
             stock: totalStock,
             received: totalReceived,
-            outgoing: totalOutgoing
+            outgoing: totalOutgoingValue
           }
         });
       } catch (e) {
@@ -130,7 +134,7 @@ export function StatsDashboard() {
     }
 
     fetchStats();
-  }, [user, db, lastSixMonths]);
+  }, [activeUserId, db, lastSixMonths]);
 
   const COLORS = ['#A0CFEC', '#90EE90', '#1F5F5B', '#E5A93F', '#E56D3F', '#6B7280'];
 
@@ -256,7 +260,7 @@ export function StatsDashboard() {
         <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest mb-6">Itens com maior Saída (Acumulado 6 meses)</h3>
         <div className="space-y-4">
           {stats.topItems.map((item, idx) => {
-            const maxVal = stats.topItems[0].outgoing || 1;
+            const maxVal = stats.topItems[0]?.outgoing || 1;
             const percentage = (item.outgoing / maxVal) * 100;
             
             return (
