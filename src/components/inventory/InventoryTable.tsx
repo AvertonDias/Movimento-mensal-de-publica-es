@@ -35,7 +35,7 @@ import {
   setDocumentNonBlocking
 } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { format, subMonths, addMonths, startOfMonth, setMonth } from 'date-fns';
+import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
@@ -194,6 +194,27 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 </PopoverTrigger>
                 <PopoverContent className="w-64 p-3" align="start">
                   <div className="space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7" 
+                        onClick={() => setSelectedMonth(prev => subYears(prev, 1))}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
+                        {format(selectedMonth, 'yyyy')}
+                      </span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7" 
+                        onClick={() => setSelectedMonth(prev => addYears(prev, 1))}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
                     <div className="grid grid-cols-3 gap-2">
                       {Array.from({ length: 12 }).map((_, i) => {
                         const date = setMonth(selectedMonth, i);
