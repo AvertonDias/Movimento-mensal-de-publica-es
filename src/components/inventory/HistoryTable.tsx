@@ -120,7 +120,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
         <TableHeader className="print:table-row-group">
           <TableRow className="border-b border-black divide-x divide-black bg-white hover:bg-white h-[22px]">
             <TableHead className="w-[20px] border-black"></TableHead>
-            <TableHead className="w-[350px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-black leading-none">MÊS E ANO</TableHead>
+            <TableHead className="w-[250px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-black leading-none">MÊS E ANO</TableHead>
             {lastSixMonths.map((month) => (
               <TableHead 
                 key={month.key} 
@@ -133,7 +133,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
           </TableRow>
           <TableRow className="border-b border-black divide-x divide-black bg-white hover:bg-white h-[22px]">
             <TableHead className="w-[20px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-black">N.º</TableHead>
-            <TableHead className="w-[350px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-black">Publicações</TableHead>
+            <TableHead className="w-[250px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-black">Publicações</TableHead>
             
             {lastSixMonths.map((m) => (
               <React.Fragment key={m.key}>
@@ -162,7 +162,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             return (
               <TableRow key={`hist-row-${itemId}-${idx}`} className="border-b border-black divide-x divide-black h-5 hover:bg-transparent print:h-4">
                 <TableCell className="text-[8px] text-center p-0 font-bold border-black leading-none">{item.code}</TableCell>
-                <TableCell className="w-[350px] text-[9px] px-1 py-0 border-black flex justify-between items-center h-full overflow-hidden">
+                <TableCell className="w-[250px] text-[9px] px-1 py-0 border-black flex justify-between items-center h-full overflow-hidden">
                   <span className="truncate leading-none">{item.item}</span>
                   {item.abbr && <span className="font-bold ml-1 text-[7px] text-neutral-500">{item.abbr}</span>}
                 </TableCell>
