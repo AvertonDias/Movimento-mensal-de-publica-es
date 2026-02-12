@@ -22,8 +22,8 @@ import {
   Edit2,
   X,
   AlertTriangle,
-  EyeOff,
-  Eye,
+  BellOff,
+  Bell,
   Settings
 } from "lucide-react";
 import { 
@@ -74,7 +74,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
-  const [isManageHiddenOpen, setIsManageHiddenOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
@@ -85,7 +84,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const activeUid = targetUserId || user?.uid;
 
-  // Carregar histórico de saídas para calcular estoque inteligente
   useEffect(() => {
     async function calculateSmartMinStock() {
       if (!db || !activeUid) return;
@@ -152,9 +150,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const id = pub.code || pub.abbr || `item_${idx}`;
       const customDef = customDefinitions?.find(d => d.id === id);
       
-      // Skip hidden items
-      if (customDef?.hidden) return;
-
       const remote = remoteItems?.find(i => i.id === id);
       const prevRemote = prevRemoteItems?.find(i => i.id === id);
       const local = localData[id] || {};
@@ -168,11 +163,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         received: local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null),
         current: local.current !== undefined ? local.current : (remote?.current !== undefined ? remote?.current : null),
         minStock: historicalMinStock[id] || 0,
+        hidden: customDef?.hidden || false, // Usamos 'hidden' para silenciar o alerta visual
       } as InventoryItem);
 
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
-          .filter(cd => cd.category === pub.category && !cd.hidden)
+          .filter(cd => cd.category === pub.category)
           .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
 
         categoryCustomItems.forEach(cd => {
@@ -188,6 +184,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             received: localCustom.received !== undefined ? localCustom.received : (remoteCustom?.received !== undefined ? remoteCustom?.received : null),
             current: localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined ? remoteCustom?.current : null),
             minStock: historicalMinStock[cd.id] || 0,
+            hidden: cd.hidden || false,
           } as InventoryItem);
         });
       }
@@ -225,7 +222,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       }
       
       const minVal = historicalMinStock[id] || 0;
-      if (minVal > 0 && value <= minVal) {
+      // Só alerta se não estiver silenciado
+      if (!itemData.hidden && minVal > 0 && value <= minVal) {
         toast({
           variant: "destructive",
           title: "Reposição Necessária!",
@@ -248,35 +246,22 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     }, { merge: true });
   };
 
-  const handleHideItem = (item: InventoryItem) => {
+  const handleToggleAlert = (item: InventoryItem) => {
     if (!activeUid || !db) return;
     
+    const newState = !item.hidden;
     const docRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(docRef, {
       ...item,
-      hidden: true,
+      hidden: newState, // Inverte o estado de silenciamento
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
     toast({
-      title: "Publicação Ocultada",
-      description: `"${item.item}" não aparecerá mais na sua lista de contagem.`,
-    });
-  };
-
-  const handleRestoreItem = (item: any) => {
-    if (!activeUid || !db) return;
-    
-    const docRef = doc(db, 'users', activeUid, 'inventory', item.id);
-    setDocumentNonBlocking(docRef, {
-      ...item,
-      hidden: false,
-      updatedAt: new Date().toISOString()
-    }, { merge: true });
-
-    toast({
-      title: "Publicação Restaurada",
-      description: `"${item.item}" voltou para a sua lista de inventário.`,
+      title: newState ? "Alerta Silenciado" : "Alerta Reativado",
+      description: newState 
+        ? `Você não receberá mais avisos para "${item.item}".` 
+        : `O monitoramento de estoque foi reativado para "${item.item}".`,
     });
   };
 
@@ -346,47 +331,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 </Button>
               )}
             </div>
-            
-            <Dialog open={isManageHiddenOpen} onOpenChange={setIsManageHiddenOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="h-11 gap-2 font-bold uppercase text-[10px] tracking-widest">
-                  <Eye className="h-4 w-4" />
-                  <span className="hidden sm:inline">Itens Ocultos</span>
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px] max-h-[80vh] flex flex-col">
-                <DialogHeader>
-                  <DialogTitle className="uppercase font-black flex items-center gap-2">
-                    <Eye className="h-5 w-5 text-primary" />
-                    Gerenciar Itens Ocultos
-                  </DialogTitle>
-                  <DialogDescription className="text-xs font-bold uppercase">
-                    Lista de publicações que você desativou da contagem mensal.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="flex-1 overflow-y-auto py-4 space-y-2">
-                  {customDefinitions?.filter(d => d.hidden).length === 0 && (
-                    <div className="text-center py-8 text-muted-foreground uppercase font-bold text-[10px]">
-                      Nenhuma publicação oculta.
-                    </div>
-                  )}
-                  {customDefinitions?.filter(d => d.hidden).map(item => (
-                    <div key={item.id} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200">
-                      <div>
-                        <p className="text-sm font-bold uppercase">{item.item}</p>
-                        <p className="text-[10px] text-muted-foreground font-bold uppercase">{item.category}</p>
-                      </div>
-                      <Button variant="ghost" size="sm" onClick={() => handleRestoreItem(item)} className="text-primary font-bold uppercase text-[10px] gap-2">
-                        <Eye className="h-4 w-4" /> Restaurar
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-                <DialogFooter>
-                  <Button variant="ghost" onClick={() => setIsManageHiddenOpen(false)} className="uppercase font-bold text-xs">Fechar</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
         
@@ -432,7 +376,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 }
 
                 const minVal = historicalMinStock[item.id] || 0;
-                const isLowStock = item.current !== null && minVal > 0 && item.current <= minVal;
+                // Só fica vermelho se NÃO estiver oculto (alertDismissed)
+                const isLowStock = !item.hidden && item.current !== null && minVal > 0 && item.current <= minVal;
                 const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
 
                 return (
@@ -456,25 +401,31 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px]">
                             <div className="flex items-center gap-2 overflow-hidden">
-                              {isLowStock && (
+                              {(isLowStock || item.hidden) && (
                                 <Popover>
                                   <PopoverTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive shrink-0 hover:bg-destructive/10">
-                                      <AlertTriangle className="h-3 w-3" />
+                                    <Button variant="ghost" size="icon" className={cn(
+                                      "h-6 w-6 shrink-0 hover:bg-neutral-100",
+                                      item.hidden ? "text-neutral-400" : "text-destructive"
+                                    )}>
+                                      {item.hidden ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
                                     </Button>
                                   </PopoverTrigger>
-                                  <PopoverContent className="w-56 p-3">
-                                    <p className="text-[10px] font-black uppercase text-destructive mb-2 tracking-widest">Estoque Crítico</p>
+                                  <PopoverContent className="w-64 p-3">
+                                    <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest">Gestão de Alerta</p>
                                     <p className="text-[11px] font-bold uppercase leading-tight text-neutral-600 mb-3">
-                                      Esta publicação atingiu o mínimo de segurança ({minVal}). Deseja parar de gerenciar este item?
+                                      {item.hidden 
+                                        ? "O monitoramento inteligente está desativado para este item. Deseja reativar?" 
+                                        : `Esta publicação atingiu o mínimo de segurança (${minVal}). Deseja silenciar este aviso?`}
                                     </p>
                                     <Button 
-                                      variant="destructive" 
+                                      variant={item.hidden ? "default" : "outline"} 
                                       size="sm" 
-                                      className="w-full text-[9px] font-black uppercase tracking-widest h-8"
-                                      onClick={() => handleHideItem(item)}
+                                      className="w-full text-[9px] font-black uppercase tracking-widest h-8 gap-2"
+                                      onClick={() => handleToggleAlert(item)}
                                     >
-                                      <EyeOff className="h-3 w-3 mr-1.5" /> Desativar Publicação
+                                      {item.hidden ? <Bell className="h-3 w-3" /> : <BellOff className="h-3 w-3" />}
+                                      {item.hidden ? "Reativar Alerta" : "Silenciar Alerta"}
                                     </Button>
                                   </PopoverContent>
                                 </Popover>
@@ -505,14 +456,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                     <Edit2 className="h-3 w-3" />
                                   </Button>
                                 )}
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-6 w-6 text-muted-foreground/30 hover:text-destructive"
-                                  onClick={() => handleHideItem(item)}
-                                >
-                                  <EyeOff className="h-3 w-3" />
-                                </Button>
                               </div>
                             </div>
                             {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded shrink-0">{item.abbr}</span>}
