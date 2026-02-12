@@ -61,3 +61,14 @@
     @apply bg-background text-foreground;
   }
 }
+
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  
+  .bg-neutral-200 {
+    background-color: #e5e5e5 !important;
+  }
+}
