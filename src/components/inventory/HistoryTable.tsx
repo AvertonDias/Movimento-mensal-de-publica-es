@@ -114,7 +114,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
         </div>
       )}
       <Table className="border-collapse table-fixed w-full min-w-[1250px] print:min-w-0">
-        <TableHeader>
+        <TableHeader className="print:table-row-group">
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-7">
             <TableHead className="w-[35px] text-[8px] font-black uppercase text-black p-0.5 text-center border-black">MÊS</TableHead>
             <TableHead className="w-[160px] border-l-0"></TableHead>
