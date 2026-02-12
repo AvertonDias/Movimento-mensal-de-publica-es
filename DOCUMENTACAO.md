@@ -1,54 +1,75 @@
-# Documentação Técnica - Movimento Mensal (S-28-T)
+# Documentação Técnica Completa - Movimento Mensal (S-28-T)
 
-Este documento detalha as funcionalidades, regras de negócio e a estrutura do sistema inteligente para gestão de inventário de publicações.
+Este documento detalha minuciosamente todas as funcionalidades, regras de negócio, lógica de interface e a estrutura técnica do sistema inteligente para gestão de inventário de publicações.
 
 ## 1. Visão Geral
-O aplicativo é uma versão digital e inteligente do formulário oficial **S-28-T**, utilizado para o controle mensal de estoque de publicações. Ele permite que congregações coordenadoras de idioma gerenciem seus materiais com precisão, oferecendo suporte offline, colaboração e análise via IA.
+O aplicativo é uma solução digital avançada para o preenchimento e gestão do formulário oficial **S-28-T** (Movimento Mensal de Publicações). Ele foi projetado para congregações coordenadoras de idioma, facilitando a contagem mensal, a colaboração entre irmãos e a análise de dados para o JW Hub.
 
-## 2. Funcionalidades Principais
+## 2. Funcionalidades de Inventário
 
-### 2.1 Gestão de Inventário (Tabela Principal)
-- **Preenchimento Mensal**: Entrada de dados para "Estoque Anterior", "Recebido" e "Estoque Atual".
-- **Cálculo de Saída Automático**: A coluna "Saída" é calculada pela fórmula: `(Anterior + Recebido) - Atual`.
-- **Inteligência de Preenchimento**:
-    - Se o **Estoque Atual** for preenchido e já houver um **Estoque Anterior**, o campo **Recebido** é zerado automaticamente se estiver em branco.
-    - **Seleção Automática**: Ao clicar em qualquer campo numérico, o texto é selecionado automaticamente para facilitar a substituição rápida.
-- **Busca Rápida**: Filtro em tempo real por nome da publicação, código ou sigla.
-- **Navegação Temporal**: Troca fácil entre meses para preenchimento de registros passados ou futuros.
+### 2.1 Gestão de Dados Mensais
+- **Colunas Oficiais**: Suporte total para "Estoque Anterior", "Recebido", "Estoque Atual" e a calculada "Saída".
+- **Cálculo Automático de Saída**: A coluna "Saída" é processada em tempo real pela fórmula: `(Anterior + Recebido) - Estoque Atual`.
+- **Inteligência de Preenchimento (Zero Automático)**: Ao preencher o **Estoque Atual**, se houver um valor em **Estoque Anterior** e o campo **Recebido** estiver vazio, o sistema assume automaticamente o valor **0** para agilizar o processo.
+- **Navegação Temporal**: Seletor de mês/ano com popover intuitivo, permitindo navegar por registros passados ou preparar meses futuros.
+- **Herança de Estoque**: O sistema busca automaticamente o "Estoque Atual" do mês anterior para preencher o "Estoque Anterior" do mês corrente.
 
-### 2.2 Colaboração (Sistema de Ajudantes)
-- **Convites por Link**: O administrador pode gerar links únicos para convidar ajudantes.
-- **Gestão de Acesso**: Ajudantes vinculados visualizam e editam o inventário do administrador, permitindo o trabalho em equipe na contagem real.
-- **Segurança**: Regras do Firestore garantem que apenas ajudantes autorizados acessem os dados do proprietário.
+### 2.2 Interface e Usabilidade
+- **Seleção Rápida**: Ao clicar em qualquer campo numérico, o texto é selecionado automaticamente (auto-select), permitindo a substituição instantânea do valor sem necessidade de apagar.
+- **Identificação Visual**: Ao clicar no nome de uma publicação, um popover exibe a **capa oficial** da revista ou livro (links integrados com o servidor de imagens do jw.org).
+- **Busca e Filtros**: Filtro global que pesquisa simultaneamente por nome, código (N.º) ou sigla da publicação.
+- **Modo de Edição Flexível**: Suporte para itens oficiais e itens personalizados adicionados pela congregação local.
 
-### 2.3 Histórico Oficial (S-28-T)
-- **Visualização de 6 Meses**: Tabela consolidada seguindo fielmente o layout do formulário impresso.
-- **Impressão Otimizada**: Botão de impressão que gera o documento S-28-T formatado para papel A4, com fontes e linhas padronizadas.
-- **Suporte a Revistas**: Identificação estável para revistas e itens sem código oficial, garantindo que apareçam corretamente no histórico.
+### 2.3 Gestão de Itens Personalizados
+- **Adição Dinâmica**: Possibilidade de adicionar publicações que não constam na lista oficial padrão.
+- **Edição e Exclusão**: Interface para alterar nome, código ou sigla de itens criados pelo usuário, com diálogos de confirmação de segurança.
 
-### 2.4 Estatísticas e Insights (IA)
-- **Dashboard Visual**: Gráficos de tendências de saída dos últimos 6 meses.
-- **Distribuição de Estoque**: Visualização por categorias (Bíblias, Livros, Brochuras, etc.).
-- **GenAI (Genkit)**:
-    - **Análise de Tendências**: IA analisa quais itens estão estagnados ou com alta demanda.
-    - **Dicas de Gestão**: Sugestões personalizadas baseadas nas melhores práticas do JW Hub.
+## 3. Colaboração (Sistema de Ajudantes)
 
-### 2.5 PWA (Progressive Web App)
-- **Instalável**: O app pode ser instalado no celular ou computador com o ícone de livro.
-- **Offline First**: Permite visualização e preenchimento básico mesmo sem conexão com a internet através do Service Worker.
-- **Manifesto**: Configurado com cores e identidade visual da organização.
+### 3.1 Convites e Vínculos
+- **Gerador de Links**: O administrador pode gerar links únicos de convite.
+- **Fluxo de Aceite**: Quando um ajudante clica no link, ele é guiado para uma tela de cadastro/login onde confirma que deseja vincular seu acesso ao inventário do administrador.
+- **Substituição de Dados**: Regra clara de que ao aceitar ser um ajudante, o usuário passa a gerenciar o estoque do "Anfitrião", garantindo unidade nos dados.
 
-## 3. Regras de Negócio Importantes
-- **Data de Estoque**: Os valores iniciais de estoque são sempre herdados do "Estoque Atual" do mês anterior.
-- **S-60 (Descarte)**: O sistema recomenda a revisão periódica da lista S-60 para manter o estoque apenas com itens úteis.
-- **Itens Customizados**: Permite adicionar publicações que não constam na lista oficial, mas que são necessárias para a congregação local.
+### 3.2 Sincronização
+- **Firestore Real-time**: As atualizações feitas por um ajudante aparecem instantaneamente para o administrador e vice-versa.
+- **Identificação**: O sistema registra quem é o ajudante ativo para facilitar a gestão de acessos.
 
-## 4. Tecnologias Utilizadas
-- **Frontend**: Next.js 15, React, Tailwind CSS, Shadcn UI.
+## 4. Relatórios e Análises
+
+### 4.1 Histórico S-28-T (Oficial)
+- **Visão Semestral**: Tabela consolidada dos últimos 6 meses de movimentação.
+- **Layout Fiel**: Design idêntico ao formulário impresso, com fontes condensadas e bordas pretas sólidas.
+- **Impressão Profissional**: Botão otimizado que remove elementos da web (menus, botões) e formata a tabela perfeitamente para papel A4.
+
+### 4.2 Estatísticas e IA
+- **Dashboard Visual**: Gráficos de barras para tendências de saída e gráficos de pizza para distribuição de estoque por categorias (Bíblias, Livros, Revistas, etc.).
+- **Insights com Genkit (IA)**:
+    - **Análise de Tendências**: IA que identifica itens parados (potencial S-60) ou com alta rotatividade.
+    - **Dicas de Gestão**: Sugestões baseadas nas melhores práticas para evitar acúmulo desnecessário de estoque.
+
+## 5. Autenticação e Segurança
+
+- **Provedores**: Suporte para Google Login e Email/Senha.
+- **Perfil do Usuário**: Inclusão de campo "Nome Completo" no cadastro para identificação em convites.
+- **Privacidade de Senha**: Toggle de visibilidade (ícone de olho) nas telas de Login e Cadastro.
+- **Recuperação de Acesso**: Fluxo completo de "Esqueci minha senha" com envio de e-mail de redefinição via Firebase Auth.
+- **Regras do Firestore**: Proteção rigorosa que permite escrita apenas pelo proprietário ou ajudantes explicitamente autorizados via token.
+
+## 6. PWA (Progressive Web App)
+
+- **Instalação**: O app é instalável em dispositivos Android, iOS e Desktop.
+- **Identidade**: Utiliza o ícone de livro (`BookOpen`) como ícone do aplicativo na tela inicial.
+- **Offline-First**: Cache de assets e interface via Service Worker, permitindo abrir o app e visualizar dados mesmo sem conexão.
+
+## 7. Tecnologias Utilizadas
+
+- **Core**: Next.js 15 (App Router), React 19, TypeScript.
+- **Estilização**: Tailwind CSS + Shadcn UI (Tema customizado em HSL).
 - **Backend**: Firebase (Auth e Firestore).
-- **IA**: Genkit com modelos Google Gemini.
 - **Gráficos**: Recharts.
-- **Data/Hora**: date-fns.
+- **IA**: Genkit com modelos Google Gemini 2.0.
+- **Utilidades**: date-fns (datas), lucide-react (ícones).
 
 ---
-*Este sistema foi desenvolvido para simplificar o trabalho voluntário, garantindo organização e precisão nos relatórios.*
+*Este sistema é uma ferramenta de apoio voluntário, focada em precisão, simplicidade e organização.*
