@@ -82,7 +82,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '6670', item: 'Aprenda com a Sabedoria de Jesus', abbr: 'wfg', category: 'Brochuras', imageKey: 'wfg' },
   { code: '6684', item: '10 Perguntas', abbr: 'ypq', category: 'Brochuras', imageKey: 'ypq' },
   
-  { code: '', item: 'Folhetos e convites (1 maço de 2,5 cm ≈ 300)', category: 'Folhetos', isCategory: true },
+  { code: '', item: 'Folhetos e convites (1 maço de 2,5 cm = 300)', category: 'Folhetos', isCategory: true },
   { code: '7305', item: 'Convite para reuniões cristãs*', abbr: 'inv', category: 'Folhetos', imageKey: 'inv' },
   { code: '7130', item: 'O Que Você Acha da Bíblia?*', abbr: 'T-30', category: 'Folhetos', imageKey: 'T-30' },
   { code: '7131', item: 'O Que Você Espera do Futuro?*', abbr: 'T-31', category: 'Folhetos', imageKey: 'T-31' },
