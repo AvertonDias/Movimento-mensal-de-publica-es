@@ -115,28 +115,28 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       )}
       <Table className="border-collapse table-fixed w-full min-w-[1250px] print:min-w-0">
         <TableHeader className="print:table-row-group">
-          <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-6">
-            <TableHead className="w-[35px] text-[8px] font-black uppercase text-black p-0.5 text-center border-black">MÊS</TableHead>
-            <TableHead className="w-[160px] border-l-0"></TableHead>
+          <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-[22px]">
+            <TableHead className="w-[35px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-black leading-none">MÊS</TableHead>
+            <TableHead className="w-[160px] border-l-0 h-auto"></TableHead>
             {lastSixMonths.map((month) => (
               <TableHead 
                 key={month.key} 
                 colSpan={3} 
-                className="text-center text-[8px] font-black uppercase text-black p-0 h-6 border-l border-black bg-neutral-50/50"
+                className="text-center text-[8px] font-black uppercase text-black p-0 h-auto border-l border-black bg-neutral-50/50 leading-none"
               >
                 {month.label}
               </TableHead>
             ))}
           </TableRow>
-          <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-6">
-            <TableHead className="w-[35px] text-[7px] font-bold text-black p-0 text-center leading-none">N.º</TableHead>
-            <TableHead className="text-[10px] font-black text-black px-1 py-0 align-middle">Publicações</TableHead>
+          <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-[22px]">
+            <TableHead className="w-[35px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-black">N.º</TableHead>
+            <TableHead className="text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-black">Publicações</TableHead>
             
             {lastSixMonths.map((m) => (
               <React.Fragment key={m.key}>
-                <TableHead className="text-[6px] font-bold text-black p-0 text-center uppercase leading-[1]">Recebido</TableHead>
-                <TableHead className="text-[6px] font-bold text-black p-0 text-center uppercase leading-[1]">Est.</TableHead>
-                <TableHead className="text-[6px] font-black text-black p-0 text-center uppercase bg-neutral-200 leading-[1]">Saída</TableHead>
+                <TableHead className="text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Recebido</TableHead>
+                <TableHead className="text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Est.</TableHead>
+                <TableHead className="text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-[1] border-black">Saída</TableHead>
               </React.Fragment>
             ))}
           </TableRow>
