@@ -5,16 +5,19 @@ import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Download, X, BookOpen } from "lucide-react";
+import { useUser } from "@/firebase";
 
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const { user, isUserLoading } = useUser();
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
       const isDismissed = sessionStorage.getItem('pwa_prompt_dismissed');
+      // Só mostra se não foi dispensado nesta sessão
       if (!isDismissed) {
         setIsVisible(true);
       }
@@ -22,6 +25,7 @@ export function PWAInstallPrompt() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
+    // Se já estiver em modo standalone (instalado), não mostra nada
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsVisible(false);
     }
@@ -49,7 +53,10 @@ export function PWAInstallPrompt() {
     sessionStorage.setItem('pwa_prompt_dismissed', 'true');
   };
 
-  if (!isVisible) return null;
+  // LÓGICA PRINCIPAL: Se não há usuário logado ou está carregando, não mostra o prompt
+  if (!isVisible || isUserLoading || !user || user.isAnonymous) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] w-[90%] max-w-md animate-in slide-in-from-bottom-10 duration-500">
