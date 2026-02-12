@@ -21,7 +21,7 @@
     {
       "id": "lff",
       "description": "Seja Feliz para Sempre!",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lffi/T/pt/lffi_T_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lff/T/pt/lff_T_lg.jpg",
       "imageHint": "spiritual guide"
     },
     {
@@ -319,10 +319,40 @@
       "imageHint": "contact card bible"
     },
     {
+      "id": "jwcd4",
+      "description": "Cartão de visita Logo",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_4_T_lg.jpg",
+      "imageHint": "contact card logo"
+    },
+    {
+      "id": "jwcd9",
+      "description": "Cartão de visita Curso Presencial",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_9_T_lg.jpg",
+      "imageHint": "contact card course"
+    },
+    {
+      "id": "jwcd10",
+      "description": "Cartão de visita Curso Online",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/jwcd/T/pt/jwcd_10_T_lg.jpg",
+      "imageHint": "contact card online"
+    },
+    {
+      "id": "lr",
+      "description": "Instrutor",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lr/T/pt/lr_T_lg.jpg",
+      "imageHint": "teacher book"
+    },
+    {
       "id": "sjj",
       "description": "Cante de Coração",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/sjjls/T/pt/sjjls_T_lg.jpg",
       "imageHint": "songbook cover"
+    },
+    {
+      "id": "scl",
+      "description": "Princípios Bíblicos",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/scl/T/pt/scl_T_lg.jpg",
+      "imageHint": "bible principles"
     },
     {
       "id": "g18.1",
