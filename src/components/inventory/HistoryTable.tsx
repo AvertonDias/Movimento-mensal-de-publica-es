@@ -127,7 +127,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             ))}
           </TableRow>
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-[22px]">
-            <TableHead className="w-[35px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-black">N.º</TableHead>
+            <TableHead className="w-[25px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-black">N.º</TableHead>
             <TableHead className="text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-black">Publicações</TableHead>
             
             {lastSixMonths.map((m) => (
