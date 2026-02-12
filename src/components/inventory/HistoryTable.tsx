@@ -132,9 +132,9 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             
             {lastSixMonths.map((m) => (
               <React.Fragment key={m.key}>
-                <TableHead className="text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Recebido</TableHead>
-                <TableHead className="text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Estoque</TableHead>
-                <TableHead className="text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-[1] border-black">Saída</TableHead>
+                <TableHead className="w-[35px] text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Recebido</TableHead>
+                <TableHead className="w-[35px] text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Estoque</TableHead>
+                <TableHead className="w-[35px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-[1] border-black">Saída</TableHead>
               </React.Fragment>
             ))}
           </TableRow>
@@ -147,7 +147,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               return (
                 <TableRow key={idx} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-5">
                   <TableCell className="p-0 border-r border-black"></TableCell>
-                  <TableCell colSpan={18} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black">
+                  <TableCell colSpan={20} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black">
                     {item.item}
                   </TableCell>
                 </TableRow>
