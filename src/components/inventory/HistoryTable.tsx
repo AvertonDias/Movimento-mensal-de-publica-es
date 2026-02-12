@@ -122,14 +122,11 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
           <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
             <TableHead className="w-[20px] border-r border-black"></TableHead>
             <TableHead className="w-[210px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-none">MÊS E ANO</TableHead>
-            {lastSixMonths.map((month, mIdx) => (
+            {lastSixMonths.map((month) => (
               <TableHead 
                 key={month.key} 
                 colSpan={3} 
-                className={cn(
-                  "text-center text-[8px] font-black uppercase text-black p-0 h-auto border-black bg-neutral-50/50 leading-none",
-                  mIdx !== lastSixMonths.length - 1 ? "border-r" : ""
-                )}
+                className="text-center text-[8px] font-black uppercase text-black p-0 h-auto border-r border-black bg-neutral-50/50 leading-none"
               >
                 {month.label}
               </TableHead>
@@ -139,14 +136,11 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             <TableHead className="w-[20px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-r border-black">N.º</TableHead>
             <TableHead className="w-[210px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-r border-black">Publicações</TableHead>
             
-            {lastSixMonths.map((m, mIdx) => (
+            {lastSixMonths.map((m) => (
               <React.Fragment key={m.key}>
                 <TableHead className="w-[50px] text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-r border-black">Recebido</TableHead>
                 <TableHead className="w-[50px] text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-r border-black">Estoque</TableHead>
-                <TableHead className={cn(
-                  "w-[50px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-[1] border-black",
-                  mIdx !== lastSixMonths.length - 1 ? "border-r" : ""
-                )}>Saída</TableHead>
+                <TableHead className="w-[50px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-[1] border-r border-black">Saída</TableHead>
               </React.Fragment>
             ))}
           </TableRow>
@@ -176,14 +170,11 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
                   </div>
                 </TableCell>
                 
-                {lastSixMonths.map((m, mIdx) => (
+                {lastSixMonths.map((m) => (
                   <React.Fragment key={m.key}>
                     <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{getValue(m.key, itemId, 'received')}</TableCell>
                     <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{getValue(m.key, itemId, 'current')}</TableCell>
-                    <TableCell className={cn(
-                      "text-[8px] text-center p-0 font-black bg-neutral-200 leading-none",
-                      mIdx !== lastSixMonths.length - 1 ? "border-r border-black" : ""
-                    )}>{calculateOutgoing(m.key, itemId)}</TableCell>
+                    <TableCell className="text-[8px] text-center p-0 font-black bg-neutral-200 leading-none border-r border-black">{calculateOutgoing(m.key, itemId)}</TableCell>
                   </React.Fragment>
                 ))}
               </TableRow>
