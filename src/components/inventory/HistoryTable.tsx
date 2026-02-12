@@ -117,7 +117,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
           <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse text-black">Sincronizando...</span>
         </div>
       )}
-      <Table className="border-collapse table-fixed w-full min-w-[1250px] print:min-w-0">
+      <Table className="border-collapse table-fixed w-full min-w-[1130px] print:min-w-0">
         <TableHeader className="print:table-row-group">
           <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
             <TableHead className="w-[20px] border-r border-black"></TableHead>
