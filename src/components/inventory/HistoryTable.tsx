@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useMemo, useEffect, useState } from 'react';
@@ -49,13 +50,15 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
 
   const combinedItems = useMemo(() => {
     const combined: InventoryItem[] = [];
+    const officialIds = new Set(OFFICIAL_PUBLICATIONS.map((pub, idx) => pub.code || pub.abbr || `item_${idx}`));
+    
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
       const itemId = pub.code || pub.abbr || `item_${idx}`;
       combined.push({ ...pub, id: itemId } as InventoryItem);
       
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
-          .filter(cd => cd.category === pub.category)
+          .filter(cd => cd.category === pub.category && !officialIds.has(cd.id))
           .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
 
         categoryCustomItems.forEach(cd => combined.push(cd as InventoryItem));
@@ -146,7 +149,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             
             if (item.isCategory) {
               return (
-                <TableRow key={idx} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-5">
+                <TableRow key={`hist-cat-${idx}`} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-5">
                   <TableCell className="p-0 border-r border-black"></TableCell>
                   <TableCell colSpan={20} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black">
                     {item.item}
@@ -156,7 +159,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             }
             
             return (
-              <TableRow key={idx} className="border-b border-black divide-x divide-black h-5 hover:bg-transparent print:h-4">
+              <TableRow key={`hist-row-${itemId}-${idx}`} className="border-b border-black divide-x divide-black h-5 hover:bg-transparent print:h-4">
                 <TableCell className="text-[8px] text-center p-0 font-bold border-black leading-none">{item.code}</TableCell>
                 <TableCell className="text-[9px] px-1 py-0 border-black flex justify-between items-center h-full overflow-hidden">
                   <span className="truncate leading-none">{item.item}</span>

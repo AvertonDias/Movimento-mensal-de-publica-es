@@ -23,8 +23,7 @@ import {
   X,
   AlertTriangle,
   BellOff,
-  Bell,
-  Settings
+  Bell
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -45,15 +44,6 @@ import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter
-} from "@/components/ui/dialog";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
@@ -145,6 +135,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const items = useMemo(() => {
     const combined: InventoryItem[] = [];
+    const officialIds = new Set(OFFICIAL_PUBLICATIONS.map((pub, idx) => pub.code || pub.abbr || `item_${idx}`));
     
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
       const id = pub.code || pub.abbr || `item_${idx}`;
@@ -163,12 +154,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         received: local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null),
         current: local.current !== undefined ? local.current : (remote?.current !== undefined ? remote?.current : null),
         minStock: historicalMinStock[id] || 0,
-        hidden: customDef?.hidden || false, // Usamos 'hidden' para silenciar o alerta visual
+        hidden: customDef?.hidden || false,
       } as InventoryItem);
 
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
-          .filter(cd => cd.category === pub.category)
+          .filter(cd => cd.category === pub.category && !officialIds.has(cd.id))
           .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
 
         categoryCustomItems.forEach(cd => {
@@ -222,7 +213,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       }
       
       const minVal = historicalMinStock[id] || 0;
-      // Só alerta se não estiver silenciado
       if (!itemData.hidden && minVal > 0 && value <= minVal) {
         toast({
           variant: "destructive",
@@ -253,7 +243,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const docRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(docRef, {
       ...item,
-      hidden: newState, // Inverte o estado de silenciamento
+      hidden: newState,
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
@@ -364,10 +354,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredItems.map((item) => {
+              {filteredItems.map((item, idx) => {
                 if (item.isCategory) {
                   return (
-                    <TableRow key={item.id} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
+                    <TableRow key={`cat-${item.id}-${idx}`} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
                       <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
                         {item.item}
                       </TableCell>
@@ -376,7 +366,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 }
 
                 const minVal = historicalMinStock[item.id] || 0;
-                // Só fica vermelho se NÃO estiver oculto (alertDismissed)
                 const isLowStock = !item.hidden && item.current !== null && minVal > 0 && item.current <= minVal;
                 const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
 
