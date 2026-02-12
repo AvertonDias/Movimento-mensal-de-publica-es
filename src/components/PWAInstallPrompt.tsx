@@ -12,11 +12,8 @@ export function PWAInstallPrompt() {
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: Event) => {
-      // Impede o mini-infobar automático do Chrome
       e.preventDefault();
-      // Guarda o evento para disparar depois
       setDeferredPrompt(e);
-      // Verifica se o usuário já fechou o banner nesta sessão
       const isDismissed = sessionStorage.getItem('pwa_prompt_dismissed');
       if (!isDismissed) {
         setIsVisible(true);
@@ -25,7 +22,6 @@ export function PWAInstallPrompt() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Verifica se já está instalado (standalone)
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsVisible(false);
     }
@@ -38,14 +34,10 @@ export function PWAInstallPrompt() {
   const handleInstallClick = async () => {
     if (!deferredPrompt) return;
 
-    // Mostra o prompt nativo
     deferredPrompt.prompt();
-
-    // Aguarda a resposta do usuário
     const { outcome } = await deferredPrompt.userChoice;
     
     if (outcome === 'accepted') {
-      console.log('Usuário aceitou a instalação');
       setIsVisible(false);
     }
     

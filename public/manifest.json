@@ -1,24 +1,24 @@
 
 {
-  "name": "Movimento Mensal - Gestão de Publicações",
-  "short_name": "Movimento Mensal",
-  "description": "Sistema de inventário inteligente para publicações (Formulário S-28-T).",
+  "name": "Movimento Mensal",
+  "short_name": "Movimento",
+  "description": "Gestão inteligente de inventário de publicações (S-28-T).",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F5F5F5",
+  "background_color": "#ffffff",
   "theme_color": "#A0CFEC",
   "icons": [
     {
       "src": "https://picsum.photos/seed/pwa192/192/192",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "https://picsum.photos/seed/pwa512/512/512",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }

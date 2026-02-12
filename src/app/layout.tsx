@@ -17,10 +17,10 @@ export default function RootLayout({
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js').then(
           (registration) => {
-            console.log('SW registrado com sucesso:', registration.scope);
+            console.log('SW registrado:', registration.scope);
           },
           (err) => {
-            console.log('Falha ao registrar SW:', err);
+            console.log('Falha no SW:', err);
           }
         );
       });
@@ -31,7 +31,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <head>
         <title>Movimento Mensal - Gestão de Publicações</title>
-        <meta name="description" content="Sistema de inventário inteligente para publicações (Formulário S-28-T)." />
+        <meta name="description" content="Sistema inteligente para formulário S-28-T." />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#A0CFEC" />
         <link rel="apple-touch-icon" href="https://picsum.photos/seed/pwa192/192/192" />

@@ -36,7 +36,7 @@ import {
   setDocumentNonBlocking
 } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { format, subMonths, addMonths, startOfMonth, setMonth, setYear } from 'date-fns';
+import { format, subMonths, addMonths, startOfMonth, setMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
@@ -156,8 +156,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
     let updates: Record<string, any> = { [field]: value };
 
-    // Lógica automática: se o estoque anterior estiver preenchido e colocar algum valor em estoque atual 
-    // e não colocar nada em recebido automaticamente ele fica com 0
     if (field === 'current' && value !== null) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
         updates.received = 0;
@@ -179,109 +177,99 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="sticky top-[72px] z-30 flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-md border border-border">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
-            <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => subMonths(prev, 1))} className="h-8 w-8">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            
-            <Popover open={isMonthPopoverOpen} onOpenChange={setIsMonthPopoverOpen}>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" className="px-2 font-bold text-xs uppercase tracking-wider min-w-[140px] justify-center gap-2 h-8">
-                  <CalendarIcon className="h-3.5 w-3.5 text-primary" />
-                  {monthName}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-3" align="start">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedMonth(prev => subMonths(prev, 12))}>
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <span className="text-sm font-black uppercase">{format(selectedMonth, 'yyyy')}</span>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedMonth(prev => addMonths(prev, 12))}>
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
+    <div className="space-y-6 relative">
+      <div className="sticky top-[72px] z-40 bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
+              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => subMonths(prev, 1))} className="h-8 w-8">
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <Popover open={isMonthPopoverOpen} onOpenChange={setIsMonthPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" className="px-2 font-bold text-xs uppercase tracking-wider min-w-[140px] justify-center gap-2 h-8">
+                    <CalendarIcon className="h-3.5 w-3.5 text-primary" />
+                    {monthName}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3" align="start">
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-3 gap-2">
+                      {Array.from({ length: 12 }).map((_, i) => {
+                        const date = setMonth(selectedMonth, i);
+                        const isSelected = selectedMonth.getMonth() === i;
+                        return (
+                          <Button
+                            key={i}
+                            variant={isSelected ? "default" : "ghost"}
+                            className={cn(
+                              "h-9 text-[10px] font-bold uppercase",
+                              isSelected && "bg-primary text-primary-foreground"
+                            )}
+                            onClick={() => {
+                              setSelectedMonth(date);
+                              setIsMonthPopoverOpen(false);
+                            }}
+                          >
+                            {format(date, 'MMM', { locale: ptBR })}
+                          </Button>
+                        );
+                      })}
+                    </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {Array.from({ length: 12 }).map((_, i) => {
-                      const date = setMonth(selectedMonth, i);
-                      const isSelected = selectedMonth.getMonth() === i;
-                      return (
-                        <Button
-                          key={i}
-                          variant={isSelected ? "default" : "ghost"}
-                          className={cn(
-                            "h-9 text-[10px] font-bold uppercase",
-                            isSelected && "bg-primary text-primary-foreground"
-                          )}
-                          onClick={() => {
-                            setSelectedMonth(date);
-                            setIsMonthPopoverOpen(false);
-                          }}
-                        >
-                          {format(date, 'MMM', { locale: ptBR })}
-                        </Button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverContent>
+              </Popover>
 
-            <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8">
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8">
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-          <div className="flex items-start gap-1.5 px-1 max-w-[200px]">
-            <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
-            <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-              Nota: Os lançamentos devem ser referentes ao fechamento do mês anterior.
-            </p>
+
+          <div className="relative w-full md:flex-1 md:max-w-2xl">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input 
+              placeholder="Pesquisar publicação..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 pr-10 h-11 w-full font-medium"
+            />
+            {searchTerm && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
+                onClick={() => setSearchTerm('')}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
-
-        <div className="relative w-full md:flex-1 md:max-w-2xl">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
-            placeholder="Pesquisar por publicação, código ou sigla..." 
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-10 h-11 w-full font-medium"
-          />
-          {searchTerm && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-transparent"
-              onClick={() => setSearchTerm('')}
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Limpar pesquisa</span>
-            </Button>
-          )}
+        
+        <div className="flex items-start gap-1.5 px-1">
+          <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
+          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
+            Nota: Se o estoque anterior estiver preenchido, ao informar o estoque atual os recebidos serão zerados automaticamente se estiverem em branco.
+          </p>
         </div>
       </div>
 
-      <div className="relative bg-white rounded-xl shadow-md border border-border">
+      <div className="bg-white rounded-b-xl shadow-md border-x border-b border-border overflow-hidden">
         {(isFetchingMonth || isUserLoading) && (
-          <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
-            <div className="flex flex-col items-center gap-2">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <span className="text-xs font-bold uppercase text-muted-foreground">Carregando dados...</span>
-            </div>
+          <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center backdrop-blur-[1px]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         )}
 
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-primary/5 sticky top-[168px] md:top-[128px] z-20 shadow-sm">
-              <TableRow className="bg-white hover:bg-white">
+            <TableHeader className="bg-white sticky top-[188px] md:top-[160px] z-30 shadow-sm border-b">
+              <TableRow className="bg-white hover:bg-white border-b border-neutral-200">
                 {DEFAULT_COLUMNS.map((col) => (
                   <TableHead key={col.id} className={cn(
-                    "font-bold text-foreground py-4 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0",
+                    "font-bold text-foreground py-3 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0 h-10 bg-white",
                     col.id === 'item' && "text-left"
                   )}>
                     {col.header}
@@ -295,9 +283,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   return (
                     <TableRow key={item.id} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
                       <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
-                        <div className="flex items-center">
-                          <span>{item.item}</span>
-                        </div>
+                        {item.item}
                       </TableCell>
                     </TableRow>
                   );
@@ -308,17 +294,17 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 return (
                   <TableRow key={item.id} className="hover:bg-accent/5 transition-colors border-b last:border-0 group">
                     {DEFAULT_COLUMNS.map((col) => (
-                      <TableCell key={col.id} className="p-1 px-3 border-r last:border-0">
+                      <TableCell key={col.id} className="p-1 px-3 border-r last:border-0 h-11">
                         {col.id === 'outgoing' ? (
                           <div className={cn(
-                            "py-2 font-black rounded text-sm text-center",
+                            "py-1.5 font-black rounded text-sm text-center",
                             item.current !== null && typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10"
                           )}>
                             {calculateOutgoing(item)}
                           </div>
                         ) : col.id === 'code' ? (
-                          <div className="text-center text-[11px] font-bold py-2 text-neutral-400">
-                            {item.code || (item.isCustom ? '---' : '')}
+                          <div className="text-center text-[10px] font-bold py-2 text-neutral-400">
+                            {item.code || '---'}
                           </div>
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px]">
@@ -326,28 +312,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                               {imagePlaceholder ? (
                                 <Popover>
                                   <PopoverTrigger asChild>
-                                    <span className="text-sm font-medium text-foreground cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary hover:border-primary transition-colors truncate">
+                                    <span className="text-sm font-medium text-foreground cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors truncate">
                                       {item.item}
                                     </span>
                                   </PopoverTrigger>
-                                  <PopoverContent 
-                                    side="top" 
-                                    align="center" 
-                                    className="p-0 border-none shadow-2xl overflow-hidden rounded-lg z-[100] w-[200px] mb-2"
-                                  >
-                                    <div className="relative w-full aspect-[2/3] bg-neutral-50 p-2">
-                                      <Image 
-                                        src={imagePlaceholder.imageUrl} 
-                                        alt={imagePlaceholder.description}
-                                        fill
-                                        sizes="200px"
-                                        className="object-contain p-1"
-                                        priority={true}
-                                        unoptimized={true}
-                                      />
-                                      <div className="absolute bottom-0 left-0 right-0 bg-black/70 p-2 text-white text-[10px] font-black uppercase text-center backdrop-blur-md">
-                                        {item.item}
-                                      </div>
+                                  <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg w-[180px]">
+                                    <div className="relative aspect-[2/3] bg-neutral-50 p-2">
+                                      <Image src={imagePlaceholder.imageUrl} alt={imagePlaceholder.description} fill sizes="180px" className="object-contain" unoptimized />
                                     </div>
                                   </PopoverContent>
                                 </Popover>
@@ -355,12 +326,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                 <span className="text-sm font-medium text-foreground truncate">{item.item}</span>
                               )}
                               {item.isCustom && activeUid === user?.uid && (
-                                <Button 
-                                  variant="ghost" 
-                                  size="icon" 
-                                  className="h-6 w-6 text-muted-foreground/50 hover:text-primary"
-                                  onClick={() => setEditingItem(item)}
-                                >
+                                <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}>
                                   <Edit2 className="h-3 w-3" />
                                 </Button>
                               )}
@@ -373,8 +339,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             value={(item[col.id] !== undefined && item[col.id] !== null) ? (item[col.id] as number) : ''}
                             onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))}
                             onFocus={(e) => e.target.select()}
-                            onWheel={(e) => e.currentTarget.blur()}
-                            className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-9 text-sm text-center font-bold transition-all bg-transparent group-hover:bg-white/50"
+                            className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent"
                             placeholder="0"
                             disabled={(activeUid !== user?.uid && !targetUserId)}
                           />
@@ -390,25 +355,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       </div>
       
       {activeCategory && activeUid === user?.uid && (
-        <AddCustomItemDialog 
-          isOpen={isAddDialogOpen} 
-          onClose={() => setIsAddDialogOpen(false)} 
-          category={activeCategory} 
-        />
+        <AddCustomItemDialog isOpen={isAddDialogOpen} onClose={() => setIsAddDialogOpen(false)} category={activeCategory} />
       )}
 
       {editingItem && activeUid === user?.uid && (
-        <EditCustomItemDialog 
-          item={editingItem} 
-          onClose={() => setEditingItem(null)} 
-        />
+        <EditCustomItemDialog item={editingItem} onClose={() => setEditingItem(null)} />
       )}
-
-      <div className="text-center">
-        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest bg-white/50 py-2 rounded-full border border-white/20 inline-block px-6">
-          Os dados são salvos automaticamente para o mês de {monthName}
-        </p>
-      </div>
     </div>
   );
 }
