@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useMemo, useEffect, useState } from 'react';
@@ -50,7 +51,9 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   const combinedItems = useMemo(() => {
     const combined: InventoryItem[] = [];
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
-      combined.push({ ...pub, id: pub.code || `item_${idx}` } as InventoryItem);
+      // ID estável: Prioriza Código, depois Sigla (importante para revistas), depois índice
+      const itemId = pub.code || pub.abbr || `item_${idx}`;
+      combined.push({ ...pub, id: itemId } as InventoryItem);
       
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
@@ -141,7 +144,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
         </TableHeader>
         <TableBody>
           {combinedItems.map((item, idx) => {
-            const itemId = item.id || `item_${idx}`;
+            const itemId = item.id;
             
             if (item.isCategory) {
               return (

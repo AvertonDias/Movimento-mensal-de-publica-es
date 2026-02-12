@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -92,7 +93,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const combined: InventoryItem[] = [];
     
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
-      const id = pub.code || `cat_${idx}`;
+      // ID estável: Prioriza Código, depois Sigla (importante para revistas), depois índice
+      const id = pub.code || pub.abbr || `item_${idx}`;
       const remote = remoteItems?.find(i => i.id === id);
       const prevRemote = prevRemoteItems?.find(i => i.id === id);
       const local = localData[id] || {};
@@ -159,6 +161,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     if (itemData) {
       setDocumentNonBlocking(docRef, {
         ...itemData,
+        id,
         [field]: value,
         updatedAt: new Date().toISOString()
       }, { merge: true });
