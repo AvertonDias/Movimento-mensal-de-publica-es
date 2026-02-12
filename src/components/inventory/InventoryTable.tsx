@@ -178,7 +178,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   return (
     <div className="space-y-6 relative">
-      <div className="sticky top-[72px] z-40 bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
+      <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
@@ -265,7 +265,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-white sticky top-[188px] md:top-[160px] z-30 shadow-sm border-b">
+            <TableHeader className="bg-white shadow-sm border-b">
               <TableRow className="bg-white hover:bg-white border-b border-neutral-200">
                 {DEFAULT_COLUMNS.map((col) => (
                   <TableHead key={col.id} className={cn(
