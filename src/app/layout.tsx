@@ -29,8 +29,8 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <head>
-        <title>Movimento Mensal - Gestão de Publicações</title>
-        <meta name="description" content="Sistema inteligente para formulário S-28-T." />
+        <title>S-28 Digital: Gestão inteligente de publicações</title>
+        <meta name="description" content="Sistema inteligente para formulário S-28-T e gestão de estoque." />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#A0CFEC" />
         <link rel="apple-touch-icon" href="/icon.png" />

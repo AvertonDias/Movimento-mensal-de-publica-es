@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
           </div>
           <CardTitle className="text-2xl font-black uppercase tracking-tight">Recuperar Senha</CardTitle>
           <CardDescription className="uppercase text-[10px] font-bold tracking-widest text-muted-foreground">
-            MOVIMENTO MENSAL DE PUBLICAÇÕES
+            S-28 DIGITAL: GESTÃO INTELIGENTE
           </CardDescription>
         </CardHeader>
         <CardContent>

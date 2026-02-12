@@ -120,10 +120,10 @@ export default function Home() {
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tight text-foreground uppercase font-headline">
-                Movimento Mensal
+                S-28 Digital
               </h1>
-              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-[0.2em]">
-                Publicações • JW
+              <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-[0.1em]">
+                Gestão inteligente de publicações
               </p>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function Home() {
       
       <footer className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
-          <p>© {new Date().getFullYear()} Movimento Mensal • Formulário S-28-T (8/24)</p>
+          <p>© {new Date().getFullYear()} S-28 Digital • Gestão inteligente (8/24)</p>
           <div className="flex gap-8">
             {!isHelper && <Link href="/helpers" className="hover:text-primary transition-colors">Ajudantes</Link>}
             
@@ -250,7 +250,7 @@ export default function Home() {
                     <strong>3.</strong> Se a sua congregação não puder enviar todo mês um relatório do inventário de publicações pelo JW Hub, certifique-se de que as informações a seguir sejam preenchidas abaixo para cada mês:
                   </p>
                   <div className="pl-6 space-y-2">
-                    <p><strong>(1) Estoque:</strong> Anote a quantidade em estoque no fim do mês. Com exceção do livro Organizados, itens de pedido especial não estão listados neste formulário, visto que eles não devem ficar em estoque. Se por algum motivo houver itens de pedido especial em estoque, anote as quantidades em uma das categorias gerais, como, por exemplo, “Outras Bíblias”.</p>
+                    <p><strong>(1) Estoque:</strong> Anote a quantidade em estoque no fim do mês. Com exceção do livro Organizados, itens de pedido especial não estão listados neste formulário, visto que eles não devem ficar em estoque. Se por algum motivo houver itens de pedido especial in estoque, anote as quantidades em uma das categorias gerais, como, por exemplo, “Outras Bíblias”.</p>
                     <p><strong>(2) Recebido:</strong> Anote a quantidade de cada item recebido durante o mês.</p>
                     <p><strong>(3) Saída:</strong> Anote a quantidade de cada item que saiu durante o mês. Pode-se determinar essa quantidade por: (1) somar a quantidade em “Estoque” do mês anterior à quantidade anotada em “Recebido” durante o mês atual e depois (2) subtrair desse total a contagem real que acabou de ser feita (“Estoque”).</p>
                   </div>
@@ -264,7 +264,7 @@ export default function Home() {
               </DialogContent>
             </Dialog>
 
-            <a href="https://wa.me/5535991210466?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20aplicativo%20Movimento%20Mensal%20de%20publica%C3%A7%C3%B5es." target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Suporte</a>
+            <a href="https://wa.me/5535991210466?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20aplicativo%20S-28%20Digital." target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Suporte</a>
           </div>
         </div>
       </footer>

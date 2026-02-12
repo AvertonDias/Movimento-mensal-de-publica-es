@@ -201,7 +201,7 @@ function RegisterForm() {
           {inviteOwner ? "Aceitar Convite" : "Criar Conta"}
         </CardTitle>
         <CardDescription className="uppercase text-[10px] font-bold tracking-widest text-muted-foreground">
-          {inviteOwner ? `Cadastre-se para ajudar ${inviteOwner}` : "MOVIMENTO MENSAL DE PUBLICAÇÕES"}
+          {inviteOwner ? `Cadastre-se para ajudar ${inviteOwner}` : "S-28 DIGITAL: GESTÃO INTELIGENTE"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

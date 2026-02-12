@@ -58,7 +58,7 @@ function LoginForm() {
         </div>
         <CardTitle className="text-2xl font-black uppercase tracking-tight">Entrar</CardTitle>
         <CardDescription className="uppercase text-[10px] font-bold tracking-widest text-muted-foreground">
-          {token ? "Entre para aceitar seu convite" : "MOVIMENTO MENSAL DE PUBLICAÇÕES"}
+          {token ? "Entre para aceitar seu convite" : "S-28 DIGITAL: GESTÃO INTELIGENTE"}
         </CardDescription>
       </CardHeader>
       <CardContent>
