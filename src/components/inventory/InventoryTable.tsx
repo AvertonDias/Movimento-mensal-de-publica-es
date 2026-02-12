@@ -1,6 +1,7 @@
+
 "use client"
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -19,7 +20,8 @@ import {
   Loader2,
   Info,
   Edit2,
-  X
+  X,
+  AlertTriangle
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -42,6 +44,7 @@ import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { useToast } from "@/hooks/use-toast";
 
 interface InventoryTableProps {
   targetUserId?: string;
@@ -50,6 +53,7 @@ interface InventoryTableProps {
 export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
+  const { toast } = useToast();
   
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
@@ -105,6 +109,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         previous: previousValue,
         received: local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null),
         current: local.current !== undefined ? local.current : (remote?.current !== undefined ? remote?.current : null),
+        minStock: local.minStock !== undefined ? local.minStock : (remote?.minStock !== undefined ? remote?.minStock : null),
       } as InventoryItem);
 
       if (pub.isCategory && customDefinitions) {
@@ -124,6 +129,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             previous: prevCustomValue,
             received: localCustom.received !== undefined ? localCustom.received : (remoteCustom?.received !== undefined ? remoteCustom?.received : null),
             current: localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined ? remoteCustom?.current : null),
+            minStock: localCustom.minStock !== undefined ? localCustom.minStock : (remoteCustom?.minStock !== undefined ? remoteCustom?.minStock : null),
           } as InventoryItem);
         });
       }
@@ -158,6 +164,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     if (field === 'current' && value !== null) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
         updates.received = 0;
+      }
+      
+      // Smart Alert Logic
+      if (itemData.minStock !== null && value <= itemData.minStock) {
+        toast({
+          variant: "destructive",
+          title: "Estoque Baixo!",
+          description: `A publicação "${itemData.item}" atingiu o limite mínimo de ${itemData.minStock}.`,
+        });
       }
     }
 
@@ -315,10 +330,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   );
                 }
 
+                const isLowStock = item.current !== null && item.minStock !== null && item.current <= item.minStock;
                 const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
 
                 return (
-                  <TableRow key={item.id} className="hover:bg-accent/5 transition-colors border-b last:border-0 group">
+                  <TableRow key={item.id} className={cn(
+                    "hover:bg-accent/5 transition-colors border-b last:border-0 group",
+                    isLowStock && "bg-destructive/5"
+                  )}>
                     {DEFAULT_COLUMNS.map((col) => (
                       <TableCell key={col.id} className="p-1 px-3 border-r last:border-0 h-11">
                         {col.id === 'outgoing' ? (
@@ -335,10 +354,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px]">
                             <div className="flex items-center gap-2 overflow-hidden">
+                              {isLowStock && <AlertTriangle className="h-3 w-3 text-destructive shrink-0" />}
                               {imagePlaceholder ? (
                                 <Popover>
                                   <PopoverTrigger asChild>
-                                    <span className="text-sm font-medium text-foreground cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors truncate">
+                                    <span className={cn(
+                                      "text-sm font-medium cursor-pointer border-b border-dotted transition-colors truncate",
+                                      isLowStock ? "text-destructive border-destructive" : "text-foreground border-muted-foreground/50 hover:text-primary"
+                                    )}>
                                       {item.item}
                                     </span>
                                   </PopoverTrigger>
@@ -349,7 +372,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                   </PopoverContent>
                                 </Popover>
                               ) : (
-                                <span className="text-sm font-medium text-foreground truncate">{item.item}</span>
+                                <span className={cn("text-sm font-medium truncate", isLowStock && "text-destructive")}>{item.item}</span>
                               )}
                               {item.isCustom && activeUid === user?.uid && (
                                 <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}>
@@ -365,7 +388,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             value={(item[col.id] !== undefined && item[col.id] !== null) ? (item[col.id] as number) : ''}
                             onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))}
                             onFocus={(e) => e.target.select()}
-                            className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent"
+                            className={cn(
+                              "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent",
+                              isLowStock && col.id === 'current' && "text-destructive"
+                            )}
                             placeholder="0"
                             disabled={(activeUid !== user?.uid && !targetUserId)}
                           />

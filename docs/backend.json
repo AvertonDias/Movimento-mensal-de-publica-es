@@ -55,7 +55,8 @@
         "item": { "type": "string" },
         "code": { "type": "string" },
         "category": { "type": "string" },
-        "sortOrder": { "type": "number" }
+        "sortOrder": { "type": "number" },
+        "minStock": { "type": "number", "description": "Minimum stock threshold for alerts." }
       }
     }
   },

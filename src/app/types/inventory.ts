@@ -16,6 +16,7 @@ export interface InventoryItem {
   previous: number | null;
   received: number | null;
   current: number | null;
+  minStock: number | null;
   abbr?: string;
   isCategory?: boolean;
   imageKey?: string;
@@ -27,13 +28,14 @@ export interface InventoryItem {
 export const DEFAULT_COLUMNS: InventoryColumn[] = [
   { id: 'code', header: 'N.º', type: 'text' },
   { id: 'item', header: 'Publicação', type: 'text' },
-  { id: 'previous', header: 'Estoque Anterior', type: 'number' },
+  { id: 'minStock', header: 'Mínimo', type: 'number' },
+  { id: 'previous', header: 'Anterior', type: 'number' },
   { id: 'received', header: 'Recebido', type: 'number' },
-  { id: 'current', header: 'Estoque Atual', type: 'number' },
+  { id: 'current', header: 'Atual', type: 'number' },
   { id: 'outgoing', header: 'Saída', type: 'calculated' },
 ];
 
-export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'received' | 'current'>[] = [
+export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'received' | 'current' | 'minStock'>[] = [
   { code: '', item: 'Bíblias', category: 'Bíblias', isCategory: true },
   { code: '3140', item: 'Tradução do Novo Mundo', abbr: 'nwt', category: 'Bíblias', imageKey: 'nwt' },
   { code: '3142', item: 'Tradução do Novo Mundo (pequena)', abbr: 'nwtpkt', category: 'Bíblias', imageKey: 'nwt' },
