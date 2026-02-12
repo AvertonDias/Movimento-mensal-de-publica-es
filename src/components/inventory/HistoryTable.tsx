@@ -81,7 +81,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
         }
         setHistoryData(allMonthsData);
       } catch (e) {
-        console.error("Erro ao buscar histórico:", e);
+        // Silently handle error
       } finally {
         setLoading(false);
       }
