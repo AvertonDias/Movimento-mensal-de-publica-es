@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { use, useEffect } from 'react';
@@ -8,6 +7,7 @@ import { useFirestore, useDoc, useMemoFirebase, useUser, updateDocumentNonBlocki
 import { doc } from 'firebase/firestore';
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function GuestHistoryPage(props: {
   params: Promise<{ token: string }>;
@@ -17,7 +17,6 @@ export default function GuestHistoryPage(props: {
   const { user: guestUser, isUserLoading } = useUser();
   const router = useRouter();
 
-  // Proteção de Rota: Redireciona para login se não estiver logado
   useEffect(() => {
     if (!isUserLoading && !guestUser) {
       router.push(`/login?redirect=/guest/${params.token}`);

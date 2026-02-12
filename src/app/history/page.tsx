@@ -12,8 +12,8 @@ export default function HistoryPage(props: {
   params: Promise<any>;
   searchParams: Promise<any>;
 }) {
-  use(props.params);
-  use(props.searchParams);
+  const params = use(props.params);
+  const searchParams = use(props.searchParams);
   const { user, isUserLoading } = useUser();
   const router = useRouter();
 
