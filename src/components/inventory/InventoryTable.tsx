@@ -26,9 +26,9 @@ import {
 } from "lucide-react";
 import { 
   InventoryItem, 
-  OFFICIAL_PUBLICATIONS,
   DEFAULT_COLUMNS
 } from "@/app/types/inventory";
+import { OFFICIAL_PUBLICATIONS } from "@/app/lib/publications";
 import { cn } from "@/lib/utils";
 import { 
   useFirestore, 
@@ -38,7 +38,7 @@ import {
   setDocumentNonBlocking
 } from '@/firebase';
 import { collection, doc, getDocs } from 'firebase/firestore';
-import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears, isAfter, isBefore } from 'date-fns';
+import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears, isBefore } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
@@ -73,10 +73,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const activeUid = targetUserId || user?.uid;
 
-  // Função para verificar se uma data é futura ou o mês atual (que ainda não fechou para o S-28-T)
   const isDateInFuture = (date: Date) => {
     const currentMonthStart = startOfMonth(new Date());
-    // Retorna true se a data for o mês atual ou posterior (bloqueando a seleção)
     return !isBefore(startOfMonth(date), currentMonthStart);
   };
 
@@ -91,15 +89,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         const colRef = collection(db, 'users', activeUid, 'monthly_records', mKey, 'items');
         try {
           const snap = await getDocs(colRef);
-          snap.forEach(doc => {
-            const d = doc.data();
+          snap.forEach(docSnap => {
+            const d = docSnap.data();
             const prev = Number(d.previous) || 0;
             const rec = Number(d.received) || 0;
             const curr = Number(d.current) || 0;
             const outgoing = Math.max(0, (prev + rec) - curr);
             
-            if (!itemOutgoings[doc.id]) itemOutgoings[doc.id] = [];
-            itemOutgoings[doc.id].push(outgoing);
+            if (!itemOutgoings[docSnap.id]) itemOutgoings[docSnap.id] = [];
+            itemOutgoings[docSnap.id].push(outgoing);
           });
         } catch (e) {
           // Ignore
@@ -248,8 +246,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const newState = !item.hidden;
     const docRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(docRef, {
-      ...item,
+      id: item.id,
       hidden: newState,
+      item: item.item,
+      category: item.category,
+      code: item.code,
+      abbr: item.abbr,
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
@@ -381,8 +383,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <TableBody>
               {filteredItems.map((item, idx) => {
                 if (item.isCategory) {
+                  const uniqueCatKey = `cat-${item.category}-${idx}`;
                   return (
-                    <TableRow key={`cat-${item.id}-${idx}`} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
+                    <TableRow key={uniqueCatKey} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
                       <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
                         {item.item}
                       </TableCell>
@@ -400,7 +403,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                     isLowStock && "bg-destructive/5"
                   )}>
                     {DEFAULT_COLUMNS.map((col) => (
-                      <TableCell key={col.id} className="p-1 px-3 border-r last:border-0 h-11">
+                      <TableCell key={`${item.id}-${col.id}`} className="p-1 px-3 border-r last:border-0 h-11">
                         {col.id === 'outgoing' ? (
                           <div className={cn(
                             "py-1.5 font-black rounded text-sm text-center",
