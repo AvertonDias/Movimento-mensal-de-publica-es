@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -39,7 +38,7 @@ import {
   setDocumentNonBlocking
 } from '@/firebase';
 import { collection, doc, getDocs } from 'firebase/firestore';
-import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears } from 'date-fns';
+import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears, isAfter } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
@@ -73,6 +72,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const prevMonthKey = format(prevMonth, 'yyyy-MM');
 
   const activeUid = targetUserId || user?.uid;
+
+  // Função para verificar se uma data é futura
+  const isDateInFuture = (date: Date) => {
+    const today = startOfMonth(new Date());
+    return isAfter(startOfMonth(date), today);
+  };
 
   useEffect(() => {
     async function calculateSmartMinStock() {
@@ -281,7 +286,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                       <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
                         {format(selectedMonth, 'yyyy')}
                       </span>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => addYears(prev, 1)); }}>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7" 
+                        disabled={selectedMonth.getFullYear() >= new Date().getFullYear()}
+                        onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => addYears(prev, 1)); }}
+                      >
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
@@ -289,8 +300,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                       {Array.from({ length: 12 }).map((_, i) => {
                         const date = setMonth(selectedMonth, i);
                         const isSelected = selectedMonth.getMonth() === i;
+                        const isFuture = isDateInFuture(date);
                         return (
-                          <Button key={i} variant={isSelected ? "default" : "ghost"} className={cn("h-9 text-[10px] font-bold uppercase", isSelected && "bg-primary text-primary-foreground")} onClick={() => { setSelectedMonth(date); setIsMonthPopoverOpen(false); }}>
+                          <Button 
+                            key={i} 
+                            variant={isSelected ? "default" : "ghost"} 
+                            className={cn("h-9 text-[10px] font-bold uppercase", isSelected && "bg-primary text-primary-foreground")} 
+                            onClick={() => { setSelectedMonth(date); setIsMonthPopoverOpen(false); }}
+                            disabled={isFuture}
+                          >
                             {format(date, 'MMM', { locale: ptBR })}
                           </Button>
                         );
@@ -300,7 +318,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 </PopoverContent>
               </Popover>
 
-              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} 
+                className="h-8 w-8"
+                disabled={isDateInFuture(addMonths(selectedMonth, 1))}
+              >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
