@@ -82,17 +82,21 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
       for (const mKey of last3Months) {
         const colRef = collection(db, 'users', activeUid, 'monthly_records', mKey, 'items');
-        const snap = await getDocs(colRef);
-        snap.forEach(doc => {
-          const d = doc.data();
-          const prev = Number(d.previous) || 0;
-          const rec = Number(d.received) || 0;
-          const curr = Number(d.current) || 0;
-          const outgoing = Math.max(0, (prev + rec) - curr);
-          
-          if (!itemOutgoings[doc.id]) itemOutgoings[doc.id] = [];
-          itemOutgoings[doc.id].push(outgoing);
-        });
+        try {
+          const snap = await getDocs(colRef);
+          snap.forEach(doc => {
+            const d = doc.data();
+            const prev = Number(d.previous) || 0;
+            const rec = Number(d.received) || 0;
+            const curr = Number(d.current) || 0;
+            const outgoing = Math.max(0, (prev + rec) - curr);
+            
+            if (!itemOutgoings[doc.id]) itemOutgoings[doc.id] = [];
+            itemOutgoings[doc.id].push(outgoing);
+          });
+        } catch (e) {
+          // Ignore if month record doesn't exist
+        }
       }
 
       const smartMins: Record<string, number> = {};
@@ -203,13 +207,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         updates.received = 0;
       }
       
-      // Lógica de Alerta Inteligente
+      // Alerta Inteligente Silencioso (Visual apenas)
       const minVal = historicalMinStock[id] || 0;
       if (minVal > 0 && value <= minVal) {
         toast({
           variant: "destructive",
           title: "Reposição Necessária!",
-          description: `A publicação "${itemData.item}" está abaixo da média de saída (Mínimo inteligente: ${minVal}).`,
+          description: `A publicação "${itemData.item}" está abaixo da média de saída segura.`,
         });
       }
     }
@@ -330,7 +334,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         <div className="flex items-start gap-1.5 px-1">
           <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-            Estoque Inteligente: O valor de Mínimo é calculado pela média de saída dos últimos 3 meses.
+            Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
           </p>
         </div>
       </div>
@@ -351,7 +355,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                     "font-bold text-foreground py-3 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white",
                     col.id === 'item' && "text-left"
                   )}>
-                    {col.id === 'minStock' ? 'Mín. Sugerido' : col.header}
+                    {col.header}
                   </TableHead>
                 ))}
               </TableRow>
@@ -421,13 +425,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             </div>
                             {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded shrink-0">{item.abbr}</span>}
                           </div>
-                        ) : col.id === 'minStock' ? (
-                           <div className={cn(
-                             "text-center text-xs font-black py-2",
-                             minVal > 0 ? "text-primary" : "text-muted-foreground/30"
-                           )}>
-                             {minVal > 0 ? minVal : '---'}
-                           </div>
                         ) : (
                           <Input
                             type="number"
