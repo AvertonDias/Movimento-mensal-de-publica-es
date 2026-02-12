@@ -119,7 +119,8 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       <Table className="border-collapse table-fixed w-full min-w-[1250px] print:min-w-0">
         <TableHeader className="print:table-row-group">
           <TableRow className="border-b border-black divide-x divide-black bg-white hover:bg-white h-[22px]">
-            <TableHead colSpan={2} className="w-[250px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-black leading-none">MÊS E ANO</TableHead>
+            <TableHead className="w-[20px] border-black"></TableHead>
+            <TableHead className="text-[8px] font-black uppercase text-black p-0 h-auto text-center border-black leading-none">MÊS E ANO</TableHead>
             {lastSixMonths.map((month) => (
               <TableHead 
                 key={month.key} 
