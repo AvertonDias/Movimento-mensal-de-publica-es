@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useMemo, useEffect, useState } from 'react';
@@ -135,7 +134,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             {lastSixMonths.map((m) => (
               <React.Fragment key={m.key}>
                 <TableHead className="text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Recebido</TableHead>
-                <TableHead className="text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Est.</TableHead>
+                <TableHead className="text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Estoque</TableHead>
                 <TableHead className="text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-[1] border-black">Saída</TableHead>
               </React.Fragment>
             ))}
