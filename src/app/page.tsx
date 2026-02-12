@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dialog";
 import { doc } from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   const { user, isUserLoading } = useUser();
@@ -35,12 +36,36 @@ export default function Home() {
   
   const [viewMode, setViewMode] = useState<'personal' | 'shared'>('personal');
   const [sharedOwnerId, setSharedOwnerId] = useState<string | null>(null);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
   }, [user, isUserLoading, router]);
+
+  useEffect(() => {
+    const controlHeader = () => {
+      if (typeof window !== 'undefined') {
+        const currentScrollY = window.scrollY;
+        
+        // Se rolar para baixo e passar de 100px, esconde. Se rolar para cima, mostra.
+        if (currentScrollY > lastScrollY && currentScrollY > 100) {
+          setIsVisible(false);
+        } else {
+          setIsVisible(true);
+        }
+        
+        setLastScrollY(currentScrollY);
+      }
+    };
+
+    window.addEventListener('scroll', controlHeader);
+    return () => {
+      window.removeEventListener('scroll', controlHeader);
+    };
+  }, [lastScrollY]);
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -80,7 +105,12 @@ export default function Home() {
 
   return (
     <div className="min-h-screen pb-12 bg-background/50 font-body">
-      <header className="bg-white border-b border-border py-4 px-6 mb-8 sticky top-0 z-20 shadow-sm">
+      <header 
+        className={cn(
+          "bg-white border-b border-border py-4 px-6 fixed top-0 left-0 right-0 z-20 shadow-sm transition-transform duration-300 ease-in-out",
+          isVisible ? "translate-y-0" : "-translate-y-full"
+        )}
+      >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="bg-primary p-2.5 rounded-xl shadow-inner">
@@ -173,7 +203,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-6 space-y-8">
+      <main className="max-w-7xl mx-auto px-6 pt-24 space-y-8">
         {isHelper && (
           <div className="bg-accent/10 border border-accent/20 p-4 rounded-xl flex items-center justify-between">
             <div className="flex items-center gap-3">
