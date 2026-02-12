@@ -54,7 +54,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
-          .filter(cd => cd.category === pub.item)
+          .filter(cd => cd.category === pub.category)
           .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
 
         categoryCustomItems.forEach(cd => combined.push(cd as InventoryItem));

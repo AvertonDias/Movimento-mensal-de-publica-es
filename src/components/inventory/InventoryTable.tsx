@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -110,7 +109,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
-          .filter(cd => cd.category === pub.item)
+          .filter(cd => cd.category === pub.category)
           .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
 
         categoryCustomItems.forEach(cd => {
@@ -131,7 +130,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     });
 
     return combined;
-  }, [remoteItems, localData, customDefinitions, prevRemoteItems, OFFICIAL_PUBLICATIONS]);
+  }, [remoteItems, localData, customDefinitions, prevRemoteItems]);
 
   const filteredItems = useMemo(() => {
     return items.filter(item => 
