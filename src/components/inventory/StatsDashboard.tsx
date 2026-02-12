@@ -112,9 +112,11 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
         }
 
         const categoryDist = Object.entries(categoryMap).map(([name, value]) => ({ name, value }));
+        
+        // Alterado para mostrar 10 itens conforme solicitado pelo usuário
         const topItemsList = Object.values(itemUsage)
           .sort((a, b) => b.outgoing - a.outgoing)
-          .slice(0, 5);
+          .slice(0, 10);
 
         setStats({
           monthlyOutgoing: monthlyData,
@@ -136,7 +138,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
     fetchStats();
   }, [activeUserId, db, lastSixMonths]);
 
-  const COLORS = ['#A0CFEC', '#90EE90', '#1F5F5B', '#E5A93F', '#E56D3F', '#6B7280'];
+  const COLORS = ['#A0CFEC', '#90EE90', '#1F5F5B', '#E5A93F', '#E56D3F', '#6B7280', '#D946EF', '#F43F5E', '#10B981', '#F59E0B'];
 
   if (loading) {
     return (
@@ -266,8 +268,8 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
             return (
               <div key={idx} className="space-y-1.5">
                 <div className="flex justify-between text-[10px] font-black uppercase">
-                  <span>{item.name}</span>
-                  <span className="text-primary">{item.outgoing} unidades</span>
+                  <span className="truncate max-w-[70%]">{item.name}</span>
+                  <span className="text-primary shrink-0">{item.outgoing} unidades</span>
                 </div>
                 <div className="h-2 w-full bg-neutral-100 rounded-full overflow-hidden">
                   <div 
