@@ -51,7 +51,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   const combinedItems = useMemo(() => {
     const combined: InventoryItem[] = [];
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
-      combined.push({ ...pub, id: pub.code || `cat_${idx}` } as InventoryItem);
+      combined.push({ ...pub, id: pub.code || `item_${idx}` } as InventoryItem);
       
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
@@ -115,20 +115,20 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       )}
       <Table className="border-collapse table-fixed w-full min-w-[1250px] print:min-w-0">
         <TableHeader className="print:table-row-group">
-          <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-7">
+          <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-6">
             <TableHead className="w-[35px] text-[8px] font-black uppercase text-black p-0.5 text-center border-black">MÊS</TableHead>
             <TableHead className="w-[160px] border-l-0"></TableHead>
             {lastSixMonths.map((month) => (
               <TableHead 
                 key={month.key} 
                 colSpan={3} 
-                className="text-center text-[8px] font-black uppercase text-black p-0 h-7 border-l border-black bg-neutral-50/50"
+                className="text-center text-[8px] font-black uppercase text-black p-0 h-6 border-l border-black bg-neutral-50/50"
               >
                 {month.label}
               </TableHead>
             ))}
           </TableRow>
-          <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-7">
+          <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-6">
             <TableHead className="w-[35px] text-[7px] font-bold text-black p-0 text-center leading-none">N.º</TableHead>
             <TableHead className="text-[10px] font-black text-black px-1 py-0 align-middle">Publicações</TableHead>
             
