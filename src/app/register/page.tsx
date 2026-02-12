@@ -132,8 +132,8 @@ function RegisterForm() {
       <Card className="w-full max-w-md shadow-2xl border-primary/10">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-2">
-            <div className="bg-primary p-2 rounded-xl shadow-inner overflow-hidden">
-              <Image src="/icon.png" alt="Logo" width={54} height={54} unoptimized />
+            <div className="rounded-xl shadow-inner overflow-hidden w-[54px] h-[54px] flex items-center justify-center">
+              <Image src="/icon.png" alt="Logo" width={54} height={54} className="object-cover" unoptimized />
             </div>
           </div>
           <CardTitle className="text-2xl font-black uppercase tracking-tight">Vincular Conta</CardTitle>
@@ -193,8 +193,8 @@ function RegisterForm() {
     <Card className="w-full max-w-md shadow-2xl border-primary/10">
       <CardHeader className="space-y-2 text-center">
         <div className="flex justify-center mb-2">
-          <div className="bg-primary p-2 rounded-xl shadow-inner overflow-hidden">
-            <Image src="/icon.png" alt="Logo" width={54} height={54} unoptimized />
+          <div className="rounded-xl shadow-inner overflow-hidden w-[54px] h-[54px] flex items-center justify-center">
+            <Image src="/icon.png" alt="Logo" width={54} height={54} className="object-cover" unoptimized />
           </div>
         </div>
         <CardTitle className="text-2xl font-black uppercase tracking-tight">
