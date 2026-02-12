@@ -56,6 +56,7 @@
         "code": { "type": "string" },
         "category": { "type": "string" },
         "sortOrder": { "type": "number" },
+        "hidden": { "type": "boolean", "description": "Whether this item is hidden from the monthly count list." },
         "minStock": { "type": "number", "description": "Minimum stock threshold for alerts." }
       }
     }
@@ -78,7 +79,7 @@
     },
     "/users/{userId}/inventory/{itemId}": {
       "schema": { "$ref": "#/backend/entities/Inventory" },
-      "description": "Stores custom inventory definitions for a specific user."
+      "description": "Stores custom inventory definitions and overrides (like hidden status) for a specific user."
     },
     "/users/{userId}/monthly_records/{monthKey}/items/{itemId}": {
       "schema": { "type": "object" },

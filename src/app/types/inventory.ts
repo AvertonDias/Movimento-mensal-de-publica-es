@@ -22,6 +22,7 @@ export interface InventoryItem {
   imageKey?: string;
   sortOrder?: number;
   isCustom?: boolean;
+  hidden?: boolean;
   [key: string]: string | number | boolean | null | undefined;
 }
 

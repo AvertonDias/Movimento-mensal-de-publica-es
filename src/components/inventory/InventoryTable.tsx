@@ -21,7 +21,10 @@ import {
   Info,
   Edit2,
   X,
-  AlertTriangle
+  AlertTriangle,
+  EyeOff,
+  Eye,
+  Settings
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -42,6 +45,15 @@ import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter
+} from "@/components/ui/dialog";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
@@ -62,6 +74,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
+  const [isManageHiddenOpen, setIsManageHiddenOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
@@ -95,14 +108,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             itemOutgoings[doc.id].push(outgoing);
           });
         } catch (e) {
-          // Ignore if month record doesn't exist
+          // Ignore
         }
       }
 
       const smartMins: Record<string, number> = {};
       Object.entries(itemOutgoings).forEach(([id, outs]) => {
         const avg = outs.reduce((a, b) => a + b, 0) / outs.length;
-        // Margem de 20% sobre a média de saída, arredondado para cima
         smartMins[id] = Math.ceil(avg * 1.2);
       });
       
@@ -138,6 +150,11 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
       const id = pub.code || pub.abbr || `item_${idx}`;
+      const customDef = customDefinitions?.find(d => d.id === id);
+      
+      // Skip hidden items
+      if (customDef?.hidden) return;
+
       const remote = remoteItems?.find(i => i.id === id);
       const prevRemote = prevRemoteItems?.find(i => i.id === id);
       const local = localData[id] || {};
@@ -155,7 +172,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
-          .filter(cd => cd.category === pub.category)
+          .filter(cd => cd.category === pub.category && !cd.hidden)
           .sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0));
 
         categoryCustomItems.forEach(cd => {
@@ -207,7 +224,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         updates.received = 0;
       }
       
-      // Alerta Inteligente Silencioso (Visual apenas)
       const minVal = historicalMinStock[id] || 0;
       if (minVal > 0 && value <= minVal) {
         toast({
@@ -232,6 +248,38 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     }, { merge: true });
   };
 
+  const handleHideItem = (item: InventoryItem) => {
+    if (!activeUid || !db) return;
+    
+    const docRef = doc(db, 'users', activeUid, 'inventory', item.id);
+    setDocumentNonBlocking(docRef, {
+      ...item,
+      hidden: true,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
+    toast({
+      title: "Publicação Ocultada",
+      description: `"${item.item}" não aparecerá mais na sua lista de contagem.`,
+    });
+  };
+
+  const handleRestoreItem = (item: any) => {
+    if (!activeUid || !db) return;
+    
+    const docRef = doc(db, 'users', activeUid, 'inventory', item.id);
+    setDocumentNonBlocking(docRef, {
+      ...item,
+      hidden: false,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
+    toast({
+      title: "Publicação Restaurada",
+      description: `"${item.item}" voltou para a sua lista de inventário.`,
+    });
+  };
+
   return (
     <div className="space-y-6 relative">
       <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
@@ -252,29 +300,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 <PopoverContent className="w-64 p-3" align="start">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-7 w-7" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedMonth(prev => subYears(prev, 1));
-                        }}
-                      >
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => subYears(prev, 1)); }}>
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
                       <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
                         {format(selectedMonth, 'yyyy')}
                       </span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-7 w-7" 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setSelectedMonth(prev => addYears(prev, 1));
-                        }}
-                      >
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => addYears(prev, 1)); }}>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
@@ -283,18 +315,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         const date = setMonth(selectedMonth, i);
                         const isSelected = selectedMonth.getMonth() === i;
                         return (
-                          <Button
-                            key={i}
-                            variant={isSelected ? "default" : "ghost"}
-                            className={cn(
-                              "h-9 text-[10px] font-bold uppercase",
-                              isSelected && "bg-primary text-primary-foreground"
-                            )}
-                            onClick={() => {
-                              setSelectedMonth(date);
-                              setIsMonthPopoverOpen(false);
-                            }}
-                          >
+                          <Button key={i} variant={isSelected ? "default" : "ghost"} className={cn("h-9 text-[10px] font-bold uppercase", isSelected && "bg-primary text-primary-foreground")} onClick={() => { setSelectedMonth(date); setIsMonthPopoverOpen(false); }}>
                             {format(date, 'MMM', { locale: ptBR })}
                           </Button>
                         );
@@ -310,24 +331,62 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             </div>
           </div>
 
-          <div className="relative w-full md:flex-1 md:max-w-2xl">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Pesquisar publicação..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-10 h-11 w-full font-medium"
-            />
-            {searchTerm && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground"
-                onClick={() => setSearchTerm('')}
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            )}
+          <div className="flex items-center gap-2 w-full md:flex-1 md:max-w-2xl">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Pesquisar publicação..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-10 h-11 w-full font-medium"
+              />
+              {searchTerm && (
+                <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setSearchTerm('')}>
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+            
+            <Dialog open={isManageHiddenOpen} onOpenChange={setIsManageHiddenOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="h-11 gap-2 font-bold uppercase text-[10px] tracking-widest">
+                  <Eye className="h-4 w-4" />
+                  <span className="hidden sm:inline">Itens Ocultos</span>
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[500px] max-h-[80vh] flex flex-col">
+                <DialogHeader>
+                  <DialogTitle className="uppercase font-black flex items-center gap-2">
+                    <Eye className="h-5 w-5 text-primary" />
+                    Gerenciar Itens Ocultos
+                  </DialogTitle>
+                  <DialogDescription className="text-xs font-bold uppercase">
+                    Lista de publicações que você desativou da contagem mensal.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="flex-1 overflow-y-auto py-4 space-y-2">
+                  {customDefinitions?.filter(d => d.hidden).length === 0 && (
+                    <div className="text-center py-8 text-muted-foreground uppercase font-bold text-[10px]">
+                      Nenhuma publicação oculta.
+                    </div>
+                  )}
+                  {customDefinitions?.filter(d => d.hidden).map(item => (
+                    <div key={item.id} className="flex items-center justify-between p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                      <div>
+                        <p className="text-sm font-bold uppercase">{item.item}</p>
+                        <p className="text-[10px] text-muted-foreground font-bold uppercase">{item.category}</p>
+                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => handleRestoreItem(item)} className="text-primary font-bold uppercase text-[10px] gap-2">
+                        <Eye className="h-4 w-4" /> Restaurar
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+                <DialogFooter>
+                  <Button variant="ghost" onClick={() => setIsManageHiddenOpen(false)} className="uppercase font-bold text-xs">Fechar</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
         
@@ -397,7 +456,29 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px]">
                             <div className="flex items-center gap-2 overflow-hidden">
-                              {isLowStock && <AlertTriangle className="h-3 w-3 text-destructive shrink-0" />}
+                              {isLowStock && (
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive shrink-0 hover:bg-destructive/10">
+                                      <AlertTriangle className="h-3 w-3" />
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-56 p-3">
+                                    <p className="text-[10px] font-black uppercase text-destructive mb-2 tracking-widest">Estoque Crítico</p>
+                                    <p className="text-[11px] font-bold uppercase leading-tight text-neutral-600 mb-3">
+                                      Esta publicação atingiu o mínimo de segurança ({minVal}). Deseja parar de gerenciar este item?
+                                    </p>
+                                    <Button 
+                                      variant="destructive" 
+                                      size="sm" 
+                                      className="w-full text-[9px] font-black uppercase tracking-widest h-8"
+                                      onClick={() => handleHideItem(item)}
+                                    >
+                                      <EyeOff className="h-3 w-3 mr-1.5" /> Desativar Publicação
+                                    </Button>
+                                  </PopoverContent>
+                                </Popover>
+                              )}
                               {imagePlaceholder ? (
                                 <Popover>
                                   <PopoverTrigger asChild>
@@ -417,11 +498,22 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                               ) : (
                                 <span className={cn("text-sm font-medium truncate", isLowStock && "text-destructive")}>{item.item}</span>
                               )}
-                              {item.isCustom && activeUid === user?.uid && (
-                                <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}>
-                                  <Edit2 className="h-3 w-3" />
+                              
+                              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {item.isCustom && activeUid === user?.uid && (
+                                  <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}>
+                                    <Edit2 className="h-3 w-3" />
+                                  </Button>
+                                )}
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-6 w-6 text-muted-foreground/30 hover:text-destructive"
+                                  onClick={() => handleHideItem(item)}
+                                >
+                                  <EyeOff className="h-3 w-3" />
                                 </Button>
-                              )}
+                              </div>
                             </div>
                             {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded shrink-0">{item.abbr}</span>}
                           </div>
