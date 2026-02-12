@@ -130,7 +130,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     });
 
     return combined;
-  }, [remoteItems, localData, customDefinitions, prevRemoteItems]);
+  }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth]);
 
   const filteredItems = useMemo(() => {
     return items.filter(item => 
@@ -199,7 +199,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         variant="ghost" 
                         size="icon" 
                         className="h-7 w-7" 
-                        onClick={() => setSelectedMonth(prev => subYears(prev, 1))}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedMonth(prev => subYears(prev, 1));
+                        }}
                       >
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
@@ -210,7 +213,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         variant="ghost" 
                         size="icon" 
                         className="h-7 w-7" 
-                        onClick={() => setSelectedMonth(prev => addYears(prev, 1))}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedMonth(prev => addYears(prev, 1));
+                        }}
                       >
                         <ChevronRight className="h-4 w-4" />
                       </Button>
