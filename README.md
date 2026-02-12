@@ -25,3 +25,4 @@ Sistema inteligente para gestão de inventário de publicações, baseado no for
 4. Execute o projeto com `npm run dev`.
 
 Este projeto foi prototipado no Firebase Studio.
+# Movimento-mensal-de-publica-es
