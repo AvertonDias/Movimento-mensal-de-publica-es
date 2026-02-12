@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useEffect } from 'react';
@@ -55,10 +54,6 @@ export default function HistoryPage(props: {
               <span className="text-xs font-bold uppercase">IDIOMA:</span>
               <div className="border-b border-black w-48 h-5 flex items-end px-2 font-bold text-xs">Português</div>
             </div>
-          </div>
-
-          <div className="text-[9px] leading-[1.1] space-y-0.5 mb-2 text-justify print:mb-1">
-            <p><span className="font-bold">INSTRUÇÕES:</span> 1. Todas as congregações coordenadoras de idioma devem fazer a contagem real das publicações todo mês. 2. Antes de fazer a contagem, recapitule a <span className="italic">Lista de Publicações a Serem Descartadas (S-60)</span>. 3. Se a sua congregação não puder enviar o relatório pelo JW Hub, preencha: <span className="font-bold">(1) Estoque</span> (fim do mês), <span className="font-bold">(2) Recebido</span> (durante o mês), <span className="font-bold">(3) Saída</span> (determinado pela soma do anterior + recebido - atual).</p>
           </div>
 
           <HistoryTable />
