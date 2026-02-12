@@ -155,7 +155,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
     let updates: Record<string, any> = { [field]: value };
 
-    // Regra: Se colocar valor no estoque atual e o estoque anterior estiver preenchido, mas recebido vazio, coloca 0 em recebido
     if (field === 'current' && value !== null) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
         updates.received = 0;
@@ -251,7 +250,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         <div className="flex items-start gap-1.5 px-1">
           <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-            Nota: Ao informar o estoque atual, o campo recebidos será zerado automaticamente se estiver em branco e houver estoque anterior.
+            Os valores para o estoque sempre é referente ao mês anterior.
           </p>
         </div>
       </div>
