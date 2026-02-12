@@ -33,7 +33,7 @@ export default function RootLayout({
         <meta name="description" content="Sistema inteligente para formulário S-28-T." />
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#A0CFEC" />
-        <link rel="apple-touch-icon" href="https://picsum.photos/seed/book192/192/192" />
+        <link rel="apple-touch-icon" href="/icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />

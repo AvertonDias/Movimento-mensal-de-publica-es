@@ -1,9 +1,7 @@
 # Documentação Técnica Completa - Movimento Mensal (S-28-T)
 
-Este documento detalha minuciosamente todas as funcionalidades, regras de negócio, lógica de interface e a estrutura técnica do sistema inteligente para gestão de inventário de publicações.
 
 ## 1. Visão Geral
-O aplicativo é uma solução digital avançada para o preenchimento e gestão do formulário oficial **S-28-T** (Movimento Mensal de Publicações). Ele foi projetado para congregações coordenadoras de idioma, facilitando a contagem mensal, a colaboração entre irmãos e a análise de dados para o JW Hub.
 
 ## 2. Funcionalidades de Inventário
 
