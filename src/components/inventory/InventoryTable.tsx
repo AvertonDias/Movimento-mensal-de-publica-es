@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -36,7 +36,7 @@ import {
   useMemoFirebase,
   setDocumentNonBlocking
 } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, getDocs } from 'firebase/firestore';
 import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
@@ -62,6 +62,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
+  const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -70,6 +71,42 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const prevMonthKey = format(prevMonth, 'yyyy-MM');
 
   const activeUid = targetUserId || user?.uid;
+
+  // Carregar histórico de saídas para calcular estoque inteligente
+  useEffect(() => {
+    async function calculateSmartMinStock() {
+      if (!db || !activeUid) return;
+      
+      const last3Months = [1, 2, 3].map(i => format(subMonths(selectedMonth, i), 'yyyy-MM'));
+      const itemOutgoings: Record<string, number[]> = {};
+
+      for (const mKey of last3Months) {
+        const colRef = collection(db, 'users', activeUid, 'monthly_records', mKey, 'items');
+        const snap = await getDocs(colRef);
+        snap.forEach(doc => {
+          const d = doc.data();
+          const prev = Number(d.previous) || 0;
+          const rec = Number(d.received) || 0;
+          const curr = Number(d.current) || 0;
+          const outgoing = Math.max(0, (prev + rec) - curr);
+          
+          if (!itemOutgoings[doc.id]) itemOutgoings[doc.id] = [];
+          itemOutgoings[doc.id].push(outgoing);
+        });
+      }
+
+      const smartMins: Record<string, number> = {};
+      Object.entries(itemOutgoings).forEach(([id, outs]) => {
+        const avg = outs.reduce((a, b) => a + b, 0) / outs.length;
+        // Margem de 20% sobre a média de saída, arredondado para cima
+        smartMins[id] = Math.ceil(avg * 1.2);
+      });
+      
+      setHistoricalMinStock(smartMins);
+    }
+
+    calculateSmartMinStock();
+  }, [db, activeUid, selectedMonth]);
 
   const customItemsQuery = useMemoFirebase(() => {
     if (!db || !activeUid) return null;
@@ -109,7 +146,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         previous: previousValue,
         received: local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null),
         current: local.current !== undefined ? local.current : (remote?.current !== undefined ? remote?.current : null),
-        minStock: local.minStock !== undefined ? local.minStock : (remote?.minStock !== undefined ? remote?.minStock : null),
+        minStock: historicalMinStock[id] || 0,
       } as InventoryItem);
 
       if (pub.isCategory && customDefinitions) {
@@ -129,14 +166,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             previous: prevCustomValue,
             received: localCustom.received !== undefined ? localCustom.received : (remoteCustom?.received !== undefined ? remoteCustom?.received : null),
             current: localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined ? remoteCustom?.current : null),
-            minStock: localCustom.minStock !== undefined ? localCustom.minStock : (remoteCustom?.minStock !== undefined ? remoteCustom?.minStock : null),
+            minStock: historicalMinStock[cd.id] || 0,
           } as InventoryItem);
         });
       }
     });
 
     return combined;
-  }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth]);
+  }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth, historicalMinStock]);
 
   const filteredItems = useMemo(() => {
     return items.filter(item => 
@@ -166,12 +203,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         updates.received = 0;
       }
       
-      // Smart Alert Logic
-      if (itemData.minStock !== null && value <= itemData.minStock) {
+      // Lógica de Alerta Inteligente
+      const minVal = historicalMinStock[id] || 0;
+      if (minVal > 0 && value <= minVal) {
         toast({
           variant: "destructive",
-          title: "Estoque Baixo!",
-          description: `A publicação "${itemData.item}" atingiu o limite mínimo de ${itemData.minStock}.`,
+          title: "Reposição Necessária!",
+          description: `A publicação "${itemData.item}" está abaixo da média de saída (Mínimo inteligente: ${minVal}).`,
         });
       }
     }
@@ -292,7 +330,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         <div className="flex items-start gap-1.5 px-1">
           <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-            Os valores para o estoque são sempre referentes ao mês anterior.
+            Estoque Inteligente: O valor de Mínimo é calculado pela média de saída dos últimos 3 meses.
           </p>
         </div>
       </div>
@@ -313,7 +351,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                     "font-bold text-foreground py-3 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white",
                     col.id === 'item' && "text-left"
                   )}>
-                    {col.header}
+                    {col.id === 'minStock' ? 'Mín. Sugerido' : col.header}
                   </TableHead>
                 ))}
               </TableRow>
@@ -330,7 +368,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   );
                 }
 
-                const isLowStock = item.current !== null && item.minStock !== null && item.current <= item.minStock;
+                const minVal = historicalMinStock[item.id] || 0;
+                const isLowStock = item.current !== null && minVal > 0 && item.current <= minVal;
                 const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
 
                 return (
@@ -382,6 +421,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             </div>
                             {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded shrink-0">{item.abbr}</span>}
                           </div>
+                        ) : col.id === 'minStock' ? (
+                           <div className={cn(
+                             "text-center text-xs font-black py-2",
+                             minVal > 0 ? "text-primary" : "text-muted-foreground/30"
+                           )}>
+                             {minVal > 0 ? minVal : '---'}
+                           </div>
                         ) : (
                           <Input
                             type="number"
