@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -191,7 +190,7 @@ export default function Home() {
       
       <footer className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
-          <p>© {new Date().getFullYear()} Gestão de Publicações • Formulário S-28-T (8/24)</p>
+          <p>© {new Date().getFullYear()} Movimento Mensal • Formulário S-28-T (8/24)</p>
           <div className="flex gap-8">
             {!isHelper && <Link href="/helpers" className="hover:text-primary transition-colors">Ajudantes</Link>}
             
@@ -233,7 +232,7 @@ export default function Home() {
               </DialogContent>
             </Dialog>
 
-            <a href="https://wa.me/5535991210466?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20aplicativo%20Movimento%20mensal%20de%20publica%C3%A7%C3%B5es." target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Suporte</a>
+            <a href="https://wa.me/5535991210466?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20aplicativo%20Movimento%20Mensal%20de%20publica%C3%A7%C3%B5es." target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Suporte</a>
           </div>
         </div>
       </footer>

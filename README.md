@@ -1,4 +1,4 @@
-# Inventário Fácil - Gestão de Publicações (S-28-T)
+# Movimento Mensal - Gestão de Publicações (S-28-T)
 
 Sistema inteligente para gestão de inventário de publicações, baseado no formulário oficial S-28-T. O aplicativo permite o controle mensal de estoque, recebimentos e saídas, com suporte a ajudantes compartilhados e insights via Inteligência Artificial (Genkit).
 

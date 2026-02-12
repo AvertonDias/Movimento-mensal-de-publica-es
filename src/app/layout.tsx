@@ -4,8 +4,8 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Inventário Fácil - Gestão Inteligente',
-  description: 'Sistema de inventário personalizável com inteligência artificial.',
+  title: 'Movimento Mensal - Gestão de Publicações',
+  description: 'Sistema de inventário inteligente para publicações (Formulário S-28-T).',
 };
 
 export default async function RootLayout(props: {
