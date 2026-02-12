@@ -180,7 +180,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-sm border border-border">
+      <div className="sticky top-[72px] z-30 flex flex-col md:flex-row gap-4 items-center justify-between bg-white p-6 rounded-xl shadow-md border border-border">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
             <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => subMonths(prev, 1))} className="h-8 w-8">
@@ -265,7 +265,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
 
-      <div className="relative bg-white rounded-xl shadow-md border border-border overflow-hidden">
+      <div className="relative bg-white rounded-xl shadow-md border border-border">
         {(isFetchingMonth || isUserLoading) && (
           <div className="absolute inset-0 bg-white/50 z-10 flex items-center justify-center backdrop-blur-[1px]">
             <div className="flex flex-col items-center gap-2">
@@ -277,8 +277,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-primary/5">
-              <TableRow>
+            <TableHeader className="bg-primary/5 sticky top-[168px] md:top-[128px] z-20 shadow-sm">
+              <TableRow className="bg-white hover:bg-white">
                 {DEFAULT_COLUMNS.map((col) => (
                   <TableHead key={col.id} className={cn(
                     "font-bold text-foreground py-4 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0",
@@ -312,7 +312,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         {col.id === 'outgoing' ? (
                           <div className={cn(
                             "py-2 font-black rounded text-sm text-center",
-                            typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10"
+                            item.current !== null && typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10"
                           )}>
                             {calculateOutgoing(item)}
                           </div>
