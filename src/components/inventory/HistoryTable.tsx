@@ -113,7 +113,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
         </div>
       )}
       <Table className="border-collapse table-fixed w-full min-w-[1250px] print:min-w-0">
-        <TableHeader>
+        <TableHeader className="print:table-row-group">
           <TableRow className="border-b-2 border-black divide-x divide-black bg-white hover:bg-white h-[22px]">
             <TableHead colSpan={2} className="w-[195px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-black leading-none">MÊS E ANO</TableHead>
             {lastSixMonths.map((month) => (
@@ -132,9 +132,9 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             
             {lastSixMonths.map((m) => (
               <React.Fragment key={m.key}>
-                <TableHead className="w-[25px] text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Recebido</TableHead>
-                <TableHead className="w-[25px] text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Estoque</TableHead>
-                <TableHead className="w-[25px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-[1] border-black">Saída</TableHead>
+                <TableHead className="w-[15px] text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Recebido</TableHead>
+                <TableHead className="w-[15px] text-[6px] font-bold text-black p-0 h-auto text-center uppercase leading-[1] border-black">Estoque</TableHead>
+                <TableHead className="w-[15px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-[1] border-black">Saída</TableHead>
               </React.Fragment>
             ))}
           </TableRow>
