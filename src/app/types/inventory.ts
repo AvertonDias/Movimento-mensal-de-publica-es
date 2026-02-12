@@ -12,15 +12,15 @@ export interface InventoryItem {
   code: string;
   item: string;
   category: string;
-  previous: number;
-  received: number;
-  current: number;
+  previous: number | null;
+  received: number | null;
+  current: number | null;
   abbr?: string;
   isCategory?: boolean;
   imageKey?: string;
   sortOrder?: number;
   isCustom?: boolean;
-  [key: string]: string | number | boolean | undefined;
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 export const DEFAULT_COLUMNS: InventoryColumn[] = [
@@ -95,9 +95,9 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   
   { code: '', item: 'Cartões de visita', category: 'Cartões', isCategory: true },
   { code: '8410', item: 'Cartão de visita (imagem da Bíblia aberta)*', abbr: 'jwcd1', category: 'Cartões', imageKey: 'jwcd1' },
-  { code: '8521', item: 'Cartão de visita (logo jw.org)*', abbr: 'jwcd4', category: 'Cartões' },
-  { code: '8569', item: 'Cartão de visita (curso presencial)*', abbr: 'jwcd9', category: 'Cartões' },
-  { code: '8570', item: 'Cartão de visita (curso internet)*', abbr: 'jwcd10', category: 'Cartões' },
+  { code: '8521', item: 'Cartão de visita (logo jw.org)*', abbr: 'jwcd4', category: 'Cartões', imageKey: 'jwcd4' },
+  { code: '8569', item: 'Cartão de visita (curso presencial)*', abbr: 'jwcd9', category: 'Cartões', imageKey: 'jwcd9' },
+  { code: '8570', item: 'Cartão de visita (curso internet)*', abbr: 'jwcd10', category: 'Cartões', imageKey: 'jwcd10' },
 
   { code: '', item: 'Revistas para o público', category: 'Revistas para o público', isCategory: true },
   { code: '', item: 'Despertai! N.º 1 2018*', abbr: 'g18.1', category: 'Revistas para o público', imageKey: 'g18.1' },

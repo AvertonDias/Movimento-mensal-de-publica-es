@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -98,15 +97,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const prevRemote = prevRemoteItems?.find(i => i.id === id);
       const local = localData[id] || {};
       
-      // Usa null para indicar que não há valor preenchido ainda
-      const previousValue = local.previous ?? remote?.previous ?? prevRemote?.current ?? null;
+      const previousValue = local.previous !== undefined ? local.previous : (remote?.previous !== undefined && remote?.previous !== null ? remote.previous : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : null));
       
       combined.push({
         ...pub,
         id,
         previous: previousValue,
-        received: local.received ?? remote?.received ?? null,
-        current: local.current ?? remote?.current ?? null,
+        received: local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null),
+        current: local.current !== undefined ? local.current : (remote?.current !== undefined ? remote?.current : null),
       } as InventoryItem);
 
       if (pub.isCategory && customDefinitions) {
@@ -119,13 +117,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           const prevRemoteCustom = prevRemoteItems?.find(i => i.id === cd.id);
           const localCustom = localData[cd.id] || {};
           
-          const prevCustomValue = localCustom.previous ?? remoteCustom?.previous ?? prevRemoteCustom?.current ?? null;
+          const prevCustomValue = localCustom.previous !== undefined ? localCustom.previous : (remoteCustom?.previous !== undefined && remoteCustom?.previous !== null ? remoteCustom.previous : (prevRemoteCustom?.current !== undefined && prevRemoteCustom?.current !== null ? prevRemoteCustom.current : null));
           
           combined.push({
             ...cd,
             previous: prevCustomValue,
-            received: localCustom.received ?? remoteCustom?.received ?? null,
-            current: localCustom.current ?? remoteCustom?.current ?? null,
+            received: localCustom.received !== undefined ? localCustom.received : (remoteCustom?.received !== undefined ? remoteCustom?.received : null),
+            current: localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined ? remoteCustom?.current : null),
           } as InventoryItem);
         });
       }
@@ -143,7 +141,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [items, searchTerm]);
 
   const calculateOutgoing = (item: InventoryItem) => {
-    // Só calcula se o estoque atual estiver preenchido (mesmo que seja 0)
     if (item.current === null || item.current === undefined) return '';
     const total = (Number(item.previous) || 0) + (Number(item.received) || 0);
     const current = Number(item.current) || 0;
@@ -364,6 +361,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             type="number"
                             value={(item[col.id] !== undefined && item[col.id] !== null) ? (item[col.id] as number) : ''}
                             onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))}
+                            onFocus={(e) => e.target.select()}
                             onWheel={(e) => e.currentTarget.blur()}
                             className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-9 text-sm text-center font-bold transition-all bg-transparent group-hover:bg-white/50"
                             placeholder="0"

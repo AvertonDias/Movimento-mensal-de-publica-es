@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useMemo, useEffect, useState } from 'react';
@@ -94,13 +93,11 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
 
   const getValue = (monthKey: string, itemId: string, field: string) => {
     const val = historyData[monthKey]?.[itemId]?.[field];
-    // Mostra o valor (inclusive 0) se ele existir no banco de dados
     return (val !== undefined && val !== null) ? val : '';
   };
 
   const calculateOutgoing = (monthKey: string, itemId: string) => {
     const data = historyData[monthKey]?.[itemId];
-    // Só calcula se o campo 'current' foi preenchido explicitamente (mesmo que seja 0)
     if (!data || data.current === null || data.current === undefined) return '';
     const prev = Number(data.previous) || 0;
     const rec = Number(data.received) || 0;
@@ -131,7 +128,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             ))}
           </TableRow>
           <TableRow className="border-b border-black divide-x divide-black bg-white hover:bg-white h-[22px]">
-            <TableHead className="w-[15px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-black">N.º</TableHead>
+            <TableHead className="w-[25px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-black">N.º</TableHead>
             <TableHead className="text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-black">Publicações</TableHead>
             
             {lastSixMonths.map((m) => (
