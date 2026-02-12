@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { BookOpen, History, LogOut, User as UserIcon, ShieldCheck, Users, Info, BarChart3 } from "lucide-react";
+import { History, LogOut, User as UserIcon, ShieldCheck, Users, Info, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
 import { initiateSignOut } from "@/firebase/non-blocking-login";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -50,7 +51,6 @@ export default function Home() {
       if (typeof window !== 'undefined') {
         const currentScrollY = window.scrollY;
         
-        // Se rolar para baixo e passar de 100px, esconde. Se rolar para cima, mostra.
         if (currentScrollY > lastScrollY && currentScrollY > 100) {
           setIsVisible(false);
         } else {
@@ -92,7 +92,9 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <BookOpen className="h-12 w-12 text-primary animate-pulse" />
+          <div className="bg-primary p-2 rounded-xl animate-pulse">
+            <Image src="/icon.png" alt="Carregando" width={40} height={40} unoptimized />
+          </div>
           <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Carregando...</p>
         </div>
       </div>
@@ -113,8 +115,8 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="bg-primary p-2.5 rounded-xl shadow-inner">
-              <BookOpen className="h-6 w-6 text-primary-foreground" />
+            <div className="bg-primary p-1 rounded-xl shadow-inner overflow-hidden">
+              <Image src="/icon.png" alt="Logo" width={42} height={42} className="object-cover" unoptimized />
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tight text-foreground uppercase font-headline">

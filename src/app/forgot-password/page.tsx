@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { BookOpen, Send, ChevronLeft, CheckCircle2 } from "lucide-react";
+import { Send, ChevronLeft, CheckCircle2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { useAuth } from "@/firebase";
 import { initiatePasswordReset } from "@/firebase/non-blocking-login";
@@ -34,8 +35,8 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md shadow-2xl border-primary/10">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-2">
-            <div className="bg-primary p-3 rounded-xl shadow-inner">
-              <BookOpen className="h-8 w-8 text-primary-foreground" />
+            <div className="bg-primary p-2 rounded-xl shadow-inner overflow-hidden">
+              <Image src="/icon.png" alt="Logo" width={54} height={54} unoptimized />
             </div>
           </div>
           <CardTitle className="text-2xl font-black uppercase tracking-tight">Recuperar Senha</CardTitle>
