@@ -93,20 +93,20 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const combined: InventoryItem[] = [];
     
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
-      // ID estável: Prioriza Código, depois Sigla (importante para revistas), depois índice
       const id = pub.code || pub.abbr || `item_${idx}`;
       const remote = remoteItems?.find(i => i.id === id);
       const prevRemote = prevRemoteItems?.find(i => i.id === id);
       const local = localData[id] || {};
       
-      const previousValue = local.previous ?? remote?.previous ?? prevRemote?.current ?? 0;
+      // Usa null para indicar que não há valor preenchido ainda
+      const previousValue = local.previous ?? remote?.previous ?? prevRemote?.current ?? null;
       
       combined.push({
         ...pub,
         id,
         previous: previousValue,
-        received: local.received ?? remote?.received ?? 0,
-        current: local.current ?? remote?.current ?? 0,
+        received: local.received ?? remote?.received ?? null,
+        current: local.current ?? remote?.current ?? null,
       } as InventoryItem);
 
       if (pub.isCategory && customDefinitions) {
@@ -119,13 +119,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           const prevRemoteCustom = prevRemoteItems?.find(i => i.id === cd.id);
           const localCustom = localData[cd.id] || {};
           
-          const prevCustomValue = localCustom.previous ?? remoteCustom?.previous ?? prevRemoteCustom?.current ?? 0;
+          const prevCustomValue = localCustom.previous ?? remoteCustom?.previous ?? prevRemoteCustom?.current ?? null;
           
           combined.push({
             ...cd,
             previous: prevCustomValue,
-            received: localCustom.received ?? remoteCustom?.received ?? 0,
-            current: localCustom.current ?? remoteCustom?.current ?? 0,
+            received: localCustom.received ?? remoteCustom?.received ?? null,
+            current: localCustom.current ?? remoteCustom?.current ?? null,
           } as InventoryItem);
         });
       }
@@ -143,12 +143,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [items, searchTerm]);
 
   const calculateOutgoing = (item: InventoryItem) => {
+    // Só calcula se o estoque atual estiver preenchido (mesmo que seja 0)
+    if (item.current === null || item.current === undefined) return '';
     const total = (Number(item.previous) || 0) + (Number(item.received) || 0);
     const current = Number(item.current) || 0;
     return total - current;
   };
 
-  const handleUpdateItem = (id: string, field: string, value: number) => {
+  const handleUpdateItem = (id: string, field: string, value: number | null) => {
     if (!activeUid || !db) return;
 
     setLocalData(prev => ({
@@ -302,7 +304,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         {col.id === 'outgoing' ? (
                           <div className={cn(
                             "py-2 font-black rounded text-sm text-center",
-                            calculateOutgoing(item) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10"
+                            typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10"
                           )}>
                             {calculateOutgoing(item)}
                           </div>
@@ -360,8 +362,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         ) : (
                           <Input
                             type="number"
-                            value={item[col.id] as number || ''}
-                            onChange={(e) => handleUpdateItem(item.id, col.id, Number(e.target.value))}
+                            value={(item[col.id] !== undefined && item[col.id] !== null) ? (item[col.id] as number) : ''}
+                            onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))}
                             onWheel={(e) => e.currentTarget.blur()}
                             className="border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-9 text-sm text-center font-bold transition-all bg-transparent group-hover:bg-white/50"
                             placeholder="0"

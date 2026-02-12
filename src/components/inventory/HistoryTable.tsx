@@ -51,7 +51,6 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   const combinedItems = useMemo(() => {
     const combined: InventoryItem[] = [];
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
-      // ID estável: Prioriza Código, depois Sigla (importante para revistas), depois índice
       const itemId = pub.code || pub.abbr || `item_${idx}`;
       combined.push({ ...pub, id: itemId } as InventoryItem);
       
@@ -95,17 +94,19 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
 
   const getValue = (monthKey: string, itemId: string, field: string) => {
     const val = historyData[monthKey]?.[itemId]?.[field];
-    return val !== undefined && val !== 0 ? val : '';
+    // Mostra o valor (inclusive 0) se ele existir no banco de dados
+    return (val !== undefined && val !== null) ? val : '';
   };
 
   const calculateOutgoing = (monthKey: string, itemId: string) => {
     const data = historyData[monthKey]?.[itemId];
-    if (!data) return '';
+    // Só calcula se o campo 'current' foi preenchido explicitamente (mesmo que seja 0)
+    if (!data || data.current === null || data.current === undefined) return '';
     const prev = Number(data.previous) || 0;
     const rec = Number(data.received) || 0;
     const curr = Number(data.current) || 0;
     const result = (prev + rec) - curr;
-    return result !== 0 ? result : '';
+    return result;
   };
 
   return (
