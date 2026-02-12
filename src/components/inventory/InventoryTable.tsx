@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -150,21 +151,31 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const handleUpdateItem = (id: string, field: string, value: number | null) => {
     if (!activeUid || !db) return;
 
+    const itemData = items.find(i => i.id === id);
+    if (!itemData) return;
+
+    let updates: Record<string, any> = { [field]: value };
+
+    // Lógica automática: se o estoque anterior estiver preenchido e colocar algum valor em estoque atual 
+    // e não colocar nada em recebido automaticamente ele fica com 0
+    if (field === 'current' && value !== null) {
+      if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
+        updates.received = 0;
+      }
+    }
+
     setLocalData(prev => ({
       ...prev,
-      [id]: { ...prev[id], [field]: value }
+      [id]: { ...prev[id], ...updates }
     }));
 
     const docRef = doc(db, 'users', activeUid, 'monthly_records', monthKey, 'items', id);
-    const itemData = items.find(i => i.id === id);
-    if (itemData) {
-      setDocumentNonBlocking(docRef, {
-        ...itemData,
-        id,
-        [field]: value,
-        updatedAt: new Date().toISOString()
-      }, { merge: true });
-    }
+    setDocumentNonBlocking(docRef, {
+      ...itemData,
+      ...updates,
+      id,
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
   };
 
   return (
