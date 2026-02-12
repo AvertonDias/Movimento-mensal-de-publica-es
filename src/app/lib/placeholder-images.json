@@ -182,6 +182,12 @@
       "imageHint": "origin life"
     },
     {
+      "id": "ll",
+      "description": "Escute e Viva*",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ll/T/pt/ll_T_lg.jpg",
+      "imageHint": "listen live"
+    },
+    {
       "id": "ol",
       "description": "Caminho para a Vida",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ol/T/pt/ol_T_lg.jpg",
