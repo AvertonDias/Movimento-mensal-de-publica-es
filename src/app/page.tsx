@@ -92,8 +92,8 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="bg-primary rounded-xl animate-pulse w-[40px] h-[40px] overflow-hidden">
-            <Image src="/icon.png" alt="Carregando" width={40} height={40} className="object-cover" unoptimized />
+          <div className="rounded-xl animate-pulse w-[40px] h-[40px] overflow-hidden">
+            <Image src="/icon.png" alt="Carregando" width={40} height={40} className="object-cover w-full h-full" unoptimized />
           </div>
           <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Carregando...</p>
         </div>
@@ -115,8 +115,8 @@ export default function Home() {
       >
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="rounded-xl shadow-inner overflow-hidden w-[42px] h-[42px] flex items-center justify-center">
-              <Image src="/icon.png" alt="Logo" width={42} height={42} className="object-cover" unoptimized />
+            <div className="rounded-xl overflow-hidden w-[42px] h-[42px]">
+              <Image src="/icon.png" alt="Logo" width={42} height={42} className="object-cover w-full h-full" unoptimized />
             </div>
             <div>
               <h1 className="text-xl font-black tracking-tight text-foreground uppercase font-headline">

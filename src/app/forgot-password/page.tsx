@@ -35,8 +35,8 @@ export default function ForgotPasswordPage() {
       <Card className="w-full max-w-md shadow-2xl border-primary/10">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-2">
-            <div className="rounded-xl shadow-inner overflow-hidden w-[54px] h-[54px] flex items-center justify-center">
-              <Image src="/icon.png" alt="Logo" width={54} height={54} className="object-cover" unoptimized />
+            <div className="rounded-xl overflow-hidden w-[64px] h-[64px]">
+              <Image src="/icon.png" alt="Logo" width={64} height={64} className="object-cover w-full h-full" unoptimized />
             </div>
           </div>
           <CardTitle className="text-2xl font-black uppercase tracking-tight">Recuperar Senha</CardTitle>
