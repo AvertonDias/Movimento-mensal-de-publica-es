@@ -5,9 +5,9 @@
   "description": "Sistema inteligente para formulário S-28-T e gestão de estoque.",
   "start_url": "/",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#F5F5F5",
   "theme_color": "#A0CFEC",
+  "orientation": "any",
   "icons": [
     {
       "src": "/icon.png",
