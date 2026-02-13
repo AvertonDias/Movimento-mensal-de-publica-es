@@ -48,7 +48,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
 
   const lastSixMonths = useMemo(() => {
     const months = [];
-    const baseDate = subMonths(new Date(), 1);
+    const baseDate = new Date(); // Inclui o mês atual
     for (let i = 5; i >= 0; i--) {
       const date = subMonths(baseDate, i);
       months.push({
@@ -66,34 +66,27 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
       
       try {
         const monthlyData = [];
-        let totalStock = 0;
-        let totalReceived = 0;
-        let totalOutgoingValue = 0;
+        let latestMonthWithData = null;
+        const allMonthsRecords: Record<string, any[]> = {};
         const itemUsage: Record<string, { name: string; outgoing: number }> = {};
-        const categoryMap: Record<string, number> = {};
 
+        // Busca dados de todos os 6 meses
         for (const month of lastSixMonths) {
           const colRef = collection(db, 'users', activeUserId, 'monthly_records', month.key, 'items');
           const snapshot = await getDocs(colRef);
           
+          const records: any[] = [];
           let monthOutgoingTotal = 0;
-          snapshot.forEach(doc => {
-            const data = doc.data();
+          
+          snapshot.forEach(docSnap => {
+            const data = docSnap.data();
             const prev = Number(data.previous) || 0;
             const rec = Number(data.received) || 0;
             const curr = Number(data.current) || 0;
             const outgoing = Math.max(0, (prev + rec) - curr);
 
+            records.push({ ...data, outgoing, curr, rec });
             monthOutgoingTotal += outgoing;
-
-            // Agrega dados apenas do mês mais recente para estoque e categorias
-            if (month.key === lastSixMonths[lastSixMonths.length - 1].key) {
-              totalStock += curr;
-              totalReceived += rec;
-              
-              const cat = data.category || 'Outros';
-              categoryMap[cat] = (categoryMap[cat] || 0) + curr;
-            }
 
             // Acumula uso de itens para o ranking
             const itemName = data.item || 'Desconhecido';
@@ -101,19 +94,40 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
             itemUsage[itemName].outgoing += outgoing;
           });
 
+          allMonthsRecords[month.key] = records;
+          
+          if (records.length > 0) {
+            latestMonthWithData = month.key;
+          }
+
           monthlyData.push({
             name: month.label,
             saida: monthOutgoingTotal
           });
-          
-          if (month.key === lastSixMonths[lastSixMonths.length - 1].key) {
-            totalOutgoingValue = monthOutgoingTotal;
-          }
         }
 
-        const categoryDist = Object.entries(categoryMap).map(([name, value]) => ({ name, value }));
+        // Processa totais e categorias baseando-se no mês mais recente que tem dados
+        const targetMonthKey = latestMonthWithData || lastSixMonths[lastSixMonths.length - 1].key;
+        const targetRecords = allMonthsRecords[targetMonthKey] || [];
         
-        // Alterado para mostrar 10 itens conforme solicitado pelo usuário
+        let totalStock = 0;
+        let totalReceived = 0;
+        let totalOutgoingLastMonth = 0;
+        const categoryMap: Record<string, number> = {};
+
+        targetRecords.forEach(rec => {
+          totalStock += rec.curr;
+          totalReceived += rec.rec;
+          totalOutgoingLastMonth += rec.outgoing;
+          
+          const cat = rec.category || 'Outros';
+          categoryMap[cat] = (categoryMap[cat] || 0) + rec.curr;
+        });
+
+        const categoryDist = Object.entries(categoryMap)
+          .map(([name, value]) => ({ name, value }))
+          .filter(c => c.value > 0); // Mostra apenas categorias com itens em estoque
+        
         const topItemsList = Object.values(itemUsage)
           .sort((a, b) => b.outgoing - a.outgoing)
           .slice(0, 10);
@@ -125,7 +139,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           totals: {
             stock: totalStock,
             received: totalReceived,
-            outgoing: totalOutgoingValue
+            outgoing: totalOutgoingLastMonth
           }
         });
       } catch (e) {
@@ -138,7 +152,18 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
     fetchStats();
   }, [activeUserId, db, lastSixMonths]);
 
-  const COLORS = ['#A0CFEC', '#90EE90', '#1F5F5B', '#E5A93F', '#E56D3F', '#6B7280', '#D946EF', '#F43F5E', '#10B981', '#F59E0B'];
+  const COLORS = [
+    '#A0CFEC', // Azul Claro (Primária)
+    '#90EE90', // Verde (Acento)
+    '#1F5F5B', // Petróleo
+    '#E5A93F', // Ouro
+    '#E56D3F', // Laranja
+    '#6B7280', // Cinza
+    '#D946EF', // Rosa
+    '#F43F5E', // Vermelho
+    '#10B981', // Esmeralda
+    '#F59E0B'  // Âmbar
+  ];
 
   if (loading) {
     return (
@@ -168,7 +193,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
             <TrendingUp className="h-6 w-6 text-accent-foreground" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Recebido (Mês)</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Recebido (Último Mês)</p>
             <p className="text-xl font-black">{stats.totals.received}</p>
           </div>
         </div>
@@ -178,7 +203,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
             <MoveUpRight className="h-6 w-6 text-neutral-600" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Saída (Mês)</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Saída (Último Mês)</p>
             <p className="text-xl font-black">{stats.totals.outgoing}</p>
           </div>
         </div>
@@ -188,7 +213,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
             <Layers className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Categorias</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Categorias Ativas</p>
             <p className="text-xl font-black">{stats.categoryDistribution.length}</p>
           </div>
         </div>
@@ -227,39 +252,45 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
         <div className="space-y-4">
           <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest pl-2">Distribuição do Estoque Atual por Categoria</h3>
           <div className="h-[300px] w-full bg-white p-4 rounded-xl border border-neutral-100 shadow-sm">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={stats.categoryDistribution}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {stats.categoryDistribution.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px' }}
-                />
-                <Legend 
-                  layout="vertical" 
-                  align="right" 
-                  verticalAlign="middle"
-                  wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            {stats.categoryDistribution.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats.categoryDistribution}
+                    cx="40%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {stats.categoryDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px' }}
+                  />
+                  <Legend 
+                    layout="vertical" 
+                    align="right" 
+                    verticalAlign="middle"
+                    wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', paddingLeft: '20px' }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-muted-foreground text-xs font-bold uppercase tracking-widest">
+                Nenhum dado de categoria disponível
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Ranking de Itens mais movimentados */}
       <div className="bg-white p-6 rounded-xl border border-neutral-100 shadow-sm">
-        <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest mb-6">Itens com maior Saída (Acumulado 6 meses)</h3>
+        <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest mb-6">Top 10 Itens com maior Saída (Acumulado 6 meses)</h3>
         <div className="space-y-4">
           {stats.topItems.map((item, idx) => {
             const maxVal = stats.topItems[0]?.outgoing || 1;
