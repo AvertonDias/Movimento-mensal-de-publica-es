@@ -140,7 +140,7 @@ export default function Home() {
               <Link href="/history">
                 <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
                   <History className="h-4 w-4" />
-                  Histórico S-28-T
+                  Folha S-27-T
                 </Button>
               </Link>
               <Link href="/stats">
@@ -180,7 +180,7 @@ export default function Home() {
                 <DropdownMenuSeparator />
                 <Link href="/history">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <History className="mr-2 h-4 w-4" /> Histórico S-28-T
+                    <History className="mr-2 h-4 w-4" /> Folha S-27-T
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/stats">
