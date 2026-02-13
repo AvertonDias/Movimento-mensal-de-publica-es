@@ -66,7 +66,7 @@ export default function HelpersPage() {
     const url = `${window.location.origin}/register?token=${tokenId}`;
     
     // Mensagem formatada exatamente como solicitado pelo usuário
-    const invitationMessage = `Olá! estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse o link abaixo para aceitar o convite e realizar o seu cadastro: ${url}`;
+    const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse le link abaixo para aceitar o convite e realizar o seu cadastro: ${url}`;
     
     navigator.clipboard.writeText(invitationMessage);
     
