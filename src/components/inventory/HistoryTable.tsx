@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { format, subMonths } from 'date-fns';
+import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { OFFICIAL_PUBLICATIONS, InventoryItem } from "@/app/types/inventory";
 import { cn } from "@/lib/utils";
@@ -30,7 +30,9 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
 
   const lastSixMonths = useMemo(() => {
     const months = [];
-    const baseDate = new Date(); // Inclui o mês atual
+    // A página principal mostra por padrão o mês passado (fechamento).
+    // Então o histórico deve terminar no mês passado para refletir os dados consolidados.
+    const baseDate = startOfMonth(subMonths(new Date(), 1)); 
     for (let i = 5; i >= 0; i--) {
       const date = subMonths(baseDate, i);
       months.push({
