@@ -225,7 +225,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
 
         {/* Gráfico de Pizza: Distribuição por Categoria */}
         <div className="space-y-4">
-          <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest pl-2">Distribuição de Estoque</h3>
+          <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest pl-2">Distribuição do Estoque Atual por Categoria</h3>
           <div className="h-[300px] w-full bg-white p-4 rounded-xl border border-neutral-100 shadow-sm">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
