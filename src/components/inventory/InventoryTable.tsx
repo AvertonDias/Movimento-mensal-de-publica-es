@@ -82,10 +82,11 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     async function calculateSmartMinStock() {
       if (!db || !activeUid) return;
       
-      const last3Months = [1, 2, 3].map(i => format(subMonths(selectedMonth, i), 'yyyy-MM'));
+      // Aumentamos para 6 meses para garantir que o minStock não zere se o item ficar em falta por 3 meses
+      const last6Months = [1, 2, 3, 4, 5, 6].map(i => format(subMonths(selectedMonth, i), 'yyyy-MM'));
       const itemOutgoings: Record<string, number[]> = {};
 
-      for (const mKey of last3Months) {
+      for (const mKey of last6Months) {
         const colRef = collection(db, 'users', activeUid, 'monthly_records', mKey, 'items');
         try {
           const snap = await getDocs(colRef);
@@ -106,8 +107,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
       const smartMins: Record<string, number> = {};
       Object.entries(itemOutgoings).forEach(([id, outs]) => {
+        const nonZeroOuts = outs.filter(v => v > 0);
+        // Se o item nunca teve saída em 6 meses, não sugerimos mínimo automático
+        if (nonZeroOuts.length === 0) return;
+        
         const avg = outs.reduce((a, b) => a + b, 0) / outs.length;
-        smartMins[id] = Math.ceil(avg * 1.2);
+        // O mínimo inteligente deve ser pelo menos 1 se houver histórico de uso
+        smartMins[id] = Math.max(1, Math.ceil(avg * 1.2));
       });
       
       setHistoricalMinStock(smartMins);
@@ -242,7 +248,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         updates.received = 0;
       }
       
-      // Lógica de Auto-Reativação: Se o estoque voltou ao normal (> minVal), removemos os silenciamentos
       const minVal = historicalMinStock[id] || 0;
       if (value > minVal && (itemData.hidden || itemData.silent)) {
         const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
