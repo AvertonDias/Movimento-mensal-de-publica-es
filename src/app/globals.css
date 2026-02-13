@@ -69,8 +69,12 @@
     color-adjust: exact !important;
   }
   
-  .bg-neutral-200, .bg-muted {
+  .bg-neutral-200 {
     background-color: #e5e5e5 !important;
+  }
+
+  .bg-muted {
+    background-color: #f3f4f6 !important;
   }
 
   .bg-destructive\/5 {
@@ -79,5 +83,11 @@
 
   .text-destructive {
     color: #dc2626 !important;
+  }
+
+  /* Garante que colunas de Saída apareçam cinza no papel */
+  td.bg-neutral-200, th.bg-neutral-200 {
+    background-color: #e5e5e5 !important;
+    -webkit-print-color-adjust: exact !important;
   }
 }
