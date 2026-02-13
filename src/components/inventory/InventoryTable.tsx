@@ -242,6 +242,24 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
         updates.received = 0;
       }
+      
+      // Lógica de Auto-Reativação: Se o estoque voltou ao normal (> minVal), removemos os silenciamentos
+      const minVal = historicalMinStock[id] || 0;
+      if (value > minVal && (itemData.hidden || itemData.silent)) {
+        const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
+        setDocumentNonBlocking(inventoryDocRef, {
+          hidden: false,
+          silent: false
+        }, { merge: true });
+        
+        updates.hidden = false;
+        updates.silent = false;
+        
+        toast({
+          title: "Monitoramento Reativado",
+          description: `O item "${itemData.item}" foi reabastecido e voltará a ser monitorado automaticamente.`,
+        });
+      }
     }
 
     setLocalData(prev => ({
