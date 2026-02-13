@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -159,6 +160,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         current: local.current !== undefined ? local.current : (remote?.current !== undefined ? remote?.current : null),
         minStock: historicalMinStock[id] || 0,
         hidden: customDef?.hidden || false,
+        silent: customDef?.silent || false,
       } as InventoryItem);
 
       if (pub.isCategory && customDefinitions) {
@@ -180,6 +182,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             current: localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined ? remoteCustom?.current : null),
             minStock: historicalMinStock[cd.id] || 0,
             hidden: cd.hidden || false,
+            silent: cd.silent || false,
           } as InventoryItem);
         });
       }
@@ -196,12 +199,11 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     );
   }, [items, searchTerm]);
 
-  // Alerta de resumo ao carregar o mês
   useEffect(() => {
     if (!isFetchingMonth && items.length > 0 && !isUserLoading) {
       const lowItems = items.filter(item => {
         const minVal = historicalMinStock[item.id] || 0;
-        return !item.hidden && minVal > 0 && (
+        return !item.hidden && !item.silent && minVal > 0 && (
           (item.current !== null && item.current <= minVal) || 
           (item.current === null && item.previous !== null && item.previous <= minVal)
         );
@@ -260,7 +262,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     if (field !== 'current' || value === null) return;
 
     const itemData = items.find(i => i.id === id);
-    if (!itemData || itemData.hidden) return;
+    if (!itemData || itemData.hidden || itemData.silent) return;
 
     const minVal = historicalMinStock[id] || 0;
     if (minVal > 0 && value <= minVal) {
@@ -272,26 +274,34 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     }
   };
 
-  const handleToggleAlert = (item: InventoryItem) => {
+  const handleToggleAlert = (item: InventoryItem, mode: 'silent' | 'hidden' | 'reset') => {
     if (!activeUid || !db) return;
     
-    const newState = !item.hidden;
+    let updates: any = {};
+    if (mode === 'silent') {
+        updates = { silent: true, hidden: false };
+    } else if (mode === 'hidden') {
+        updates = { hidden: true, silent: false };
+    } else {
+        updates = { hidden: false, silent: false };
+    }
+    
     const docRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(docRef, {
       id: item.id,
-      hidden: newState,
       item: item.item,
       category: item.category,
       code: item.code,
       abbr: item.abbr,
+      ...updates,
       updatedAt: new Date().toISOString()
     }, { merge: true });
 
     toast({
-      title: newState ? "Alerta Silenciado" : "Alerta Reativado",
-      description: newState 
-        ? `Você não receberá mais avisos para "${item.item}".` 
-        : `O monitoramento de estoque foi reativado para "${item.item}".`,
+      title: mode === 'reset' ? "Monitoramento Reativado" : (mode === 'silent' ? "Alertas Silenciados" : "Destaque Removido"),
+      description: mode === 'reset' 
+        ? `O monitoramento completo foi reativado para "${item.item}".` 
+        : (mode === 'silent' ? `O destaque continuará, mas você não receberá mais avisos para "${item.item}".` : `O item "${item.item}" voltou ao estado normal sem destaques.`),
     });
   };
 
@@ -386,7 +396,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         <div className="flex items-start gap-1.5 px-1">
           <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-            Os alertas de estoque baixo são persistentes e baseados na média de saída dos meses anteriores.
+            Use as opções do alerta para gerenciar as notificações de forma personalizada.
           </p>
         </div>
       </div>
@@ -426,8 +436,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 }
 
                 const minVal = historicalMinStock[item.id] || 0;
-                
-                // Lógica de isLowStock estendida: verifica estoque atual OU estoque anterior (se o atual for nulo)
                 const isLowStock = !item.hidden && minVal > 0 && (
                   (item.current !== null && item.current <= minVal) || 
                   (item.current === null && item.previous !== null && item.previous <= minVal)
@@ -456,32 +464,57 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px]">
                             <div className="flex items-center gap-2 overflow-hidden">
-                              {(isLowStock || item.hidden) && (
+                              {(isLowStock || item.hidden || item.silent) && (
                                 <Popover>
                                   <PopoverTrigger asChild>
                                     <Button variant="ghost" size="icon" className={cn(
                                       "h-6 w-6 shrink-0 hover:bg-neutral-100",
-                                      item.hidden ? "text-neutral-400" : "text-destructive"
+                                      (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive"
                                     )}>
-                                      {item.hidden ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
+                                      {(item.hidden || item.silent) ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
                                     </Button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3">
                                     <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest">Gestão de Alerta</p>
-                                    <p className="text-[11px] font-bold uppercase leading-tight text-neutral-600 mb-3">
-                                      {item.hidden 
-                                        ? "O monitoramento inteligente está desativado para este item. Deseja reativar?" 
-                                        : `Esta publicação está abaixo do mínimo seguro (${minVal}). Deseja silenciar este aviso?`}
-                                    </p>
-                                    <Button 
-                                      variant={item.hidden ? "default" : "outline"} 
-                                      size="sm" 
-                                      className="w-full text-[9px] font-black uppercase tracking-widest h-8 gap-2"
-                                      onClick={() => handleToggleAlert(item)}
-                                    >
-                                      {item.hidden ? <Bell className="h-3 w-3" /> : <BellOff className="h-3 w-3" />}
-                                      {item.hidden ? "Reativar Alerta" : "Silenciar Alerta"}
-                                    </Button>
+                                    {!(item.hidden || item.silent) ? (
+                                      <div className="space-y-3">
+                                        <p className="text-[11px] font-bold uppercase leading-tight text-neutral-600 mb-1">
+                                          Esta publicação está abaixo do mínimo seguro ({minVal}). O que deseja fazer?
+                                        </p>
+                                        <div className="grid gap-2">
+                                          <Button 
+                                            variant="outline" 
+                                            size="sm" 
+                                            className="w-full text-[9px] font-black uppercase tracking-widest h-8 gap-2"
+                                            onClick={() => handleToggleAlert(item, 'silent')}
+                                          >
+                                            <BellOff className="h-3 w-3" /> Silenciar (Manter Vermelho)
+                                          </Button>
+                                          <Button 
+                                            variant="default" 
+                                            size="sm" 
+                                            className="w-full text-[9px] font-black uppercase tracking-widest h-8 gap-2"
+                                            onClick={() => handleToggleAlert(item, 'hidden')}
+                                          >
+                                            <X className="h-3 w-3" /> Desativar e Normalizar
+                                          </Button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <div className="space-y-3">
+                                        <p className="text-[11px] font-bold uppercase leading-tight text-neutral-600 mb-1">
+                                          O monitoramento está restrito para este item.
+                                        </p>
+                                        <Button 
+                                          variant="default" 
+                                          size="sm" 
+                                          className="w-full text-[9px] font-black uppercase tracking-widest h-8 gap-2"
+                                          onClick={() => handleToggleAlert(item, 'reset')}
+                                        >
+                                          <Bell className="h-3 w-3" /> Reativar Monitoramento
+                                        </Button>
+                                      </div>
+                                    )}
                                   </PopoverContent>
                                 </Popover>
                               )}

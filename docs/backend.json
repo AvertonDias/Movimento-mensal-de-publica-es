@@ -56,7 +56,8 @@
         "code": { "type": "string" },
         "category": { "type": "string" },
         "sortOrder": { "type": "number" },
-        "hidden": { "type": "boolean", "description": "Whether this item is hidden from the monthly count list." },
+        "hidden": { "type": "boolean", "description": "Whether this item has alerts completely disabled (returns to normal color)." },
+        "silent": { "type": "boolean", "description": "Whether this item only has toast notifications disabled (remains red)." },
         "minStock": { "type": "number", "description": "Minimum stock threshold for alerts." }
       }
     }
