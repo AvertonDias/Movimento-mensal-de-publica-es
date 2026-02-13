@@ -110,7 +110,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   };
 
   return (
-    <div className="border border-black relative overflow-hidden print:border-black mx-auto" style={{ width: '750px' }}>
+    <div className="border border-black relative mx-auto" style={{ width: '750px' }}>
       {loading && (
         <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-[1px] print:hidden">
           <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse text-black">Sincronizando...</span>
@@ -119,27 +119,33 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       <Table className="border-collapse table-fixed w-[750px]">
         <TableHeader className="print:table-row-group">
           <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
-            <TableHead className="w-[20px] border-r border-black p-0"></TableHead>
-            <TableHead className="w-[190px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-none">MÊS E ANO</TableHead>
-            {lastSixMonths.map((month) => (
+            <TableHead className="w-[30px] border-r border-black p-0"></TableHead>
+            <TableHead className="w-[216px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-none">MÊS E ANO</TableHead>
+            {lastSixMonths.map((month, idx) => (
               <TableHead 
                 key={month.key} 
                 colSpan={3} 
-                className="w-[90px] text-center text-[8px] font-black uppercase text-black p-0 h-auto border-r border-black bg-neutral-50/50 leading-none"
+                className={cn(
+                  "w-[84px] text-center text-[8px] font-black uppercase text-black p-0 h-auto border-r border-black bg-neutral-50/50 leading-none",
+                  idx === 5 && "border-r-0"
+                )}
               >
                 {month.label}
               </TableHead>
             ))}
           </TableRow>
           <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
-            <TableHead className="w-[20px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-r border-black">N.º</TableHead>
-            <TableHead className="w-[190px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-r border-black">Publicações</TableHead>
+            <TableHead className="w-[30px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-r border-black">N.º</TableHead>
+            <TableHead className="w-[216px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-r border-black">Publicações</TableHead>
             
-            {lastSixMonths.map((m) => (
+            {lastSixMonths.map((m, idx) => (
               <React.Fragment key={m.key}>
-                <TableHead className="w-[30px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Rec.</TableHead>
-                <TableHead className="w-[30px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Est.</TableHead>
-                <TableHead className="w-[30px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-none border-r border-black">Saí.</TableHead>
+                <TableHead className="w-[28px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Rec.</TableHead>
+                <TableHead className="w-[28px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Est.</TableHead>
+                <TableHead className={cn(
+                  "w-[28px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-none",
+                  idx === 5 ? "" : "border-r border-black"
+                )}>Saí.</TableHead>
               </React.Fragment>
             ))}
           </TableRow>
@@ -162,18 +168,21 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             return (
               <TableRow key={`hist-row-${itemId}-${idx}`} className="border-b border-black h-5 hover:bg-transparent print:h-4">
                 <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{item.code}</TableCell>
-                <TableCell className="w-[190px] text-[9px] px-1 py-0 border-r border-black h-full overflow-hidden leading-none">
+                <TableCell className="w-[216px] text-[9px] px-1 py-0 border-r border-black h-full overflow-hidden leading-none">
                   <div className="flex justify-between items-center w-full">
                     <span className="truncate leading-none">{item.item}</span>
                     {item.abbr && <span className="font-bold ml-1 text-[7px] text-neutral-500">{item.abbr}</span>}
                   </div>
                 </TableCell>
                 
-                {lastSixMonths.map((m) => (
+                {lastSixMonths.map((m, mIdx) => (
                   <React.Fragment key={m.key}>
                     <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{getValue(m.key, itemId, 'received')}</TableCell>
                     <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{getValue(m.key, itemId, 'current')}</TableCell>
-                    <TableCell className="text-[8px] text-center p-0 font-black bg-neutral-200 leading-none border-r border-black">{calculateOutgoing(m.key, itemId)}</TableCell>
+                    <TableCell className={cn(
+                      "text-[8px] text-center p-0 font-black bg-neutral-200 leading-none",
+                      mIdx === 5 ? "" : "border-r border-black"
+                    )}>{calculateOutgoing(m.key, itemId)}</TableCell>
                   </React.Fragment>
                 ))}
               </TableRow>
