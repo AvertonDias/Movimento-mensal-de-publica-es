@@ -211,18 +211,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
     let updates: Record<string, any> = { [field]: value };
 
+    // Inteligência de preenchimento automático
     if (field === 'current' && value !== null) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
         updates.received = 0;
-      }
-      
-      const minVal = historicalMinStock[id] || 0;
-      if (!itemData.hidden && minVal > 0 && value <= minVal) {
-        toast({
-          variant: "destructive",
-          title: "Reposição Necessária!",
-          description: `A publicação "${itemData.item}" está abaixo da média de saída segura.`,
-        });
       }
     }
 
@@ -238,6 +230,23 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       id,
       updatedAt: new Date().toISOString()
     }, { merge: true });
+  };
+
+  // Verifica estoque baixo apenas ao perder o foco (finalizar digitação)
+  const handleInputBlur = (id: string, field: string, value: number | null) => {
+    if (field !== 'current' || value === null) return;
+
+    const itemData = items.find(i => i.id === id);
+    if (!itemData || itemData.hidden) return;
+
+    const minVal = historicalMinStock[id] || 0;
+    if (minVal > 0 && value <= minVal) {
+      toast({
+        variant: "destructive",
+        title: "Reposição Necessária!",
+        description: `A publicação "${itemData.item}" está abaixo da média de saída segura.`,
+      });
+    }
   };
 
   const handleToggleAlert = (item: InventoryItem) => {
@@ -482,6 +491,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             type="number"
                             value={(item[col.id] !== undefined && item[col.id] !== null) ? (item[col.id] as number) : ''}
                             onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))}
+                            onBlur={(e) => handleInputBlur(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))}
                             onFocus={(e) => e.target.select()}
                             className={cn(
                               "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent",
