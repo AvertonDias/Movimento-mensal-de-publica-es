@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -18,7 +19,7 @@ import { useFirestore, useUser } from '@/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { format, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Loader2, TrendingUp, Package, MoveUpRight, Layers } from 'lucide-react';
+import { Loader2, TrendingUp, Package, MoveUpRight, Layers, AlertOctagon, Activity } from 'lucide-react';
 
 interface StatsDashboardProps {
   targetUserId?: string;
@@ -36,19 +37,21 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
       stock: number;
       received: number;
       outgoing: number;
+      criticalItems: number;
+      avgOutgoing: number;
     }
   }>({
     monthlyOutgoing: [],
     categoryDistribution: [],
     topItems: [],
-    totals: { stock: 0, received: 0, outgoing: 0 }
+    totals: { stock: 0, received: 0, outgoing: 0, criticalItems: 0, avgOutgoing: 0 }
   });
 
   const activeUserId = targetUserId || currentUser?.uid;
 
   const lastSixMonths = useMemo(() => {
     const months = [];
-    const baseDate = new Date(); // Inclui o mês atual
+    const baseDate = new Date();
     for (let i = 5; i >= 0; i--) {
       const date = subMonths(baseDate, i);
       months.push({
@@ -68,9 +71,10 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
         const monthlyData = [];
         let latestMonthWithData = null;
         const allMonthsRecords: Record<string, any[]> = {};
-        const itemUsage: Record<string, { name: string; outgoing: number }> = {};
+        const itemHistory: Record<string, number[]> = {};
+        const itemUsage: Record<string, { name: string; outgoing: number; category: string }> = {};
 
-        // Busca dados de todos os 6 meses
+        // Busca dados de todos os 6 meses para análise de tendências e médias
         for (const month of lastSixMonths) {
           const colRef = collection(db, 'users', activeUserId, 'monthly_records', month.key, 'items');
           const snapshot = await getDocs(colRef);
@@ -85,20 +89,20 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
             const curr = Number(data.current) || 0;
             const outgoing = Math.max(0, (prev + rec) - curr);
 
-            records.push({ ...data, outgoing, curr, rec });
+            records.push({ ...data, outgoing, curr, rec, id: docSnap.id });
             monthOutgoingTotal += outgoing;
 
-            // Acumula uso de itens para o ranking
+            // Histórico individual para cálculo de média/minStock
+            if (!itemHistory[docSnap.id]) itemHistory[docSnap.id] = [];
+            itemHistory[docSnap.id].push(outgoing);
+
             const itemName = data.item || 'Desconhecido';
-            if (!itemUsage[itemName]) itemUsage[itemName] = { name: itemName, outgoing: 0 };
+            if (!itemUsage[itemName]) itemUsage[itemName] = { name: itemName, outgoing: 0, category: data.category || 'Outros' };
             itemUsage[itemName].outgoing += outgoing;
           });
 
           allMonthsRecords[month.key] = records;
-          
-          if (records.length > 0) {
-            latestMonthWithData = month.key;
-          }
+          if (records.length > 0) latestMonthWithData = month.key;
 
           monthlyData.push({
             name: month.label,
@@ -106,13 +110,14 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           });
         }
 
-        // Processa totais e categorias baseando-se no mês mais recente que tem dados
+        // Processa o mês mais recente para métricas de "Agora"
         const targetMonthKey = latestMonthWithData || lastSixMonths[lastSixMonths.length - 1].key;
         const targetRecords = allMonthsRecords[targetMonthKey] || [];
         
         let totalStock = 0;
         let totalReceived = 0;
         let totalOutgoingLastMonth = 0;
+        let criticalCount = 0;
         const categoryMap: Record<string, number> = {};
 
         targetRecords.forEach(rec => {
@@ -122,11 +127,23 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           
           const cat = rec.category || 'Outros';
           categoryMap[cat] = (categoryMap[cat] || 0) + rec.curr;
+
+          // Lógica de item crítico (estoque atual <= margem de segurança baseada na média)
+          const history = itemHistory[rec.id] || [];
+          if (history.length > 0) {
+            const avg = history.reduce((a, b) => a + b, 0) / history.length;
+            const minSafe = Math.max(1, Math.ceil(avg * 1.2));
+            if (rec.curr <= minSafe && avg > 0) {
+              criticalCount++;
+            }
+          }
         });
+
+        const avgTotalOutgoing = monthlyData.reduce((acc, curr) => acc + curr.saida, 0) / (monthlyData.filter(m => m.saida > 0).length || 1);
 
         const categoryDist = Object.entries(categoryMap)
           .map(([name, value]) => ({ name, value }))
-          .filter(c => c.value > 0); // Mostra apenas categorias com itens em estoque
+          .filter(c => c.value > 0);
         
         const topItemsList = Object.values(itemUsage)
           .sort((a, b) => b.outgoing - a.outgoing)
@@ -139,7 +156,9 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           totals: {
             stock: totalStock,
             received: totalReceived,
-            outgoing: totalOutgoingLastMonth
+            outgoing: totalOutgoingLastMonth,
+            criticalItems: criticalCount,
+            avgOutgoing: Math.round(avgTotalOutgoing)
           }
         });
       } catch (e) {
@@ -152,18 +171,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
     fetchStats();
   }, [activeUserId, db, lastSixMonths]);
 
-  const COLORS = [
-    '#A0CFEC', // Azul Claro (Primária)
-    '#90EE90', // Verde (Acento)
-    '#1F5F5B', // Petróleo
-    '#E5A93F', // Ouro
-    '#E56D3F', // Laranja
-    '#6B7280', // Cinza
-    '#D946EF', // Rosa
-    '#F43F5E', // Vermelho
-    '#10B981', // Esmeralda
-    '#F59E0B'  // Âmbar
-  ];
+  const COLORS = ['#A0CFEC', '#90EE90', '#1F5F5B', '#E5A93F', '#E56D3F', '#6B7280', '#D946EF', '#F43F5E', '#10B981', '#F59E0B'];
 
   if (loading) {
     return (
@@ -176,53 +184,73 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
 
   return (
     <div className="space-y-10">
-      {/* Cards de Resumo */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <div className="bg-white p-4 rounded-xl border border-neutral-100 shadow-sm flex items-center gap-4">
           <div className="bg-primary/10 p-3 rounded-lg">
-            <Package className="h-6 w-6 text-primary" />
+            <Package className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Estoque Atual</p>
-            <p className="text-xl font-black">{stats.totals.stock}</p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Estoque Total</p>
+            <p className="text-lg font-black">{stats.totals.stock}</p>
           </div>
         </div>
         
         <div className="bg-white p-4 rounded-xl border border-neutral-100 shadow-sm flex items-center gap-4">
           <div className="bg-accent/10 p-3 rounded-lg">
-            <TrendingUp className="h-6 w-6 text-accent-foreground" />
+            <MoveUpRight className="h-5 w-5 text-accent-foreground" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Recebido (Último Mês)</p>
-            <p className="text-xl font-black">{stats.totals.received}</p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Saída (Últ. Mês)</p>
+            <p className="text-lg font-black">{stats.totals.outgoing}</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-neutral-100 shadow-sm flex items-center gap-4">
+          <div className="bg-destructive/10 p-3 rounded-lg">
+            <AlertOctagon className="h-5 w-5 text-destructive" />
+          </div>
+          <div>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Itens Críticos</p>
+            <p className="text-lg font-black text-destructive">{stats.totals.criticalItems}</p>
           </div>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-neutral-100 shadow-sm flex items-center gap-4">
           <div className="bg-neutral-100 p-3 rounded-lg">
-            <MoveUpRight className="h-6 w-6 text-neutral-600" />
+            <Activity className="h-5 w-5 text-neutral-600" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Saída (Último Mês)</p>
-            <p className="text-xl font-black">{stats.totals.outgoing}</p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Média Mensal</p>
+            <p className="text-lg font-black">{stats.totals.avgOutgoing}</p>
           </div>
         </div>
 
         <div className="bg-white p-4 rounded-xl border border-neutral-100 shadow-sm flex items-center gap-4">
           <div className="bg-primary/5 p-3 rounded-lg">
-            <Layers className="h-6 w-6 text-primary" />
+            <Layers className="h-5 w-5 text-primary" />
           </div>
           <div>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Categorias Ativas</p>
-            <p className="text-xl font-black">{stats.categoryDistribution.length}</p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Categorias</p>
+            <p className="text-lg font-black">{stats.categoryDistribution.length}</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-4 rounded-xl border border-neutral-100 shadow-sm flex items-center gap-4">
+          <div className="bg-primary/5 p-3 rounded-lg">
+            <TrendingUp className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Recebidos</p>
+            <p className="text-lg font-black">{stats.totals.received}</p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Gráfico de Barras: Tendência de Saída */}
         <div className="space-y-4">
-          <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest pl-2">Tendência de Saída (Últimos 6 meses)</h3>
+          <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest pl-2 flex items-center gap-2">
+            <TrendingUp className="h-3.5 w-3.5" /> Tendência de Saída (Últimos 6 meses)
+          </h3>
           <div className="h-[300px] w-full bg-white p-4 rounded-xl border border-neutral-100 shadow-sm">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.monthlyOutgoing}>
@@ -248,9 +276,10 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           </div>
         </div>
 
-        {/* Gráfico de Pizza: Distribuição por Categoria */}
         <div className="space-y-4">
-          <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest pl-2">Distribuição do Estoque Atual por Categoria</h3>
+          <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest pl-2 flex items-center gap-2">
+            <Package className="h-3.5 w-3.5" /> Distribuição por Categoria
+          </h3>
           <div className="h-[300px] w-full bg-white p-4 rounded-xl border border-neutral-100 shadow-sm">
             {stats.categoryDistribution.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -288,9 +317,10 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
         </div>
       </div>
 
-      {/* Ranking de Itens mais movimentados */}
       <div className="bg-white p-6 rounded-xl border border-neutral-100 shadow-sm">
-        <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest mb-6">Top 10 Itens com maior Saída (Acumulado 6 meses)</h3>
+        <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest mb-6 flex items-center gap-2">
+          <Activity className="h-3.5 w-3.5" /> Top 10 Itens mais distribuídos (6 meses)
+        </h3>
         <div className="space-y-4">
           {stats.topItems.map((item, idx) => {
             const maxVal = stats.topItems[0]?.outgoing || 1;
@@ -299,10 +329,14 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
             return (
               <div key={idx} className="space-y-1.5">
                 <div className="flex justify-between text-[10px] font-black uppercase">
-                  <span className="truncate max-w-[70%]">{item.name}</span>
-                  <span className="text-primary shrink-0">{item.outgoing} unidades</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-neutral-400 w-4">#{idx + 1}</span>
+                    <span className="truncate max-w-[200px] md:max-w-md">{item.name}</span>
+                    <span className="text-[8px] bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-500">{item.category}</span>
+                  </div>
+                  <span className="text-primary shrink-0">{item.outgoing} un.</span>
                 </div>
-                <div className="h-2 w-full bg-neutral-100 rounded-full overflow-hidden">
+                <div className="h-2 w-full bg-neutral-50 rounded-full overflow-hidden border border-neutral-100/50">
                   <div 
                     className="h-full bg-primary transition-all duration-1000" 
                     style={{ width: `${percentage}%` }}
