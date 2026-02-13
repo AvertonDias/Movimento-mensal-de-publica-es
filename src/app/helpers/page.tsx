@@ -65,7 +65,7 @@ export default function HelpersPage() {
   const copyToClipboard = (tokenId: string) => {
     const url = `${window.location.origin}/register?token=${tokenId}`;
     
-    // Mensagem formatada exatamente como solicitado pelo usuário, corrigindo o erro de digitação
+    // Mensagem formatada exatamente como solicitado, sem erros de digitação
     const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse o link abaixo para aceitar o convite e realizar o seu cadastro: ${url}`;
     
     navigator.clipboard.writeText(invitationMessage);
