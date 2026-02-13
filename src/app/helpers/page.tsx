@@ -64,10 +64,9 @@ export default function HelpersPage() {
 
   const copyToClipboard = (tokenId: string) => {
     const url = `${window.location.origin}/register?token=${tokenId}`;
-    const ownerName = user?.displayName || user?.email?.split('@')[0] || 'um irmão';
     
-    // Mensagem formatada como um convite real
-    const invitationMessage = `Olá! ${ownerName} convidou você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital.\n\nAcesse o link abaixo para aceitar o convite e realizar o seu cadastro:\n\n${url}`;
+    // Mensagem formatada exatamente como solicitado pelo usuário
+    const invitationMessage = `Olá! estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse o link abaixo para aceitar o convite e realizar o seu cadastro: ${url}`;
     
     navigator.clipboard.writeText(invitationMessage);
     
