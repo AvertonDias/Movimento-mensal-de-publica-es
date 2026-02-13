@@ -413,7 +413,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         <div className="flex items-start gap-1.5 px-1">
           <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-            Preencha o Estoque Atual e o sistema calculará a Saída automaticamente: (Anterior + Recebido) - Atual.
+            Importante: O preenchimento deste formulário deve refletir a contagem real de estoque do mês anterior. A saída é calculada automaticamente: (Anterior + Recebido) - Atual.
           </p>
         </div>
       </div>
