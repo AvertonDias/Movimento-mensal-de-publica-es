@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useEffect } from 'react';
@@ -59,16 +58,22 @@ export default function HelpersPage() {
 
     toast({
       title: "Link de acesso gerado!",
-      description: "Copie o link abaixo e envie para o seu ajudante.",
+      description: "Copie o convite abaixo e envie para o seu ajudante.",
     });
   };
 
   const copyToClipboard = (tokenId: string) => {
     const url = `${window.location.origin}/register?token=${tokenId}`;
-    navigator.clipboard.writeText(url);
+    const ownerName = user?.displayName || user?.email?.split('@')[0] || 'um irmão';
+    
+    // Mensagem formatada como um convite real
+    const invitationMessage = `Olá! ${ownerName} convidou você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital.\n\nAcesse o link abaixo para aceitar o convite e realizar o seu cadastro:\n\n${url}`;
+    
+    navigator.clipboard.writeText(invitationMessage);
+    
     toast({
-      title: "Link copiado!",
-      description: "Envie este link para que o ajudante se cadastre e acesse seu inventário.",
+      title: "Convite copiado!",
+      description: "A mensagem completa foi copiada. Agora é só colar na conversa com o ajudante.",
     });
   };
 
@@ -102,7 +107,7 @@ export default function HelpersPage() {
               Novo Link de Convite
             </CardTitle>
             <CardDescription className="text-xs font-bold uppercase tracking-wider">
-              Gere um link para que outra pessoa se cadastre no app e ajude a gerenciar seu inventário.
+              Gere uma mensagem de convite para que outra pessoa ajude a gerenciar seu inventário.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -148,7 +153,7 @@ export default function HelpersPage() {
                         className="gap-2 h-9 text-[10px] font-black uppercase tracking-widest bg-white"
                         onClick={() => copyToClipboard(invite.id)}
                       >
-                        <Copy className="h-3.5 w-3.5" /> Copiar Link
+                        <Copy className="h-3.5 w-3.5" /> Copiar Convite
                       </Button>
                       <Button 
                         variant="ghost" 
