@@ -109,6 +109,14 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
     return result;
   };
 
+  /**
+   * CÁLCULO DE LARGURAS (Total 750px):
+   * N.º: 30px
+   * Publicações: 180px
+   * 18 colunas de dados (6 meses * 3): 30px cada (Total 540px)
+   * 30 + 180 + 540 = 750px exatos.
+   */
+
   return (
     <div className="border border-black relative overflow-hidden print:border-black w-[750px] mx-auto min-w-[750px] max-w-[750px]">
       {loading && (
@@ -118,14 +126,15 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       )}
       <Table className="border-collapse table-fixed w-[750px] print:w-[750px]">
         <TableHeader className="print:table-row-group">
+          {/* Cabeçalho Nível 1: Mês/Ano */}
           <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
-            <TableHead colSpan={2} className="w-[180px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-none">MÊS E ANO</TableHead>
+            <TableHead colSpan={2} className="w-[210px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-none">MÊS E ANO</TableHead>
             {lastSixMonths.map((month, mIdx) => (
               <TableHead 
                 key={month.key} 
                 colSpan={3} 
                 className={cn(
-                  "text-center text-[8px] font-black uppercase text-black p-0 h-auto border-r border-black bg-neutral-50/50 leading-none",
+                  "text-center text-[8px] font-black uppercase text-black p-0 h-auto border-r border-black bg-neutral-50/50 leading-none w-[90px]",
                   mIdx === lastSixMonths.length - 1 && "border-r-0"
                 )}
               >
@@ -133,14 +142,16 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               </TableHead>
             ))}
           </TableRow>
+          
+          {/* Cabeçalho Nível 2: Colunas Individuais */}
           <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
-            <TableHead className="w-[16px] text-[8px] font-bold text-black p-0 h-auto text-center leading-none border-r border-black">N.º</TableHead>
-            <TableHead className="w-[214px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-r border-black">Publicações</TableHead>
+            <TableHead className="w-[30px] text-[8px] font-bold text-black p-0 h-auto text-center leading-none border-r border-black">N.º</TableHead>
+            <TableHead className="w-[180px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-r border-black">Publicações</TableHead>
             
             {lastSixMonths.map((m, mIdx) => (
               <React.Fragment key={m.key}>
-                <TableHead className="w-[29px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Recebido.</TableHead>
-                <TableHead className="w-[29px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Estoque.</TableHead>
+                <TableHead className="w-[30px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Recebido.</TableHead>
+                <TableHead className="w-[30px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Estoque.</TableHead>
                 <TableHead className={cn(
                   "w-[30px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-none border-r border-black",
                   mIdx === lastSixMonths.length - 1 && "border-r-0"
@@ -156,7 +167,8 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             if (item.isCategory) {
               return (
                 <TableRow key={`hist-cat-${idx}`} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-5">
-                  <TableCell className="w-[16px] p-0 border-r border-black" />
+                  {/* Pula a primeira coluna (N.º) conforme solicitado */}
+                  <TableCell className="w-[30px] p-0 border-r border-black" />
                   <TableCell colSpan={19} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black border-r-0">
                     {item.item}
                   </TableCell>
@@ -166,8 +178,8 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             
             return (
               <TableRow key={`hist-row-${itemId}-${idx}`} className="border-b border-black h-5 hover:bg-transparent print:h-4">
-                <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{item.code}</TableCell>
-                <TableCell className="w-[214px] text-[9px] px-1 py-0 border-r border-black h-full overflow-hidden leading-none">
+                <TableCell className="w-[30px] text-[8px] text-center p-0 font-bold border-r border-black leading-none">{item.code}</TableCell>
+                <TableCell className="w-[180px] text-[9px] px-1 py-0 border-r border-black h-full overflow-hidden leading-none">
                   <div className="flex justify-between items-center w-full">
                     <span className="truncate leading-none">{item.item}</span>
                     {item.abbr && <span className="font-bold ml-1 text-[7px] text-neutral-500">{item.abbr}</span>}
@@ -176,10 +188,10 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
                 
                 {lastSixMonths.map((m, mIdx) => (
                   <React.Fragment key={m.key}>
-                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{getValue(m.key, itemId, 'received')}</TableCell>
-                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{getValue(m.key, itemId, 'current')}</TableCell>
+                    <TableCell className="w-[30px] text-[8px] text-center p-0 font-bold border-r border-black leading-none">{getValue(m.key, itemId, 'received')}</TableCell>
+                    <TableCell className="w-[30px] text-[8px] text-center p-0 font-bold border-r border-black leading-none">{getValue(m.key, itemId, 'current')}</TableCell>
                     <TableCell className={cn(
-                      "text-[8px] text-center p-0 font-black bg-neutral-200 leading-none border-r border-black",
+                      "w-[30px] text-[8px] text-center p-0 font-black bg-neutral-200 leading-none border-r border-black",
                       mIdx === lastSixMonths.length - 1 && "border-r-0"
                     )}>{calculateOutgoing(m.key, itemId)}</TableCell>
                   </React.Fragment>
