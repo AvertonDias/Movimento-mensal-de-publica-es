@@ -223,7 +223,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       }
       
       const minVal = historicalMinStock[id] || 0;
-      // Se o estoque for reposto (valor acima do mínimo), reativa o monitoramento caso estivesse silenciado/oculto
       if (value > minVal && (itemData.hidden || itemData.silent)) {
         const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
         setDocumentNonBlocking(inventoryDocRef, {
@@ -256,7 +255,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   };
 
   const handleInputBlur = (id: string, field: string, value: number | null) => {
-    // A notificação só aparece quando sai da edição do campo 'current'
     if (field !== 'current') return;
 
     const itemData = items.find(i => i.id === id);
@@ -393,10 +391,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           </div>
         </div>
         
-        <div className="flex items-start gap-1.5 px-1">
-          <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
-          <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-            Os alertas de estoque baixo aparecem automaticamente quando um item precisa de reposição e persistem até que o estoque seja normalizado.
+        <div className="flex items-center gap-1.5 px-1">
+          <Info className="h-3 w-3 text-muted-foreground shrink-0" />
+          <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider leading-none">
+            IMPORTANTE: OS VALORES DE CONTAGEM (ESTOQUE ATUAL) DEVEM REFERIR-SE AO FECHAMENTO DO MÊS SELECIONADO.
           </p>
         </div>
       </div>
@@ -436,7 +434,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 }
 
                 const minVal = historicalMinStock[item.id] || 0;
-                // Alerta visual aparece se o estoque atual for baixo OU se o mês ainda não foi preenchido e o anterior era baixo
                 const isLowStock = !item.hidden && minVal > 0 && (
                   (item.current !== null && item.current <= minVal) || 
                   (item.current === null && item.previous !== null && item.previous <= minVal)
