@@ -196,6 +196,31 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     );
   }, [items, searchTerm]);
 
+  // Alerta de resumo ao carregar o mês
+  useEffect(() => {
+    if (!isFetchingMonth && items.length > 0 && !isUserLoading) {
+      const lowItems = items.filter(item => {
+        const minVal = historicalMinStock[item.id] || 0;
+        return !item.hidden && minVal > 0 && (
+          (item.current !== null && item.current <= minVal) || 
+          (item.current === null && item.previous !== null && item.previous <= minVal)
+        );
+      });
+
+      if (lowItems.length > 0) {
+        const lastToastedMonth = sessionStorage.getItem('last_toasted_month');
+        if (lastToastedMonth !== monthKey) {
+          toast({
+            variant: "destructive",
+            title: "Atenção: Estoque Crítico",
+            description: `Existem ${lowItems.length} itens abaixo da margem de segurança para ${monthName}.`,
+          });
+          sessionStorage.setItem('last_toasted_month', monthKey);
+        }
+      }
+    }
+  }, [isFetchingMonth, monthKey, historicalMinStock, items.length, isUserLoading, toast, monthName]);
+
   const calculateOutgoing = (item: InventoryItem) => {
     if (item.current === null || item.current === undefined) return '';
     const total = (Number(item.previous) || 0) + (Number(item.received) || 0);
@@ -211,7 +236,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
     let updates: Record<string, any> = { [field]: value };
 
-    // Inteligência de preenchimento automático
     if (field === 'current' && value !== null) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
         updates.received = 0;
@@ -232,7 +256,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     }, { merge: true });
   };
 
-  // Verifica estoque baixo apenas ao perder o foco (finalizar digitação)
   const handleInputBlur = (id: string, field: string, value: number | null) => {
     if (field !== 'current' || value === null) return;
 
@@ -244,7 +267,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       toast({
         variant: "destructive",
         title: "Reposição Necessária!",
-        description: `A publicação "${itemData.item}" está abaixo da média de saída segura.`,
+        description: `A publicação "${itemData.item}" está abaixo da média de segurança.`,
       });
     }
   };
@@ -363,7 +386,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         <div className="flex items-start gap-1.5 px-1">
           <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-            Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
+            Os alertas de estoque baixo são persistentes e baseados na média de saída dos meses anteriores.
           </p>
         </div>
       </div>
@@ -403,7 +426,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 }
 
                 const minVal = historicalMinStock[item.id] || 0;
-                const isLowStock = !item.hidden && item.current !== null && minVal > 0 && item.current <= minVal;
+                
+                // Lógica de isLowStock estendida: verifica estoque atual OU estoque anterior (se o atual for nulo)
+                const isLowStock = !item.hidden && minVal > 0 && (
+                  (item.current !== null && item.current <= minVal) || 
+                  (item.current === null && item.previous !== null && item.previous <= minVal)
+                );
+                
                 const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
 
                 return (
@@ -442,7 +471,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                     <p className="text-[11px] font-bold uppercase leading-tight text-neutral-600 mb-3">
                                       {item.hidden 
                                         ? "O monitoramento inteligente está desativado para este item. Deseja reativar?" 
-                                        : `Esta publicação atingiu o mínimo de segurança (${minVal}). Deseja silenciar este aviso?`}
+                                        : `Esta publicação está abaixo do mínimo seguro (${minVal}). Deseja silenciar este aviso?`}
                                     </p>
                                     <Button 
                                       variant={item.hidden ? "default" : "outline"} 
