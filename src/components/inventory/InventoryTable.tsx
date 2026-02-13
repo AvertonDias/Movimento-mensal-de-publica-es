@@ -82,7 +82,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     async function calculateSmartMinStock() {
       if (!db || !activeUid) return;
       
-      // Aumentamos para 6 meses para garantir que o minStock não zere se o item ficar em falta por 3 meses
       const last6Months = [1, 2, 3, 4, 5, 6].map(i => format(subMonths(selectedMonth, i), 'yyyy-MM'));
       const itemOutgoings: Record<string, number[]> = {};
 
@@ -108,11 +107,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const smartMins: Record<string, number> = {};
       Object.entries(itemOutgoings).forEach(([id, outs]) => {
         const nonZeroOuts = outs.filter(v => v > 0);
-        // Se o item nunca teve saída em 6 meses, não sugerimos mínimo automático
         if (nonZeroOuts.length === 0) return;
         
         const avg = outs.reduce((a, b) => a + b, 0) / outs.length;
-        // O mínimo inteligente deve ser pelo menos 1 se houver histórico de uso
         smartMins[id] = Math.max(1, Math.ceil(avg * 1.2));
       });
       
@@ -577,6 +574,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))}
                             onBlur={(e) => handleInputBlur(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))}
                             onFocus={(e) => e.target.select()}
+                            onWheel={(e) => e.currentTarget.blur()}
                             className={cn(
                               "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent",
                               isLowStock && col.id === 'current' && "text-destructive"

@@ -118,7 +118,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       )}
       <Table className="border-collapse table-fixed w-[732px]">
         <TableHeader className="print:table-row-group">
-          <TableRow className="border-b border-black bg-white hover:bg-white h-[14px]">
+          <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
             <TableHead className="w-[28px] border-r border-black p-0"></TableHead>
             <TableHead className="w-[200px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-none">MÊS E ANO</TableHead>
             {lastSixMonths.map((month, idx) => (
@@ -134,7 +134,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               </TableHead>
             ))}
           </TableRow>
-          <TableRow className="border-b border-black bg-white hover:bg-white h-[14px]">
+          <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
             <TableHead className="w-[28px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-r border-black">N.º</TableHead>
             <TableHead className="w-[200px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-r border-black">Publicações</TableHead>
             
