@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -201,30 +202,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     );
   }, [items, searchTerm]);
 
-  useEffect(() => {
-    if (!isFetchingMonth && items.length > 0 && !isUserLoading) {
-      const lowItems = items.filter(item => {
-        const minVal = historicalMinStock[item.id] || 0;
-        return !item.hidden && !item.silent && minVal > 0 && (
-          (item.current !== null && item.current <= minVal) || 
-          (item.current === null && item.previous !== null && item.previous <= minVal)
-        );
-      });
-
-      if (lowItems.length > 0) {
-        const lastToastedMonth = sessionStorage.getItem('last_toasted_month');
-        if (lastToastedMonth !== monthKey) {
-          toast({
-            variant: "destructive",
-            title: "Atenção: Estoque Crítico",
-            description: `Existem ${lowItems.length} itens abaixo da margem de segurança para ${monthName}.`,
-          });
-          sessionStorage.setItem('last_toasted_month', monthKey);
-        }
-      }
-    }
-  }, [isFetchingMonth, monthKey, historicalMinStock, items.length, isUserLoading, toast, monthName]);
-
   const calculateOutgoing = (item: InventoryItem) => {
     if (item.current === null || item.current === undefined) return '';
     const total = (Number(item.previous) || 0) + (Number(item.received) || 0);
@@ -246,6 +223,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       }
       
       const minVal = historicalMinStock[id] || 0;
+      // Se o estoque for reposto (valor acima do mínimo), reativa o monitoramento caso estivesse silenciado/oculto
       if (value > minVal && (itemData.hidden || itemData.silent)) {
         const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
         setDocumentNonBlocking(inventoryDocRef, {
@@ -258,7 +236,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         
         toast({
           title: "Monitoramento Reativado",
-          description: `O item "${itemData.item}" foi reabastecido e voltará a ser monitorado automaticamente.`,
+          description: `O item "${itemData.item}" foi reabastecido e o sistema voltou a monitorá-lo.`,
         });
       }
     }
@@ -278,17 +256,20 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   };
 
   const handleInputBlur = (id: string, field: string, value: number | null) => {
-    if (field !== 'current' || value === null) return;
+    // A notificação só aparece quando sai da edição do campo 'current'
+    if (field !== 'current') return;
 
     const itemData = items.find(i => i.id === id);
     if (!itemData || itemData.hidden || itemData.silent) return;
 
     const minVal = historicalMinStock[id] || 0;
-    if (minVal > 0 && value <= minVal) {
+    const finalValue = value !== null ? value : itemData.previous;
+
+    if (minVal > 0 && finalValue !== null && finalValue <= minVal) {
       toast({
         variant: "destructive",
         title: "Reposição Necessária!",
-        description: `A publicação "${itemData.item}" está abaixo da média de segurança.`,
+        description: `A publicação "${itemData.item}" está abaixo da margem de segurança.`,
       });
     }
   };
@@ -415,7 +396,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         <div className="flex items-start gap-1.5 px-1">
           <Info className="h-3 w-3 text-muted-foreground shrink-0 mt-0.5" />
           <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider leading-tight">
-            Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
+            Os alertas de estoque baixo aparecem automaticamente quando um item precisa de reposição e persistem até que o estoque seja normalizado.
           </p>
         </div>
       </div>
@@ -455,6 +436,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 }
 
                 const minVal = historicalMinStock[item.id] || 0;
+                // Alerta visual aparece se o estoque atual for baixo OU se o mês ainda não foi preenchido e o anterior era baixo
                 const isLowStock = !item.hidden && minVal > 0 && (
                   (item.current !== null && item.current <= minVal) || 
                   (item.current === null && item.previous !== null && item.previous <= minVal)
