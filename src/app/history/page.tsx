@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useEffect } from 'react';
@@ -40,7 +39,7 @@ export default function HistoryPage(props: {
 
   return (
     <div className="min-h-screen bg-neutral-200 py-6 px-4 print:p-0 print:bg-white overflow-x-auto font-body">
-      <div className="max-w-[1300px] mx-auto space-y-4 print:space-y-0">
+      <div className="max-w-[1100px] mx-auto space-y-4 print:space-y-0">
         <div className="flex items-center justify-between print:hidden">
           <Link href="/">
             <Button variant="ghost" className="gap-2">
@@ -68,7 +67,7 @@ export default function HistoryPage(props: {
           </Button>
         </div>
 
-        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 min-w-[1130px] print:min-w-0">
+        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 min-w-[1060px] print:min-w-0 mx-auto">
           <div className="flex justify-between items-baseline border-b-2 border-black pb-1 mb-2">
             <h1 className="text-xl font-black tracking-tight uppercase font-headline">
               MOVIMENTO MENSAL DE PUBLICAÇÕES
