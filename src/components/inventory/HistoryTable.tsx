@@ -119,8 +119,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       <Table className="border-collapse table-fixed w-full min-w-[1130px] print:min-w-0">
         <TableHeader className="print:table-row-group">
           <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
-            <TableHead className="w-[20px] border-r border-black"></TableHead>
-            <TableHead className="w-[210px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-none">MÊS E ANO</TableHead>
+            <TableHead colSpan={2} className="w-[230px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-none">MÊS E ANO</TableHead>
             {lastSixMonths.map((month) => (
               <TableHead 
                 key={month.key} 
@@ -151,8 +150,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             if (item.isCategory) {
               return (
                 <TableRow key={`hist-cat-${idx}`} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-5">
-                  <TableCell className="p-0 border-r border-black"></TableCell>
-                  <TableCell colSpan={19} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black border-r border-black">
+                  <TableCell colSpan={20} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black border-r border-black">
                     {item.item}
                   </TableCell>
                 </TableRow>

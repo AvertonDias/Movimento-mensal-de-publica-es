@@ -43,6 +43,11 @@ function LoginForm() {
   }, [user, router]);
 
   const handleAuthError = (error: any) => {
+    if (error.code === 'auth/popup-closed-by-user') {
+      setIsLoading(false);
+      return;
+    }
+
     console.error(error);
     let message = "Ocorreu um erro ao tentar entrar. Verifique suas credenciais.";
     

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { UserPlus, Info, AlertTriangle, CheckCircle2, Eye, EyeOff } from "lucide-react";
+import { UserPlus, Info, AlertTriangle, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -14,6 +14,7 @@ import { initiateEmailSignUp, initiateGoogleSignIn } from "@/firebase/non-blocki
 import { doc, getDoc } from "firebase/firestore";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
 
 function RegisterForm() {
   const [name, setName] = useState('');
@@ -30,6 +31,7 @@ function RegisterForm() {
   const { user } = useUser();
   const db = useFirestore();
   const router = useRouter();
+  const { toast } = useToast();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
@@ -46,6 +48,19 @@ function RegisterForm() {
     }
     checkInvite();
   }, [token, db]);
+
+  const handleAuthError = (error: any) => {
+    if (error.code === 'auth/popup-closed-by-user') {
+      setIsProcessing(false);
+      return;
+    }
+    console.error(error);
+    toast({
+      variant: "destructive",
+      title: "Erro no Cadastro",
+      description: error.message || "Ocorreu um erro ao processar sua conta.",
+    });
+  };
 
   const processInviteAssignment = async (currentUser: any) => {
     if (!db || !currentUser) return;
@@ -98,30 +113,44 @@ function RegisterForm() {
     }
   }, [user, router, db, inviteOwner, confirmReplace]);
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (inviteOwner && !confirmReplace) {
-      alert("Você precisa confirmar que está ciente da substituição dos dados.");
+      toast({ variant: "destructive", description: "Você precisa confirmar que está ciente da substituição dos dados." });
       return;
     }
     if (password !== confirmPassword) {
-      alert("As senhas não coincidem!");
+      toast({ variant: "destructive", description: "As senhas não coincidem!" });
       return;
     }
-    initiateEmailSignUp(auth, email, password, name);
+    setIsProcessing(true);
+    try {
+      await initiateEmailSignUp(auth, email, password, name);
+    } catch (error) {
+      handleAuthError(error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const handleGoogleRegister = () => {
+  const handleGoogleRegister = async () => {
     if (inviteOwner && !confirmReplace) {
-      alert("Você precisa confirmar que está ciente da substituição dos dados.");
+      toast({ variant: "destructive", description: "Você precisa confirmar que está ciente da substituição dos dados." });
       return;
     }
-    initiateGoogleSignIn(auth);
+    setIsProcessing(true);
+    try {
+      await initiateGoogleSignIn(auth);
+    } catch (error) {
+      handleAuthError(error);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleDirectLink = () => {
     if (!confirmReplace) {
-      alert("Você precisa confirmar que está ciente da substituição dos dados.");
+      toast({ variant: "destructive", description: "Você precisa confirmar que está ciente da substituição dos dados." });
       return;
     }
     processInviteAssignment(user);
@@ -177,6 +206,7 @@ function RegisterForm() {
             disabled={!confirmReplace || isProcessing}
             className="w-full font-bold uppercase tracking-wider h-12 shadow-lg"
           >
+            {isProcessing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : null}
             {isProcessing ? "Vinculando..." : "Confirmar e Vincular Agora"}
           </Button>
         </CardContent>
@@ -238,6 +268,7 @@ function RegisterForm() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required 
+              disabled={isProcessing}
             />
           </div>
           <div className="space-y-2">
@@ -249,6 +280,7 @@ function RegisterForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required 
+              disabled={isProcessing}
             />
           </div>
           <div className="space-y-2">
@@ -260,6 +292,7 @@ function RegisterForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required 
+                disabled={isProcessing}
               />
               <button
                 type="button"
@@ -279,6 +312,7 @@ function RegisterForm() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required 
+                disabled={isProcessing}
               />
               <button
                 type="button"
@@ -292,9 +326,10 @@ function RegisterForm() {
           <Button 
             type="submit" 
             className="w-full font-bold uppercase tracking-wider"
-            disabled={inviteOwner && !confirmReplace}
+            disabled={(inviteOwner && !confirmReplace) || isProcessing}
           >
-            <UserPlus className="mr-2 h-4 w-4" /> Finalizar Cadastro
+            {isProcessing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <UserPlus className="mr-2 h-4 w-4" />}
+            {isProcessing ? "Processando..." : "Finalizar Cadastro"}
           </Button>
         </form>
 
@@ -311,14 +346,16 @@ function RegisterForm() {
           variant="outline" 
           className="w-full font-bold uppercase tracking-wider gap-2 h-11" 
           onClick={handleGoogleRegister}
-          disabled={inviteOwner && !confirmReplace}
+          disabled={(inviteOwner && !confirmReplace) || isProcessing}
         >
-          <svg className="h-4 w-4" viewBox="0 0 24 24">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.26.81-.58z" fill="#FBBC05" />
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-          </svg>
+          {isProcessing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : (
+            <svg className="h-4 w-4" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.26.81-.58z" fill="#FBBC05" />
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+            </svg>
+          )}
           Google
         </Button>
       </CardContent>
