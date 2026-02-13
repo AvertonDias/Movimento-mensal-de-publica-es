@@ -1,7 +1,13 @@
-
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { ClientLayout } from '@/components/ClientLayout';
+import { PT_Sans } from 'next/font/google';
+
+const ptSans = PT_Sans({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-pt-sans',
+});
 
 export const metadata: Metadata = {
   title: 'S-28 Digital: Gestão inteligente de publicações',
@@ -32,12 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="pt-BR" className={`${ptSans.variable}`}>
       <body className="font-body antialiased bg-background text-foreground">
         <ClientLayout>
           {children}

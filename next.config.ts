@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  // Ativa o modo standalone para melhorar a estabilidade do build em ambientes de CI/CD
+  output: 'standalone',
   images: {
     remotePatterns: [
       {
