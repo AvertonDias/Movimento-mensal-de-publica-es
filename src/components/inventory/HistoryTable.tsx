@@ -156,7 +156,8 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             if (item.isCategory) {
               return (
                 <TableRow key={`hist-cat-${idx}`} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-5">
-                  <TableCell colSpan={20} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black border-r-0">
+                  <TableCell className="w-[20px] p-0 border-r border-black" />
+                  <TableCell colSpan={19} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black border-r-0">
                     {item.item}
                   </TableCell>
                 </TableRow>
