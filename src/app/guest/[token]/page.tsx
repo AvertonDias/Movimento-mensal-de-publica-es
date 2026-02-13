@@ -77,7 +77,7 @@ export default function GuestHistoryPage(props: {
 
   return (
     <div className="min-h-screen bg-neutral-200 py-6 px-4 print:p-0 print:bg-white overflow-x-auto font-body">
-      <div className="max-w-[1100px] mx-auto space-y-4 print:space-y-0">
+      <div className="max-w-[800px] mx-auto space-y-4 print:space-y-0">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white/50 backdrop-blur-md p-4 rounded-xl border border-white/20 print:hidden">
           <div className="flex items-center gap-3">
             <div className="bg-primary p-2 rounded-lg">
@@ -97,14 +97,14 @@ export default function GuestHistoryPage(props: {
           </Button>
         </div>
 
-        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 min-w-[1060px] print:min-w-0 mx-auto">
+        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 min-w-[750px] print:min-w-0 mx-auto">
           <div className="flex justify-between items-baseline border-b-2 border-black pb-1 mb-2">
-            <h1 className="text-xl font-black tracking-tight uppercase font-headline">
+            <h1 className="text-lg font-black tracking-tight uppercase font-headline">
               MOVIMENTO MENSAL DE PUBLICAÇÕES
             </h1>
             <div className="flex items-center gap-4">
-              <span className="text-xs font-bold uppercase">IDIOMA:</span>
-              <div className="border-b border-black w-48 h-5 flex items-end px-2 font-bold text-xs">Português</div>
+              <span className="text-[10px] font-bold uppercase">IDIOMA:</span>
+              <div className="border-b border-black w-32 h-5 flex items-end px-2 font-bold text-[10px]">Português</div>
             </div>
           </div>
 
