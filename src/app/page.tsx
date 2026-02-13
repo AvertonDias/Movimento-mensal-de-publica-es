@@ -1,8 +1,9 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { History, LogOut, User as UserIcon, ShieldCheck, Users, Info, BarChart3 } from "lucide-react";
+import { History, LogOut, User as UserIcon, ShieldCheck, Users, Info, BarChart3, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -188,6 +189,11 @@ export default function Home() {
                     <BarChart3 className="mr-2 h-4 w-4" /> Estatísticas
                   </DropdownMenuItem>
                 </Link>
+                <Link href="/s60">
+                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                    <Trash2 className="mr-2 h-4 w-4" /> Lista de Descartes (S-60)
+                  </DropdownMenuItem>
+                </Link>
                 {!isHelper && (
                   <Link href="/helpers">
                     <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
@@ -244,7 +250,7 @@ export default function Home() {
                     <strong>1.</strong> Todas as congregações coordenadoras de idioma devem fazer a contagem real das publicações todo mês. Se a sua congregação envia todo mês um relatório do inventário de publicações pelo JW Hub, você não precisa usar este formulário.
                   </p>
                   <p>
-                    <strong>2.</strong> Antes de fazer a contagem, recapitule a <em>Lista de Publicações a Serem Descartadas (S-60)</em> e siga as instruções sobre jogar fora os itens que aparecem na lista.
+                    <strong>2.</strong> Antes de fazer a contagem, recapitule a <Link href="/s60" className="text-primary font-bold hover:underline"><em>Lista de Publicações a Serem Descartadas (S-60)</em></Link> e siga as instruções sobre jogar fora os itens que aparecem na lista.
                   </p>
                   <p>
                     <strong>3.</strong> Se a sua congregação não puder enviar todo mês um relatório do inventário de publicações pelo JW Hub, certifique-se de que as informações a seguir sejam preenchidas abaixo para cada mês:
@@ -263,6 +269,8 @@ export default function Home() {
                 </div>
               </DialogContent>
             </Dialog>
+
+            <Link href="/s60" className="hover:text-destructive transition-colors">Lista S-60</Link>
 
             <a href="https://wa.me/5535991210466?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20aplicativo%20S-28%20Digital." target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Suporte</a>
           </div>
