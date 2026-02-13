@@ -30,7 +30,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
 
   const lastSixMonths = useMemo(() => {
     const months = [];
-    const baseDate = new Date(); // Mostra até o mês atual
+    const baseDate = new Date(); // Inclui o mês atual
     for (let i = 5; i >= 0; i--) {
       const date = subMonths(baseDate, i);
       months.push({
@@ -118,7 +118,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       )}
       <Table className="border-collapse table-fixed w-[732px]">
         <TableHeader className="print:table-row-group">
-          <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
+          <TableRow className="border-b border-black bg-white hover:bg-white h-[14px]">
             <TableHead className="w-[28px] border-r border-black p-0"></TableHead>
             <TableHead className="w-[200px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-none">MÊS E ANO</TableHead>
             {lastSixMonths.map((month, idx) => (
@@ -134,18 +134,18 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               </TableHead>
             ))}
           </TableRow>
-          <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
+          <TableRow className="border-b border-black bg-white hover:bg-white h-[14px]">
             <TableHead className="w-[28px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-r border-black">N.º</TableHead>
             <TableHead className="w-[200px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-r border-black">Publicações</TableHead>
             
             {lastSixMonths.map((m, idx) => (
               <React.Fragment key={m.key}>
-                <TableHead className="w-[28px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Rec.</TableHead>
-                <TableHead className="w-[28px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Est.</TableHead>
+                <TableHead className="w-[28px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Recebido</TableHead>
+                <TableHead className="w-[28px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Estoque</TableHead>
                 <TableHead className={cn(
                   "w-[28px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-none",
                   idx === 5 ? "" : "border-r border-black"
-                )}>Saí.</TableHead>
+                )}>Saída</TableHead>
               </React.Fragment>
             ))}
           </TableRow>
