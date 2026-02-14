@@ -424,10 +424,21 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               {filteredItems.map((item, idx) => {
                 if (item.isCategory) {
                   const uniqueCatKey = `cat-${item.category}-${idx}`;
+                  const parts = item.item.split('(');
+                  const mainTitle = parts[0].trim();
+                  const extraInfo = parts[1] ? `(${parts[1]}` : '';
+
                   return (
                     <TableRow key={uniqueCatKey} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
                       <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
-                        {item.item}
+                        <div className="flex items-center gap-2">
+                          <span>{mainTitle}</span>
+                          {extraInfo && (
+                            <span className="text-[9px] font-bold text-muted-foreground/70 normal-case tracking-normal italic">
+                              {extraInfo}
+                            </span>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   );

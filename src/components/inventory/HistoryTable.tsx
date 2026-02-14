@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useMemo, useEffect, useState } from 'react';
@@ -30,8 +31,6 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
 
   const lastSixMonths = useMemo(() => {
     const months = [];
-    // A página principal mostra por padrão o mês passado (fechamento).
-    // Então o histórico deve terminar no mês passado para refletir os dados consolidados.
     const baseDate = startOfMonth(subMonths(new Date(), 1)); 
     for (let i = 5; i >= 0; i--) {
       const date = subMonths(baseDate, i);
@@ -157,11 +156,22 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             const itemId = item.id;
             
             if (item.isCategory) {
+              const parts = item.item.split('(');
+              const mainTitle = parts[0].trim();
+              const extraInfo = parts[1] ? `(${parts[1]}` : '';
+
               return (
                 <TableRow key={`hist-cat-${idx}`} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-5">
                   <TableCell className="p-0 border-r border-black"></TableCell>
-                  <TableCell colSpan={19} className="text-[9px] font-black uppercase px-1 py-0 tracking-tight text-black border-r-0">
-                    {item.item}
+                  <TableCell colSpan={19} className="px-1 py-0 border-r-0">
+                    <div className="flex items-baseline gap-1.5 overflow-hidden">
+                      <span className="text-[9px] font-black uppercase tracking-tight text-black shrink-0">{mainTitle}</span>
+                      {extraInfo && (
+                        <span className="text-[7px] font-bold text-neutral-500 italic normal-case truncate">
+                          {extraInfo}
+                        </span>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               );
