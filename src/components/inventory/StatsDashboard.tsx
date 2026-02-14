@@ -20,6 +20,9 @@ import { collection, getDocs } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Loader2, TrendingUp, Package, MoveUpRight, AlertOctagon, Activity } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import Image from "next/image";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 interface StatsDashboardProps {
   targetUserId?: string;
@@ -72,7 +75,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
         let latestMonthWithData = null;
         const allMonthsRecords: Record<string, any[]> = {};
         const itemHistory: Record<string, number[]> = {};
-        const itemUsage: Record<string, { name: string; outgoing: number; category: string }> = {};
+        const itemUsage: Record<string, { name: string; outgoing: number; category: string; imageKey?: string }> = {};
 
         // Busca dados de todos os 6 meses para análise de tendências e médias
         for (const month of lastSixMonths) {
@@ -97,7 +100,14 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
             itemHistory[docSnap.id].push(outgoing);
 
             const itemName = data.item || 'Desconhecido';
-            if (!itemUsage[itemName]) itemUsage[itemName] = { name: itemName, outgoing: 0, category: data.category || 'Outros' };
+            if (!itemUsage[itemName]) {
+              itemUsage[itemName] = { 
+                name: itemName, 
+                outgoing: 0, 
+                category: data.category || 'Outros',
+                imageKey: data.imageKey 
+              };
+            }
             itemUsage[itemName].outgoing += outgoing;
           });
 
@@ -317,13 +327,36 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           {stats.topItems.map((item, idx) => {
             const maxVal = stats.topItems[0]?.outgoing || 1;
             const percentage = (item.outgoing / maxVal) * 100;
+            const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
             
             return (
               <div key={idx} className="space-y-1.5">
                 <div className="flex justify-between text-[10px] font-black uppercase">
                   <div className="flex items-center gap-2">
                     <span className="text-neutral-400 w-4">#{idx + 1}</span>
-                    <span className="truncate max-w-[200px] md:max-w-md">{item.name}</span>
+                    {imagePlaceholder ? (
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <span className="truncate max-w-[200px] md:max-w-md cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors">
+                            {item.name}
+                          </span>
+                        </PopoverTrigger>
+                        <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg w-[180px]">
+                          <div className="relative aspect-[2/3] bg-neutral-50 p-2">
+                            <Image 
+                              src={imagePlaceholder.imageUrl} 
+                              alt={imagePlaceholder.description} 
+                              fill 
+                              sizes="180px" 
+                              className="object-contain" 
+                              unoptimized 
+                            />
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    ) : (
+                      <span className="truncate max-w-[200px] md:max-w-md">{item.name}</span>
+                    )}
                     <span className="text-[8px] bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-500">
                       {item.category.split('(')[0].trim()}
                     </span>
