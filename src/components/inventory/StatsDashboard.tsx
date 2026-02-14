@@ -19,7 +19,7 @@ import { useFirestore, useUser } from '@/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import { format, subMonths } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { Loader2, TrendingUp, Package, MoveUpRight, Layers, AlertOctagon, Activity } from 'lucide-react';
+import { Loader2, TrendingUp, Package, MoveUpRight, AlertOctagon, Activity } from 'lucide-react';
 
 interface StatsDashboardProps {
   targetUserId?: string;
@@ -184,7 +184,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
 
   return (
     <div className="space-y-10">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <div className="bg-white p-4 rounded-xl border border-neutral-100 shadow-sm flex items-center gap-4">
           <div className="bg-primary/10 p-3 rounded-lg">
             <Package className="h-5 w-5 text-primary" />
@@ -222,16 +222,6 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           <div>
             <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Média Mensal</p>
             <p className="text-lg font-black">{stats.totals.avgOutgoing}</p>
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-xl border border-neutral-100 shadow-sm flex items-center gap-4">
-          <div className="bg-primary/5 p-3 rounded-lg">
-            <Layers className="h-5 w-5 text-primary" />
-          </div>
-          <div>
-            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-wider">Categorias</p>
-            <p className="text-lg font-black">{stats.categoryDistribution.length}</p>
           </div>
         </div>
 
@@ -278,7 +268,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
 
         <div className="space-y-4">
           <h3 className="text-xs font-black uppercase text-neutral-500 tracking-widest pl-2 flex items-center gap-2">
-            <Package className="h-3.5 w-3.5" /> Distribuição por Categoria
+            <Package className="h-3.5 w-3.5" /> Distribuição do Estoque Atual por Categoria
           </h3>
           <div className="h-[300px] w-full bg-white p-4 rounded-xl border border-neutral-100 shadow-sm">
             {stats.categoryDistribution.length > 0 ? (
