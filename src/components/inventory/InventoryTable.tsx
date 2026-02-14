@@ -152,7 +152,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       
       const previousValue = local.previous !== undefined ? local.previous : (remote?.previous !== undefined && remote?.previous !== null ? remote.previous : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : null));
       
-      // Lógica de valor atual: local > remoto > anterior (herança) > padrão 0
       const currentVal = local.current !== undefined 
         ? local.current 
         : (remote?.current !== undefined && remote?.current !== null 
