@@ -322,7 +322,9 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
                   <div className="flex items-center gap-2">
                     <span className="text-neutral-400 w-4">#{idx + 1}</span>
                     <span className="truncate max-w-[200px] md:max-w-md">{item.name}</span>
-                    <span className="text-[8px] bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-500">{item.category}</span>
+                    <span className="text-[8px] bg-neutral-100 px-1.5 py-0.5 rounded text-neutral-500">
+                      {item.category.split('(')[0].trim()}
+                    </span>
                   </div>
                   <span className="text-primary shrink-0">{item.outgoing} un.</span>
                 </div>
