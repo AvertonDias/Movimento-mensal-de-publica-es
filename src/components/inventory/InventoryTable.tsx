@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -60,8 +59,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
-  const [isAddDialogOpen] = useState(false);
-  const [activeCategory] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
@@ -155,12 +152,19 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       
       const previousValue = local.previous !== undefined ? local.previous : (remote?.previous !== undefined && remote?.previous !== null ? remote.previous : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : null));
       
+      // Lógica de valor atual: local > remoto > anterior (herança) > padrão 0
+      const currentVal = local.current !== undefined 
+        ? local.current 
+        : (remote?.current !== undefined && remote?.current !== null 
+            ? remote.current 
+            : 0);
+
       combined.push({
         ...pub,
         id,
         previous: previousValue,
         received: local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null),
-        current: local.current !== undefined ? local.current : (remote?.current !== undefined ? remote?.current : null),
+        current: currentVal,
         minStock: historicalMinStock[id] || 0,
         hidden: customDef?.hidden || false,
         silent: customDef?.silent || false,
@@ -178,11 +182,17 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           
           const prevCustomValue = localCustom.previous !== undefined ? localCustom.previous : (remoteCustom?.previous !== undefined && remoteCustom?.previous !== null ? remoteCustom.previous : (prevRemoteCustom?.current !== undefined && prevRemoteCustom?.current !== null ? prevRemoteCustom.current : null));
           
+          const currentCustomVal = localCustom.current !== undefined 
+            ? localCustom.current 
+            : (remoteCustom?.current !== undefined && remoteCustom?.current !== null 
+                ? remoteCustom.current 
+                : 0);
+
           combined.push({
             ...cd,
             previous: prevCustomValue,
             received: localCustom.received !== undefined ? localCustom.received : (remoteCustom?.received !== undefined ? remoteCustom?.received : null),
-            current: localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined ? remoteCustom?.current : null),
+            current: currentCustomVal,
             minStock: historicalMinStock[cd.id] || 0,
             hidden: cd.hidden || false,
             silent: cd.silent || false,
@@ -583,10 +593,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
       
-      {(activeCategory && activeUid === user?.uid) && (
-        <AddCustomItemDialog isOpen={isAddDialogOpen} onClose={() => {}} category={activeCategory} />
-      )}
-
       {editingItem && activeUid === user?.uid && (
         <EditCustomItemDialog item={editingItem} onClose={() => setEditingItem(null)} />
       )}
