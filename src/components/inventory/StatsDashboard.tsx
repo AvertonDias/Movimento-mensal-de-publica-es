@@ -125,7 +125,9 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           totalReceived += rec.rec;
           totalOutgoingLastMonth += rec.outgoing;
           
-          const cat = rec.category || 'Outros';
+          // Simplifica o nome da categoria removendo o texto entre parênteses
+          const rawCat = rec.category || 'Outros';
+          const cat = rawCat.split('(')[0].trim();
           categoryMap[cat] = (categoryMap[cat] || 0) + rec.curr;
 
           // Lógica de item crítico (estoque atual <= margem de segurança baseada na média)
