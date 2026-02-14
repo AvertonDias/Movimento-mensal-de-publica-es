@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { History, LogOut, User as UserIcon, ShieldCheck, Users, Info, BarChart3, Trash2 } from "lucide-react";
+import { History, LogOut, User as UserIcon, ShieldCheck, Users, Info, BarChart3, Trash2, FileText } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -143,6 +143,12 @@ export default function Home() {
                   FOLHA S-28-T
                 </Button>
               </Link>
+              <Link href="/inventory-report">
+                <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
+                  <FileText className="h-4 w-4" />
+                  Relatório
+                </Button>
+              </Link>
               <Link href="/stats">
                 <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
                   <BarChart3 className="h-4 w-4" />
@@ -181,6 +187,11 @@ export default function Home() {
                 <Link href="/history">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                     <History className="mr-2 h-4 w-4" /> FOLHA S-28-T
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/inventory-report">
+                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                    <FileText className="mr-2 h-4 w-4" /> Relatório de Inventário
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/stats">
