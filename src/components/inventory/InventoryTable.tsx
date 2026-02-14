@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -429,11 +430,11 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
                   return (
                     <TableRow key={uniqueCatKey} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
-                      <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[11px] uppercase text-neutral-600 tracking-widest">
+                      <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[13px] uppercase text-neutral-600 tracking-widest">
                         <div className="flex items-center gap-2">
                           <span>{mainTitle}</span>
                           {extraInfo && (
-                            <span className="text-[11px] font-bold text-muted-foreground/70 normal-case tracking-normal italic">
+                            <span className="text-[13px] font-bold text-muted-foreground/70 normal-case tracking-normal italic">
                               {extraInfo}
                             </span>
                           )}

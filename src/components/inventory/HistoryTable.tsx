@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useMemo, useEffect, useState } from 'react';
@@ -164,9 +165,9 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
                   <TableCell className="p-0 border-r border-black"></TableCell>
                   <TableCell colSpan={19} className="px-1 py-0 border-r-0">
                     <div className="flex items-baseline gap-1.5 overflow-hidden">
-                      <span className="text-[9px] font-black uppercase tracking-tight text-black shrink-0">{mainTitle}</span>
+                      <span className="text-[11px] font-black uppercase tracking-tight text-black shrink-0">{mainTitle}</span>
                       {extraInfo && (
-                        <span className="text-[9px] font-bold text-neutral-500 italic normal-case truncate">
+                        <span className="text-[11px] font-bold text-neutral-500 italic normal-case truncate">
                           {extraInfo}
                         </span>
                       )}
