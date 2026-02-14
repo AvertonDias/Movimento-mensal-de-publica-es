@@ -44,7 +44,16 @@ O S-28 Digital é uma ferramenta avançada para gestão de inventário de public
 - **Top 10 Mais Distribuídos**: Lista dos itens com maior rotatividade, incluindo visualização de capas.
 - **Insights com Genkit (IA)**: Análise de tendências e dicas de gestão baseadas nos dados reais.
 
-## 5. Tecnologias Utilizadas
+## 5. Publicação e Deploy (Vercel)
+
+Para que as mudanças feitas no Firebase Studio apareçam no link oficial, siga este fluxo no terminal:
+
+1. **Adicionar mudanças**: `git add .`
+2. **Criar commit**: `git commit -m "Descreva suas melhorias aqui"`
+3. **Enviar para o GitHub**: `git push origin main` (ou use `--force` se necessário).
+4. **Verificar Vercel**: Acesse o painel da Vercel para garantir que o "Building" foi concluído com sucesso.
+
+## 6. Tecnologias Utilizadas
 - **Core**: Next.js 15, React 19, TypeScript.
 - **Backend**: Firebase (Auth e Firestore).
 - **IA**: Genkit com Gemini 2.5 Flash.
