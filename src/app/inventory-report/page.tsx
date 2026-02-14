@@ -20,6 +20,9 @@ import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { OFFICIAL_PUBLICATIONS, InventoryItem } from "@/app/types/inventory";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import Image from "next/image";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export default function InventoryReportPage() {
   const { user, isUserLoading } = useUser();
@@ -170,29 +173,55 @@ export default function InventoryReportPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredItems.map((item) => (
-                    <TableRow key={item.id} className="hover:bg-transparent border-b">
-                      <TableCell className="text-center font-bold text-xs text-neutral-400 border-r">{item.code || '---'}</TableCell>
-                      <TableCell className="border-r">
-                        <div className="flex justify-between items-center">
-                          <span className="font-bold text-sm uppercase">{item.item}</span>
-                          {item.abbr && <span className="text-[9px] font-black bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded">{item.abbr}</span>}
-                        </div>
-                      </TableCell>
-                      <TableCell className={cn(
-                        "text-center font-black text-sm border-r bg-primary/5",
-                        (item.previous || 0) === 0 && "text-neutral-300 font-normal"
-                      )}>
-                        {item.previous}
-                      </TableCell>
-                      <TableCell className={cn(
-                        "text-center font-black text-sm bg-accent/5",
-                        (item.current || 0) === 0 && "text-destructive"
-                      )}>
-                        {item.current}
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {filteredItems.map((item) => {
+                    const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
+                    
+                    return (
+                      <TableRow key={item.id} className="hover:bg-transparent border-b">
+                        <TableCell className="text-center font-bold text-xs text-neutral-400 border-r">{item.code || '---'}</TableCell>
+                        <TableCell className="border-r">
+                          <div className="flex justify-between items-center">
+                            {imagePlaceholder ? (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <span className="font-bold text-sm uppercase cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors">
+                                    {item.item}
+                                  </span>
+                                </PopoverTrigger>
+                                <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg w-[180px]">
+                                  <div className="relative aspect-[2/3] bg-neutral-50 p-2">
+                                    <Image 
+                                      src={imagePlaceholder.imageUrl} 
+                                      alt={imagePlaceholder.description} 
+                                      fill 
+                                      sizes="180px" 
+                                      className="object-contain" 
+                                      unoptimized 
+                                    />
+                                  </div>
+                                </PopoverContent>
+                              </Popover>
+                            ) : (
+                              <span className="font-bold text-sm uppercase">{item.item}</span>
+                            )}
+                            {item.abbr && <span className="text-[9px] font-black bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded">{item.abbr}</span>}
+                          </div>
+                        </TableCell>
+                        <TableCell className={cn(
+                          "text-center font-black text-sm border-r bg-primary/5",
+                          (item.previous || 0) === 0 && "text-neutral-300 font-normal"
+                        )}>
+                          {item.previous}
+                        </TableCell>
+                        <TableCell className={cn(
+                          "text-center font-black text-sm bg-accent/5",
+                          (item.current || 0) === 0 && "text-destructive"
+                        )}>
+                          {item.current}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}
@@ -202,7 +231,7 @@ export default function InventoryReportPage() {
         <div className="flex items-center gap-2 p-4 bg-primary/5 rounded-xl border border-primary/10 print:hidden">
           <Info className="h-4 w-4 text-primary shrink-0" />
           <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
-            Este relatório oculta automaticamente publicações que não possuem estoque inicial nem final no período selecionado.
+            Este relatório oculta automaticamente publicações que não possuem estoque inicial nem final no período selecionado. Clique no nome da publicação para ver a capa.
           </p>
         </div>
       </div>
