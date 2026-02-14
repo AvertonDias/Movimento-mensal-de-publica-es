@@ -17,7 +17,7 @@ import {
 } from 'recharts';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { format, subMonths } from 'date-fns';
+import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Loader2, TrendingUp, Package, MoveUpRight, AlertOctagon, Activity } from 'lucide-react';
 
@@ -51,7 +51,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
 
   const lastSixMonths = useMemo(() => {
     const months = [];
-    const baseDate = new Date();
+    const baseDate = startOfMonth(subMonths(new Date(), 1)); // Inicia do mês anterior
     for (let i = 5; i >= 0; i--) {
       const date = subMonths(baseDate, i);
       months.push({
