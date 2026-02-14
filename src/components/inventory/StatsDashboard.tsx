@@ -23,6 +23,7 @@ import { Loader2, TrendingUp, Package, MoveUpRight, AlertOctagon, Activity } fro
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { OFFICIAL_PUBLICATIONS } from "@/app/lib/publications";
 
 interface StatsDashboardProps {
   targetUserId?: string;
@@ -101,11 +102,14 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
 
             const itemName = data.item || 'Desconhecido';
             if (!itemUsage[itemName]) {
+              // Busca fallback da imagem na lista oficial caso o registro antigo não tenha
+              const official = OFFICIAL_PUBLICATIONS.find(p => p.item === itemName);
+              
               itemUsage[itemName] = { 
                 name: itemName, 
                 outgoing: 0, 
                 category: data.category || 'Outros',
-                imageKey: data.imageKey 
+                imageKey: data.imageKey || official?.imageKey
               };
             }
             itemUsage[itemName].outgoing += outgoing;
