@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -60,8 +59,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
-  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [isAddDialogOpen] = useState(false);
+  const [activeCategory] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
@@ -434,7 +433,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         <div className="flex items-center gap-2">
                           <span>{mainTitle}</span>
                           {extraInfo && (
-                            <span className="text-[9px] font-bold text-muted-foreground/70 normal-case tracking-normal italic">
+                            <span className="text-[11px] font-bold text-muted-foreground/70 normal-case tracking-normal italic">
                               {extraInfo}
                             </span>
                           )}
@@ -583,8 +582,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
       
-      {activeCategory && activeUid === user?.uid && (
-        <AddCustomItemDialog isOpen={isAddDialogOpen} onClose={() => setIsAddDialogOpen(false)} category={activeCategory} />
+      {(activeCategory && activeUid === user?.uid) && (
+        <AddCustomItemDialog isOpen={isAddDialogOpen} onClose={() => {}} category={activeCategory} />
       )}
 
       {editingItem && activeUid === user?.uid && (
