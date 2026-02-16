@@ -59,7 +59,7 @@ export function Header() {
 
   if (isUserLoading || !user || user.isAnonymous) return null;
 
-  // Lista centralizada de itens de navegação com seus breakpoints
+  // Lista centralizada de itens de navegação com seus breakpoints de visibilidade
   const navItems = [
     { href: "/", label: "Painel Principal", icon: LayoutGrid, minWidth: "lg" },
     { href: "/inventory-report", label: "Relatório de Inventário", icon: FileText, minWidth: "lg" },
@@ -94,11 +94,12 @@ export function Header() {
         </Link>
         
         <div className="flex items-center gap-2 md:gap-4">
-          {/* Navegação Progressiva Horizontal */}
+          {/* Navegação Horizontal Progressiva */}
           <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2">
             {navItems.map((item) => {
               if (item.hideIfHelper && isHelper) return null;
               
+              // Define as classes de visibilidade baseadas no breakpoint
               const visibilityClass = item.minWidth === 'xl' ? 'hidden xl:flex' : 
                                      item.minWidth === '2xl' ? 'hidden 2xl:flex' : 'flex';
 
@@ -140,13 +141,13 @@ export function Header() {
                 {navItems.map((item) => {
                   if (item.hideIfHelper && isHelper) return null;
                   
-                  // Oculta no dropdown se já estiver visível na barra horizontal baseado no breakpoint
-                  const hiddenClass = item.minWidth === 'lg' ? 'lg:hidden' : 
-                                     item.minWidth === 'xl' ? 'xl:hidden' : 
-                                     item.minWidth === '2xl' ? '2xl:hidden' : '';
+                  // Oculta no dropdown os itens que JÁ ESTÃO VISÍVEIS na barra horizontal
+                  const hiddenInDropdownClass = item.minWidth === 'lg' ? 'lg:hidden' : 
+                                               item.minWidth === 'xl' ? 'xl:hidden' : 
+                                               item.minWidth === '2xl' ? '2xl:hidden' : '';
 
                   return (
-                    <Link key={item.href} href={item.href} className={hiddenClass}>
+                    <Link key={item.href} href={item.href} className={hiddenInDropdownClass}>
                       <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                         <item.icon className="mr-2 h-4 w-4" /> {item.label}
                       </DropdownMenuItem>

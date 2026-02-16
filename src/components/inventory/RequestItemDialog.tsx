@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { useFirestore, useUser, setDocumentNonBlocking, useCollection, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
 import { doc, collection } from 'firebase/firestore';
 import { InventoryItem, ItemRequest } from '@/app/types/inventory';
-import { PackageSearch, CheckCircle2, Truck, PlusCircle, Hash, StickyNote, Trash2, History, CalendarDays, X, ShieldCheck } from 'lucide-react';
+import { PackageSearch, CheckCircle2, Truck, PlusCircle, Hash, StickyNote, Trash2, History, CalendarDays, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
@@ -177,6 +177,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
         <ScrollArea className="flex-1">
           <div className="p-6 space-y-8">
+            {/* 1. Pedidos Pendentes */}
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2 px-1">
                 <Truck className="h-3 w-3" /> Pedidos Pendentes ({pendingRequests.length})
@@ -258,6 +259,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
             <Separator className="bg-neutral-100" />
 
+            {/* 2. Novo Pedido */}
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary px-1">Novo Pedido</p>
               <div className="bg-white p-5 rounded-2xl border border-neutral-100 shadow-sm space-y-4">
@@ -287,10 +289,12 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
               </div>
             </div>
 
+            {/* 3. Histórico de Itens Recebidos (Embaixo de tudo) */}
             {receivedRequests.length > 0 && (
               <div className="space-y-3 pb-4">
+                <Separator className="bg-neutral-100 mb-6" />
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 px-1 flex items-center gap-2">
-                  <History className="h-3 w-3" /> Histórico Recente
+                  <History className="h-3 w-3" /> Histórico de Itens Recebidos
                 </p>
                 <div className="bg-neutral-50 rounded-xl overflow-hidden border border-neutral-100">
                   {receivedRequests.map((req, idx) => (
@@ -300,7 +304,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                         <div className="flex flex-col">
                           <span className="text-[11px] font-black">{req.quantity} un.</span>
                           <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-tighter">
-                            {format(new Date(req.receivedAt || req.createdAt), "dd/MM/yyyy", { locale: ptBR })}
+                            Recebido em {format(new Date(req.receivedAt || req.createdAt), "dd/MM/yyyy", { locale: ptBR })}
                           </span>
                         </div>
                       </div>
