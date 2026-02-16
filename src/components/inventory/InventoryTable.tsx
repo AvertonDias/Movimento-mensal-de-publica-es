@@ -571,7 +571,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                   size="icon" 
                                   className={cn(
                                     "h-6 w-6 hover:bg-neutral-100",
-                                    item.lastRequestStatus === 'pending' ? "text-amber-500" : "text-muted-foreground/50"
+                                    item.lastRequestStatus === 'pending' ? "text-primary" : "text-muted-foreground/50"
                                   )} 
                                   onClick={() => setRequestingItem(item)}
                                 >
