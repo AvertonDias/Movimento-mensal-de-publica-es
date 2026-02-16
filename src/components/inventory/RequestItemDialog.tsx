@@ -240,7 +240,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                     </Label>
                     <Input 
                       id="req-notes"
-                      placeholder="Ex: Via JW Hub, Urgente..."
+                      placeholder="Ex: Campanha especial, Pedido para o irmão..."
                       value={requestNotes}
                       onChange={(e) => setRequestNotes(e.target.value)}
                       className="font-bold h-11 text-xs"
