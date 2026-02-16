@@ -5,8 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFirestore, useUser, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking, useDoc } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { ChevronLeft, Copy, Plus, Trash2, Users, LinkIcon, CheckCircle2 } from "lucide-react";
-import Link from "next/link";
+import { Copy, Plus, Trash2, Users, LinkIcon, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useRouter } from 'next/navigation';
@@ -82,12 +81,7 @@ export default function HelpersPage() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body">
       <div className="max-w-3xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <Link href="/">
-            <Button variant="ghost" className="gap-2">
-              <ChevronLeft className="h-4 w-4" /> Voltar
-            </Button>
-          </Link>
+        <div className="flex items-center justify-end">
           <div className="flex items-center gap-2">
             <Users className="h-5 w-5 text-primary" />
             <h1 className="text-xl font-black uppercase tracking-tight font-headline">Ajudantes</h1>

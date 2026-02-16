@@ -1,10 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ChevronLeft, LayoutGrid, Image as ImageIcon, Info, Calendar } from "lucide-react";
-import Link from "next/link";
+import { LayoutGrid, Image as ImageIcon, Info, Calendar } from "lucide-react";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 
@@ -51,12 +49,7 @@ export default function MagazineDisplayPage() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body">
       <div className="max-w-5xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
-          <Link href="/">
-            <Button variant="ghost" className="gap-2 font-bold uppercase text-xs">
-              <ChevronLeft className="h-4 w-4" /> Voltar
-            </Button>
-          </Link>
+        <div className="flex items-center justify-end">
           <div className="flex items-center gap-3">
             <div className="bg-primary/10 p-2 rounded-lg">
               <LayoutGrid className="h-5 w-5 text-primary" />

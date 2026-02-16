@@ -3,20 +3,13 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ChevronLeft, Trash2, Info, Printer } from "lucide-react";
-import Link from "next/link";
+import { Trash2, Info, Printer } from "lucide-react";
 
 export default function S60Page() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-8 px-4 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between print:hidden">
-          <Link href="/">
-            <Button variant="ghost" className="gap-2 font-bold uppercase text-xs">
-              <ChevronLeft className="h-4 w-4" />
-              Voltar
-            </Button>
-          </Link>
           <div className="flex items-center gap-3">
             <div className="bg-destructive/10 p-2 rounded-lg">
               <Trash2 className="h-5 w-5 text-destructive" />

@@ -2,8 +2,7 @@
 
 import { use, useEffect } from 'react';
 import { HistoryTable } from "@/components/inventory/HistoryTable";
-import { ChevronLeft, Printer, ShieldCheck } from "lucide-react";
-import Link from "next/link";
+import { Printer, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -41,21 +40,16 @@ export default function HistoryPage(props: {
     <div className="min-h-screen bg-neutral-200 pt-24 pb-6 px-4 print:p-0 print:bg-white overflow-x-auto font-body">
       <div className="max-w-[800px] mx-auto space-y-4 print:space-y-0">
         <div className="flex items-center justify-between print:hidden">
-          <Link href="/">
-            <Button variant="ghost" className="gap-2">
-              <ChevronLeft className="h-4 w-4" />
-              Voltar ao Inventário
-            </Button>
-          </Link>
-
-          {isHelper && (
-            <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg">
-              <ShieldCheck className="h-4 w-4 text-accent-foreground" />
-              <span className="text-[10px] font-black uppercase text-accent-foreground tracking-widest">
-                Histórico de {helperInvite.ownerName}
-              </span>
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {isHelper && (
+              <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg">
+                <ShieldCheck className="h-4 w-4 text-accent-foreground" />
+                <span className="text-[10px] font-black uppercase text-accent-foreground tracking-widest">
+                  Histórico de {helperInvite.ownerName}
+                </span>
+              </div>
+            )}
+          </div>
 
           <Button 
             variant="outline" 

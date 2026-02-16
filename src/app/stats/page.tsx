@@ -2,9 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { StatsDashboard } from "@/components/inventory/StatsDashboard";
-import { ChevronLeft, BarChart3, ShieldCheck } from "lucide-react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { BarChart3, ShieldCheck } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -44,13 +42,7 @@ export default function StatsPage() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-4 md:px-6 font-body">
       <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <Link href="/">
-            <Button variant="ghost" className="gap-2 font-bold uppercase text-xs md:text-base w-fit p-0 h-auto hover:bg-transparent">
-              <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
-              Voltar
-            </Button>
-          </Link>
+        <div className="flex flex-row items-center justify-end gap-4">
           <div className="flex items-center gap-3 md:gap-4">
             {isHelper && (
               <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 px-2 py-1 md:px-4 md:py-2 rounded-lg">

@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { ChevronLeft, FileText, Printer, Loader2, ShieldCheck, Info } from "lucide-react";
-import Link from "next/link";
+import { FileText, Printer, Loader2, ShieldCheck, Info } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
@@ -113,11 +112,6 @@ export default function InventoryReportPage() {
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between print:hidden">
-          <Link href="/">
-            <Button variant="ghost" className="gap-2 font-bold uppercase text-xs">
-              <ChevronLeft className="h-4 w-4" /> Voltar
-            </Button>
-          </Link>
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
             <h1 className="text-xl font-black uppercase tracking-tight font-headline">Relatório de Inventário</h1>
