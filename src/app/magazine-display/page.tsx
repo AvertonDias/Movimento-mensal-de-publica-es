@@ -49,7 +49,7 @@ export default function MagazineDisplayPage() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body">
       <div className="max-w-5xl mx-auto space-y-8">
-        <div className="flex items-center justify-end">
+        <div className="flex items-center justify-start">
           <div className="flex items-center gap-3">
             <div className="bg-primary/10 p-2 rounded-lg">
               <LayoutGrid className="h-5 w-5 text-primary" />

@@ -42,7 +42,7 @@ export default function StatsPage() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-4 md:px-6 font-body">
       <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
-        <div className="flex flex-row items-center justify-end gap-4">
+        <div className="flex flex-row items-center justify-start gap-4">
           <div className="flex items-center gap-3 md:gap-4">
             {isHelper && (
               <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 px-2 py-1 md:px-4 md:py-2 rounded-lg">
