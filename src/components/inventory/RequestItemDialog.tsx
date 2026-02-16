@@ -83,6 +83,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     setDocumentNonBlocking(reqDocRef, newRequest, { merge: true });
 
+    // Sincroniza o contador no item pai (para gatilhos na tabela principal)
     const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(itemDocRef, {
       id: item.id,
@@ -117,6 +118,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
       quantity: finalQty
     }, { merge: true });
 
+    // Atualiza o contador de pendências
     const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(itemDocRef, {
       pendingRequestsCount: Math.max(0, (item.pendingRequestsCount || 1) - 1),

@@ -232,12 +232,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
 
-    if (field === 'received' && value !== null && value > 0 && (itemData.pendingRequestsCount || 0) > 0) {
-      const currentLocal = localData[id]?.received;
-      const currentRemote = remoteItems?.find(i => i.id === id)?.received;
-      const alreadyHasValue = (currentLocal !== undefined && currentLocal !== 0) || (currentRemote !== undefined && currentRemote !== 0);
-      
-      if (!alreadyHasValue) {
+    // Lógica de Gatilho para Confirmação de Recebimento
+    if (field === 'received' && value !== null && value > 0 && (Number(itemData.pendingRequestsCount) || 0) > 0) {
+      // Prompt apenas se o valor anterior na tabela era 0 ou vazio (nova entrada)
+      if (!itemData.received || itemData.received === 0) {
         setPendingConfirmItem(itemData);
       }
     }
