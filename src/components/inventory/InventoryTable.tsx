@@ -203,7 +203,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     return combined;
   }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth, historicalMinStock]);
 
-  // Mantém o requestingItem sincronizado com os dados mais recentes do Firestore
   useEffect(() => {
     if (requestingItem) {
       const updated = items.find(i => i.id === requestingItem.id);
