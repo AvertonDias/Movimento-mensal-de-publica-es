@@ -333,13 +333,13 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
             return (
               <div key={idx} className="space-y-2 md:space-y-3">
                 <div className="flex justify-between items-end text-[10px] md:text-sm font-black uppercase">
-                  <div className="flex items-center gap-2 md:gap-4 overflow-hidden">
+                  <div className="flex items-center gap-2 md:gap-4 overflow-hidden flex-1">
                     <span className="text-neutral-400 shrink-0 w-4 md:w-6">#{idx + 1}</span>
-                    <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 overflow-hidden">
+                    <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 overflow-hidden flex-1">
                       {imagePlaceholder ? (
                         <Popover>
                           <PopoverTrigger asChild>
-                            <span className="truncate max-w-[150px] sm:max-w-md cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors text-xs md:text-base leading-tight">
+                            <span className="truncate cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors text-xs md:text-base leading-tight">
                               {item.name}
                             </span>
                           </PopoverTrigger>
@@ -357,9 +357,9 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
                           </PopoverContent>
                         </Popover>
                       ) : (
-                        <span className="truncate max-w-[150px] sm:max-w-md text-xs md:text-base leading-tight">{item.name}</span>
+                        <span className="truncate text-xs md:text-base leading-tight">{item.name}</span>
                       )}
-                      <span className="text-[8px] md:text-[11px] bg-neutral-100 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded text-neutral-500 font-bold w-fit">
+                      <span className="text-[8px] md:text-[11px] bg-neutral-100 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded text-neutral-500 font-bold w-fit shrink-0">
                         {item.category.split('(')[0].trim()}
                       </span>
                     </div>
