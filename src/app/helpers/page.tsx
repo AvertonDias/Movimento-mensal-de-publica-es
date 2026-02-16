@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFirestore, useUser, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking, useDoc } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { ChevronLeft, Copy, Plus, Trash2, Users, LinkIcon } from "lucide-react";
+import { ChevronLeft, Copy, Plus, Trash2, Users, LinkIcon, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -66,7 +66,7 @@ export default function HelpersPage() {
     const url = `${window.location.origin}/register?token=${tokenId}`;
     
     // Mensagem formatada exatamente como solicitado, sem erros de digitação
-    const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse o link abaixo para aceitar o convite e realizar o seu cadastro: ${url}`;
+    const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse le link abaixo para aceitar o convite e realizar o seu cadastro: ${url}`;
     
     navigator.clipboard.writeText(invitationMessage);
     
@@ -131,41 +131,52 @@ export default function HelpersPage() {
             </div>
           ) : (
             <div className="grid gap-4">
-              {myInvites.map((invite) => (
-                <Card key={invite.id} className="overflow-hidden border-l-4 border-l-primary hover:shadow-md transition-shadow">
-                  <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="space-y-1 text-center sm:text-left">
-                      <p className={cn(
-                        "font-black text-sm uppercase",
-                        invite.label === 'Aguardando cadastro...' ? "text-muted-foreground italic" : "text-foreground"
-                      )}>
-                        {invite.label}
-                      </p>
-                      <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">
-                        Criado em {new Date(invite.createdAt).toLocaleDateString('pt-BR')}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="gap-2 h-9 text-[10px] font-black uppercase tracking-widest bg-white"
-                        onClick={() => copyToClipboard(invite.id)}
-                      >
-                        <Copy className="h-3.5 w-3.5" /> Copiar Convite
-                      </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-9 w-9 text-destructive hover:bg-destructive/10"
-                        onClick={() => handleDelete(invite.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+              {myInvites.map((invite) => {
+                const isPending = invite.label === 'Aguardando cadastro...';
+                
+                return (
+                  <Card key={invite.id} className="overflow-hidden border-l-4 border-l-primary hover:shadow-md transition-shadow">
+                    <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="space-y-1 text-center sm:text-left">
+                        <p className={cn(
+                          "font-black text-sm uppercase flex items-center gap-2 justify-center sm:justify-start",
+                          isPending ? "text-muted-foreground italic" : "text-foreground"
+                        )}>
+                          {invite.label}
+                          {!isPending && <CheckCircle2 className="h-3.5 w-3.5 text-accent" />}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">
+                          Criado em {new Date(invite.createdAt).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {isPending ? (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="gap-2 h-9 text-[10px] font-black uppercase tracking-widest bg-white"
+                            onClick={() => copyToClipboard(invite.id)}
+                          >
+                            <Copy className="h-3.5 w-3.5" /> Copiar Convite
+                          </Button>
+                        ) : (
+                          <div className="bg-accent/10 text-accent-foreground text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg border border-accent/20 h-9 flex items-center">
+                            Conectado
+                          </div>
+                        )}
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-9 w-9 text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDelete(invite.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </div>
