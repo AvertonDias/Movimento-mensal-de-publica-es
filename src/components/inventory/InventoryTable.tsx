@@ -78,7 +78,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [pendingConfirmItem, setPendingConfirmItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
-  const [shouldOpenRequestNext, setShouldOpenRequestNext] = useState<InventoryItem | null>(null);
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -88,31 +87,18 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const activeUid = targetUserId || user?.uid;
 
-  // Filtro de segurança para limpar o bloqueio de cliques do navegador
+  // Limpeza forçada de qualquer bloqueio de cliques quando modais fecham
   useEffect(() => {
     if (!pendingConfirmItem && !requestingItem && !editingItem) {
-      const cleanup = () => {
+      const forceUnlock = () => {
         document.body.style.pointerEvents = 'auto';
         document.body.style.overflow = 'auto';
       };
-      cleanup();
-      // Re-executa após um curto delay para garantir que o Radix terminou sua transição
-      const t = setTimeout(cleanup, 300);
+      forceUnlock();
+      const t = setTimeout(forceUnlock, 300);
       return () => clearTimeout(t);
     }
   }, [pendingConfirmItem, requestingItem, editingItem]);
-
-  // Gerenciador de transição segura entre Alerta e Modal
-  useEffect(() => {
-    if (!pendingConfirmItem && shouldOpenRequestNext) {
-      const item = { ...shouldOpenRequestNext };
-      setShouldOpenRequestNext(null);
-      const t = setTimeout(() => {
-        setRequestingItem(item);
-      }, 150);
-      return () => clearTimeout(t);
-    }
-  }, [pendingConfirmItem, shouldOpenRequestNext]);
 
   const isDateInFuture = (date: Date) => {
     const currentMonthStart = startOfMonth(new Date());
@@ -250,15 +236,20 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
 
+    // Gatilho: Se inserir valor em 'Recebido' e tiver pedidos pendentes
     if (field === 'received' && value !== null && value > 0 && (Number(itemData.pendingRequestsCount) || 0) > 0) {
-      setPendingConfirmItem(itemData);
+      setPendingConfirmItem({ ...itemData });
     }
 
     let updates: Record<string, any> = { [field]: value };
+    
+    // Inteligência: Ao preencher 'Atual', garantir que 'Recebido' seja ao menos 0
     if (field === 'current' && value !== null) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
         updates.received = 0;
       }
+      
+      // Auto-reativar monitoramento se estoque subir acima do nível crítico
       const minVal = historicalMinStock[id] || 0;
       if (value > minVal && (itemData.hidden || itemData.silent)) {
         const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
@@ -268,6 +259,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         toast({ title: "Monitoramento Reativado", description: `O item "${itemData.item}" foi reabastecido.`, });
       }
     }
+
     setLocalData(prev => ({ ...prev, [id]: { ...prev[id], ...updates } }));
     const docRef = doc(db, 'users', activeUid, 'monthly_records', monthKey, 'items', id);
     setDocumentNonBlocking(docRef, { ...itemData, ...updates, id, updatedAt: new Date().toISOString() }, { merge: true });
@@ -275,8 +267,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const handleOpenRequestsAfterAlert = () => {
     if (pendingConfirmItem) {
-      setShouldOpenRequestNext({ ...pendingConfirmItem });
-      setPendingConfirmItem(null);
+      const itemToOpen = { ...pendingConfirmItem };
+      // Limpa primeiro para fechar o AlertDialog
+      setPendingConfirmItem(null); 
+      
+      // Abre o modal de pedidos após um delay para o Radix limpar os overlays
+      setTimeout(() => {
+        setRequestingItem(itemToOpen);
+      }, 350);
     }
   };
 
@@ -417,7 +415,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
 
-      <AlertDialog open={!!pendingConfirmItem} onOpenChange={(open) => !open && setPendingConfirmItem(null)}>
+      <AlertDialog 
+        open={!!pendingConfirmItem} 
+        onOpenChange={(open) => {
+          if (!open) setPendingConfirmItem(null);
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="uppercase font-black">Pedido pendente encontrado</AlertDialogTitle>
