@@ -39,6 +39,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const [requestQuantity, setRequestQuantity] = useState<string>('');
   const [requestNotes, setRequestNotes] = useState<string>('');
   const [confirmingRequestId, setConfirmingRequestId] = useState<string | null>(null);
+  const [receiveQuantity, setReceiveQuantity] = useState<string>('');
   const [receiveDate, setReceiveDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
 
   const activeUid = targetUserId || user?.uid;
@@ -106,6 +107,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const handleMarkAsReceived = (req: ItemRequest) => {
     if (!activeUid || !db || !item) return;
 
+    const finalQty = Number(receiveQuantity) || req.quantity;
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', req.id);
     
     // Converte a data selecionada (string yyyy-mm-dd) para ISOString mantendo o horário local
@@ -113,7 +115,8 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     setDocumentNonBlocking(reqDocRef, {
       status: 'received',
-      receivedAt: finalDate.toISOString()
+      receivedAt: finalDate.toISOString(),
+      quantity: finalQty
     }, { merge: true });
 
     // Decrementa contador no item principal
@@ -125,7 +128,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     toast({
       title: "Pedido recebido!",
-      description: `O pedido de ${req.quantity} un. foi registrado como entregue em ${format(finalDate, 'dd/MM/yyyy')}.`,
+      description: `Foram registradas ${finalQty} un. entregues em ${format(finalDate, 'dd/MM/yyyy')}.`,
     });
 
     setConfirmingRequestId(null);
@@ -197,7 +200,10 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                             <Button 
                               variant="outline" 
                               size="sm" 
-                              onClick={() => setConfirmingRequestId(req.id)}
+                              onClick={() => {
+                                setConfirmingRequestId(req.id);
+                                setReceiveQuantity(req.quantity.toString());
+                              }}
                               className="h-8 text-[9px] font-black uppercase tracking-widest border-emerald-200 text-emerald-600 hover:bg-emerald-50 bg-white"
                             >
                               <CheckCircle2 className="h-3 w-3 mr-1" /> Recebido
@@ -226,16 +232,29 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                       {confirmingRequestId === req.id && (
                         <div className="bg-white p-3 rounded-lg border border-emerald-200 animate-in fade-in slide-in-from-top-2 duration-200">
                           <div className="space-y-3">
-                            <div className="space-y-1.5">
-                              <Label className="text-[9px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-1">
-                                <CalendarDays className="h-3 w-3" /> Data de Recebimento
-                              </Label>
-                              <Input 
-                                type="date" 
-                                value={receiveDate}
-                                onChange={(e) => setReceiveDate(e.target.value)}
-                                className="h-9 text-xs font-bold border-emerald-100 focus:ring-emerald-500"
-                              />
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="space-y-1.5">
+                                <Label className="text-[9px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-1">
+                                  <Hash className="h-3 w-3" /> Qtd. Recebida
+                                </Label>
+                                <Input 
+                                  type="number" 
+                                  value={receiveQuantity}
+                                  onChange={(e) => setReceiveQuantity(e.target.value)}
+                                  className="h-9 text-xs font-bold border-emerald-100 focus:ring-emerald-500"
+                                />
+                              </div>
+                              <div className="space-y-1.5">
+                                <Label className="text-[9px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-1">
+                                  <CalendarDays className="h-3 w-3" /> Data
+                                </Label>
+                                <Input 
+                                  type="date" 
+                                  value={receiveDate}
+                                  onChange={(e) => setReceiveDate(e.target.value)}
+                                  className="h-9 text-xs font-bold border-emerald-100 focus:ring-emerald-500"
+                                />
+                              </div>
                             </div>
                             <Button 
                               size="sm" 
@@ -324,7 +343,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                         </div>
                       </div>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-neutral-300 hover:text-destructive" onClick={() => handleDeleteRequest(req)}>
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </Button>
                     </div>
                   ))}
