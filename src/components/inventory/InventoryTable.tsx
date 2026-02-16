@@ -87,7 +87,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const activeUid = targetUserId || user?.uid;
 
-  // Limpeza forçada de qualquer bloqueio de cliques quando modais fecham
   useEffect(() => {
     if (!pendingConfirmItem && !requestingItem && !editingItem) {
       const forceUnlock = () => {
@@ -238,20 +237,17 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
 
-    // Gatilho: Se inserir valor em 'Recebido' e tiver pedidos pendentes
     if (field === 'received' && value !== null && value > 0 && (Number(itemData.pendingRequestsCount) || 0) > 0) {
       setPendingConfirmItem({ ...itemData });
     }
 
     let updates: Record<string, any> = { [field]: value };
     
-    // Inteligência: Ao preencher 'Atual', garantir que 'Recebido' seja ao menos 0
     if (field === 'current' && value !== null) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
         updates.received = 0;
       }
       
-      // Auto-reativar monitoramento se estoque subir acima do nível crítico
       const minVal = historicalMinStock[id] || 0;
       if (value > minVal && (itemData.hidden || itemData.silent)) {
         const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
@@ -270,10 +266,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const handleOpenRequestsAfterAlert = () => {
     if (pendingConfirmItem) {
       const itemToOpen = { ...pendingConfirmItem };
-      // Limpa primeiro para fechar o AlertDialog
       setPendingConfirmItem(null); 
-      
-      // Abre o modal de pedidos após um delay para o Radix limpar os overlays e o scroll lock
       setTimeout(() => {
         setRequestingItem(itemToOpen);
       }, 350);
@@ -321,7 +314,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               </Popover>
               <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8" disabled={isDateInFuture(addMonths(selectedMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
             </div>
-            <div className="flex items-center gap-2 max-w-[320px]">
+            <div className="flex items-center gap-2 max-w-[340px]">
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
                 Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
               </p>
