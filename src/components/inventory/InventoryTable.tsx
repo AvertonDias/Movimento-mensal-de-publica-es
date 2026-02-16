@@ -287,7 +287,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <Smartphone className="h-4 w-4 text-primary rotate-90" />
           </div>
           <p className="text-[10px] font-black uppercase text-primary leading-tight tracking-wider">
-            Dica: Use o celular na horizontal para aproveitar melhor o aplicativo.
+            Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
           </p>
         </div>
       )}
