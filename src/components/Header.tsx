@@ -191,44 +191,49 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <Link href="/inventory-report">
+              <Link href="/" className="lg:hidden">
+                <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                  <LayoutGrid className="mr-2 h-4 w-4" /> Painel Principal
+                </DropdownMenuItem>
+              </Link>
+              <Link href="/inventory-report" className="lg:hidden">
                 <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <FileText className="mr-2 h-4 w-4" /> Relatório de Inventário
                 </DropdownMenuItem>
               </Link>
-              <Link href="/history">
+              <Link href="/history" className="lg:hidden">
                 <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <History className="mr-2 h-4 w-4" /> Folha S-28
                 </DropdownMenuItem>
               </Link>
-              <Link href="/stats">
+              <Link href="/stats" className="lg:hidden">
                 <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <BarChart3 className="mr-2 h-4 w-4" /> Estatísticas
                 </DropdownMenuItem>
               </Link>
-              <Link href="/order-schedule">
+              <Link href="/order-schedule" className="lg:hidden">
                 <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <Truck className="mr-2 h-4 w-4" /> Prazos de Pedidos
                 </DropdownMenuItem>
               </Link>
-              <Link href="/magazine-display">
+              <Link href="/magazine-display" className="lg:hidden">
                 <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <LayoutGrid className="mr-2 h-4 w-4" /> Exibição de Revistas
                 </DropdownMenuItem>
               </Link>
-              <Link href="/s60">
+              <Link href="/s60" className="lg:hidden">
                 <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <Trash2 className="mr-2 h-4 w-4" /> Lista de Descartes (S-60)
                 </DropdownMenuItem>
               </Link>
               {!isHelper && (
-                <Link href="/helpers">
+                <Link href="/helpers" className="lg:hidden">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                     <Users className="mr-2 h-4 w-4" /> Ajudantes
                   </DropdownMenuItem>
                 </Link>
               )}
-              <DropdownMenuSeparator />
+              <DropdownMenuSeparator className="lg:hidden" />
               <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" /> Sair
               </DropdownMenuItem>
