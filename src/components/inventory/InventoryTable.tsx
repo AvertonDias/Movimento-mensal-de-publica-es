@@ -28,6 +28,16 @@ import {
   Truck
 } from "lucide-react";
 import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { 
   InventoryItem, 
   DEFAULT_COLUMNS
 } from "@/app/types/inventory";
@@ -65,6 +75,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [requestingItem, setRequestingItem] = useState<InventoryItem | null>(null);
+  const [pendingConfirmItem, setPendingConfirmItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
   
@@ -211,6 +222,18 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     if (!activeUid || !db) return;
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
+
+    // Se estiver inserindo valor em 'Recebido' e houver pedidos pendentes, pergunta se quer confirmar
+    if (field === 'received' && value !== null && value > 0 && (itemData.pendingRequestsCount || 0) > 0) {
+      const currentLocal = localData[id]?.received;
+      const currentRemote = remoteItems?.find(i => i.id === id)?.received;
+      const alreadyHasValue = (currentLocal !== undefined && currentLocal !== 0) || (currentRemote !== undefined && currentRemote !== 0);
+      
+      if (!alreadyHasValue) {
+        setPendingConfirmItem(itemData);
+      }
+    }
+
     let updates: Record<string, any> = { [field]: value };
     if (field === 'current' && value !== null) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
@@ -232,7 +255,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   return (
     <div className="space-y-6 relative">
-      {/* Header e Filtros (Omitido para brevidade, permanece igual) */}
       <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex flex-col gap-2">
@@ -367,6 +389,35 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           </Table>
         </div>
       </div>
+
+      {/* Alerta de Confirmação de Pedido Pendente */}
+      <AlertDialog open={!!pendingConfirmItem} onOpenChange={(open) => !open && setPendingConfirmItem(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="uppercase font-black">Pedido pendente encontrado</AlertDialogTitle>
+            <AlertDialogDescription>
+              Você está registrando uma entrada para <span className="font-bold text-foreground">"{pendingConfirmItem?.item}"</span>. 
+              Este item possui <span className="font-bold text-primary">{pendingConfirmItem?.pendingRequestsCount}</span> pedido(s) pendente(s). 
+              Deseja abrir o controle de pedidos para marcá-los como recebidos agora?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-bold uppercase text-xs text-muted-foreground">Agora não</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (pendingConfirmItem) {
+                  setRequestingItem(pendingConfirmItem);
+                  setPendingConfirmItem(null);
+                }
+              }} 
+              className="bg-primary hover:bg-primary/90 font-bold uppercase text-xs"
+            >
+              Sim, Abrir Pedidos
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {editingItem && activeUid === user?.uid && <EditCustomItemDialog item={editingItem} onClose={() => setEditingItem(null)} />}
       {requestingItem && <RequestItemDialog item={requestingItem} onClose={() => setRequestingItem(null)} targetUserId={targetUserId} />}
     </div>
