@@ -140,8 +140,7 @@ export default function OrderSchedulePage() {
             <div className="space-y-2">
               <h3 className="font-black uppercase text-sm tracking-tight">Sobre a Programação</h3>
               <p className="text-xs text-muted-foreground font-bold leading-relaxed uppercase">
-                Esta programação auxilia na organização para que os pedidos sejam feitos e recebidos dentro do tempo necessário. 
-                Lembre-se que Betel envia publicações de estoque uma vez a cada dois meses.
+                Essa programação tem como objetivo ajudar as congregações a identificar a data-limite para fazerem os seus pedidos de outras publicações, equipamentos e cartazes para testemunho público, que estão disponíveis para pedidos, bem como o prazo previsto para entrega por estado. Essas informações auxiliam na organização para que os pedidos sejam feitos e recebidos dentro do tempo necessário. Levem em conta que Betel envia publicações uma vez a cada dois meses.
               </p>
             </div>
           </CardContent>
