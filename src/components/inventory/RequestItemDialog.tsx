@@ -83,7 +83,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     const requestId = `req_${Date.now()}`;
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', requestId);
     
-    // Define a data escolhida com meio-dia para evitar problemas de fuso horário
     const finalRequestDate = new Date(requestDate + 'T12:00:00').toISOString();
 
     const newRequest: ItemRequest = {
@@ -165,7 +164,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   return (
     <Dialog open={!!item} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl flex flex-col max-h-[90vh]">
-        <DialogHeader className="p-6 bg-primary/5 border-b border-primary/10 shrink-0">
+        <DialogHeader className="p-6 bg-primary/5 border-b border-primary/10 shrink-0 text-left">
           <div className="flex items-center gap-3 mb-2">
             <div className="bg-primary/20 p-2 rounded-lg">
               <PackageSearch className="h-5 w-5 text-primary" />

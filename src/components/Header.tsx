@@ -96,9 +96,7 @@ export function Header() {
             </div>
           )}
 
-          {/* Menu Horizontal Progressivo */}
           <div className="hidden lg:flex items-center gap-1.5 xl:gap-2">
-            {/* Nível 1: Essencial (Visível em lg+) */}
             <Link href="/">
               <Button variant="ghost" className={cn(
                 "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
@@ -118,7 +116,6 @@ export function Header() {
               </Button>
             </Link>
 
-            {/* Nível 2: Secundário (Visível em xl+) */}
             <div className="hidden xl:flex items-center gap-1.5 xl:gap-2">
               <Link href="/history">
                 <Button variant="ghost" className={cn(
@@ -140,7 +137,6 @@ export function Header() {
               </Link>
             </div>
 
-            {/* Nível 3: Completo (Visível em 2xl+) */}
             <div className="hidden 2xl:flex items-center gap-1.5 xl:gap-2">
               <Link href="/order-schedule">
                 <Button variant="ghost" className={cn(
@@ -203,7 +199,6 @@ export function Header() {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               
-              {/* Itens do Dropdown mostrados apenas quando ocultos no menu principal */}
               <div className="lg:hidden">
                 <Link href="/">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -94,7 +95,6 @@ export default function OrderSchedulePage() {
   const [activeRegionId, setActiveRegionId] = useState(SCHEDULE_DATA[0].id);
   const now = new Date();
 
-  // Tenta carregar a região preferida do localStorage ao montar o componente
   useEffect(() => {
     const savedRegion = localStorage.getItem('preferred_order_region');
     if (savedRegion && SCHEDULE_DATA.some(r => r.id === savedRegion)) {
@@ -122,7 +122,7 @@ export default function OrderSchedulePage() {
     <div className="min-h-screen bg-neutral-50 pt-24 pb-12 px-4 md:px-6 font-body">
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div className="space-y-2">
+          <div className="space-y-2 text-left">
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 p-2 rounded-lg">
                 <Truck className="h-6 w-6 text-primary" />
@@ -138,7 +138,7 @@ export default function OrderSchedulePage() {
             <div className="bg-white/20 p-2 rounded-full">
               <AlertCircle className="h-5 w-5" />
             </div>
-            <div>
+            <div className="text-left">
               <p className="text-[10px] font-black uppercase opacity-80 leading-none mb-1">Próximo Prazo Final</p>
               <p className="text-lg font-black tracking-tight">{nextDeadline.deadline}</p>
             </div>
@@ -146,7 +146,7 @@ export default function OrderSchedulePage() {
         </div>
 
         <Card className="bg-white border-l-4 border-l-primary shadow-sm">
-          <CardContent className="p-6 flex items-start gap-4">
+          <CardContent className="p-6 flex items-start gap-4 text-left">
             <div className="bg-primary/10 p-3 rounded-full shrink-0">
               <Info className="h-6 w-6 text-primary" />
             </div>
@@ -160,7 +160,7 @@ export default function OrderSchedulePage() {
         </Card>
 
         <div className="space-y-6">
-          <div className="flex items-center gap-2 px-1">
+          <div className="flex items-center gap-2 px-1 text-left">
             <MapPin className="h-4 w-4 text-muted-foreground" />
             <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Selecione sua Região</h2>
           </div>
@@ -182,7 +182,7 @@ export default function OrderSchedulePage() {
               <TabsContent key={region.id} value={region.id} className="mt-6 animate-in fade-in duration-300">
                 <Card className="overflow-hidden border-none shadow-xl">
                   <CardHeader className="bg-neutral-50 border-b border-neutral-100 py-4 px-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-left">
                       <CardTitle className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                         <CheckCircle2 className="h-4 w-4 text-primary" />
                         {region.name}
@@ -258,7 +258,7 @@ export default function OrderSchedulePage() {
           </Tabs>
         </div>
 
-        <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100">
+        <div className="flex items-center gap-3 p-4 bg-amber-50 rounded-xl border border-amber-100 text-left">
           <AlertCircle className="h-5 w-5 text-amber-500 shrink-0" />
           <p className="text-[10px] font-bold text-amber-700 uppercase leading-tight">
             Atenção: Os pedidos de outras publicações, equipamentos e cartazes para testemunho público devem ser feitos exclusivamente via JW Hub. Utilize estas datas como referência para planejar seus pedidos com antecedência.
