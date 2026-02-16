@@ -138,7 +138,7 @@ export function Header() {
                 pathname === '/order-schedule' && "bg-primary/10 border-primary"
               )}>
                 <Truck className="h-4 w-4" />
-                Prazos de Pedidos
+                Cronograma de Pedidos
               </Button>
             </Link>
             <Link href="/magazine-display">
@@ -214,7 +214,7 @@ export function Header() {
                 </Link>
                 <Link href="/order-schedule">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <Truck className="mr-2 h-4 w-4" /> Prazos de Pedidos
+                    <Truck className="mr-2 h-4 w-4" /> Cronograma de Pedidos
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/magazine-display">
