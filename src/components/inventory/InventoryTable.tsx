@@ -91,11 +91,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   useEffect(() => {
     if (!pendingConfirmItem && !requestingItem && !editingItem) {
       const forceUnlock = () => {
-        document.body.style.pointerEvents = 'auto';
-        document.body.style.overflow = 'auto';
+        if (typeof document !== 'undefined') {
+          document.body.style.pointerEvents = 'auto';
+          document.body.style.overflow = 'auto';
+        }
       };
       forceUnlock();
-      const t = setTimeout(forceUnlock, 300);
+      const t = setTimeout(forceUnlock, 350);
       return () => clearTimeout(t);
     }
   }, [pendingConfirmItem, requestingItem, editingItem]);
@@ -271,7 +273,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       // Limpa primeiro para fechar o AlertDialog
       setPendingConfirmItem(null); 
       
-      // Abre o modal de pedidos após um delay para o Radix limpar os overlays
+      // Abre o modal de pedidos após um delay para o Radix limpar os overlays e o scroll lock
       setTimeout(() => {
         setRequestingItem(itemToOpen);
       }, 350);
@@ -319,6 +321,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               </Popover>
               <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8" disabled={isDateInFuture(addMonths(selectedMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
             </div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight max-w-[280px]">
+              Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
+            </p>
           </div>
           <div className="flex items-center gap-2 w-full md:flex-1 md:max-w-2xl">
             <div className="relative flex-1">
