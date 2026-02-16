@@ -223,10 +223,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
 
+    // Gatilho para perguntar sobre pedidos pendentes ao registrar recebimento
     if (field === 'received' && value !== null && value > 0 && (Number(itemData.pendingRequestsCount) || 0) > 0) {
-      if (!itemData.received || itemData.received === 0) {
-        setPendingConfirmItem(itemData);
-      }
+      setPendingConfirmItem(itemData);
     }
 
     let updates: Record<string, any> = { [field]: value };
@@ -250,12 +249,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const handleOpenRequestsAfterAlert = () => {
     if (pendingConfirmItem) {
-      const itemToRequest = pendingConfirmItem;
+      const itemToRequest = { ...pendingConfirmItem };
       setPendingConfirmItem(null);
-      // Aguarda o Alerta fechar completamente antes de abrir o novo modal
+      // O segredo para não travar a página é aguardar a animação do Radix UI fechar completamente
+      // antes de abrir o próximo diálogo. 200ms é o tempo de transição padrão.
       setTimeout(() => {
         setRequestingItem(itemToRequest);
-      }, 150);
+      }, 200);
     }
   };
 
