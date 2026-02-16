@@ -73,15 +73,15 @@ export function Header() {
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-4 hover:opacity-80 transition-opacity shrink-0">
-          <div className="rounded-xl overflow-hidden w-[42px] h-[42px]">
+        <Link href="/" className="flex items-center gap-3 sm:gap-4 hover:opacity-80 transition-opacity shrink-0">
+          <div className="rounded-xl overflow-hidden w-[40px] h-[40px] sm:w-[42px] sm:h-[42px]">
             <Image src="/icon.png" alt="Logo" width={42} height={42} className="object-cover w-full h-full" unoptimized priority />
           </div>
-          <div className="hidden sm:block">
-            <h1 className="text-xl font-black tracking-tight text-foreground uppercase font-headline">
+          <div className="flex flex-col justify-center">
+            <h1 className="text-base sm:text-xl font-black tracking-tight text-foreground uppercase font-headline leading-none">
               S-28 Digital
             </h1>
-            <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-[0.1em]">
+            <p className="text-[8px] sm:text-[10px] text-muted-foreground font-black uppercase tracking-widest mt-0.5 leading-none">
               Gestão inteligente de publicações
             </p>
           </div>
