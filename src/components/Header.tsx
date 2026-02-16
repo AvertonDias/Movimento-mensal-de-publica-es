@@ -191,11 +191,6 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <Link href="/">
-                <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                  <LayoutGrid className="mr-2 h-4 w-4" /> Painel Principal
-                </DropdownMenuItem>
-              </Link>
               <Link href="/inventory-report">
                 <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <FileText className="mr-2 h-4 w-4" /> Relatório de Inventário
