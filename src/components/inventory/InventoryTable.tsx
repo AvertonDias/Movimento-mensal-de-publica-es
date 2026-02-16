@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -265,6 +266,24 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     setDocumentNonBlocking(docRef, { ...itemData, ...updates, id, updatedAt: new Date().toISOString() }, { merge: true });
   };
 
+  const handleToggleSilence = (item: InventoryItem) => {
+    if (!activeUid || !db) return;
+    const isSilenced = item.hidden || item.silent;
+    const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
+    
+    setDocumentNonBlocking(inventoryDocRef, {
+      hidden: !isSilenced,
+      silent: !isSilenced
+    }, { merge: true });
+
+    toast({
+      title: !isSilenced ? "Alerta Silenciado" : "Monitoramento Reativado",
+      description: !isSilenced 
+        ? `O item "${item.item}" não exibirá mais avisos de estoque baixo.`
+        : `O monitoramento de estoque para "${item.item}" foi reativado.`,
+    });
+  };
+
   const handleOpenRequestsAfterAlert = () => {
     if (pendingConfirmItem) {
       const itemToOpen = { ...pendingConfirmItem };
@@ -390,9 +409,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                     <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive")}>{(item.hidden || item.silent) ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}</Button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3">
-                                    <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest text-left">Alerta</p>
-                                    <Button variant="default" size="sm" className="w-full text-[9px] font-black uppercase tracking-widest h-8" onClick={() => {}}>
-                                      {item.hidden || item.silent ? "Reativar" : "Silenciar"}
+                                    <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest text-left">Ações de Alerta</p>
+                                    <Button 
+                                      variant="default" 
+                                      size="sm" 
+                                      className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
+                                      onClick={() => handleToggleSilence(item)}
+                                    >
+                                      {item.hidden || item.silent ? "Reativar Monitoramento" : "Silenciar este item"}
                                     </Button>
                                   </PopoverContent>
                                 </Popover>
