@@ -25,7 +25,8 @@ import {
   BellOff,
   Bell,
   PackageSearch,
-  Truck
+  Truck,
+  Smartphone
 } from "lucide-react";
 import { 
   AlertDialog,
@@ -60,6 +61,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface InventoryTableProps {
   targetUserId?: string;
@@ -69,6 +71,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
@@ -97,6 +100,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         }
       };
       forceUnlock();
+      // Repete após um tempo para garantir que o Radix UI terminou de limpar o estado
       const t = setTimeout(forceUnlock, 350);
       return () => clearTimeout(t);
     }
@@ -277,6 +281,17 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   return (
     <div className="space-y-6 relative">
+      {isMobile && (
+        <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500">
+          <div className="bg-primary/20 p-2 rounded-lg">
+            <Smartphone className="h-4 w-4 text-primary rotate-90" />
+          </div>
+          <p className="text-[10px] font-black uppercase text-primary leading-tight tracking-wider">
+            Dica: Use o celular na horizontal para aproveitar melhor o aplicativo.
+          </p>
+        </div>
+      )}
+
       <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex flex-col gap-2">
@@ -380,7 +395,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3">
                                     <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest">Alerta</p>
-                                    <Button variant="default" size="sm" className="w-full text-[9px] font-black uppercase tracking-widest h-8" onClick={() => {}}>{item.hidden || item.silent ? "Reativar" : "Silenciar"}</Button>
+                                    <Button variant="default" size="sm" className="w-full text-[9px] font-black uppercase tracking-widest h-8" onClick={() => {}}>
+                                      {item.hidden || item.silent ? "Reativar" : "Silenciar"}
+                                    </Button>
                                   </PopoverContent>
                                 </Popover>
                               )}
