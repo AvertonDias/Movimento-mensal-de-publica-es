@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { History, LogOut, User as UserIcon, ShieldCheck, Users, Info, BarChart3, Trash2, FileText } from "lucide-react";
+import { History, LogOut, User as UserIcon, ShieldCheck, Users, Info, BarChart3, Trash2, FileText, LayoutGrid } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -137,6 +137,12 @@ export default function Home() {
             )}
 
             <div className="hidden lg:flex items-center gap-2">
+              <Link href="/magazine-display">
+                <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
+                  <LayoutGrid className="h-4 w-4" />
+                  Exibição 2026
+                </Button>
+              </Link>
               <Link href="/history">
                 <Button variant="ghost" className="gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9">
                   <History className="h-4 w-4" />
@@ -184,6 +190,11 @@ export default function Home() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <Link href="/magazine-display">
+                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                    <LayoutGrid className="mr-2 h-4 w-4" /> Exibição de Revistas 2026
+                  </DropdownMenuItem>
+                </Link>
                 <Link href="/history">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                     <History className="mr-2 h-4 w-4" /> FOLHA S-28-T
