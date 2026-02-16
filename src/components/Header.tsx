@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -34,21 +33,16 @@ export function Header() {
     const controlHeader = () => {
       if (typeof window !== 'undefined') {
         const currentScrollY = window.scrollY;
-        
         if (currentScrollY > lastScrollY && currentScrollY > 100) {
           setIsVisible(false);
         } else {
           setIsVisible(true);
         }
-        
         setLastScrollY(currentScrollY);
       }
     };
-
     window.addEventListener('scroll', controlHeader);
-    return () => {
-      window.removeEventListener('scroll', controlHeader);
-    };
+    return () => window.removeEventListener('scroll', controlHeader);
   }, [lastScrollY]);
 
   const helperInviteRef = useMemoFirebase(() => {
@@ -63,8 +57,19 @@ export function Header() {
     initiateSignOut(auth);
   };
 
-  if (isUserLoading) return null;
-  if (!user || user.isAnonymous) return null;
+  if (isUserLoading || !user || user.isAnonymous) return null;
+
+  // Lógica de menus que aparecem progressivamente
+  const navItems = [
+    { href: "/", label: "Painel Principal", icon: LayoutGrid, minWidth: "lg" },
+    { href: "/inventory-report", label: "Relatório de Inventário", icon: FileText, minWidth: "lg" },
+    { href: "/history", label: "Folha S-28", icon: History, minWidth: "xl" },
+    { href: "/stats", label: "Estatísticas", icon: BarChart3, minWidth: "xl" },
+    { href: "/order-schedule", label: "Cronograma de Pedidos", icon: Truck, minWidth: "2xl" },
+    { href: "/magazine-display", label: "Programação de Exibição", icon: LayoutGrid, minWidth: "2xl" },
+    { href: "/s60", label: "Lista de Descartes (S-60)", icon: Trash2, minWidth: "2xl" },
+    { href: "/helpers", label: "Ajudantes", icon: Users, minWidth: "2xl", hideIfHelper: true },
+  ];
 
   return (
     <header 
@@ -74,11 +79,11 @@ export function Header() {
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-3 sm:gap-4 hover:opacity-80 transition-opacity shrink-0">
+        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0">
           <div className="rounded-xl overflow-hidden w-[40px] h-[40px] sm:w-[42px] sm:h-[42px]">
             <Image src="/icon.png" alt="Logo" width={42} height={42} className="object-cover w-full h-full" unoptimized priority />
           </div>
-          <div className="flex flex-col justify-center">
+          <div className="flex flex-col justify-center text-left">
             <h1 className="text-base sm:text-xl font-black tracking-tight text-foreground uppercase font-headline leading-none">
               S-28 Digital
             </h1>
@@ -88,96 +93,27 @@ export function Header() {
           </div>
         </Link>
         
-        <div className="flex items-center gap-2 md:gap-4 overflow-hidden">
-          {isHelper && (
-            <div className="hidden 2xl:flex items-center gap-2 bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg">
-              <ShieldCheck className="h-4 w-4 text-accent-foreground" />
-              <span className="text-[10px] font-black uppercase text-accent-foreground tracking-widest">Ajudante</span>
-            </div>
-          )}
+        <div className="flex items-center gap-2 md:gap-4">
+          <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2">
+            {navItems.map((item) => {
+              if (item.hideIfHelper && isHelper) return null;
+              
+              const visibilityClass = item.minWidth === 'xl' ? 'hidden xl:flex' : 
+                                     item.minWidth === '2xl' ? 'hidden 2xl:flex' : 'flex';
 
-          <div className="hidden lg:flex items-center gap-1.5 xl:gap-2">
-            <Link href="/">
-              <Button variant="ghost" className={cn(
-                "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                pathname === '/' && "bg-primary/10 border-primary"
-              )}>
-                <LayoutGrid className="h-4 w-4" />
-                Painel Principal
-              </Button>
-            </Link>
-            <Link href="/inventory-report">
-              <Button variant="ghost" className={cn(
-                "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                pathname === '/inventory-report' && "bg-primary/10 border-primary"
-              )}>
-                <FileText className="h-4 w-4" />
-                Relatório de Inventário
-              </Button>
-            </Link>
-
-            <div className="hidden xl:flex items-center gap-1.5 xl:gap-2">
-              <Link href="/history">
-                <Button variant="ghost" className={cn(
-                  "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                  pathname === '/history' && "bg-primary/10 border-primary"
-                )}>
-                  <History className="h-4 w-4" />
-                  Folha S-28
-                </Button>
-              </Link>
-              <Link href="/stats">
-                <Button variant="ghost" className={cn(
-                  "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                  pathname === '/stats' && "bg-primary/10 border-primary"
-                )}>
-                  <BarChart3 className="h-4 w-4" />
-                  Estatísticas
-                </Button>
-              </Link>
-            </div>
-
-            <div className="hidden 2xl:flex items-center gap-1.5 xl:gap-2">
-              <Link href="/order-schedule">
-                <Button variant="ghost" className={cn(
-                  "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                  pathname === '/order-schedule' && "bg-primary/10 border-primary"
-                )}>
-                  <Truck className="h-4 w-4" />
-                  CRONOGRAMA DE PEDIDOS
-                </Button>
-              </Link>
-              <Link href="/magazine-display">
-                <Button variant="ghost" className={cn(
-                  "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                  pathname === '/magazine-display' && "bg-primary/10 border-primary"
-                )}>
-                  <LayoutGrid className="h-4 w-4" />
-                  PROGRAMAÇÃO DE EXIBIÇÃO
-                </Button>
-              </Link>
-              <Link href="/s60">
-                <Button variant="ghost" className={cn(
-                  "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                  pathname === '/s60' && "bg-primary/10 border-primary"
-                )}>
-                  <Trash2 className="h-4 w-4" />
-                  Lista de Descartes (S-60)
-                </Button>
-              </Link>
-              {!isHelper && (
-                <Link href="/helpers">
+              return (
+                <Link key={item.href} href={item.href} className={visibilityClass}>
                   <Button variant="ghost" className={cn(
                     "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                    pathname === '/helpers' && "bg-primary/10 border-primary"
+                    pathname === item.href && "bg-primary/10 border-primary"
                   )}>
-                    <Users className="h-4 w-4" />
-                    Ajudantes
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
                   </Button>
                 </Link>
-              )}
-            </div>
-          </div>
+              );
+            })}
+          </nav>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -190,64 +126,32 @@ export function Header() {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-64" align="end" forceMount>
+            <DropdownMenuContent className="w-64" align="end">
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1 text-left">
                   <p className="text-sm font-bold leading-none">{user.displayName || "Usuário"}</p>
-                  <p className="text-xs leading-none text-muted-foreground text-ellipsis overflow-hidden">{user.email}</p>
+                  <p className="text-xs leading-none text-muted-foreground truncate">{user.email}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               
-              <div className="lg:hidden">
-                <Link href="/">
-                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <LayoutGrid className="mr-2 h-4 w-4" /> Painel Principal
-                  </DropdownMenuItem>
-                </Link>
-                <Link href="/inventory-report">
-                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <FileText className="mr-2 h-4 w-4" /> Relatório de Inventário
-                  </DropdownMenuItem>
-                </Link>
-              </div>
+              <div className="flex flex-col">
+                {navItems.map((item) => {
+                  if (item.hideIfHelper && isHelper) return null;
+                  
+                  // Oculta no dropdown se já estiver visível na barra horizontal baseada no tamanho da tela
+                  const hiddenClass = item.minWidth === 'lg' ? 'lg:hidden' : 
+                                     item.minWidth === 'xl' ? 'xl:hidden' : 
+                                     item.minWidth === '2xl' ? '2xl:hidden' : '';
 
-              <div className="xl:hidden">
-                <Link href="/history">
-                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <History className="mr-2 h-4 w-4" /> Folha S-28
-                  </DropdownMenuItem>
-                </Link>
-                <Link href="/stats">
-                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <BarChart3 className="mr-2 h-4 w-4" /> Estatísticas
-                  </DropdownMenuItem>
-                </Link>
-              </div>
-
-              <div className="2xl:hidden">
-                <Link href="/order-schedule">
-                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <Truck className="mr-2 h-4 w-4" /> CRONOGRAMA DE PEDIDOS
-                  </DropdownMenuItem>
-                </Link>
-                <Link href="/magazine-display">
-                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <LayoutGrid className="mr-2 h-4 w-4" /> PROGRAMAÇÃO DE EXIBIÇÃO
-                  </DropdownMenuItem>
-                </Link>
-                <Link href="/s60">
-                  <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <Trash2 className="mr-2 h-4 w-4" /> Lista de Descartes (S-60)
-                  </DropdownMenuItem>
-                </Link>
-                {!isHelper && (
-                  <Link href="/helpers">
-                    <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                      <Users className="mr-2 h-4 w-4" /> Ajudantes
-                    </DropdownMenuItem>
-                  </Link>
-                )}
+                  return (
+                    <Link key={item.href} href={item.href} className={hiddenClass}>
+                      <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                        <item.icon className="mr-2 h-4 w-4" /> {item.label}
+                      </DropdownMenuItem>
+                    </Link>
+                  );
+                })}
               </div>
 
               <DropdownMenuSeparator />

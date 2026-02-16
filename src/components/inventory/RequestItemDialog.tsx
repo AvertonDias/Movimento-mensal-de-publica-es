@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -83,6 +82,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     const requestId = `req_${Date.now()}`;
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', requestId);
     
+    // Define a hora para meio-dia para evitar problemas de fuso horário na conversão de string para data
     const finalRequestDate = new Date(requestDate + 'T12:00:00').toISOString();
 
     const newRequest: ItemRequest = {
@@ -117,7 +117,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     const finalQty = Number(receiveQuantity) || req.quantity;
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', req.id);
-    
     const finalDate = new Date(receiveDate + 'T12:00:00');
 
     setDocumentNonBlocking(reqDocRef, {
@@ -176,14 +175,12 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 overflow-y-auto">
+        <ScrollArea className="flex-1">
           <div className="p-6 space-y-8">
             <div className="space-y-4">
-              <div className="flex items-center justify-between px-1">
-                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2">
-                  <Truck className="h-3 w-3" /> Pedidos Pendentes ({pendingRequests.length})
-                </p>
-              </div>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2 px-1">
+                <Truck className="h-3 w-3" /> Pedidos Pendentes ({pendingRequests.length})
+              </p>
               
               {pendingRequests.length === 0 ? (
                 <div className="p-8 text-center bg-neutral-50 rounded-2xl border border-dashed border-neutral-200">
@@ -214,61 +211,35 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                               <CheckCircle2 className="h-3 w-3 mr-1" /> Recebido
                             </Button>
                           ) : (
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              onClick={() => setConfirmingRequestId(null)}
-                              className="h-8 w-8 text-neutral-400"
-                            >
+                            <Button variant="ghost" size="icon" onClick={() => setConfirmingRequestId(null)} className="h-8 w-8 text-neutral-400">
                               <X className="h-3.5 w-3.5" />
                             </Button>
                           )}
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => handleDeleteRequest(req)}
-                            className="h-8 w-8 text-neutral-400 hover:text-destructive"
-                          >
+                          <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(req)} className="h-8 w-8 text-neutral-400 hover:text-destructive">
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
                         </div>
                       </div>
 
                       {confirmingRequestId === req.id && (
-                        <div className="bg-white p-3 rounded-lg border border-emerald-200 animate-in fade-in slide-in-from-top-2 duration-200">
-                          <div className="space-y-3">
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="space-y-1.5">
-                                <Label className="text-[9px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-1">
-                                  <Hash className="h-3 w-3" /> Qtd. Recebida
-                                </Label>
-                                <Input 
-                                  type="number" 
-                                  value={receiveQuantity}
-                                  onChange={(e) => setReceiveQuantity(e.target.value)}
-                                  className="h-9 text-xs font-bold border-emerald-100 focus:ring-emerald-500"
-                                />
-                              </div>
-                              <div className="space-y-1.5">
-                                <Label className="text-[9px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-1">
-                                  <CalendarDays className="h-3 w-3" /> Data
-                                </Label>
-                                <Input 
-                                  type="date" 
-                                  value={receiveDate}
-                                  onChange={(e) => setReceiveDate(e.target.value)}
-                                  className="h-9 text-xs font-bold border-emerald-100 focus:ring-emerald-500"
-                                />
-                              </div>
+                        <div className="bg-white p-3 rounded-lg border border-emerald-200 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="space-y-1.5">
+                              <Label className="text-[9px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-1">
+                                <Hash className="h-3 w-3" /> Qtd. Recebida
+                              </Label>
+                              <Input type="number" value={receiveQuantity} onChange={(e) => setReceiveQuantity(e.target.value)} className="h-9 text-xs font-bold" />
                             </div>
-                            <Button 
-                              size="sm" 
-                              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-[10px] tracking-widest h-9"
-                              onClick={() => handleMarkAsReceived(req)}
-                            >
-                              Confirmar Recebimento
-                            </Button>
+                            <div className="space-y-1.5">
+                              <Label className="text-[9px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-1">
+                                <CalendarDays className="h-3 w-3" /> Data
+                              </Label>
+                              <Input type="date" value={receiveDate} onChange={(e) => setReceiveDate(e.target.value)} className="h-9 text-xs font-bold" />
+                            </div>
                           </div>
+                          <Button size="sm" className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-[10px] tracking-widest h-9" onClick={() => handleMarkAsReceived(req)}>
+                            Confirmar Recebimento
+                          </Button>
                         </div>
                       )}
 
@@ -293,45 +264,22 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                     <Label htmlFor="req-qty" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
                       <Hash className="h-3 w-3 text-primary" /> Quantidade
                     </Label>
-                    <Input 
-                      id="req-qty"
-                      type="number"
-                      placeholder="0"
-                      value={requestQuantity}
-                      onChange={(e) => setRequestQuantity(e.target.value)}
-                      className="font-black h-11 text-center text-lg"
-                    />
+                    <Input id="req-qty" type="number" placeholder="0" value={requestQuantity} onChange={(e) => setRequestQuantity(e.target.value)} className="font-black h-11 text-center text-lg" />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="req-date" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
                       <CalendarDays className="h-3 w-3 text-primary" /> Data do Pedido
                     </Label>
-                    <Input 
-                      id="req-date"
-                      type="date"
-                      value={requestDate}
-                      onChange={(e) => setRequestDate(e.target.value)}
-                      className="font-bold h-11 text-xs"
-                    />
+                    <Input id="req-date" type="date" value={requestDate} onChange={(e) => setRequestDate(e.target.value)} className="font-bold h-11 text-xs" />
                   </div>
                   <div className="sm:col-span-2 space-y-2">
                     <Label htmlFor="req-notes" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
                       <StickyNote className="h-3 w-3 text-primary" /> Observações (Opcional)
                     </Label>
-                    <Input 
-                      id="req-notes"
-                      placeholder="Ex: Campanha especial, Pedido para o irmão..."
-                      value={requestNotes}
-                      onChange={(e) => setRequestNotes(e.target.value)}
-                      className="font-bold h-11 text-xs"
-                    />
+                    <Input id="req-notes" placeholder="Ex: Campanha especial..." value={requestNotes} onChange={(e) => setRequestNotes(e.target.value)} className="font-bold h-11 text-xs" />
                   </div>
                 </div>
-                <Button 
-                  onClick={handleAddRequest}
-                  disabled={isLoading}
-                  className="w-full bg-primary hover:bg-primary/90 font-black uppercase text-xs h-12 shadow-md gap-2"
-                >
+                <Button onClick={handleAddRequest} disabled={isLoading} className="w-full bg-primary hover:bg-primary/90 font-black uppercase text-xs h-12 shadow-md gap-2">
                   <PlusCircle className="h-4 w-4" /> Adicionar Novo Pedido
                 </Button>
               </div>
@@ -340,20 +288,17 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
             {receivedRequests.length > 0 && (
               <div className="space-y-3 pb-4">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 px-1 flex items-center gap-2">
-                  <History className="h-3 w-3" /> Histórico de Recebimento
+                  <History className="h-3 w-3" /> Histórico Recente
                 </p>
                 <div className="bg-neutral-50 rounded-xl overflow-hidden border border-neutral-100">
                   {receivedRequests.map((req, idx) => (
-                    <div key={req.id} className={cn(
-                      "p-3 flex justify-between items-center",
-                      idx !== receivedRequests.length - 1 && "border-b border-neutral-100"
-                    )}>
+                    <div key={req.id} className={cn("p-3 flex justify-between items-center", idx !== receivedRequests.length - 1 && "border-b border-neutral-100")}>
                       <div className="flex items-center gap-3">
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
                         <div className="flex flex-col">
                           <span className="text-[11px] font-black">{req.quantity} un.</span>
                           <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-tighter">
-                            Entregue em {format(new Date(req.receivedAt || req.createdAt), "dd/MM/yyyy", { locale: ptBR })}
+                            {format(new Date(req.receivedAt || req.createdAt), "dd/MM/yyyy", { locale: ptBR })}
                           </span>
                         </div>
                       </div>
