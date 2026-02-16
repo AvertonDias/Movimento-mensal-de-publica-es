@@ -26,12 +26,6 @@
       "imageHint": "spiritual guide"
     },
     {
-      "id": "lffi",
-      "description": "Seja Feliz para Sempre! (brochura)",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/lffi/T/pt/lffi_T_lg.jpg",
-      "imageHint": "spiritual brochure"
-    },
-    {
       "id": "ia",
       "description": "Imite a Sua Fé",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ia/T/pt/ia_T_lg.jpg",
@@ -154,7 +148,7 @@
     {
       "id": "hf",
       "description": "Família",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/fy/T/pt/fy_T_lg.jpg",
+      "imageUrl": "https://cfp2.jw-cdn.org/a/00c6a9/1/ir/hf_T_lg.jpg",
       "imageHint": "family brochure"
     },
     {
