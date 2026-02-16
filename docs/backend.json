@@ -60,7 +60,8 @@
         "silent": { "type": "boolean", "description": "Whether this item only has toast notifications disabled." },
         "minStock": { "type": "number", "description": "Minimum stock threshold for alerts." },
         "lastRequestDate": { "type": "string", "format": "date-time" },
-        "lastRequestStatus": { "type": "string", "enum": ["pending", "received", "none"] }
+        "lastRequestStatus": { "type": "string", "enum": ["pending", "received", "none"] },
+        "lastRequestQuantity": { "type": "number", "description": "Quantity requested in the last order." }
       }
     }
   },

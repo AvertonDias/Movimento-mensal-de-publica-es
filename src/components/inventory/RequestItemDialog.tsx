@@ -12,10 +12,12 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useFirestore, useUser, setDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { InventoryItem } from '@/app/types/inventory';
-import { PackageSearch, Clock, CheckCircle2, Truck, PlusCircle } from 'lucide-react';
+import { PackageSearch, Clock, CheckCircle2, Truck, PlusCircle, Hash } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
@@ -31,6 +33,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const db = useFirestore();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [requestQuantity, setRequestQuantity] = useState<string>('');
 
   if (!item) return null;
 
@@ -38,6 +41,16 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
   const handleUpdateRequest = (status: 'pending' | 'received' | 'none') => {
     if (!activeUid || !db || !item) return;
+    
+    if (status === 'pending' && (!requestQuantity || Number(requestQuantity) <= 0)) {
+      toast({
+        variant: "destructive",
+        title: "Quantidade Inválida",
+        description: "Por favor, informe a quantidade do pedido.",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     const docRef = doc(db, 'users', activeUid, 'inventory', item.id);
@@ -53,6 +66,9 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     if (status === 'pending') {
       updates.lastRequestDate = new Date().toISOString();
+      updates.lastRequestQuantity = Number(requestQuantity);
+    } else if (status === 'none') {
+      updates.lastRequestQuantity = null;
     }
 
     setDocumentNonBlocking(docRef, updates, { merge: true });
@@ -63,13 +79,25 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     });
 
     setIsLoading(false);
+    setRequestQuantity('');
     onClose();
   };
 
   const getStatusBadge = () => {
     switch (item.lastRequestStatus) {
       case 'pending':
-        return <Badge className="bg-amber-500 hover:bg-amber-600 gap-1.5 font-black uppercase text-[10px]"><Truck className="h-3 w-3" /> Pedido a Caminho</Badge>;
+        return (
+          <div className="flex flex-col items-center gap-2">
+            <Badge className="bg-amber-500 hover:bg-amber-600 gap-1.5 font-black uppercase text-[10px]">
+              <Truck className="h-3 w-3" /> Pedido a Caminho
+            </Badge>
+            {item.lastRequestQuantity && (
+              <Badge variant="outline" className="border-amber-200 text-amber-700 font-bold text-[10px] uppercase">
+                Qtd: {item.lastRequestQuantity}
+              </Badge>
+            )}
+          </div>
+        );
       case 'received':
         return <Badge className="bg-emerald-500 hover:bg-emerald-600 gap-1.5 font-black uppercase text-[10px]"><CheckCircle2 className="h-3 w-3" /> Último Pedido Recebido</Badge>;
       default:
@@ -108,9 +136,24 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
             )}
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 px-1">Ações Disponíveis</p>
-            <div className="grid gap-2">
+            
+            <div className="space-y-3 bg-white p-4 rounded-xl border border-neutral-100">
+              <div className="space-y-2">
+                <Label htmlFor="req-qty" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                  <Hash className="h-3 w-3" /> Quantidade do Pedido
+                </Label>
+                <Input 
+                  id="req-qty"
+                  type="number"
+                  placeholder="Ex: 50"
+                  value={requestQuantity}
+                  onChange={(e) => setRequestQuantity(e.target.value)}
+                  onFocus={(e) => e.target.select()}
+                  className="font-bold h-11"
+                />
+              </div>
               <Button 
                 onClick={() => handleUpdateRequest('pending')}
                 disabled={isLoading || item.lastRequestStatus === 'pending'}
@@ -118,25 +161,25 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
               >
                 <PlusCircle className="h-4 w-4" /> Marcar Novo Pedido
               </Button>
-              
-              <div className="grid grid-cols-2 gap-2">
-                <Button 
-                  variant="outline" 
-                  onClick={() => handleUpdateRequest('received')}
-                  disabled={isLoading || item.lastRequestStatus !== 'pending'}
-                  className="font-black uppercase text-[10px] h-11 border-emerald-200 hover:bg-emerald-50 text-emerald-600 gap-2"
-                >
-                  <CheckCircle2 className="h-3.5 w-3.5" /> Recebido
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => handleUpdateRequest('none')}
-                  disabled={isLoading || item.lastRequestStatus === 'none'}
-                  className="font-black uppercase text-[10px] h-11 text-neutral-400"
-                >
-                  Limpar Status
-                </Button>
-              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => handleUpdateRequest('received')}
+                disabled={isLoading || item.lastRequestStatus !== 'pending'}
+                className="font-black uppercase text-[10px] h-11 border-emerald-200 hover:bg-emerald-50 text-emerald-600 gap-2"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" /> Recebido
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => handleUpdateRequest('none')}
+                disabled={isLoading || item.lastRequestStatus === 'none'}
+                className="font-black uppercase text-[10px] h-11 text-neutral-400"
+              >
+                Limpar Status
+              </Button>
             </div>
           </div>
         </div>

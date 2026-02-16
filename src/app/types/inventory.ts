@@ -26,6 +26,7 @@ export interface InventoryItem {
   silent?: boolean;
   lastRequestDate?: string | null;
   lastRequestStatus?: 'pending' | 'received' | 'none';
+  lastRequestQuantity?: number | null;
   [key: string]: string | number | boolean | null | undefined;
 }
 
