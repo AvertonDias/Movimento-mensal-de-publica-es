@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
+import { Header } from '@/components/Header';
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -23,6 +24,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <FirebaseClientProvider>
+      <Header />
       {children}
       <Toaster />
       <PWAInstallPrompt />

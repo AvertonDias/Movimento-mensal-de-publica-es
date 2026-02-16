@@ -49,7 +49,7 @@ const displaySchedule = [
 
 export default function MagazineDisplayPage() {
   return (
-    <div className="min-h-screen bg-neutral-50 p-6 font-body">
+    <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body">
       <div className="max-w-5xl mx-auto space-y-8">
         <div className="flex items-center justify-between">
           <Link href="/">

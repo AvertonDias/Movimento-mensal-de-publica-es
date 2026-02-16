@@ -38,7 +38,7 @@ export default function HistoryPage(props: {
   const targetUserId = isHelper ? helperInvite.ownerId : user.uid;
 
   return (
-    <div className="min-h-screen bg-neutral-200 py-6 px-4 print:p-0 print:bg-white overflow-x-auto font-body">
+    <div className="min-h-screen bg-neutral-200 pt-24 pb-6 px-4 print:p-0 print:bg-white overflow-x-auto font-body">
       <div className="max-w-[800px] mx-auto space-y-4 print:space-y-0">
         <div className="flex items-center justify-between print:hidden">
           <Link href="/">

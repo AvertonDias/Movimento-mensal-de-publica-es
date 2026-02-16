@@ -28,7 +28,6 @@ export default function HelpersPage() {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
-    // Se o usuário já for um ajudante de alguém, ele não deve gerenciar outros ajudantes
     if (!isCheckingRole && helperInvite) {
       router.push('/');
     }
@@ -64,12 +63,8 @@ export default function HelpersPage() {
 
   const copyToClipboard = (tokenId: string) => {
     const url = `${window.location.origin}/register?token=${tokenId}`;
-    
-    // Mensagem formatada exatamente como solicitado, sem erros de digitação
     const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse le link abaixo para aceitar o convite e realizar o seu cadastro: ${url}`;
-    
     navigator.clipboard.writeText(invitationMessage);
-    
     toast({
       title: "Convite copiado!",
       description: "A mensagem completa foi copiada. Agora é só colar na conversa com o ajudante.",
@@ -85,7 +80,7 @@ export default function HelpersPage() {
   if (isUserLoading || isCheckingRole || !user || helperInvite) return null;
 
   return (
-    <div className="min-h-screen bg-neutral-50 p-6 font-body">
+    <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body">
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <Link href="/">

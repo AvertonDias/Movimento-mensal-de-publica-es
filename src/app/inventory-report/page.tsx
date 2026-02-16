@@ -68,7 +68,6 @@ export default function InventoryReportPage() {
     const combined: InventoryItem[] = [];
     const officialIds = new Set(OFFICIAL_PUBLICATIONS.map((pub, idx) => pub.code || pub.abbr || `item_${idx}`));
     
-    // Combina oficiais e customizados com seus dados de estoque
     OFFICIAL_PUBLICATIONS.forEach((pub, idx) => {
       const id = pub.code || pub.abbr || `item_${idx}`;
       const remote = remoteItems?.find(i => i.id === id);
@@ -76,7 +75,6 @@ export default function InventoryReportPage() {
       const prev = Number(remote?.previous) || 0;
       const curr = Number(remote?.current) || 0;
 
-      // Só adiciona se não for categoria e se tiver saldo em algum dos dois
       if (!pub.isCategory && (prev > 0 || curr > 0)) {
         combined.push({
           ...pub,
@@ -86,7 +84,6 @@ export default function InventoryReportPage() {
         } as InventoryItem);
       }
 
-      // Adiciona itens customizados desta categoria
       if (pub.isCategory && customDefinitions) {
         const categoryCustomItems = customDefinitions
           .filter(cd => cd.category === pub.category && !officialIds.has(cd.id));
@@ -113,7 +110,7 @@ export default function InventoryReportPage() {
   if (isUserLoading || isCheckingHelper || !user) return null;
 
   return (
-    <div className="min-h-screen bg-neutral-50 p-6 font-body print:bg-white print:p-0">
+    <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between print:hidden">
           <Link href="/">

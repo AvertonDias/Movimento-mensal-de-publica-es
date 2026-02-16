@@ -42,7 +42,7 @@ export default function StatsPage() {
   const targetUserId = isHelper ? helperInvite.ownerId : user.uid;
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-6 md:py-10 px-4 md:px-6 font-body">
+    <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-4 md:px-6 font-body">
       <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link href="/">

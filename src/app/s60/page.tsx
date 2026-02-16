@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -9,7 +8,7 @@ import Link from "next/link";
 
 export default function S60Page() {
   return (
-    <div className="min-h-screen bg-neutral-50 py-8 px-4 font-body print:bg-white print:p-0">
+    <div className="min-h-screen bg-neutral-50 pt-24 pb-8 px-4 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between print:hidden">
           <Link href="/">
