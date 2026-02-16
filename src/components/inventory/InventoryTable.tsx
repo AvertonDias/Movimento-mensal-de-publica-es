@@ -78,6 +78,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [pendingConfirmItem, setPendingConfirmItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
+  const [shouldOpenRequestNext, setShouldOpenRequestNext] = useState<InventoryItem | null>(null);
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -86,6 +87,32 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const prevMonthKey = format(prevMonth, 'yyyy-MM');
 
   const activeUid = targetUserId || user?.uid;
+
+  // Filtro de segurança para limpar o bloqueio de cliques do navegador
+  useEffect(() => {
+    if (!pendingConfirmItem && !requestingItem && !editingItem) {
+      const cleanup = () => {
+        document.body.style.pointerEvents = 'auto';
+        document.body.style.overflow = 'auto';
+      };
+      cleanup();
+      // Re-executa após um curto delay para garantir que o Radix terminou sua transição
+      const t = setTimeout(cleanup, 300);
+      return () => clearTimeout(t);
+    }
+  }, [pendingConfirmItem, requestingItem, editingItem]);
+
+  // Gerenciador de transição segura entre Alerta e Modal
+  useEffect(() => {
+    if (!pendingConfirmItem && shouldOpenRequestNext) {
+      const item = { ...shouldOpenRequestNext };
+      setShouldOpenRequestNext(null);
+      const t = setTimeout(() => {
+        setRequestingItem(item);
+      }, 150);
+      return () => clearTimeout(t);
+    }
+  }, [pendingConfirmItem, shouldOpenRequestNext]);
 
   const isDateInFuture = (date: Date) => {
     const currentMonthStart = startOfMonth(new Date());
@@ -223,7 +250,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
 
-    // Gatilho para perguntar sobre pedidos pendentes ao registrar recebimento
     if (field === 'received' && value !== null && value > 0 && (Number(itemData.pendingRequestsCount) || 0) > 0) {
       setPendingConfirmItem(itemData);
     }
@@ -249,13 +275,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const handleOpenRequestsAfterAlert = () => {
     if (pendingConfirmItem) {
-      const itemToRequest = { ...pendingConfirmItem };
+      setShouldOpenRequestNext({ ...pendingConfirmItem });
       setPendingConfirmItem(null);
-      // O segredo para não travar a página é aguardar a animação do Radix UI fechar completamente
-      // antes de abrir o próximo diálogo. 200ms é o tempo de transição padrão.
-      setTimeout(() => {
-        setRequestingItem(itemToRequest);
-      }, 200);
     }
   };
 

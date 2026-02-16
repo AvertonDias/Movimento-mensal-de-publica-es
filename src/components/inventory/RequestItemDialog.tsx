@@ -54,7 +54,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const pendingRequests = allRequests?.filter(r => r.status === 'pending').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
   const receivedRequests = allRequests?.filter(r => r.status === 'received').sort((a, b) => new Date(b.receivedAt || b.createdAt).getTime() - new Date(a.receivedAt || a.createdAt).getTime()).slice(0, 8) || [];
 
-  // Limpa estados internos quando o item muda ou o modal fecha
   useEffect(() => {
     if (!item) {
       setRequestQuantity('');
