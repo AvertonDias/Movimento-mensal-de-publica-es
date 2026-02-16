@@ -1,7 +1,7 @@
 
 "use client"
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -54,6 +54,15 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const pendingRequests = allRequests?.filter(r => r.status === 'pending').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
   const receivedRequests = allRequests?.filter(r => r.status === 'received').sort((a, b) => new Date(b.receivedAt || b.createdAt).getTime() - new Date(a.receivedAt || a.createdAt).getTime()).slice(0, 8) || [];
 
+  // Limpa estados internos quando o item muda ou o modal fecha
+  useEffect(() => {
+    if (!item) {
+      setRequestQuantity('');
+      setRequestNotes('');
+      setConfirmingRequestId(null);
+    }
+  }, [item]);
+
   if (!item) return null;
 
   const handleAddRequest = () => {
@@ -83,13 +92,8 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     setDocumentNonBlocking(reqDocRef, newRequest, { merge: true });
 
-    // Sincroniza o contador no item pai (para gatilhos na tabela principal)
     const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(itemDocRef, {
-      id: item.id,
-      item: item.item,
-      category: item.category,
-      code: item.code,
       pendingRequestsCount: (item.pendingRequestsCount || 0) + 1,
       updatedAt: new Date().toISOString()
     }, { merge: true });
@@ -118,7 +122,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
       quantity: finalQty
     }, { merge: true });
 
-    // Atualiza o contador de pendências
     const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(itemDocRef, {
       pendingRequestsCount: Math.max(0, (item.pendingRequestsCount || 1) - 1),
@@ -213,7 +216,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                               onClick={() => setConfirmingRequestId(null)}
                               className="h-8 w-8 text-neutral-400"
                             >
-                              <Trash2 className="h-3.5 w-3.5" />
+                              <X className="h-3.5 w-3.5" />
                             </Button>
                           )}
                           <Button 

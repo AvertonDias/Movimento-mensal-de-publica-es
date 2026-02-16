@@ -203,15 +203,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     return combined;
   }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth, historicalMinStock]);
 
-  useEffect(() => {
-    if (requestingItem) {
-      const updated = items.find(i => i.id === requestingItem.id);
-      if (updated && (updated.pendingRequestsCount !== requestingItem.pendingRequestsCount)) {
-        setRequestingItem(updated);
-      }
-    }
-  }, [items, requestingItem]);
-
   const filteredItems = useMemo(() => {
     return items.filter(item => 
       item.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -232,9 +223,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
 
-    // Lógica de Gatilho para Confirmação de Recebimento
     if (field === 'received' && value !== null && value > 0 && (Number(itemData.pendingRequestsCount) || 0) > 0) {
-      // Prompt apenas se o valor anterior na tabela era 0 ou vazio (nova entrada)
       if (!itemData.received || itemData.received === 0) {
         setPendingConfirmItem(itemData);
       }
@@ -257,6 +246,17 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     setLocalData(prev => ({ ...prev, [id]: { ...prev[id], ...updates } }));
     const docRef = doc(db, 'users', activeUid, 'monthly_records', monthKey, 'items', id);
     setDocumentNonBlocking(docRef, { ...itemData, ...updates, id, updatedAt: new Date().toISOString() }, { merge: true });
+  };
+
+  const handleOpenRequestsAfterAlert = () => {
+    if (pendingConfirmItem) {
+      const itemToRequest = pendingConfirmItem;
+      setPendingConfirmItem(null);
+      // Aguarda o Alerta fechar completamente antes de abrir o novo modal
+      setTimeout(() => {
+        setRequestingItem(itemToRequest);
+      }, 150);
+    }
   };
 
   return (
@@ -409,12 +409,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           <AlertDialogFooter>
             <AlertDialogCancel className="font-bold uppercase text-xs text-muted-foreground">Agora não</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={() => {
-                if (pendingConfirmItem) {
-                  setRequestingItem(pendingConfirmItem);
-                  setPendingConfirmItem(null);
-                }
-              }} 
+              onClick={handleOpenRequestsAfterAlert} 
               className="bg-primary hover:bg-primary/90 font-bold uppercase text-xs"
             >
               Sim, Abrir Pedidos
