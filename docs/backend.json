@@ -56,13 +56,22 @@
         "code": { "type": "string" },
         "category": { "type": "string" },
         "sortOrder": { "type": "number" },
-        "hidden": { "type": "boolean", "description": "Whether this item has alerts completely disabled." },
-        "silent": { "type": "boolean", "description": "Whether this item only has toast notifications disabled." },
-        "minStock": { "type": "number", "description": "Minimum stock threshold for alerts." },
-        "lastRequestDate": { "type": "string", "format": "date-time" },
-        "lastRequestStatus": { "type": "string", "enum": ["pending", "received", "none"] },
-        "lastRequestQuantity": { "type": "number", "description": "Quantity requested in the last order." },
-        "lastRequestNotes": { "type": "string", "description": "Additional observations for the order." }
+        "hidden": { "type": "boolean" },
+        "silent": { "type": "boolean" },
+        "minStock": { "type": "number" },
+        "pendingRequestsCount": { "type": "number", "description": "Number of active pending requests." }
+      }
+    },
+    "Request": {
+      "title": "Item Request",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "quantity": { "type": "number" },
+        "notes": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "received"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "receivedAt": { "type": "string", "format": "date-time" }
       }
     }
   },
@@ -84,7 +93,11 @@
     },
     "/users/{userId}/inventory/{itemId}": {
       "schema": { "$ref": "#/backend/entities/Inventory" },
-      "description": "Stores custom inventory definitions, alerts, and request status."
+      "description": "Stores custom inventory definitions and summary of requests."
+    },
+    "/users/{userId}/inventory/{itemId}/requests/{requestId}": {
+      "schema": { "$ref": "#/backend/entities/Request" },
+      "description": "Individual requests for a specific item."
     },
     "/users/{userId}/monthly_records/{monthKey}/items/{itemId}": {
       "schema": { "type": "object" },

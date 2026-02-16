@@ -9,7 +9,6 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
     
-    // Função que verifica se o usuário é um ajudante autorizado para aquele proprietário
     function isAuthorizedHelper(ownerId) {
       return isSignedIn() && exists(/databases/$(database)/documents/invites/$(request.auth.uid)) && 
              get(/databases/$(database)/documents/invites/$(request.auth.uid)).data.ownerId == ownerId;
@@ -22,6 +21,11 @@ service cloud.firestore {
       match /inventory/{itemId} {
         allow read: if true;
         allow write: if isOwner(userId) || isAuthorizedHelper(userId);
+
+        match /requests/{requestId} {
+          allow read: if true;
+          allow write: if isOwner(userId) || isAuthorizedHelper(userId);
+        }
       }
 
       match /monthly_records/{monthKey} {

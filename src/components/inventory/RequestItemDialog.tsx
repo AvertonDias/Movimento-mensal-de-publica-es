@@ -15,13 +15,15 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useFirestore, useUser, setDocumentNonBlocking } from '@/firebase';
-import { doc } from 'firebase/firestore';
-import { InventoryItem } from '@/app/types/inventory';
-import { PackageSearch, Clock, CheckCircle2, Truck, PlusCircle, Hash, StickyNote } from 'lucide-react';
+import { useFirestore, useUser, setDocumentNonBlocking, useCollection, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
+import { doc, collection } from 'firebase/firestore';
+import { InventoryItem, ItemRequest } from '@/app/types/inventory';
+import { PackageSearch, Clock, CheckCircle2, Truck, PlusCircle, Hash, StickyNote, Trash2, History } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
+import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface RequestItemDialogProps {
   item: InventoryItem | null;
@@ -37,14 +39,24 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const [requestQuantity, setRequestQuantity] = useState<string>('');
   const [requestNotes, setRequestNotes] = useState<string>('');
 
-  if (!item) return null;
-
   const activeUid = targetUserId || user?.uid;
 
-  const handleUpdateRequest = (status: 'pending' | 'received' | 'none') => {
+  const requestsQuery = useMemoFirebase(() => {
+    if (!db || !activeUid || !item) return null;
+    return collection(db, 'users', activeUid, 'inventory', item.id, 'requests');
+  }, [db, activeUid, item]);
+
+  const { data: allRequests } = useCollection<ItemRequest>(requestsQuery);
+
+  const pendingRequests = allRequests?.filter(r => r.status === 'pending').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
+  const receivedRequests = allRequests?.filter(r => r.status === 'received').sort((a, b) => new Date(b.receivedAt || b.createdAt).getTime() - new Date(a.receivedAt || a.createdAt).getTime()).slice(0, 5) || [];
+
+  if (!item) return null;
+
+  const handleAddRequest = () => {
     if (!activeUid || !db || !item) return;
     
-    if (status === 'pending' && (!requestQuantity || Number(requestQuantity) <= 0)) {
+    if (!requestQuantity || Number(requestQuantity) <= 0) {
       toast({
         variant: "destructive",
         title: "Quantidade Inválida",
@@ -55,165 +67,227 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     setIsLoading(true);
 
-    const docRef = doc(db, 'users', activeUid, 'inventory', item.id);
-    const updates: any = {
+    const requestId = `req_${Date.now()}`;
+    const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', requestId);
+    
+    const newRequest: ItemRequest = {
+      id: requestId,
+      quantity: Number(requestQuantity),
+      notes: requestNotes || '',
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+
+    setDocumentNonBlocking(reqDocRef, newRequest, { merge: true });
+
+    // Atualiza contador no item principal
+    const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
+    setDocumentNonBlocking(itemDocRef, {
       id: item.id,
       item: item.item,
       category: item.category,
       code: item.code,
-      abbr: item.abbr || '',
-      lastRequestStatus: status,
+      pendingRequestsCount: (item.pendingRequestsCount || 0) + 1,
       updatedAt: new Date().toISOString()
-    };
-
-    if (status === 'pending') {
-      updates.lastRequestDate = new Date().toISOString();
-      updates.lastRequestQuantity = Number(requestQuantity);
-      updates.lastRequestNotes = requestNotes || null;
-    } else if (status === 'none') {
-      updates.lastRequestQuantity = null;
-      updates.lastRequestNotes = null;
-    }
-
-    setDocumentNonBlocking(docRef, updates, { merge: true });
+    }, { merge: true });
 
     toast({
-      title: status === 'pending' ? "Pedido registrado!" : (status === 'received' ? "Pedido entregue!" : "Pedido removido"),
-      description: `O status da publicação "${item.item}" foi atualizado.`,
+      title: "Pedido registrado!",
+      description: `Solicitados ${requestQuantity} un. de "${item.item}".`,
     });
 
-    setIsLoading(false);
     setRequestQuantity('');
     setRequestNotes('');
-    onClose();
+    setIsLoading(false);
   };
 
-  const getStatusBadge = () => {
-    switch (item.lastRequestStatus) {
-      case 'pending':
-        return (
-          <div className="flex flex-col items-center gap-2 w-full">
-            <Badge className="bg-amber-500 hover:bg-amber-600 gap-1.5 font-black uppercase text-[10px]">
-              <Truck className="h-3 w-3" /> Pedido a Caminho
-            </Badge>
-            <div className="flex flex-wrap justify-center gap-2">
-              {item.lastRequestQuantity && (
-                <Badge variant="outline" className="border-amber-200 text-amber-700 font-bold text-[10px] uppercase">
-                  Qtd: {item.lastRequestQuantity}
-                </Badge>
-              )}
-            </div>
-            {item.lastRequestNotes && (
-              <div className="mt-2 p-2 bg-amber-50 border border-amber-100 rounded-lg w-full max-w-[300px]">
-                <p className="text-[10px] font-black uppercase text-amber-800 mb-1 flex items-center gap-1">
-                  <StickyNote className="h-2.5 w-2.5" /> Notas:
-                </p>
-                <p className="text-[11px] text-amber-900 font-medium leading-tight">
-                  {item.lastRequestNotes}
-                </p>
-              </div>
-            )}
-          </div>
-        );
-      case 'received':
-        return <Badge className="bg-emerald-500 hover:bg-emerald-600 gap-1.5 font-black uppercase text-[10px]"><CheckCircle2 className="h-3 w-3" /> Último Pedido Recebido</Badge>;
-      default:
-        return <Badge variant="outline" className="text-muted-foreground font-black uppercase text-[10px]">Sem pedidos recentes</Badge>;
+  const handleMarkAsReceived = (req: ItemRequest) => {
+    if (!activeUid || !db || !item) return;
+
+    const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', req.id);
+    setDocumentNonBlocking(reqDocRef, {
+      status: 'received',
+      receivedAt: new Date().toISOString()
+    }, { merge: true });
+
+    // Decrementa contador no item principal
+    const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
+    setDocumentNonBlocking(itemDocRef, {
+      pendingRequestsCount: Math.max(0, (item.pendingRequestsCount || 1) - 1),
+      updatedAt: new Date().toISOString()
+    }, { merge: true });
+
+    toast({
+      title: "Pedido recebido!",
+      description: `O pedido de ${req.quantity} un. foi marcado como entregue.`,
+    });
+  };
+
+  const handleDeleteRequest = (req: ItemRequest) => {
+    if (!activeUid || !db || !item) return;
+
+    const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', req.id);
+    deleteDocumentNonBlocking(reqDocRef);
+
+    if (req.status === 'pending') {
+      const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
+      setDocumentNonBlocking(itemDocRef, {
+        pendingRequestsCount: Math.max(0, (item.pendingRequestsCount || 1) - 1),
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
     }
+
+    toast({
+      variant: "destructive",
+      title: "Pedido removido",
+      description: "O registro do pedido foi excluído.",
+    });
   };
 
   return (
     <Dialog open={!!item} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-2xl">
-        <DialogHeader className="p-6 bg-primary/5 border-b border-primary/10">
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl flex flex-col max-h-[90vh]">
+        <DialogHeader className="p-6 bg-primary/5 border-b border-primary/10 shrink-0">
           <div className="flex items-center gap-3 mb-2">
             <div className="bg-primary/20 p-2 rounded-lg">
               <PackageSearch className="h-5 w-5 text-primary" />
             </div>
-            <DialogTitle className="uppercase font-black text-lg tracking-tight">Controle de Pedido</DialogTitle>
+            <DialogTitle className="uppercase font-black text-lg tracking-tight">Controle de Pedidos</DialogTitle>
           </div>
           <DialogDescription className="text-xs font-bold uppercase text-muted-foreground">
             {item.item} {item.code ? `(${item.code})` : ''}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="p-6 space-y-6">
-          <div className="flex flex-col items-center justify-center p-6 bg-neutral-50 rounded-2xl border border-neutral-100 space-y-4">
-            {getStatusBadge()}
-            
-            {item.lastRequestDate ? (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Clock className="h-3.5 w-3.5" />
-                <span className="text-[11px] font-bold uppercase tracking-widest">
-                  Última ação: {format(new Date(item.lastRequestDate), "dd 'de' MMMM", { locale: ptBR })}
-                </span>
+        <ScrollArea className="flex-1 overflow-y-auto">
+          <div className="p-6 space-y-8">
+            {/* Seção de Pedidos Ativos */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2">
+                  <Truck className="h-3 w-3" /> Pedidos Pendentes ({pendingRequests.length})
+                </p>
               </div>
-            ) : (
-              <p className="text-[10px] font-black uppercase text-neutral-400 tracking-widest">Nenhum histórico de pedido</p>
+              
+              {pendingRequests.length === 0 ? (
+                <div className="p-8 text-center bg-neutral-50 rounded-2xl border border-dashed border-neutral-200">
+                  <p className="text-[10px] font-black uppercase text-neutral-400 tracking-widest">Nenhum pedido a caminho</p>
+                </div>
+              ) : (
+                <div className="grid gap-3">
+                  {pendingRequests.map(req => (
+                    <div key={req.id} className="bg-amber-50/50 border border-amber-100 rounded-xl p-4 space-y-3 shadow-sm">
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1">
+                          <Badge className="bg-amber-500 font-black text-[10px] uppercase">Qtd: {req.quantity}</Badge>
+                          <p className="text-[9px] font-bold text-amber-700 uppercase tracking-tighter">
+                            Solicitado em {format(new Date(req.createdAt), "dd/MM/yy 'às' HH:mm", { locale: ptBR })}
+                          </p>
+                        </div>
+                        <div className="flex gap-1">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleMarkAsReceived(req)}
+                            className="h-8 text-[9px] font-black uppercase tracking-widest border-emerald-200 text-emerald-600 hover:bg-emerald-50 bg-white"
+                          >
+                            <CheckCircle2 className="h-3 w-3 mr-1" /> Recebido
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleDeleteRequest(req)}
+                            className="h-8 w-8 text-neutral-400 hover:text-destructive"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                      {req.notes && (
+                        <p className="text-[11px] text-amber-900 font-medium bg-white/50 p-2 rounded-lg leading-tight border border-amber-100/50 italic">
+                          "{req.notes}"
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <Separator className="bg-neutral-100" />
+
+            {/* Formulário Novo Pedido */}
+            <div className="space-y-4">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary px-1">Novo Pedido</p>
+              <div className="bg-white p-5 rounded-2xl border border-neutral-100 shadow-sm space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="sm:col-span-1 space-y-2">
+                    <Label htmlFor="req-qty" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                      <Hash className="h-3 w-3 text-primary" /> Quantidade
+                    </Label>
+                    <Input 
+                      id="req-qty"
+                      type="number"
+                      placeholder="0"
+                      value={requestQuantity}
+                      onChange={(e) => setRequestQuantity(e.target.value)}
+                      className="font-black h-11 text-center text-lg"
+                    />
+                  </div>
+                  <div className="sm:col-span-2 space-y-2">
+                    <Label htmlFor="req-notes" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                      <StickyNote className="h-3 w-3 text-primary" /> Observações (Opcional)
+                    </Label>
+                    <Input 
+                      id="req-notes"
+                      placeholder="Ex: Via JW Hub, Urgente..."
+                      value={requestNotes}
+                      onChange={(e) => setRequestNotes(e.target.value)}
+                      className="font-bold h-11 text-xs"
+                    />
+                  </div>
+                </div>
+                <Button 
+                  onClick={handleAddRequest}
+                  disabled={isLoading}
+                  className="w-full bg-primary hover:bg-primary/90 font-black uppercase text-xs h-12 shadow-md gap-2"
+                >
+                  <PlusCircle className="h-4 w-4" /> Adicionar Novo Pedido
+                </Button>
+              </div>
+            </div>
+
+            {/* Histórico Recente */}
+            {receivedRequests.length > 0 && (
+              <div className="space-y-3 pb-4">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 px-1 flex items-center gap-2">
+                  <History className="h-3 w-3" /> Últimos Recebidos
+                </p>
+                <div className="bg-neutral-50 rounded-xl overflow-hidden border border-neutral-100">
+                  {receivedRequests.map((req, idx) => (
+                    <div key={req.id} className={cn(
+                      "p-3 flex justify-between items-center",
+                      idx !== receivedRequests.length - 1 && "border-b border-neutral-100"
+                    )}>
+                      <div className="flex items-center gap-3">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                        <span className="text-[11px] font-black">{req.quantity} un.</span>
+                        <span className="text-[9px] font-bold text-neutral-400 uppercase">
+                          Em {format(new Date(req.receivedAt || req.createdAt), "dd/MM/yy", { locale: ptBR })}
+                        </span>
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-7 w-7 text-neutral-300 hover:text-destructive" onClick={() => handleDeleteRequest(req)}>
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
+        </ScrollArea>
 
-          <div className="space-y-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 px-1">Ações Disponíveis</p>
-            
-            <div className="space-y-3 bg-white p-4 rounded-xl border border-neutral-100">
-              <div className="space-y-2">
-                <Label htmlFor="req-qty" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
-                  <Hash className="h-3 w-3" /> Quantidade do Pedido
-                </Label>
-                <Input 
-                  id="req-qty"
-                  type="number"
-                  placeholder="Ex: 50"
-                  value={requestQuantity}
-                  onChange={(e) => setRequestQuantity(e.target.value)}
-                  onFocus={(e) => e.target.select()}
-                  className="font-bold h-11"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="req-notes" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
-                  <StickyNote className="h-3 w-3" /> Observações
-                </Label>
-                <Textarea 
-                  id="req-notes"
-                  placeholder="Ex: Pedido feito no JW Hub ou observações..."
-                  value={requestNotes}
-                  onChange={(e) => setRequestNotes(e.target.value)}
-                  className="font-bold min-h-[80px] text-xs"
-                />
-              </div>
-              <Button 
-                onClick={() => handleUpdateRequest('pending')}
-                disabled={isLoading || item.lastRequestStatus === 'pending'}
-                className="w-full bg-primary hover:bg-primary/90 font-black uppercase text-xs h-12 shadow-md gap-2"
-              >
-                <PlusCircle className="h-4 w-4" /> Marcar Novo Pedido
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-2">
-              <Button 
-                variant="outline" 
-                onClick={() => handleUpdateRequest('received')}
-                disabled={isLoading || item.lastRequestStatus !== 'pending'}
-                className="font-black uppercase text-[10px] h-11 border-emerald-200 hover:bg-emerald-50 text-emerald-600 gap-2"
-              >
-                <CheckCircle2 className="h-3.5 w-3.5" /> Recebido
-              </Button>
-              <Button 
-                variant="ghost" 
-                onClick={() => handleUpdateRequest('none')}
-                disabled={isLoading || item.lastRequestStatus === 'none'}
-                className="font-black uppercase text-[10px] h-11 text-neutral-400"
-              >
-                Limpar Status
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter className="p-4 bg-neutral-50 border-t border-neutral-100">
+        <DialogFooter className="p-4 bg-neutral-50 border-t border-neutral-100 shrink-0">
           <Button variant="ghost" onClick={onClose} className="w-full font-black uppercase text-[10px] tracking-widest">
             Fechar Painel
           </Button>

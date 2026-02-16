@@ -8,6 +8,15 @@ export interface InventoryColumn {
   isCustom?: boolean;
 }
 
+export interface ItemRequest {
+  id: string;
+  quantity: number;
+  notes?: string;
+  status: 'pending' | 'received';
+  createdAt: string;
+  receivedAt?: string | null;
+}
+
 export interface InventoryItem {
   id: string;
   code: string;
@@ -24,10 +33,7 @@ export interface InventoryItem {
   isCustom?: boolean;
   hidden?: boolean;
   silent?: boolean;
-  lastRequestDate?: string | null;
-  lastRequestStatus?: 'pending' | 'received' | 'none';
-  lastRequestQuantity?: number | null;
-  lastRequestNotes?: string | null;
+  pendingRequestsCount?: number;
   [key: string]: string | number | boolean | null | undefined;
 }
 
