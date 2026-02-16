@@ -16,7 +16,7 @@ import { Label } from "@/components/ui/label";
 import { useFirestore, useUser, setDocumentNonBlocking, useCollection, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
 import { doc, collection } from 'firebase/firestore';
 import { InventoryItem, ItemRequest } from '@/app/types/inventory';
-import { PackageSearch, CheckCircle2, Truck, PlusCircle, Hash, StickyNote, Trash2, History, CalendarDays, X } from 'lucide-react';
+import { PackageSearch, CheckCircle2, Truck, PlusCircle, Hash, StickyNote, Trash2, History, CalendarDays, X, ShieldCheck } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
@@ -43,6 +43,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const [receiveDate, setReceiveDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
 
   const activeUid = targetUserId || user?.uid;
+  const isHelperMode = !!targetUserId && targetUserId !== user?.uid;
 
   const requestsQuery = useMemoFirebase(() => {
     if (!db || !activeUid || !item) return null;
@@ -82,7 +83,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     const requestId = `req_${Date.now()}`;
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', requestId);
     
-    // Define a hora para meio-dia para evitar problemas de fuso horário na conversão de string para data
     const finalRequestDate = new Date(requestDate + 'T12:00:00').toISOString();
 
     const newRequest: ItemRequest = {
@@ -177,6 +177,15 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
         <ScrollArea className="flex-1">
           <div className="p-6 space-y-8">
+            {isHelperMode && (
+              <div className="bg-accent/10 border border-accent/20 rounded-xl p-3 flex items-center gap-3 animate-in fade-in duration-500">
+                <ShieldCheck className="h-4 w-4 text-accent-foreground shrink-0" />
+                <p className="text-[10px] font-black uppercase text-accent-foreground tracking-tight leading-tight">
+                  Ajudantes também podem confirmar recebimentos e adicionar novos pedidos.
+                </p>
+              </div>
+            )}
+
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2 px-1">
                 <Truck className="h-3 w-3" /> Pedidos Pendentes ({pendingRequests.length})
