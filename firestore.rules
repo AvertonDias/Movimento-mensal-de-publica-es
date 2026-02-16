@@ -10,37 +10,40 @@ service cloud.firestore {
     }
     
     function isAuthorizedHelper(ownerId) {
-      return isSignedIn() && exists(/databases/$(database)/documents/invites/$(request.auth.uid)) && 
+      return isSignedIn() && 
+             exists(/databases/$(database)/documents/invites/$(request.auth.uid)) && 
              get(/databases/$(database)/documents/invites/$(request.auth.uid)).data.ownerId == ownerId;
     }
 
-    match /users/{userId} {
-      allow get: if true;
-      allow list, create, update, delete: if isOwner(userId);
-
-      match /inventory/{itemId} {
-        allow read: if true;
-        allow write: if isOwner(userId) || isAuthorizedHelper(userId);
-
-        match /requests/{requestId} {
-          allow read: if true;
-          allow write: if isOwner(userId) || isAuthorizedHelper(userId);
-        }
-      }
-
-      match /monthly_records/{monthKey} {
-        allow read: if true;
-        
-        match /items/{itemId} {
-          allow read: if true;
-          allow write: if isOwner(userId) || isAuthorizedHelper(userId);
-        }
-      }
-    }
-
+    // Coleção pública de convites (necessária para aceitação)
     match /invites/{tokenId} {
       allow read: if true;
       allow create, update, delete: if isSignedIn();
+    }
+
+    match /users/{userId} {
+      // Perfil do usuário (permitir leitura pública para ver nomes no sistema)
+      allow get: if true;
+      allow write: if isOwner(userId);
+
+      // Acesso total para o Proprietário e Ajudantes Autorizados em toda a árvore do usuário
+      match /{allData=**} {
+        allow read, write: if isOwner(userId) || isAuthorizedHelper(userId);
+      }
+
+      // Exceções de leitura pública (necessárias para o funcionamento do link de convidado/relatórios)
+      match /inventory/{itemId} {
+        allow read: if true;
+        match /requests/{requestId} {
+          allow read: if true;
+        }
+      }
+      match /monthly_records/{monthKey} {
+        allow read: if true;
+        match /items/{itemId} {
+          allow read: if true;
+        }
+      }
     }
 
     match /{path=**} {
