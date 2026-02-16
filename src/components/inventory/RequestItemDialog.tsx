@@ -172,7 +172,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
             </div>
             <DialogTitle className="uppercase font-black text-lg tracking-tight">Controle de Pedidos</DialogTitle>
           </div>
-          <DialogDescription className="text-xs font-bold uppercase text-muted-foreground">
+          <DialogDescription className="text-xs font-bold uppercase text-muted-foreground text-left">
             {item.item} {item.code ? `(${item.code})` : ''}
           </DialogDescription>
         </DialogHeader>

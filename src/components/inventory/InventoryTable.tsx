@@ -90,7 +90,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const activeUid = targetUserId || user?.uid;
 
-  // Cleanup effect para garantir que a página nunca fique travada caso um modal feche abruptamente
   useEffect(() => {
     if (!pendingConfirmItem && !requestingItem && !editingItem) {
       const forceUnlock = () => {
@@ -100,7 +99,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         }
       };
       forceUnlock();
-      // Repete após um tempo para garantir que o Radix UI terminou de limpar o estado
       const t = setTimeout(forceUnlock, 350);
       return () => clearTimeout(t);
     }
@@ -272,7 +270,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     if (pendingConfirmItem) {
       const itemToOpen = { ...pendingConfirmItem };
       setPendingConfirmItem(null); 
-      // Pequeno delay para garantir que o Radix UI limpe o scroll-lock do alerta antes de abrir o novo modal
       setTimeout(() => {
         setRequestingItem(itemToOpen);
       }, 350);
@@ -286,15 +283,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           <div className="bg-primary/20 p-2 rounded-lg">
             <Smartphone className="h-4 w-4 text-primary rotate-90" />
           </div>
-          <p className="text-[10px] font-black uppercase text-primary leading-tight tracking-wider">
+          <p className="text-[10px] font-black uppercase text-primary leading-tight tracking-wider text-left">
             Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
           </p>
         </div>
       )}
 
       <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-          <div className="flex flex-col gap-2">
+        <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
+          <div className="flex flex-col gap-2 items-start">
             <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
               <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => subMonths(prev, 1))} className="h-8 w-8">
                 <ChevronLeft className="h-4 w-4" />
@@ -331,7 +328,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               </Popover>
               <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8" disabled={isDateInFuture(addMonths(selectedMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
             </div>
-            <div className="flex items-center gap-2 max-w-[340px]">
+            <div className="flex items-center gap-2 max-w-[340px] text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
                 Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
@@ -365,7 +362,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   const parts = item.item.split('(');
                   return (
                     <TableRow key={`cat-${idx}`} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
-                      <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[13px] uppercase text-neutral-600 tracking-widest">
+                      <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[13px] uppercase text-neutral-600 tracking-widest text-left">
                         {parts[0]} {parts[1] && <span className="text-[13px] font-bold text-muted-foreground/70 normal-case tracking-normal italic">({parts[1]}</span>}
                       </TableCell>
                     </TableRow>
@@ -394,7 +391,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                     <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive")}>{(item.hidden || item.silent) ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}</Button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3">
-                                    <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest">Alerta</p>
+                                    <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest text-left">Alerta</p>
                                     <Button variant="default" size="sm" className="w-full text-[9px] font-black uppercase tracking-widest h-8" onClick={() => {}}>
                                       {item.hidden || item.silent ? "Reativar" : "Silenciar"}
                                     </Button>
@@ -411,7 +408,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                   </PopoverContent>
                                 </Popover>
                               ) : (
-                                <span className={cn("text-sm font-medium truncate", isLowStock && "text-destructive")}>{item.item}</span>
+                                <span className={cn("text-sm font-medium truncate text-left", isLowStock && "text-destructive")}>{item.item}</span>
                               )}
                               <div className="flex items-center gap-0.5 shrink-0">
                                 <Button variant="ghost" size="icon" className={cn("h-6 w-6 hover:bg-neutral-100 transition-colors", hasPending ? "text-primary bg-primary/10" : "text-muted-foreground/50")} onClick={() => setRequestingItem(item)}>
@@ -443,8 +440,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="uppercase font-black">Pedido pendente encontrado</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="uppercase font-black text-left">Pedido pendente encontrado</AlertDialogTitle>
+            <AlertDialogDescription className="text-left">
               Você está registrando uma entrada para <span className="font-bold text-foreground">"{pendingConfirmItem?.item}"</span>. 
               Este item possui <span className="font-bold text-primary">{pendingConfirmItem?.pendingRequestsCount}</span> pedido(s) pendente(s). 
               Deseja abrir o controle de pedidos para marcá-los como recebidos agora?

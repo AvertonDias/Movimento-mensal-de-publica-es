@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -95,9 +96,9 @@ export function Header() {
             </div>
           )}
 
-          {/* Progressive Horizontal Menu */}
+          {/* Menu Horizontal Progressivo */}
           <div className="hidden lg:flex items-center gap-1.5 xl:gap-2">
-            {/* Level 1: Most Important (Visible on lg+) */}
+            {/* Nível 1: Essencial (Visível em lg+) */}
             <Link href="/">
               <Button variant="ghost" className={cn(
                 "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
@@ -117,7 +118,7 @@ export function Header() {
               </Button>
             </Link>
 
-            {/* Level 2: Secondary Important (Visible on xl+) */}
+            {/* Nível 2: Secundário (Visível em xl+) */}
             <div className="hidden xl:flex items-center gap-1.5 xl:gap-2">
               <Link href="/history">
                 <Button variant="ghost" className={cn(
@@ -139,7 +140,7 @@ export function Header() {
               </Link>
             </div>
 
-            {/* Level 3: All others (Visible on 2xl+) */}
+            {/* Nível 3: Completo (Visível em 2xl+) */}
             <div className="hidden 2xl:flex items-center gap-1.5 xl:gap-2">
               <Link href="/order-schedule">
                 <Button variant="ghost" className={cn(
@@ -147,7 +148,7 @@ export function Header() {
                   pathname === '/order-schedule' && "bg-primary/10 border-primary"
                 )}>
                   <Truck className="h-4 w-4" />
-                  Cronograma de Pedidos
+                  CRONOGRAMA DE PEDIDOS
                 </Button>
               </Link>
               <Link href="/magazine-display">
@@ -156,7 +157,7 @@ export function Header() {
                   pathname === '/magazine-display' && "bg-primary/10 border-primary"
                 )}>
                   <LayoutGrid className="h-4 w-4" />
-                  Programação de Exibição
+                  PROGRAMAÇÃO DE EXIBIÇÃO
                 </Button>
               </Link>
               <Link href="/s60">
@@ -195,14 +196,14 @@ export function Header() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-64" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
-                <div className="flex flex-col space-y-1">
+                <div className="flex flex-col space-y-1 text-left">
                   <p className="text-sm font-bold leading-none">{user.displayName || "Usuário"}</p>
                   <p className="text-xs leading-none text-muted-foreground text-ellipsis overflow-hidden">{user.email}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               
-              {/* Progressive Dropdown Items - Hidden when visible in the horizontal bar */}
+              {/* Itens do Dropdown mostrados apenas quando ocultos no menu principal */}
               <div className="lg:hidden">
                 <Link href="/">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
@@ -232,12 +233,12 @@ export function Header() {
               <div className="2xl:hidden">
                 <Link href="/order-schedule">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <Truck className="mr-2 h-4 w-4" /> Cronograma de Pedidos
+                    <Truck className="mr-2 h-4 w-4" /> CRONOGRAMA DE PEDIDOS
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/magazine-display">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <LayoutGrid className="mr-2 h-4 w-4" /> Programação de Exibição
+                    <LayoutGrid className="mr-2 h-4 w-4" /> PROGRAMAÇÃO DE EXIBIÇÃO
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/s60">
