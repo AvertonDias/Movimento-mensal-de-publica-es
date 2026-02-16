@@ -96,33 +96,6 @@ export function Header() {
           )}
 
           <div className="hidden lg:flex items-center gap-2">
-            <Link href="/order-schedule">
-              <Button variant="ghost" className={cn(
-                "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
-                pathname === '/order-schedule' && "bg-primary/10 border-primary"
-              )}>
-                <Truck className="h-4 w-4" />
-                Prazos 2026
-              </Button>
-            </Link>
-            <Link href="/magazine-display">
-              <Button variant="ghost" className={cn(
-                "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
-                pathname === '/magazine-display' && "bg-primary/10 border-primary"
-              )}>
-                <LayoutGrid className="h-4 w-4" />
-                Exibição 2026
-              </Button>
-            </Link>
-            <Link href="/history">
-              <Button variant="ghost" className={cn(
-                "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
-                pathname === '/history' && "bg-primary/10 border-primary"
-              )}>
-                <History className="h-4 w-4" />
-                FOLHA S-28-T
-              </Button>
-            </Link>
             <Link href="/inventory-report">
               <Button variant="ghost" className={cn(
                 "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
@@ -132,6 +105,15 @@ export function Header() {
                 Relatório
               </Button>
             </Link>
+            <Link href="/history">
+              <Button variant="ghost" className={cn(
+                "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
+                pathname === '/history' && "bg-primary/10 border-primary"
+              )}>
+                <History className="h-4 w-4" />
+                Folha S-28
+              </Button>
+            </Link>
             <Link href="/stats">
               <Button variant="ghost" className={cn(
                 "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
@@ -139,6 +121,24 @@ export function Header() {
               )}>
                 <BarChart3 className="h-4 w-4" />
                 Estatísticas
+              </Button>
+            </Link>
+            <Link href="/order-schedule">
+              <Button variant="ghost" className={cn(
+                "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
+                pathname === '/order-schedule' && "bg-primary/10 border-primary"
+              )}>
+                <Truck className="h-4 w-4" />
+                Prazos
+              </Button>
+            </Link>
+            <Link href="/magazine-display">
+              <Button variant="ghost" className={cn(
+                "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
+                pathname === '/magazine-display' && "bg-primary/10 border-primary"
+              )}>
+                <LayoutGrid className="h-4 w-4" />
+                Exibição
               </Button>
             </Link>
           </div>
@@ -167,29 +167,29 @@ export function Header() {
                   <LayoutGrid className="mr-2 h-4 w-4" /> Painel Principal
                 </DropdownMenuItem>
               </Link>
-              <Link href="/order-schedule">
-                <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                  <Truck className="mr-2 h-4 w-4" /> Prazos de Pedidos 2026
-                </DropdownMenuItem>
-              </Link>
-              <Link href="/magazine-display">
-                <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                  <LayoutGrid className="mr-2 h-4 w-4" /> Exibição de Revistas 2026
-                </DropdownMenuItem>
-              </Link>
-              <Link href="/history">
-                <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                  <History className="mr-2 h-4 w-4" /> FOLHA S-28-T
-                </DropdownMenuItem>
-              </Link>
               <Link href="/inventory-report">
                 <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <FileText className="mr-2 h-4 w-4" /> Relatório de Inventário
                 </DropdownMenuItem>
               </Link>
+              <Link href="/history">
+                <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                  <History className="mr-2 h-4 w-4" /> Folha S-28
+                </DropdownMenuItem>
+              </Link>
               <Link href="/stats">
                 <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <BarChart3 className="mr-2 h-4 w-4" /> Estatísticas
+                </DropdownMenuItem>
+              </Link>
+              <Link href="/order-schedule">
+                <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                  <Truck className="mr-2 h-4 w-4" /> Prazos de Pedidos
+                </DropdownMenuItem>
+              </Link>
+              <Link href="/magazine-display">
+                <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                  <LayoutGrid className="mr-2 h-4 w-4" /> Exibição de Revistas
                 </DropdownMenuItem>
               </Link>
               <Link href="/s60">
