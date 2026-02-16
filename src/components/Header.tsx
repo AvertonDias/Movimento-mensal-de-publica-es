@@ -147,7 +147,7 @@ export function Header() {
                 pathname === '/magazine-display' && "bg-primary/10 border-primary"
               )}>
                 <LayoutGrid className="h-4 w-4" />
-                Exibição de Revistas
+                Programação de Exibição
               </Button>
             </Link>
             <Link href="/s60">
@@ -219,7 +219,7 @@ export function Header() {
                 </Link>
                 <Link href="/magazine-display">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                    <LayoutGrid className="mr-2 h-4 w-4" /> Exibição de Revistas
+                    <LayoutGrid className="mr-2 h-4 w-4" /> Programação de Exibição
                   </DropdownMenuItem>
                 </Link>
                 <Link href="/s60">
