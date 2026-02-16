@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Truck, Calendar, Info, MapPin, AlertCircle, CheckCircle2, ChevronRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -94,6 +94,19 @@ export default function OrderSchedulePage() {
   const [activeRegionId, setActiveRegionId] = useState(SCHEDULE_DATA[0].id);
   const now = new Date();
 
+  // Tenta carregar a região preferida do localStorage ao montar o componente
+  useEffect(() => {
+    const savedRegion = localStorage.getItem('preferred_order_region');
+    if (savedRegion && SCHEDULE_DATA.some(r => r.id === savedRegion)) {
+      setActiveRegionId(savedRegion);
+    }
+  }, []);
+
+  const handleRegionChange = (value: string) => {
+    setActiveRegionId(value);
+    localStorage.setItem('preferred_order_region', value);
+  };
+
   const activeRegion = useMemo(() => 
     SCHEDULE_DATA.find(r => r.id === activeRegionId)!, 
   [activeRegionId]);
@@ -152,7 +165,7 @@ export default function OrderSchedulePage() {
             <h2 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Selecione sua Região</h2>
           </div>
 
-          <Tabs value={activeRegionId} onValueChange={setActiveRegionId} className="w-full">
+          <Tabs value={activeRegionId} onValueChange={handleRegionChange} className="w-full">
             <TabsList className="w-full h-auto flex flex-wrap justify-start bg-transparent gap-2 p-0">
               {SCHEDULE_DATA.map(region => (
                 <TabsTrigger 
