@@ -14,10 +14,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useFirestore, useUser, setDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { InventoryItem } from '@/app/types/inventory';
-import { PackageSearch, Clock, CheckCircle2, Truck, PlusCircle, Hash } from 'lucide-react';
+import { PackageSearch, Clock, CheckCircle2, Truck, PlusCircle, Hash, StickyNote } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +35,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [requestQuantity, setRequestQuantity] = useState<string>('');
+  const [requestNotes, setRequestNotes] = useState<string>('');
 
   if (!item) return null;
 
@@ -67,8 +69,10 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     if (status === 'pending') {
       updates.lastRequestDate = new Date().toISOString();
       updates.lastRequestQuantity = Number(requestQuantity);
+      updates.lastRequestNotes = requestNotes || null;
     } else if (status === 'none') {
       updates.lastRequestQuantity = null;
+      updates.lastRequestNotes = null;
     }
 
     setDocumentNonBlocking(docRef, updates, { merge: true });
@@ -80,6 +84,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     setIsLoading(false);
     setRequestQuantity('');
+    setRequestNotes('');
     onClose();
   };
 
@@ -87,14 +92,26 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     switch (item.lastRequestStatus) {
       case 'pending':
         return (
-          <div className="flex flex-col items-center gap-2">
+          <div className="flex flex-col items-center gap-2 w-full">
             <Badge className="bg-amber-500 hover:bg-amber-600 gap-1.5 font-black uppercase text-[10px]">
               <Truck className="h-3 w-3" /> Pedido a Caminho
             </Badge>
-            {item.lastRequestQuantity && (
-              <Badge variant="outline" className="border-amber-200 text-amber-700 font-bold text-[10px] uppercase">
-                Qtd: {item.lastRequestQuantity}
-              </Badge>
+            <div className="flex flex-wrap justify-center gap-2">
+              {item.lastRequestQuantity && (
+                <Badge variant="outline" className="border-amber-200 text-amber-700 font-bold text-[10px] uppercase">
+                  Qtd: {item.lastRequestQuantity}
+                </Badge>
+              )}
+            </div>
+            {item.lastRequestNotes && (
+              <div className="mt-2 p-2 bg-amber-50 border border-amber-100 rounded-lg w-full max-w-[300px]">
+                <p className="text-[10px] font-black uppercase text-amber-800 mb-1 flex items-center gap-1">
+                  <StickyNote className="h-2.5 w-2.5" /> Notas:
+                </p>
+                <p className="text-[11px] text-amber-900 font-medium leading-tight">
+                  {item.lastRequestNotes}
+                </p>
+              </div>
             )}
           </div>
         );
@@ -152,6 +169,18 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                   onChange={(e) => setRequestQuantity(e.target.value)}
                   onFocus={(e) => e.target.select()}
                   className="font-bold h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="req-notes" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                  <StickyNote className="h-3 w-3" /> Observações
+                </Label>
+                <Textarea 
+                  id="req-notes"
+                  placeholder="Ex: Pedido feito no JW Hub ou observações..."
+                  value={requestNotes}
+                  onChange={(e) => setRequestNotes(e.target.value)}
+                  className="font-bold min-h-[80px] text-xs"
                 />
               </div>
               <Button 

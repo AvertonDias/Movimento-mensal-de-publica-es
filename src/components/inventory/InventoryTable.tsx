@@ -6,9 +6,9 @@ import {
   Table, 
   TableBody, 
   TableCell, 
-  TableHead, 
   TableHeader, 
-  TableRow 
+  TableRow,
+  TableHead
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -174,6 +174,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         silent: customDef?.silent || false,
         lastRequestDate: customDef?.lastRequestDate || null,
         lastRequestStatus: customDef?.lastRequestStatus || 'none',
+        lastRequestQuantity: customDef?.lastRequestQuantity || null,
+        lastRequestNotes: customDef?.lastRequestNotes || null,
       } as InventoryItem);
 
       if (pub.isCategory && customDefinitions) {
@@ -204,6 +206,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             silent: cd.silent || false,
             lastRequestDate: cd.lastRequestDate || null,
             lastRequestStatus: cd.lastRequestStatus || 'none',
+            lastRequestQuantity: cd.lastRequestQuantity || null,
+            lastRequestNotes: cd.lastRequestNotes || null,
           } as InventoryItem);
         });
       }

@@ -61,7 +61,8 @@
         "minStock": { "type": "number", "description": "Minimum stock threshold for alerts." },
         "lastRequestDate": { "type": "string", "format": "date-time" },
         "lastRequestStatus": { "type": "string", "enum": ["pending", "received", "none"] },
-        "lastRequestQuantity": { "type": "number", "description": "Quantity requested in the last order." }
+        "lastRequestQuantity": { "type": "number", "description": "Quantity requested in the last order." },
+        "lastRequestNotes": { "type": "string", "description": "Additional observations for the order." }
       }
     }
   },
