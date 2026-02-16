@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { History, LogOut, User as UserIcon, ShieldCheck, Users, BarChart3, Trash2, FileText, LayoutGrid, Truck } from "lucide-react";
+import { History, LogOut, User as UserIcon, Users, BarChart3, Trash2, FileText, LayoutGrid, Truck } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -59,7 +59,7 @@ export function Header() {
 
   if (isUserLoading || !user || user.isAnonymous) return null;
 
-  // Lógica de menus que aparecem progressivamente
+  // Lista centralizada de itens de navegação com seus breakpoints
   const navItems = [
     { href: "/", label: "Painel Principal", icon: LayoutGrid, minWidth: "lg" },
     { href: "/inventory-report", label: "Relatório de Inventário", icon: FileText, minWidth: "lg" },
@@ -94,6 +94,7 @@ export function Header() {
         </Link>
         
         <div className="flex items-center gap-2 md:gap-4">
+          {/* Navegação Progressiva Horizontal */}
           <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2">
             {navItems.map((item) => {
               if (item.hideIfHelper && isHelper) return null;
@@ -104,11 +105,11 @@ export function Header() {
               return (
                 <Link key={item.href} href={item.href} className={visibilityClass}>
                   <Button variant="ghost" className={cn(
-                    "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
+                    "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3 transition-all",
                     pathname === item.href && "bg-primary/10 border-primary"
                   )}>
                     <item.icon className="h-4 w-4" />
-                    {item.label}
+                    <span className="truncate">{item.label}</span>
                   </Button>
                 </Link>
               );
@@ -139,7 +140,7 @@ export function Header() {
                 {navItems.map((item) => {
                   if (item.hideIfHelper && isHelper) return null;
                   
-                  // Oculta no dropdown se já estiver visível na barra horizontal baseada no tamanho da tela
+                  // Oculta no dropdown se já estiver visível na barra horizontal baseado no breakpoint
                   const hiddenClass = item.minWidth === 'lg' ? 'lg:hidden' : 
                                      item.minWidth === 'xl' ? 'xl:hidden' : 
                                      item.minWidth === '2xl' ? '2xl:hidden' : '';
