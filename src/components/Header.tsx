@@ -89,13 +89,15 @@ export function Header() {
         
         <div className="flex items-center gap-2 md:gap-4 overflow-hidden">
           {isHelper && (
-            <div className="hidden xl:flex items-center gap-2 bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg">
+            <div className="hidden 2xl:flex items-center gap-2 bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg">
               <ShieldCheck className="h-4 w-4 text-accent-foreground" />
               <span className="text-[10px] font-black uppercase text-accent-foreground tracking-widest">Ajudante</span>
             </div>
           )}
 
+          {/* Progressive Horizontal Menu */}
           <div className="hidden lg:flex items-center gap-1.5 xl:gap-2">
+            {/* Level 1: Most Important (Visible on lg+) */}
             <Link href="/">
               <Button variant="ghost" className={cn(
                 "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
@@ -114,62 +116,70 @@ export function Header() {
                 Relatório de Inventário
               </Button>
             </Link>
-            <Link href="/history">
-              <Button variant="ghost" className={cn(
-                "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                pathname === '/history' && "bg-primary/10 border-primary"
-              )}>
-                <History className="h-4 w-4" />
-                Folha S-28
-              </Button>
-            </Link>
-            <Link href="/stats">
-              <Button variant="ghost" className={cn(
-                "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                pathname === '/stats' && "bg-primary/10 border-primary"
-              )}>
-                <BarChart3 className="h-4 w-4" />
-                Estatísticas
-              </Button>
-            </Link>
-            <Link href="/order-schedule">
-              <Button variant="ghost" className={cn(
-                "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                pathname === '/order-schedule' && "bg-primary/10 border-primary"
-              )}>
-                <Truck className="h-4 w-4" />
-                Cronograma de Pedidos
-              </Button>
-            </Link>
-            <Link href="/magazine-display">
-              <Button variant="ghost" className={cn(
-                "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                pathname === '/magazine-display' && "bg-primary/10 border-primary"
-              )}>
-                <LayoutGrid className="h-4 w-4" />
-                Programação de Exibição
-              </Button>
-            </Link>
-            <Link href="/s60">
-              <Button variant="ghost" className={cn(
-                "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                pathname === '/s60' && "bg-primary/10 border-primary"
-              )}>
-                <Trash2 className="h-4 w-4" />
-                Lista de Descartes (S-60)
-              </Button>
-            </Link>
-            {!isHelper && (
-              <Link href="/helpers">
+
+            {/* Level 2: Secondary Important (Visible on xl+) */}
+            <div className="hidden xl:flex items-center gap-1.5 xl:gap-2">
+              <Link href="/history">
                 <Button variant="ghost" className={cn(
                   "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
-                  pathname === '/helpers' && "bg-primary/10 border-primary"
+                  pathname === '/history' && "bg-primary/10 border-primary"
                 )}>
-                  <Users className="h-4 w-4" />
-                  Ajudantes
+                  <History className="h-4 w-4" />
+                  Folha S-28
                 </Button>
               </Link>
-            )}
+              <Link href="/stats">
+                <Button variant="ghost" className={cn(
+                  "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
+                  pathname === '/stats' && "bg-primary/10 border-primary"
+                )}>
+                  <BarChart3 className="h-4 w-4" />
+                  Estatísticas
+                </Button>
+              </Link>
+            </div>
+
+            {/* Level 3: All others (Visible on 2xl+) */}
+            <div className="hidden 2xl:flex items-center gap-1.5 xl:gap-2">
+              <Link href="/order-schedule">
+                <Button variant="ghost" className={cn(
+                  "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
+                  pathname === '/order-schedule' && "bg-primary/10 border-primary"
+                )}>
+                  <Truck className="h-4 w-4" />
+                  Cronograma de Pedidos
+                </Button>
+              </Link>
+              <Link href="/magazine-display">
+                <Button variant="ghost" className={cn(
+                  "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
+                  pathname === '/magazine-display' && "bg-primary/10 border-primary"
+                )}>
+                  <LayoutGrid className="h-4 w-4" />
+                  Programação de Exibição
+                </Button>
+              </Link>
+              <Link href="/s60">
+                <Button variant="ghost" className={cn(
+                  "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
+                  pathname === '/s60' && "bg-primary/10 border-primary"
+                )}>
+                  <Trash2 className="h-4 w-4" />
+                  Lista de Descartes (S-60)
+                </Button>
+              </Link>
+              {!isHelper && (
+                <Link href="/helpers">
+                  <Button variant="ghost" className={cn(
+                    "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3",
+                    pathname === '/helpers' && "bg-primary/10 border-primary"
+                  )}>
+                    <Users className="h-4 w-4" />
+                    Ajudantes
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
 
           <DropdownMenu>
@@ -183,7 +193,7 @@ export function Header() {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
+            <DropdownMenuContent className="w-64" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
                   <p className="text-sm font-bold leading-none">{user.displayName || "Usuário"}</p>
@@ -191,6 +201,8 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              
+              {/* Progressive Dropdown Items - Hidden when visible in the horizontal bar */}
               <div className="lg:hidden">
                 <Link href="/">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
@@ -202,6 +214,9 @@ export function Header() {
                     <FileText className="mr-2 h-4 w-4" /> Relatório de Inventário
                   </DropdownMenuItem>
                 </Link>
+              </div>
+
+              <div className="xl:hidden">
                 <Link href="/history">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                     <History className="mr-2 h-4 w-4" /> Folha S-28
@@ -212,6 +227,9 @@ export function Header() {
                     <BarChart3 className="mr-2 h-4 w-4" /> Estatísticas
                   </DropdownMenuItem>
                 </Link>
+              </div>
+
+              <div className="2xl:hidden">
                 <Link href="/order-schedule">
                   <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                     <Truck className="mr-2 h-4 w-4" /> Cronograma de Pedidos
@@ -234,8 +252,9 @@ export function Header() {
                     </DropdownMenuItem>
                   </Link>
                 )}
-                <DropdownMenuSeparator />
               </div>
+
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" /> Sair
               </DropdownMenuItem>
