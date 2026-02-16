@@ -96,6 +96,15 @@ export function Header() {
           )}
 
           <div className="hidden lg:flex items-center gap-2">
+            <Link href="/">
+              <Button variant="ghost" className={cn(
+                "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
+                pathname === '/' && "bg-primary/10 border-primary"
+              )}>
+                <LayoutGrid className="h-4 w-4" />
+                Painel
+              </Button>
+            </Link>
             <Link href="/inventory-report">
               <Button variant="ghost" className={cn(
                 "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
@@ -141,6 +150,26 @@ export function Header() {
                 Exibição
               </Button>
             </Link>
+            <Link href="/s60">
+              <Button variant="ghost" className={cn(
+                "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
+                pathname === '/s60' && "bg-primary/10 border-primary"
+              )}>
+                <Trash2 className="h-4 w-4" />
+                S-60
+              </Button>
+            </Link>
+            {!isHelper && (
+              <Link href="/helpers">
+                <Button variant="ghost" className={cn(
+                  "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
+                  pathname === '/helpers' && "bg-primary/10 border-primary"
+                )}>
+                  <Users className="h-4 w-4" />
+                  Ajudantes
+                </Button>
+              </Link>
+            )}
           </div>
 
           <DropdownMenu>
