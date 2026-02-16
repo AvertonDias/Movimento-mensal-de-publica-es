@@ -14,16 +14,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useFirestore, useUser, setDocumentNonBlocking, useCollection, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
 import { doc, collection } from 'firebase/firestore';
 import { InventoryItem, ItemRequest } from '@/app/types/inventory';
-import { PackageSearch, Clock, CheckCircle2, Truck, PlusCircle, Hash, StickyNote, Trash2, History } from 'lucide-react';
+import { PackageSearch, CheckCircle2, Truck, PlusCircle, Hash, StickyNote, Trash2, History, CalendarDays } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { cn } from "@/lib/utils";
 
 interface RequestItemDialogProps {
   item: InventoryItem | null;
@@ -38,6 +38,8 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const [isLoading, setIsLoading] = useState(false);
   const [requestQuantity, setRequestQuantity] = useState<string>('');
   const [requestNotes, setRequestNotes] = useState<string>('');
+  const [confirmingRequestId, setConfirmingRequestId] = useState<string | null>(null);
+  const [receiveDate, setReceiveDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
 
   const activeUid = targetUserId || user?.uid;
 
@@ -49,7 +51,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const { data: allRequests } = useCollection<ItemRequest>(requestsQuery);
 
   const pendingRequests = allRequests?.filter(r => r.status === 'pending').sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) || [];
-  const receivedRequests = allRequests?.filter(r => r.status === 'received').sort((a, b) => new Date(b.receivedAt || b.createdAt).getTime() - new Date(a.receivedAt || a.createdAt).getTime()).slice(0, 5) || [];
+  const receivedRequests = allRequests?.filter(r => r.status === 'received').sort((a, b) => new Date(b.receivedAt || b.createdAt).getTime() - new Date(a.receivedAt || a.createdAt).getTime()).slice(0, 8) || [];
 
   if (!item) return null;
 
@@ -105,9 +107,13 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     if (!activeUid || !db || !item) return;
 
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', req.id);
+    
+    // Converte a data selecionada (string yyyy-mm-dd) para ISOString mantendo o horário local
+    const finalDate = new Date(receiveDate + 'T12:00:00');
+
     setDocumentNonBlocking(reqDocRef, {
       status: 'received',
-      receivedAt: new Date().toISOString()
+      receivedAt: finalDate.toISOString()
     }, { merge: true });
 
     // Decrementa contador no item principal
@@ -119,8 +125,10 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     toast({
       title: "Pedido recebido!",
-      description: `O pedido de ${req.quantity} un. foi marcado como entregue.`,
+      description: `O pedido de ${req.quantity} un. foi registrado como entregue em ${format(finalDate, 'dd/MM/yyyy')}.`,
     });
+
+    setConfirmingRequestId(null);
   };
 
   const handleDeleteRequest = (req: ItemRequest) => {
@@ -185,14 +193,25 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                           </p>
                         </div>
                         <div className="flex gap-1">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleMarkAsReceived(req)}
-                            className="h-8 text-[9px] font-black uppercase tracking-widest border-emerald-200 text-emerald-600 hover:bg-emerald-50 bg-white"
-                          >
-                            <CheckCircle2 className="h-3 w-3 mr-1" /> Recebido
-                          </Button>
+                          {confirmingRequestId !== req.id ? (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => setConfirmingRequestId(req.id)}
+                              className="h-8 text-[9px] font-black uppercase tracking-widest border-emerald-200 text-emerald-600 hover:bg-emerald-50 bg-white"
+                            >
+                              <CheckCircle2 className="h-3 w-3 mr-1" /> Recebido
+                            </Button>
+                          ) : (
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => setConfirmingRequestId(null)}
+                              className="h-8 w-8 text-neutral-400"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
                           <Button 
                             variant="ghost" 
                             size="icon" 
@@ -203,7 +222,33 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                           </Button>
                         </div>
                       </div>
-                      {req.notes && (
+
+                      {confirmingRequestId === req.id && (
+                        <div className="bg-white p-3 rounded-lg border border-emerald-200 animate-in fade-in slide-in-from-top-2 duration-200">
+                          <div className="space-y-3">
+                            <div className="space-y-1.5">
+                              <Label className="text-[9px] font-black uppercase text-emerald-600 tracking-widest flex items-center gap-1">
+                                <CalendarDays className="h-3 w-3" /> Data de Recebimento
+                              </Label>
+                              <Input 
+                                type="date" 
+                                value={receiveDate}
+                                onChange={(e) => setReceiveDate(e.target.value)}
+                                className="h-9 text-xs font-bold border-emerald-100 focus:ring-emerald-500"
+                              />
+                            </div>
+                            <Button 
+                              size="sm" 
+                              className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black uppercase text-[10px] tracking-widest h-9"
+                              onClick={() => handleMarkAsReceived(req)}
+                            >
+                              Confirmar Recebimento
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+
+                      {req.notes && !confirmingRequestId && (
                         <p className="text-[11px] text-amber-900 font-medium bg-white/50 p-2 rounded-lg leading-tight border border-amber-100/50 italic">
                           "{req.notes}"
                         </p>
@@ -261,7 +306,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
             {receivedRequests.length > 0 && (
               <div className="space-y-3 pb-4">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 px-1 flex items-center gap-2">
-                  <History className="h-3 w-3" /> Últimos Recebidos
+                  <History className="h-3 w-3" /> Histórico de Recebimento
                 </p>
                 <div className="bg-neutral-50 rounded-xl overflow-hidden border border-neutral-100">
                   {receivedRequests.map((req, idx) => (
@@ -271,10 +316,12 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                     )}>
                       <div className="flex items-center gap-3">
                         <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                        <span className="text-[11px] font-black">{req.quantity} un.</span>
-                        <span className="text-[9px] font-bold text-neutral-400 uppercase">
-                          Em {format(new Date(req.receivedAt || req.createdAt), "dd/MM/yy", { locale: ptBR })}
-                        </span>
+                        <div className="flex flex-col">
+                          <span className="text-[11px] font-black">{req.quantity} un.</span>
+                          <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-tighter">
+                            Entregue em {format(new Date(req.receivedAt || req.createdAt), "dd/MM/yyyy", { locale: ptBR })}
+                          </span>
+                        </div>
                       </div>
                       <Button variant="ghost" size="icon" className="h-7 w-7 text-neutral-300 hover:text-destructive" onClick={() => handleDeleteRequest(req)}>
                         <Trash2 className="h-3 w-3" />
