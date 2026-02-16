@@ -321,9 +321,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               </Popover>
               <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8" disabled={isDateInFuture(addMonths(selectedMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
             </div>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight max-w-[280px]">
-              Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
-            </p>
+            <div className="flex items-center gap-2 max-w-[320px]">
+              <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
+                Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
+              </p>
+              <Info className="h-3.5 w-3.5 text-primary shrink-0" />
+            </div>
           </div>
           <div className="flex items-center gap-2 w-full md:flex-1 md:max-w-2xl">
             <div className="relative flex-1">
