@@ -42,65 +42,65 @@ export default function StatsPage() {
   const targetUserId = isHelper ? helperInvite.ownerId : user.uid;
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-10 px-6 font-body">
-      <div className="max-w-7xl mx-auto space-y-8">
-        <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-neutral-50 py-6 md:py-10 px-4 md:px-6 font-body">
+      <div className="max-w-7xl mx-auto space-y-6 md:space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link href="/">
-            <Button variant="ghost" className="gap-2 font-bold uppercase text-base">
-              <ChevronLeft className="h-5 w-5" />
-              Voltar ao Inventário
+            <Button variant="ghost" className="gap-2 font-bold uppercase text-xs md:text-base w-fit p-0 h-auto hover:bg-transparent">
+              <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
+              Voltar
             </Button>
           </Link>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 md:gap-4">
             {isHelper && (
-              <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 px-4 py-2 rounded-lg mr-2">
-                <ShieldCheck className="h-5 w-5 text-accent-foreground" />
-                <span className="text-sm font-black uppercase text-accent-foreground tracking-widest">
-                  Stats de {helperInvite.ownerName}
+              <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 px-2 py-1 md:px-4 md:py-2 rounded-lg">
+                <ShieldCheck className="h-4 w-4 md:h-5 md:w-5 text-accent-foreground" />
+                <span className="text-[10px] md:text-sm font-black uppercase text-accent-foreground tracking-widest truncate max-w-[100px] sm:max-w-none">
+                  {helperInvite.ownerName}
                 </span>
               </div>
             )}
-            <div className="bg-primary p-3 rounded-lg shadow-md">
-              <BarChart3 className="h-7 w-7 text-primary-foreground" />
+            <div className="bg-primary p-2 md:p-3 rounded-lg shadow-md shrink-0">
+              <BarChart3 className="h-5 w-5 md:h-7 md:w-7 text-primary-foreground" />
             </div>
-            <h1 className="text-3xl font-black uppercase tracking-tight font-headline">Painel de Estatísticas</h1>
+            <h1 className="text-lg md:text-3xl font-black uppercase tracking-tight font-headline">Estatísticas</h1>
           </div>
         </div>
 
-        <div className="bg-white shadow-2xl rounded-2xl border border-neutral-200 overflow-hidden">
-          <div className="p-10 border-b border-neutral-100 bg-neutral-50/50">
-            <h2 className="text-lg font-black uppercase tracking-widest text-neutral-500">Visão Geral de Movimentação</h2>
-            <p className="text-base text-muted-foreground mt-1 uppercase font-bold">Análise baseada nos últimos 6 meses de registros fechados</p>
+        <div className="bg-white shadow-xl md:shadow-2xl rounded-xl md:rounded-2xl border border-neutral-200 overflow-hidden">
+          <div className="p-4 md:p-10 border-b border-neutral-100 bg-neutral-50/50">
+            <h2 className="text-xs md:text-lg font-black uppercase tracking-widest text-neutral-500">Visão Geral</h2>
+            <p className="text-[10px] md:text-base text-muted-foreground mt-1 uppercase font-bold">Últimos 6 meses fechados</p>
           </div>
           
-          <div className="p-10">
+          <div className="p-4 md:p-10">
             <StatsDashboard targetUserId={targetUserId} />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 pb-16">
-          <div className="bg-white p-10 rounded-2xl border border-neutral-200 shadow-sm">
-            <h3 className="text-lg font-black uppercase mb-8 text-primary">Dicas de Análise</h3>
-            <ul className="space-y-5 text-base font-bold uppercase text-muted-foreground leading-relaxed">
-              <li className="flex gap-4">
-                <span className="text-primary text-2xl">•</span>
-                <span>Observe os picos de saída para planejar pedidos com antecedência.</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 mt-6 md:mt-10 pb-16">
+          <div className="bg-white p-6 md:p-10 rounded-xl md:rounded-2xl border border-neutral-200 shadow-sm">
+            <h3 className="text-sm md:text-lg font-black uppercase mb-4 md:mb-8 text-primary">Dicas de Análise</h3>
+            <ul className="space-y-3 md:space-y-5 text-xs md:text-base font-bold uppercase text-muted-foreground leading-relaxed">
+              <li className="flex gap-3 md:gap-4">
+                <span className="text-primary text-xl md:text-2xl">•</span>
+                <span>Observe os picos de saída para planejar pedidos.</span>
               </li>
-              <li className="flex gap-4">
-                <span className="text-primary text-2xl">•</span>
-                <span>Itens com saída zero por vários meses podem estar obsoletos (consulte a S-60).</span>
+              <li className="flex gap-3 md:gap-4">
+                <span className="text-primary text-xl md:text-2xl">•</span>
+                <span>Itens com saída zero podem estar obsoletos (S-60).</span>
               </li>
-              <li className="flex gap-4">
-                <span className="text-primary text-2xl">•</span>
-                <span>Mantenha o estoque anterior sempre atualizado para garantir a precisão dos cálculos.</span>
+              <li className="flex gap-3 md:gap-4">
+                <span className="text-primary text-xl md:text-2xl">•</span>
+                <span>Mantenha o estoque anterior atualizado para precisão.</span>
               </li>
             </ul>
           </div>
           
-          <div className="bg-primary/5 p-10 rounded-2xl border border-primary/10 shadow-sm flex flex-col justify-center items-center text-center">
-            <p className="text-sm font-black uppercase text-primary tracking-[0.3em] mb-4">Relatório S-28-T</p>
-            <p className="text-xl font-bold text-neutral-700 leading-snug">
-              Este painel ajuda a preencher o JW Hub visualizando as tendências de forma clara e profissional.
+          <div className="bg-primary/5 p-6 md:p-10 rounded-xl md:rounded-2xl border border-primary/10 shadow-sm flex flex-col justify-center items-center text-center">
+            <p className="text-[10px] md:text-sm font-black uppercase text-primary tracking-[0.2em] mb-2 md:mb-4">Relatório S-28-T</p>
+            <p className="text-sm md:text-xl font-bold text-neutral-700 leading-snug">
+              Este painel ajuda a preencher o JW Hub visualizando as tendências de forma clara.
             </p>
           </div>
         </div>
