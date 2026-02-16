@@ -140,7 +140,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   };
 
   const handleDeleteRequest = (req: ItemRequest) => {
-    if (!activeUid || !db || !item) return;
+    if (!activeUid || !db || !item || isHelperMode) return;
 
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', req.id);
     deleteDocumentNonBlocking(reqDocRef);
@@ -177,15 +177,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
         <ScrollArea className="flex-1">
           <div className="p-6 space-y-8">
-            {isHelperMode && (
-              <div className="bg-accent/10 border border-accent/20 rounded-xl p-3 flex items-center gap-3 animate-in fade-in duration-500">
-                <ShieldCheck className="h-4 w-4 text-accent-foreground shrink-0" />
-                <p className="text-[10px] font-black uppercase text-accent-foreground tracking-tight leading-tight">
-                  Ajudantes também podem confirmar recebimentos e adicionar novos pedidos.
-                </p>
-              </div>
-            )}
-
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2 px-1">
                 <Truck className="h-3 w-3" /> Pedidos Pendentes ({pendingRequests.length})
@@ -224,9 +215,11 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                               <X className="h-3.5 w-3.5" />
                             </Button>
                           )}
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(req)} className="h-8 w-8 text-neutral-400 hover:text-destructive">
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+                          {!isHelperMode && (
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteRequest(req)} className="h-8 w-8 text-neutral-400 hover:text-destructive">
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          )}
                         </div>
                       </div>
 
@@ -311,9 +304,11 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                           </span>
                         </div>
                       </div>
-                      <Button variant="ghost" size="icon" className="h-7 w-7 text-neutral-300 hover:text-destructive" onClick={() => handleDeleteRequest(req)}>
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+                      {!isHelperMode && (
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-neutral-300 hover:text-destructive" onClick={() => handleDeleteRequest(req)}>
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>
