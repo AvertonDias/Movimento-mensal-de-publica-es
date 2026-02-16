@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { useFirestore, useUser, setDocumentNonBlocking, useCollection, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
 import { doc, collection } from 'firebase/firestore';
 import { InventoryItem, ItemRequest } from '@/app/types/inventory';
-import { PackageSearch, CheckCircle2, Truck, PlusCircle, Hash, StickyNote, Trash2, History, CalendarDays } from 'lucide-react';
+import { PackageSearch, CheckCircle2, Truck, PlusCircle, Hash, StickyNote, Trash2, History, CalendarDays, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
