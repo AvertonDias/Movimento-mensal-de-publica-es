@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { History, LogOut, User as UserIcon, ShieldCheck, Users, BarChart3, Trash2, FileText, LayoutGrid } from "lucide-react";
+import { History, LogOut, User as UserIcon, ShieldCheck, Users, BarChart3, Trash2, FileText, LayoutGrid, Truck } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -77,7 +77,7 @@ export function Header() {
           <div className="rounded-xl overflow-hidden w-[42px] h-[42px]">
             <Image src="/icon.png" alt="Logo" width={42} height={42} className="object-cover w-full h-full" unoptimized priority />
           </div>
-          <div>
+          <div className="hidden sm:block">
             <h1 className="text-xl font-black tracking-tight text-foreground uppercase font-headline">
               S-28 Digital
             </h1>
@@ -87,15 +87,24 @@ export function Header() {
           </div>
         </Link>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           {isHelper && (
-            <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg">
+            <div className="hidden md:flex items-center gap-2 bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg">
               <ShieldCheck className="h-4 w-4 text-accent-foreground" />
               <span className="text-[10px] font-black uppercase text-accent-foreground tracking-widest">Ajudante</span>
             </div>
           )}
 
           <div className="hidden lg:flex items-center gap-2">
+            <Link href="/order-schedule">
+              <Button variant="ghost" className={cn(
+                "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
+                pathname === '/order-schedule' && "bg-primary/10 border-primary"
+              )}>
+                <Truck className="h-4 w-4" />
+                Prazos 2026
+              </Button>
+            </Link>
             <Link href="/magazine-display">
               <Button variant="ghost" className={cn(
                 "gap-2 font-bold uppercase text-[10px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9",
@@ -132,17 +141,6 @@ export function Header() {
                 Estatísticas
               </Button>
             </Link>
-            {!isHelper && (
-              <Link href="/helpers">
-                <Button variant="ghost" className={cn(
-                  "gap-2 font-bold uppercase text-[10px] tracking-widest border hover:bg-neutral-50 h-9",
-                  pathname === '/helpers' && "bg-neutral-100 border-neutral-400"
-                )}>
-                  <Users className="h-4 w-4" />
-                  Ajudantes
-                </Button>
-              </Link>
-            )}
           </div>
 
           <DropdownMenu>
@@ -167,6 +165,11 @@ export function Header() {
               <Link href="/">
                 <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                   <LayoutGrid className="mr-2 h-4 w-4" /> Painel Principal
+                </DropdownMenuItem>
+              </Link>
+              <Link href="/order-schedule">
+                <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
+                  <Truck className="mr-2 h-4 w-4" /> Prazos de Pedidos 2026
                 </DropdownMenuItem>
               </Link>
               <Link href="/magazine-display">
