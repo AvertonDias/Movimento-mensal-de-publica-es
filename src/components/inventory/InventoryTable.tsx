@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -22,7 +23,9 @@ import {
   X,
   AlertTriangle,
   BellOff,
-  Bell
+  Bell,
+  PackageSearch,
+  Truck
 } from "lucide-react";
 import { 
   InventoryItem, 
@@ -42,6 +45,7 @@ import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYear
 import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
+import { RequestItemDialog } from "./RequestItemDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -60,6 +64,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
+  const [requestingItem, setRequestingItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
   
@@ -167,6 +172,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         minStock: historicalMinStock[id] || 0,
         hidden: customDef?.hidden || false,
         silent: customDef?.silent || false,
+        lastRequestDate: customDef?.lastRequestDate || null,
+        lastRequestStatus: customDef?.lastRequestStatus || 'none',
       } as InventoryItem);
 
       if (pub.isCategory && customDefinitions) {
@@ -195,6 +202,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             minStock: historicalMinStock[cd.id] || 0,
             hidden: cd.hidden || false,
             silent: cd.silent || false,
+            lastRequestDate: cd.lastRequestDate || null,
+            lastRequestStatus: cd.lastRequestStatus || 'none',
           } as InventoryItem);
         });
       }
@@ -556,7 +565,18 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                 <span className={cn("text-sm font-medium truncate", isLowStock && "text-destructive")}>{item.item}</span>
                               )}
                               
-                              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className={cn(
+                                    "h-6 w-6 hover:bg-neutral-100",
+                                    item.lastRequestStatus === 'pending' ? "text-amber-500" : "text-muted-foreground/50"
+                                  )} 
+                                  onClick={() => setRequestingItem(item)}
+                                >
+                                  {item.lastRequestStatus === 'pending' ? <Truck className="h-3 w-3" /> : <PackageSearch className="h-3 w-3" />}
+                                </Button>
                                 {item.isCustom && activeUid === user?.uid && (
                                   <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}>
                                     <Edit2 className="h-3 w-3" />
@@ -594,6 +614,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       
       {editingItem && activeUid === user?.uid && (
         <EditCustomItemDialog item={editingItem} onClose={() => setEditingItem(null)} />
+      )}
+
+      {requestingItem && (
+        <RequestItemDialog 
+          item={requestingItem} 
+          onClose={() => setRequestingItem(null)} 
+          targetUserId={targetUserId}
+        />
       )}
     </div>
   );

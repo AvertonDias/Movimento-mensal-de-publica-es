@@ -24,6 +24,8 @@ export interface InventoryItem {
   isCustom?: boolean;
   hidden?: boolean;
   silent?: boolean;
+  lastRequestDate?: string | null;
+  lastRequestStatus?: 'pending' | 'received' | 'none';
   [key: string]: string | number | boolean | null | undefined;
 }
 

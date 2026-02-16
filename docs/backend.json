@@ -56,9 +56,11 @@
         "code": { "type": "string" },
         "category": { "type": "string" },
         "sortOrder": { "type": "number" },
-        "hidden": { "type": "boolean", "description": "Whether this item has alerts completely disabled (returns to normal color)." },
-        "silent": { "type": "boolean", "description": "Whether this item only has toast notifications disabled (remains red)." },
-        "minStock": { "type": "number", "description": "Minimum stock threshold for alerts." }
+        "hidden": { "type": "boolean", "description": "Whether this item has alerts completely disabled." },
+        "silent": { "type": "boolean", "description": "Whether this item only has toast notifications disabled." },
+        "minStock": { "type": "number", "description": "Minimum stock threshold for alerts." },
+        "lastRequestDate": { "type": "string", "format": "date-time" },
+        "lastRequestStatus": { "type": "string", "enum": ["pending", "received", "none"] }
       }
     }
   },
@@ -80,7 +82,7 @@
     },
     "/users/{userId}/inventory/{itemId}": {
       "schema": { "$ref": "#/backend/entities/Inventory" },
-      "description": "Stores custom inventory definitions and overrides (like hidden status) for a specific user."
+      "description": "Stores custom inventory definitions, alerts, and request status."
     },
     "/users/{userId}/monthly_records/{monthKey}/items/{itemId}": {
       "schema": { "type": "object" },
