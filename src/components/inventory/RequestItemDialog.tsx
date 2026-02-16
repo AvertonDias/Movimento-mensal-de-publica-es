@@ -38,6 +38,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
   const [isLoading, setIsLoading] = useState(false);
   const [requestQuantity, setRequestQuantity] = useState<string>('');
   const [requestNotes, setRequestNotes] = useState<string>('');
+  const [requestDate, setRequestDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
   const [confirmingRequestId, setConfirmingRequestId] = useState<string | null>(null);
   const [receiveQuantity, setReceiveQuantity] = useState<string>('');
   const [receiveDate, setReceiveDate] = useState<string>(format(new Date(), 'yyyy-MM-dd'));
@@ -58,6 +59,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     if (!item) {
       setRequestQuantity('');
       setRequestNotes('');
+      setRequestDate(format(new Date(), 'yyyy-MM-dd'));
       setConfirmingRequestId(null);
     }
   }, [item]);
@@ -81,12 +83,15 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     const requestId = `req_${Date.now()}`;
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', requestId);
     
+    // Define a data escolhida com meio-dia para evitar problemas de fuso horário
+    const finalRequestDate = new Date(requestDate + 'T12:00:00').toISOString();
+
     const newRequest: ItemRequest = {
       id: requestId,
       quantity: Number(requestQuantity),
       notes: requestNotes || '',
       status: 'pending',
-      createdAt: new Date().toISOString()
+      createdAt: finalRequestDate
     };
 
     setDocumentNonBlocking(reqDocRef, newRequest, { merge: true });
@@ -99,11 +104,12 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     toast({
       title: "Pedido registrado!",
-      description: `Solicitados ${requestQuantity} un. de "${item.item}".`,
+      description: `Solicitados ${requestQuantity} un. de "${item.item}" em ${format(new Date(finalRequestDate), 'dd/MM/yyyy')}.`,
     });
 
     setRequestQuantity('');
     setRequestNotes('');
+    setRequestDate(format(new Date(), 'yyyy-MM-dd'));
     setIsLoading(false);
   };
 
@@ -192,7 +198,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                         <div className="space-y-1">
                           <Badge className="bg-amber-500 font-black text-[10px] uppercase">Qtd: {req.quantity}</Badge>
                           <p className="text-[9px] font-bold text-amber-700 uppercase tracking-tighter">
-                            Solicitado em {format(new Date(req.createdAt), "dd/MM/yy 'às' HH:mm", { locale: ptBR })}
+                            Solicitado em {format(new Date(req.createdAt), "dd/MM/yy", { locale: ptBR })}
                           </p>
                         </div>
                         <div className="flex gap-1">
@@ -283,8 +289,8 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary px-1">Novo Pedido</p>
               <div className="bg-white p-5 rounded-2xl border border-neutral-100 shadow-sm space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="sm:col-span-1 space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <Label htmlFor="req-qty" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
                       <Hash className="h-3 w-3 text-primary" /> Quantidade
                     </Label>
@@ -295,6 +301,18 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
                       value={requestQuantity}
                       onChange={(e) => setRequestQuantity(e.target.value)}
                       className="font-black h-11 text-center text-lg"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="req-date" className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                      <CalendarDays className="h-3 w-3 text-primary" /> Data do Pedido
+                    </Label>
+                    <Input 
+                      id="req-date"
+                      type="date"
+                      value={requestDate}
+                      onChange={(e) => setRequestDate(e.target.value)}
+                      className="font-bold h-11 text-xs"
                     />
                   </div>
                   <div className="sm:col-span-2 space-y-2">
