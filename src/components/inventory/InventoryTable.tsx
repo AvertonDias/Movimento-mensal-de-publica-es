@@ -87,6 +87,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const activeUid = targetUserId || user?.uid;
 
+  // Cleanup effect para garantir que a página nunca fique travada caso um modal feche abruptamente
   useEffect(() => {
     if (!pendingConfirmItem && !requestingItem && !editingItem) {
       const forceUnlock = () => {
@@ -267,6 +268,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     if (pendingConfirmItem) {
       const itemToOpen = { ...pendingConfirmItem };
       setPendingConfirmItem(null); 
+      // Pequeno delay para garantir que o Radix UI limpe o scroll-lock do alerta antes de abrir o novo modal
       setTimeout(() => {
         setRequestingItem(itemToOpen);
       }, 350);
