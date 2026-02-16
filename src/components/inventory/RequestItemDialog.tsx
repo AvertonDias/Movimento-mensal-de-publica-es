@@ -83,7 +83,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     setDocumentNonBlocking(reqDocRef, newRequest, { merge: true });
 
-    // Atualiza contador no item principal
     const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(itemDocRef, {
       id: item.id,
@@ -110,7 +109,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     const finalQty = Number(receiveQuantity) || req.quantity;
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', req.id);
     
-    // Converte a data selecionada (string yyyy-mm-dd) para ISOString mantendo o horário local
     const finalDate = new Date(receiveDate + 'T12:00:00');
 
     setDocumentNonBlocking(reqDocRef, {
@@ -119,7 +117,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
       quantity: finalQty
     }, { merge: true });
 
-    // Decrementa contador no item principal
     const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(itemDocRef, {
       pendingRequestsCount: Math.max(0, (item.pendingRequestsCount || 1) - 1),
@@ -172,7 +169,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
         <ScrollArea className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-8">
-            {/* Seção de Pedidos Ativos */}
             <div className="space-y-4">
               <div className="flex items-center justify-between px-1">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2">
@@ -280,7 +276,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
             <Separator className="bg-neutral-100" />
 
-            {/* Formulário Novo Pedido */}
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary px-1">Novo Pedido</p>
               <div className="bg-white p-5 rounded-2xl border border-neutral-100 shadow-sm space-y-4">
@@ -321,7 +316,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
               </div>
             </div>
 
-            {/* Histórico Recente */}
             {receivedRequests.length > 0 && (
               <div className="space-y-3 pb-4">
                 <p className="text-[10px] font-black uppercase tracking-[0.2em] text-neutral-400 px-1 flex items-center gap-2">

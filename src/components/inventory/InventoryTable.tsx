@@ -203,6 +203,16 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     return combined;
   }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth, historicalMinStock]);
 
+  // Mantém o requestingItem sincronizado com os dados mais recentes do Firestore
+  useEffect(() => {
+    if (requestingItem) {
+      const updated = items.find(i => i.id === requestingItem.id);
+      if (updated && (updated.pendingRequestsCount !== requestingItem.pendingRequestsCount)) {
+        setRequestingItem(updated);
+      }
+    }
+  }, [items, requestingItem]);
+
   const filteredItems = useMemo(() => {
     return items.filter(item => 
       item.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -223,7 +233,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
 
-    // Se estiver inserindo valor em 'Recebido' e houver pedidos pendentes, pergunta se quer confirmar
     if (field === 'received' && value !== null && value > 0 && (itemData.pendingRequestsCount || 0) > 0) {
       const currentLocal = localData[id]?.received;
       const currentRemote = remoteItems?.find(i => i.id === id)?.received;
@@ -390,7 +399,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
 
-      {/* Alerta de Confirmação de Pedido Pendente */}
       <AlertDialog open={!!pendingConfirmItem} onOpenChange={(open) => !open && setPendingConfirmItem(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
