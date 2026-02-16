@@ -135,17 +135,17 @@ export default function InventoryReportPage() {
         </div>
 
         <Card className="border-none shadow-xl overflow-hidden print:shadow-none print:border">
-          <CardHeader className="bg-white border-b border-neutral-100 flex flex-row items-center justify-between space-y-0">
+          <CardHeader className="bg-white border-b border-neutral-100 flex flex-row items-center justify-between space-y-0 p-4">
             <div>
-              <CardTitle className="uppercase font-black text-lg">Resumo de Saldo Físico</CardTitle>
-              <CardDescription className="uppercase font-bold text-[10px] tracking-widest text-muted-foreground mt-1">
+              <CardTitle className="uppercase font-black text-base">Resumo de Saldo Físico</CardTitle>
+              <CardDescription className="uppercase font-bold text-[9px] tracking-widest text-muted-foreground mt-1">
                 Competência: {monthLabel}
               </CardDescription>
             </div>
             {helperInvite && (
-              <div className="bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg flex items-center gap-2 print:hidden">
-                <ShieldCheck className="h-4 w-4 text-accent-foreground" />
-                <span className="text-[9px] font-black uppercase text-accent-foreground tracking-widest">
+              <div className="bg-accent/10 border border-accent/20 px-3 py-1 rounded-lg flex items-center gap-2 print:hidden">
+                <ShieldCheck className="h-3 w-3 text-accent-foreground" />
+                <span className="text-[8px] font-black uppercase text-accent-foreground tracking-widest">
                   Ajudante de {helperInvite.ownerName}
                 </span>
               </div>
@@ -155,21 +155,21 @@ export default function InventoryReportPage() {
             {isFetchingData ? (
               <div className="flex flex-col items-center justify-center py-20 gap-4">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Gerando relatório...</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Gerando relatório...</p>
               </div>
             ) : filteredItems.length === 0 ? (
               <div className="py-20 text-center space-y-4">
                 <Info className="h-12 w-12 text-neutral-200 mx-auto" />
-                <p className="text-neutral-400 font-bold uppercase text-xs tracking-widest">Nenhuma movimentação no mês selecionado</p>
+                <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Nenhuma movimentação no mês selecionado</p>
               </div>
             ) : (
               <Table>
                 <TableHeader className="bg-neutral-50/50">
                   <TableRow>
-                    <TableHead className="w-[100px] font-black uppercase text-[10px] text-center border-r">N.º</TableHead>
-                    <TableHead className="font-black uppercase text-[10px] border-r">Publicação</TableHead>
-                    <TableHead className="w-[120px] font-black uppercase text-[10px] text-center border-r bg-primary/5">Estoque Anterior</TableHead>
-                    <TableHead className="w-[120px] font-black uppercase text-[10px] text-center bg-accent/5">Estoque Atual</TableHead>
+                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r h-10">N.º</TableHead>
+                    <TableHead className="font-black uppercase text-[9px] border-r h-10">Publicação</TableHead>
+                    <TableHead className="w-[100px] font-black uppercase text-[9px] text-center border-r bg-primary/5 h-10 leading-tight">Estoque Anterior</TableHead>
+                    <TableHead className="w-[100px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Estoque Atual</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -177,14 +177,14 @@ export default function InventoryReportPage() {
                     const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
                     
                     return (
-                      <TableRow key={item.id} className="hover:bg-transparent border-b">
-                        <TableCell className="text-center font-bold text-xs text-neutral-400 border-r">{item.code || '---'}</TableCell>
-                        <TableCell className="border-r">
+                      <TableRow key={item.id} className="hover:bg-transparent border-b h-9">
+                        <TableCell className="text-center font-bold text-[10px] text-neutral-400 border-r p-1">{item.code || '---'}</TableCell>
+                        <TableCell className="border-r p-1 px-3">
                           <div className="flex justify-between items-center">
                             {imagePlaceholder ? (
                               <Popover>
                                 <PopoverTrigger asChild>
-                                  <span className="font-bold text-sm uppercase cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors">
+                                  <span className="font-bold text-[11px] uppercase cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors">
                                     {item.item}
                                   </span>
                                 </PopoverTrigger>
@@ -202,19 +202,19 @@ export default function InventoryReportPage() {
                                 </PopoverContent>
                               </Popover>
                             ) : (
-                              <span className="font-bold text-sm uppercase">{item.item}</span>
+                              <span className="font-bold text-[11px] uppercase">{item.item}</span>
                             )}
-                            {item.abbr && <span className="text-[9px] font-black bg-neutral-100 text-neutral-500 px-1.5 py-0.5 rounded">{item.abbr}</span>}
+                            {item.abbr && <span className="text-[8px] font-black bg-neutral-100 text-neutral-500 px-1 py-0.5 rounded ml-2">{item.abbr}</span>}
                           </div>
                         </TableCell>
                         <TableCell className={cn(
-                          "text-center font-black text-sm border-r bg-primary/5",
+                          "text-center font-black text-xs border-r bg-primary/5 p-1",
                           (item.previous || 0) === 0 && "text-neutral-300 font-normal"
                         )}>
                           {item.previous}
                         </TableCell>
                         <TableCell className={cn(
-                          "text-center font-black text-sm bg-accent/5",
+                          "text-center font-black text-xs bg-accent/5 p-1",
                           (item.current || 0) === 0 && "text-destructive"
                         )}>
                           {item.current}
@@ -228,9 +228,9 @@ export default function InventoryReportPage() {
           </CardContent>
         </Card>
 
-        <div className="flex items-center gap-2 p-4 bg-primary/5 rounded-xl border border-primary/10 print:hidden">
-          <Info className="h-4 w-4 text-primary shrink-0" />
-          <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
+        <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-xl border border-primary/10 print:hidden">
+          <Info className="h-3.5 w-3.5 text-primary shrink-0" />
+          <p className="text-[9px] font-bold text-muted-foreground uppercase leading-tight">
             Este relatório oculta automaticamente publicações que não possuem estoque inicial nem final no período selecionado. Clique no nome da publicação para ver a capa.
           </p>
         </div>
