@@ -59,7 +59,6 @@ export function Header() {
 
   if (isUserLoading || !user || user.isAnonymous) return null;
 
-  // Lista centralizada de itens de navegação com seus breakpoints de visibilidade
   const navItems = [
     { href: "/", label: "Painel Principal", icon: LayoutGrid, minWidth: "lg" },
     { href: "/inventory-report", label: "Relatório de Inventário", icon: FileText, minWidth: "lg" },
@@ -94,12 +93,11 @@ export function Header() {
         </Link>
         
         <div className="flex items-center gap-2 md:gap-4">
-          {/* Navegação Horizontal Progressiva */}
           <nav className="hidden lg:flex items-center gap-1.5 xl:gap-2">
             {navItems.map((item) => {
               if (item.hideIfHelper && isHelper) return null;
               
-              // Define as classes de visibilidade baseadas no breakpoint
+              const isActive = pathname === item.href;
               const visibilityClass = item.minWidth === 'xl' ? 'hidden xl:flex' : 
                                      item.minWidth === '2xl' ? 'hidden 2xl:flex' : 'flex';
 
@@ -107,9 +105,9 @@ export function Header() {
                 <Link key={item.href} href={item.href} className={visibilityClass}>
                   <Button variant="ghost" className={cn(
                     "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3 transition-all",
-                    pathname === item.href && "bg-primary/10 border-primary"
+                    isActive && "bg-primary/10 border-primary text-primary-foreground"
                   )}>
-                    <item.icon className="h-4 w-4" />
+                    <item.icon className={cn("h-4 w-4", isActive && "text-primary")} />
                     <span className="truncate">{item.label}</span>
                   </Button>
                 </Link>
@@ -141,15 +139,18 @@ export function Header() {
                 {navItems.map((item) => {
                   if (item.hideIfHelper && isHelper) return null;
                   
-                  // Oculta no dropdown os itens que JÁ ESTÃO VISÍVEIS na barra horizontal
+                  const isActive = pathname === item.href;
                   const hiddenInDropdownClass = item.minWidth === 'lg' ? 'lg:hidden' : 
                                                item.minWidth === 'xl' ? 'xl:hidden' : 
                                                item.minWidth === '2xl' ? '2xl:hidden' : '';
 
                   return (
                     <Link key={item.href} href={item.href} className={hiddenInDropdownClass}>
-                      <DropdownMenuItem className="font-bold uppercase text-[10px] tracking-widest cursor-pointer">
-                        <item.icon className="mr-2 h-4 w-4" /> {item.label}
+                      <DropdownMenuItem className={cn(
+                        "font-bold uppercase text-[10px] tracking-widest cursor-pointer",
+                        isActive && "bg-primary/10 text-primary font-black"
+                      )}>
+                        <item.icon className={cn("mr-2 h-4 w-4", isActive && "text-primary")} /> {item.label}
                       </DropdownMenuItem>
                     </Link>
                   );

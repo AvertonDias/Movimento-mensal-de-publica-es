@@ -374,7 +374,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                     className={cn(
                       "font-bold text-foreground py-3 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white", 
                       col.id === 'item' && "text-left",
-                      ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[100px] min-w-[100px]"
+                      ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[110px] min-w-[110px]"
                     )}
                   >
                     {col.header}
@@ -458,7 +458,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             onFocus={(e) => e.target.select()} 
                             onWheel={(e) => e.currentTarget.blur()} 
                             className={cn(
-                              "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-0", 
+                              "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-1", 
                               isLowStock && col.id === 'current' && "text-destructive"
                             )} 
                             placeholder="0" 
