@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
   },
   // Ativa o modo standalone para melhorar a estabilidade do build em ambientes de CI/CD
   output: 'standalone',
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
   images: {
     remotePatterns: [
       {

@@ -1,11 +1,7 @@
-// src/ai/flows/get-stock-management-tips.ts
+
 'use server';
 /**
- * @fileOverview This file defines a Genkit flow to provide stock management tips based on JW Hub best practices.
- *
- * - getStockManagementTips - A function that takes inventory data as input and returns personalized stock management tips.
- * - StockManagementInput - The input type for the getStockManagementTips function, representing inventory data.
- * - StockManagementOutput - The output type for the getStockManagementTips function, representing the stock management tips.
+ * @fileOverview This file defines a flow to provide stock management tips based on JW Hub best practices.
  */
 
 import {ai} from '@/ai/genkit';
@@ -21,33 +17,27 @@ const StockManagementOutputSchema = z.object({
 });
 export type StockManagementOutput = z.infer<typeof StockManagementOutputSchema>;
 
-export async function getStockManagementTips(input: StockManagementInput): Promise<StockManagementOutput> {
-  return stockManagementTipsFlow(input);
-}
-
-const prompt = ai.definePrompt({
+const tipsPrompt = ai.definePrompt({
   name: 'stockManagementTipsPrompt',
   input: {schema: StockManagementInputSchema},
   output: {schema: StockManagementOutputSchema},
   prompt: `Você é um especialista em gestão de estoque com profundo conhecimento das melhores práticas do JW Hub.
 
-  Analise os dados de inventário fornecidos e forneça dicas de gestão de estoque personalizadas para otimizar os processos e evitar o desperdício.
+Analise os dados de inventário fornecidos e forneça dicas de gestão de estoque personalizadas para otimizar os processos e evitar o desperdício.
 
-  Dados do Inventário:
-  {{inventoryData}}
+Dados do Inventário:
+{{{inventoryData}}}
 
-  Dicas:
-`,
+Dicas:`,
 });
 
-const stockManagementTipsFlow = ai.defineFlow(
-  {
-    name: 'stockManagementTipsFlow',
-    inputSchema: StockManagementInputSchema,
-    outputSchema: StockManagementOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+export async function getStockManagementTips(input: StockManagementInput): Promise<StockManagementOutput> {
+  try {
+    const {output} = await tipsPrompt(input);
+    if (!output) throw new Error('No output from AI');
+    return output;
+  } catch (error) {
+    console.error('Tips generation error:', error);
+    throw new Error('Falha ao gerar dicas de gestão.');
   }
-);
+}

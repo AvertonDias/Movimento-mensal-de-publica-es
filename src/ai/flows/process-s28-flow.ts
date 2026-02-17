@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Flow to process S-28 form images or PDFs and extract inventory data.
@@ -22,7 +23,7 @@ const ProcessS28OutputSchema = z.object({
 });
 export type ProcessS28Output = z.infer<typeof ProcessS28OutputSchema>;
 
-const prompt = ai.definePrompt({
+const s28Prompt = ai.definePrompt({
   name: 'processS28Prompt',
   input: {schema: ProcessS28InputSchema},
   output: {schema: ProcessS28OutputSchema},
@@ -46,18 +47,15 @@ Arquivos:
 {{/each}}`,
 });
 
-export const processS28Flow = ai.defineFlow(
-  {
-    name: 'processS28Flow',
-    inputSchema: ProcessS28InputSchema,
-    outputSchema: ProcessS28OutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
-  }
-);
-
 export async function processS28(input: ProcessS28Input): Promise<ProcessS28Output> {
-  return processS28Flow(input);
+  try {
+    const {output} = await s28Prompt(input);
+    if (!output) {
+      return { items: [] };
+    }
+    return output;
+  } catch (error) {
+    console.error('Genkit S28 processing error:', error);
+    throw new Error('Erro ao processar a folha S-28 com IA. Verifique se os arquivos são nítidos.');
+  }
 }

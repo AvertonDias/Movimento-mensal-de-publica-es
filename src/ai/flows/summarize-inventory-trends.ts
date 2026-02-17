@@ -1,11 +1,8 @@
+
 'use server';
 
 /**
  * @fileOverview Summarizes inventory trends, highlighting popular and stagnant items.
- *
- * - summarizeInventoryTrends - Analyzes inventory data and provides a summary of usage trends.
- * - SummarizeInventoryTrendsInput - The input type for the summarizeInventoryTrends function.
- * - SummarizeInventoryTrendsOutput - The return type for the summarizeInventoryTrends function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -21,11 +18,7 @@ const SummarizeInventoryTrendsOutputSchema = z.object({
 });
 export type SummarizeInventoryTrendsOutput = z.infer<typeof SummarizeInventoryTrendsOutputSchema>;
 
-export async function summarizeInventoryTrends(input: SummarizeInventoryTrendsInput): Promise<SummarizeInventoryTrendsOutput> {
-  return summarizeInventoryTrendsFlow(input);
-}
-
-const prompt = ai.definePrompt({
+const trendsPrompt = ai.definePrompt({
   name: 'summarizeInventoryTrendsPrompt',
   input: {schema: SummarizeInventoryTrendsInputSchema},
   output: {schema: SummarizeInventoryTrendsOutputSchema},
@@ -35,14 +28,13 @@ Dados do Inventário:
 {{{inventoryData}}}`,
 });
 
-const summarizeInventoryTrendsFlow = ai.defineFlow(
-  {
-    name: 'summarizeInventoryTrendsFlow',
-    inputSchema: SummarizeInventoryTrendsInputSchema,
-    outputSchema: SummarizeInventoryTrendsOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+export async function summarizeInventoryTrends(input: SummarizeInventoryTrendsInput): Promise<SummarizeInventoryTrendsOutput> {
+  try {
+    const {output} = await trendsPrompt(input);
+    if (!output) throw new Error('No output from AI');
+    return output;
+  } catch (error) {
+    console.error('Trends analysis error:', error);
+    throw new Error('Falha ao analisar tendências.');
   }
-);
+}
