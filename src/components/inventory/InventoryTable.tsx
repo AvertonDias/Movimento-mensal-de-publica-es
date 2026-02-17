@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -372,9 +373,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   <TableHead 
                     key={col.id} 
                     className={cn(
-                      "font-bold text-foreground py-3 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white", 
+                      "font-bold text-foreground py-3 px-2 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white", 
                       col.id === 'item' && "text-left",
-                      ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[110px] min-w-[110px]"
+                      ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[120px] min-w-[120px]"
                     )}
                   >
                     {col.header}
@@ -403,13 +404,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 return (
                   <TableRow key={item.id} className={cn("hover:bg-accent/5 transition-colors border-b last:border-0 group", isLowStock && "bg-destructive/5")}>
                     {DEFAULT_COLUMNS.map((col) => (
-                      <TableCell key={`${item.id}-${col.id}`} className="p-1 px-2 border-r last:border-0 h-11">
+                      <TableCell key={`${item.id}-${col.id}`} className="p-0.5 px-1 border-r last:border-0 h-11">
                         {col.id === 'outgoing' ? (
                           <div className={cn("py-1.5 font-black rounded text-sm text-center", item.current !== null && typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10")}>{calculateOutgoing(item)}</div>
                         ) : col.id === 'code' ? (
                           <div className="text-center text-[10px] font-bold py-2 text-neutral-400">{item.code || '---'}</div>
                         ) : col.id === 'item' ? (
-                          <div className="flex justify-between items-center gap-2 min-w-[240px]">
+                          <div className="flex justify-between items-center gap-2 min-w-[240px] px-2">
                             <div className="flex items-center gap-2 overflow-hidden">
                               {(isLowStock || item.hidden || item.silent) && (
                                 <Popover>
@@ -458,7 +459,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             onFocus={(e) => e.target.select()} 
                             onWheel={(e) => e.currentTarget.blur()} 
                             className={cn(
-                              "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-1", 
+                              "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-0.5", 
                               isLowStock && col.id === 'current' && "text-destructive"
                             )} 
                             placeholder="0" 

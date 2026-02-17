@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -18,7 +19,7 @@ export default function S60Page() {
           </div>
           <Button 
             variant="outline" 
-            className="gap-2 bg-white font-bold uppercase text-xs w-full sm:w-auto" 
+            className="gap-2 bg-white font-bold uppercase text-xs w-full sm:w-auto shadow-sm" 
             onClick={() => window.print()}
           >
             <Printer className="h-4 w-4" />

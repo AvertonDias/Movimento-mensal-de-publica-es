@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -118,7 +119,7 @@ export default function InventoryReportPage() {
           </div>
           <Button 
             variant="outline" 
-            className="gap-2 bg-white font-bold uppercase text-xs w-full sm:w-auto" 
+            className="gap-2 bg-white font-bold uppercase text-xs w-full sm:w-auto shadow-sm" 
             onClick={() => window.print()}
           >
             <Printer className="h-4 w-4" /> Imprimir
@@ -159,8 +160,8 @@ export default function InventoryReportPage() {
                   <TableRow>
                     <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r h-10">N.º</TableHead>
                     <TableHead className="font-black uppercase text-[9px] border-r h-10">Publicação</TableHead>
-                    <TableHead className="w-[110px] font-black uppercase text-[9px] text-center border-r bg-primary/5 h-10 leading-tight">Anterior</TableHead>
-                    <TableHead className="w-[110px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Atual</TableHead>
+                    <TableHead className="w-[120px] font-black uppercase text-[9px] text-center border-r bg-primary/5 h-10 leading-tight">Anterior</TableHead>
+                    <TableHead className="w-[120px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Atual</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

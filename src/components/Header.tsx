@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -105,7 +106,7 @@ export function Header() {
                 <Link key={item.href} href={item.href} className={visibilityClass}>
                   <Button variant="ghost" className={cn(
                     "gap-2 font-bold uppercase text-[9px] tracking-widest border border-primary/20 hover:bg-primary/5 h-9 px-2 xl:px-3 transition-all",
-                    isActive && "bg-primary/10 border-primary text-primary-foreground"
+                    isActive && "bg-primary/10 border-primary text-primary-foreground shadow-sm"
                   )}>
                     <item.icon className={cn("h-4 w-4", isActive && "text-primary")} />
                     <span className="truncate">{item.label}</span>
