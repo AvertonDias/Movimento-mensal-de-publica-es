@@ -22,7 +22,6 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 interface RequestItemDialogProps {
@@ -163,7 +162,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
   return (
     <Dialog open={!!item} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl flex flex-col max-h-[95vh]">
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl flex flex-col max-h-[90vh]">
         <DialogHeader className="p-6 bg-primary/5 border-b border-primary/10 shrink-0 text-left">
           <div className="flex items-center gap-3 mb-2">
             <div className="bg-primary/20 p-2 rounded-lg">
@@ -176,8 +175,9 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1">
+        <div className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-8">
+            {/* Pedidos Pendentes */}
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2 px-1">
                 <Truck className="h-3 w-3" /> Pedidos Pendentes ({pendingRequests.length})
@@ -259,6 +259,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
             <Separator className="bg-neutral-100" />
 
+            {/* Novo Pedido */}
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary px-1">Novo Pedido</p>
               <div className="bg-white p-5 rounded-2xl border border-neutral-100 shadow-sm space-y-4">
@@ -288,6 +289,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
               </div>
             </div>
 
+            {/* Histórico */}
             {receivedRequests.length > 0 && (
               <div className="space-y-3 pb-4">
                 <Separator className="bg-neutral-100 mb-6" />
@@ -317,7 +319,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
 
         <DialogFooter className="p-4 bg-neutral-50 border-t border-neutral-100 shrink-0">
           <Button variant="ghost" onClick={onClose} className="w-full font-black uppercase text-[10px] tracking-widest">

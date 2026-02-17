@@ -136,7 +136,7 @@ export default function InventoryReportPage() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex flex-col items-start gap-2 print:hidden text-left">
+        <div className="sticky top-20 z-10 bg-neutral-50/80 backdrop-blur-sm pb-4 pt-2 flex flex-col items-start gap-2 print:hidden text-left">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
             <h1 className="text-xl font-black uppercase tracking-tight font-headline">Relatório de Inventário</h1>
