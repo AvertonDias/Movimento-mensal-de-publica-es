@@ -382,8 +382,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             </div>
           </div>
           
-          <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:flex-1 md:max-w-2xl">
-            <div className="relative flex-1 w-full">
+          <div className="flex flex-col items-center gap-2 w-full md:flex-1 md:max-w-2xl">
+            <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Pesquisar publicação..." 
@@ -404,7 +404,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             </div>
             
             <Select value={filterStatus} onValueChange={(v: any) => setFilterStatus(v)}>
-              <SelectTrigger className="w-full sm:w-[200px] h-11 font-bold text-[10px] uppercase tracking-widest bg-neutral-50 border-neutral-200">
+              <SelectTrigger className="w-full h-11 font-bold text-[10px] uppercase tracking-widest bg-neutral-50 border-neutral-200">
                 <div className="flex items-center gap-2">
                   <Filter className="h-3 w-3 text-primary" />
                   <SelectValue placeholder="Filtrar por Status" />
@@ -432,7 +432,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                     className={cn(
                       "font-bold text-foreground py-3 px-2 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white", 
                       col.id === 'item' && "text-left",
-                      ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[130px] min-w-[130px]"
+                      ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[140px] min-w-[140px]"
                     )}
                   >
                     {col.header}

@@ -163,7 +163,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
   return (
     <Dialog open={!!item} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl flex flex-col max-h-[90vh]">
+      <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl flex flex-col max-h-[95vh]">
         <DialogHeader className="p-6 bg-primary/5 border-b border-primary/10 shrink-0 text-left">
           <div className="flex items-center gap-3 mb-2">
             <div className="bg-primary/20 p-2 rounded-lg">
@@ -176,7 +176,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 overflow-y-auto">
+        <ScrollArea className="flex-1">
           <div className="p-6 space-y-8">
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2 px-1">
