@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -27,7 +26,9 @@ import {
   PackageSearch,
   Truck,
   Smartphone,
-  Filter
+  Filter,
+  RefreshCw,
+  Sparkles
 } from "lucide-react";
 import { 
   AlertDialog,
@@ -65,6 +66,7 @@ import { ptBR } from 'date-fns/locale';
 import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { RequestItemDialog } from "./RequestItemDialog";
+import { S28ImportModal } from "./S28ImportModal";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -90,6 +92,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [pendingConfirmItem, setPendingConfirmItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
+  const [showEmptyInventoryPrompt, setShowEmptyInventoryPrompt] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [hasDismissedEmptyPrompt, setHasDismissedEmptyPrompt] = useState(false);
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -100,7 +105,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const activeUid = targetUserId || user?.uid;
 
   useEffect(() => {
-    if (!pendingConfirmItem && !requestingItem && !editingItem) {
+    if (!pendingConfirmItem && !requestingItem && !editingItem && !showImportModal && !showEmptyInventoryPrompt) {
       const forceUnlock = () => {
         if (typeof document !== 'undefined') {
           document.body.style.pointerEvents = 'auto';
@@ -111,7 +116,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const t = setTimeout(forceUnlock, 350);
       return () => clearTimeout(t);
     }
-  }, [pendingConfirmItem, requestingItem, editingItem]);
+  }, [pendingConfirmItem, requestingItem, editingItem, showImportModal, showEmptyInventoryPrompt]);
 
   const isDateInFuture = (date: Date) => {
     const currentMonthStart = startOfMonth(new Date());
@@ -174,6 +179,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [db, activeUid, prevMonthKey]);
   
   const { data: prevRemoteItems } = useCollection(prevMonthItemsQuery);
+
+  // Detecção de inventário vazio para novos usuários
+  useEffect(() => {
+    if (!isFetchingMonth && remoteItems && prevRemoteItems && !hasDismissedEmptyPrompt) {
+      if (remoteItems.length === 0 && prevRemoteItems.length === 0 && !targetUserId) {
+        setShowEmptyInventoryPrompt(true);
+      }
+    }
+  }, [remoteItems, prevRemoteItems, isFetchingMonth, hasDismissedEmptyPrompt, targetUserId]);
 
   const items = useMemo(() => {
     const combined: InventoryItem[] = [];
@@ -335,6 +349,17 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
           </p>
         </div>
+      )}
+
+      {/* Botão Persistente para Importação */}
+      {hasDismissedEmptyPrompt && items.filter(i => (Number(i.current) || 0) > 0).length === 0 && !targetUserId && (
+        <Button 
+          onClick={() => setShowImportModal(true)}
+          className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-14 font-black uppercase tracking-widest gap-3 shadow-xl animate-in zoom-in-95 duration-500 rounded-xl"
+        >
+          <Sparkles className="h-5 w-5" />
+          Atualizar Estoque com S-28 Agora
+        </Button>
       )}
 
       <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
@@ -506,7 +531,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                 <Button variant="ghost" size="icon" className={cn("h-6 w-6 hover:bg-neutral-100 transition-colors", hasPending ? "text-primary bg-primary/10" : "text-muted-foreground/50")} onClick={() => setRequestingItem(item)}>
                                   {hasPending ? <Truck className="h-3.5 w-3.5" /> : <PackageSearch className="h-3.5 w-3.5" />}
                                 </Button>
-                                {item.isCustom && activeUid === user?.uid && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}><Edit2 className="h-3 w-3" /></Button>}
+                                {item.isCustom && activeUid === user?.uid && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}><Edit2 className="h-3_5 w-3.5" /></Button>}
                               </div>
                             </div>
                             {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded shrink-0">{item.abbr}</span>}
@@ -536,6 +561,43 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
 
+      {/* Prompt de Inventário Vazio */}
+      <AlertDialog 
+        open={showEmptyInventoryPrompt} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowEmptyInventoryPrompt(false);
+            setHasDismissedEmptyPrompt(true);
+          }
+        }}
+      >
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="text-left">
+            <div className="bg-primary/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+              <Sparkles className="h-6 w-6 text-primary" />
+            </div>
+            <AlertDialogTitle className="text-xl font-black uppercase tracking-tight">Estoque novo detectado!</AlertDialogTitle>
+            <AlertDialogDescription className="font-bold text-sm leading-relaxed">
+              Notamos que você ainda não possui itens cadastrados. <br /><br />
+              <strong>Gostaria de atualizar seu estoque agora usando a inteligência artificial com a sua folha S-28?</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto font-black uppercase text-xs">Mais tarde</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                setShowEmptyInventoryPrompt(false);
+                setShowImportModal(true);
+              }}
+              className="w-full sm:w-auto bg-primary hover:bg-primary/90 font-black uppercase text-xs shadow-lg"
+            >
+              Sim, Importar Agora
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Outros Diálogos */}
       <AlertDialog 
         open={!!pendingConfirmItem} 
         onOpenChange={(open) => {
@@ -565,6 +627,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
       {editingItem && activeUid === user?.uid && <EditCustomItemDialog item={editingItem} onClose={() => setEditingItem(null)} />}
       {requestingItem && <RequestItemDialog item={requestingItem} onClose={() => setRequestingItem(null)} targetUserId={targetUserId} />}
+      
+      {/* Modal de Importação S-28 */}
+      <S28ImportModal 
+        isOpen={showImportModal} 
+        onClose={() => setShowImportModal(false)} 
+        monthKey={monthKey} 
+      />
     </div>
   );
 }
