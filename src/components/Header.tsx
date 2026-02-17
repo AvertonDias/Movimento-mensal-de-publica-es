@@ -141,7 +141,7 @@ export function Header() {
                   if (item.hideIfHelper && isHelper) return null;
                   
                   const isActive = pathname === item.href;
-                  // Lógica inteligente: No dropdown, só mostramos o que NÃO está visível na barra principal baseado no breakpoint
+                  // No dropdown, mostramos apenas o que não está visível na barra principal
                   const hiddenInDropdownClass = item.minWidth === 'lg' ? 'lg:hidden' : 
                                                item.minWidth === 'xl' ? 'xl:hidden' : 
                                                item.minWidth === '2xl' ? '2xl:hidden' : '';

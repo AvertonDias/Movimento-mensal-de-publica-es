@@ -83,7 +83,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'low-stock' | 'pending'>('all');
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [requestingItem, setRequestingItem] = useState<InventoryItem | null>(null);
@@ -175,16 +175,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const { data: prevRemoteItems } = useCollection(prevMonthItemsQuery);
 
-  const categories = useMemo(() => {
-    const cats = new Set<string>();
-    OFFICIAL_PUBLICATIONS.forEach(p => {
-      if (p.isCategory && p.item) {
-        cats.add(p.item.split('(')[0].trim());
-      }
-    });
-    return Array.from(cats);
-  }, []);
-
   const items = useMemo(() => {
     const combined: InventoryItem[] = [];
     const officialIds = new Set(OFFICIAL_PUBLICATIONS.map((pub, idx) => pub.code || pub.abbr || `item_${idx}`));
@@ -240,18 +230,34 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth, historicalMinStock]);
 
   const filteredItems = useMemo(() => {
-    return items.filter(item => {
+    // Primeiro, filtrar apenas os itens (não categorias) que batem com a busca e status
+    const matches = items.filter(item => !item.isCategory).filter(item => {
       const matchesSearch = item.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (item.abbr && item.abbr.toLowerCase().includes(searchTerm.toLowerCase()));
       
-      const matchesCategory = selectedCategory === 'all' || 
-        (item.category && item.category.toLowerCase().includes(selectedCategory.toLowerCase())) ||
-        (item.isCategory && item.item.toLowerCase().includes(selectedCategory.toLowerCase()));
+      let matchesStatus = true;
+      if (filterStatus === 'low-stock') {
+        const minVal = historicalMinStock[item.id] || 0;
+        matchesStatus = !item.hidden && minVal > 0 && (
+          (item.current !== null && item.current <= minVal) || 
+          (item.current === null && item.previous !== null && item.previous <= minVal)
+        );
+      } else if (filterStatus === 'pending') {
+        matchesStatus = (item.pendingRequestsCount || 0) > 0;
+      }
 
-      return matchesSearch && matchesCategory;
+      return matchesSearch && matchesStatus;
     });
-  }, [items, searchTerm, selectedCategory]);
+
+    // Se estiver filtrando por algo específico, retornar lista plana
+    if (filterStatus !== 'all' || searchTerm !== '') {
+      return matches;
+    }
+
+    // Se não houver filtro, retornar lista original com cabeçalhos de categoria
+    return items;
+  }, [items, searchTerm, filterStatus, historicalMinStock]);
 
   const calculateOutgoing = (item: InventoryItem) => {
     if (item.current === null || item.current === undefined) return '';
@@ -374,7 +380,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <div className="flex items-center gap-2 max-w-[340px] text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
-                Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
+                O estoque anterior é herdado do mês passado. Filtre por status para focar no que precisa de atenção.
               </p>
             </div>
           </div>
@@ -400,20 +406,17 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               )}
             </div>
             
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-[180px] h-11 font-bold text-[10px] uppercase tracking-widest bg-neutral-50 border-neutral-200">
+            <Select value={filterStatus} onValueChange={(v: any) => setFilterStatus(v)}>
+              <SelectTrigger className="w-full sm:w-[200px] h-11 font-bold text-[10px] uppercase tracking-widest bg-neutral-50 border-neutral-200">
                 <div className="flex items-center gap-2">
                   <Filter className="h-3 w-3 text-primary" />
-                  <SelectValue placeholder="Categoria" />
+                  <SelectValue placeholder="Filtrar por Status" />
                 </div>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">Todas</SelectItem>
-                {categories.map(cat => (
-                  <SelectItem key={cat} value={cat} className="text-[10px] font-bold uppercase tracking-widest">
-                    {cat}
-                  </SelectItem>
-                ))}
+                <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">Todas as Publicações</SelectItem>
+                <SelectItem value="low-stock" className="text-[10px] font-black uppercase tracking-widest text-destructive">Estoque Baixo</SelectItem>
+                <SelectItem value="pending" className="text-[10px] font-black uppercase tracking-widest text-primary">Pedidos Pendentes</SelectItem>
               </SelectContent>
             </Select>
           </div>
