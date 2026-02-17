@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -182,12 +183,17 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   // Detecção de inventário vazio para novos usuários
   useEffect(() => {
-    if (!isFetchingMonth && remoteItems && prevRemoteItems && !hasDismissedEmptyPrompt) {
-      if (remoteItems.length === 0 && prevRemoteItems.length === 0 && !targetUserId) {
+    if (!isFetchingMonth && remoteItems && prevRemoteItems && !isUserLoading && !targetUserId) {
+      const isDismissed = sessionStorage.getItem('s28_prompt_dismissed');
+      if (isDismissed) {
+        setHasDismissedEmptyPrompt(true);
+      }
+
+      if (remoteItems.length === 0 && prevRemoteItems.length === 0 && !isDismissed) {
         setShowEmptyInventoryPrompt(true);
       }
     }
-  }, [remoteItems, prevRemoteItems, isFetchingMonth, hasDismissedEmptyPrompt, targetUserId]);
+  }, [remoteItems, prevRemoteItems, isFetchingMonth, isUserLoading, targetUserId]);
 
   const items = useMemo(() => {
     const combined: InventoryItem[] = [];
@@ -338,6 +344,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     }
   };
 
+  const isActuallyEmpty = items.filter(i => (Number(i.current) || 0) > 0 || (Number(i.previous) || 0) > 0).length === 0;
+
   return (
     <div className="space-y-6 relative">
       {isMobile && (
@@ -351,8 +359,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       )}
 
-      {/* Botão Persistente para Importação */}
-      {hasDismissedEmptyPrompt && items.filter(i => (Number(i.current) || 0) > 0).length === 0 && !targetUserId && (
+      {/* Botão Persistente para Importação - Visível se o estoque estiver vazio */}
+      {isActuallyEmpty && !targetUserId && (
         <Button 
           onClick={() => setShowImportModal(true)}
           className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-14 font-black uppercase tracking-widest gap-3 shadow-xl animate-in zoom-in-95 duration-500 rounded-xl"
@@ -567,6 +575,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         onOpenChange={(open) => {
           if (!open) {
             setShowEmptyInventoryPrompt(false);
+            sessionStorage.setItem('s28_prompt_dismissed', 'true');
             setHasDismissedEmptyPrompt(true);
           }
         }}

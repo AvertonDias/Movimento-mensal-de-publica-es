@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FileText, Printer, Loader2, ShieldCheck, Info } from "lucide-react";
+import { FileText, Printer, Loader2, ShieldCheck, Info, Sparkles } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
@@ -23,6 +23,17 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { S28ImportModal } from "@/components/inventory/S28ImportModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function InventoryReportPage() {
   const { user, isUserLoading } = useUser();
@@ -32,6 +43,9 @@ export default function InventoryReportPage() {
   const [selectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthLabel = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
+
+  const [showEmptyInventoryPrompt, setShowEmptyInventoryPrompt] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -61,6 +75,16 @@ export default function InventoryReportPage() {
   }, [db, activeUserId, monthKey]);
 
   const { data: remoteItems, isLoading: isFetchingData } = useCollection(monthItemsQuery);
+
+  // Detecção de inventário vazio
+  useEffect(() => {
+    if (!isFetchingData && remoteItems && !isUserLoading && !helperInvite) {
+      const isDismissed = sessionStorage.getItem('s28_prompt_dismissed');
+      if (remoteItems.length === 0 && !isDismissed) {
+        setShowEmptyInventoryPrompt(true);
+      }
+    }
+  }, [remoteItems, isFetchingData, isUserLoading, helperInvite]);
 
   const filteredItems = useMemo(() => {
     if (!remoteItems && !isFetchingData) return [];
@@ -160,8 +184,8 @@ export default function InventoryReportPage() {
                   <TableRow>
                     <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r h-10">N.º</TableHead>
                     <TableHead className="font-black uppercase text-[9px] border-r h-10">Publicação</TableHead>
-                    <TableHead className="w-[130px] font-black uppercase text-[9px] text-center border-r bg-primary/5 h-10 leading-tight">Anterior</TableHead>
-                    <TableHead className="w-[130px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Atual</TableHead>
+                    <TableHead className="w-[140px] font-black uppercase text-[9px] text-center border-r bg-primary/5 h-10 leading-tight">Anterior</TableHead>
+                    <TableHead className="w-[140px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Atual</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -227,6 +251,47 @@ export default function InventoryReportPage() {
           </p>
         </div>
       </div>
+
+      <AlertDialog 
+        open={showEmptyInventoryPrompt} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowEmptyInventoryPrompt(false);
+            sessionStorage.setItem('s28_prompt_dismissed', 'true');
+          }
+        }}
+      >
+        <AlertDialogContent className="sm:max-w-md">
+          <AlertDialogHeader className="text-left">
+            <div className="bg-primary/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
+              <Sparkles className="h-6 w-6 text-primary" />
+            </div>
+            <AlertDialogTitle className="text-xl font-black uppercase tracking-tight">Estoque novo detectado!</AlertDialogTitle>
+            <AlertDialogDescription className="font-bold text-sm leading-relaxed">
+              Notamos que você ainda não possui itens cadastrados. <br /><br />
+              <strong>Gostaria de atualizar seu estoque agora usando a inteligência artificial com a sua folha S-28?</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto font-black uppercase text-xs">Mais tarde</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                setShowEmptyInventoryPrompt(false);
+                setShowImportModal(true);
+              }}
+              className="w-full sm:w-auto bg-primary hover:bg-primary/90 font-black uppercase text-xs shadow-lg"
+            >
+              Sim, Importar Agora
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <S28ImportModal 
+        isOpen={showImportModal} 
+        onClose={() => setShowImportModal(false)} 
+        monthKey={monthKey} 
+      />
     </div>
   );
 }
