@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -422,7 +421,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
 
-      <div className="bg-white rounded-b-xl shadow-md border-x border-b border-border overflow-hidden">
+      <div className="bg-white rounded-b-xl shadow-md border-x border-b border-border">
         {(isFetchingMonth || isUserLoading) && <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center backdrop-blur-[1px]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
         <div className="overflow-x-auto">
           <Table>
