@@ -95,7 +95,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
   const [showEmptyInventoryPrompt, setShowEmptyInventoryPrompt] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
-  const [hasDismissedEmptyPrompt, setHasDismissedEmptyPrompt] = useState(false);
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -104,6 +103,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const prevMonthKey = format(prevMonth, 'yyyy-MM');
 
   const activeUid = targetUserId || user?.uid;
+  const isMyOwnInventory = activeUid === user?.uid;
 
   useEffect(() => {
     if (!pendingConfirmItem && !requestingItem && !editingItem && !showImportModal && !showEmptyInventoryPrompt) {
@@ -181,20 +181,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const { data: prevRemoteItems } = useCollection(prevMonthItemsQuery);
 
-  // Detecção de inventário vazio para novos usuários
-  useEffect(() => {
-    if (!isFetchingMonth && remoteItems && prevRemoteItems && !isUserLoading && !targetUserId) {
-      const isDismissed = sessionStorage.getItem('s28_prompt_dismissed');
-      if (isDismissed) {
-        setHasDismissedEmptyPrompt(true);
-      }
-
-      if (remoteItems.length === 0 && prevRemoteItems.length === 0 && !isDismissed) {
-        setShowEmptyInventoryPrompt(true);
-      }
-    }
-  }, [remoteItems, prevRemoteItems, isFetchingMonth, isUserLoading, targetUserId]);
-
   const items = useMemo(() => {
     const combined: InventoryItem[] = [];
     const officialIds = new Set(OFFICIAL_PUBLICATIONS.map((pub, idx) => pub.code || pub.abbr || `item_${idx}`));
@@ -248,6 +234,21 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     });
     return combined;
   }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth, historicalMinStock]);
+
+  const isActuallyEmpty = useMemo(() => {
+    if (isFetchingMonth) return false;
+    return items.filter(i => !i.isCategory && ((Number(i.current) || 0) > 0 || (Number(i.previous) || 0) > 0)).length === 0;
+  }, [items, isFetchingMonth]);
+
+  // Detecção de inventário vazio para novos usuários
+  useEffect(() => {
+    if (!isFetchingMonth && remoteItems && prevRemoteItems && !isUserLoading && isMyOwnInventory) {
+      const isDismissed = sessionStorage.getItem('s28_prompt_dismissed');
+      if (isActuallyEmpty && !isDismissed) {
+        setShowEmptyInventoryPrompt(true);
+      }
+    }
+  }, [isActuallyEmpty, isFetchingMonth, remoteItems, prevRemoteItems, isUserLoading, isMyOwnInventory]);
 
   const filteredItems = useMemo(() => {
     const matches = items.filter(item => !item.isCategory).filter(item => {
@@ -344,8 +345,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     }
   };
 
-  const isActuallyEmpty = items.filter(i => (Number(i.current) || 0) > 0 || (Number(i.previous) || 0) > 0).length === 0;
-
   return (
     <div className="space-y-6 relative">
       {isMobile && (
@@ -359,8 +358,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       )}
 
-      {/* Botão Persistente para Importação - Visível se o estoque estiver vazio */}
-      {isActuallyEmpty && !targetUserId && (
+      {/* Botão Persistente para Importação - Visível se o estoque estiver vazio e for meu próprio inventário */}
+      {isActuallyEmpty && isMyOwnInventory && (
         <Button 
           onClick={() => setShowImportModal(true)}
           className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-14 font-black uppercase tracking-widest gap-3 shadow-xl animate-in zoom-in-95 duration-500 rounded-xl"
@@ -576,7 +575,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           if (!open) {
             setShowEmptyInventoryPrompt(false);
             sessionStorage.setItem('s28_prompt_dismissed', 'true');
-            setHasDismissedEmptyPrompt(true);
           }
         }}
       >
