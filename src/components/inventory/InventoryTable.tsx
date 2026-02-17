@@ -83,7 +83,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'low-stock' | 'pending'>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'low-stock' | 'pending' | 'received'>('all');
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [requestingItem, setRequestingItem] = useState<InventoryItem | null>(null);
@@ -244,6 +244,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         );
       } else if (filterStatus === 'pending') {
         matchesStatus = (item.pendingRequestsCount || 0) > 0;
+      } else if (filterStatus === 'received') {
+        matchesStatus = (Number(item.received) || 0) > 0;
       }
 
       return matchesSearch && matchesStatus;
@@ -414,6 +416,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">Todas as Publicações</SelectItem>
                 <SelectItem value="low-stock" className="text-[10px] font-black uppercase tracking-widest text-destructive">Estoque Baixo</SelectItem>
                 <SelectItem value="pending" className="text-[10px] font-black uppercase tracking-widest text-primary">Pedidos Pendentes</SelectItem>
+                <SelectItem value="received" className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Itens Recebidos</SelectItem>
               </SelectContent>
             </Select>
           </div>
