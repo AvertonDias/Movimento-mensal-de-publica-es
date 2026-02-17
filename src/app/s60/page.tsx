@@ -9,7 +9,7 @@ export default function S60Page() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-8 px-4 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between print:hidden">
+        <div className="flex flex-col items-start gap-4 print:hidden">
           <div className="flex items-center gap-3">
             <div className="bg-destructive/10 p-2 rounded-lg">
               <Trash2 className="h-5 w-5 text-destructive" />
@@ -18,7 +18,7 @@ export default function S60Page() {
           </div>
           <Button 
             variant="outline" 
-            className="gap-2 bg-white font-bold uppercase text-xs" 
+            className="gap-2 bg-white font-bold uppercase text-xs w-full sm:w-auto" 
             onClick={() => window.print()}
           >
             <Printer className="h-4 w-4" />
