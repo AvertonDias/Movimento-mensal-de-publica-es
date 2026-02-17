@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -179,7 +180,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
         <ScrollArea className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-8">
-            {/* 1. Pedidos Pendentes */}
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-600 flex items-center gap-2 px-1">
                 <Truck className="h-3 w-3" /> Pedidos Pendentes ({pendingRequests.length})
@@ -261,7 +261,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
             <Separator className="bg-neutral-100" />
 
-            {/* 2. Novo Pedido */}
             <div className="space-y-4">
               <p className="text-[10px] font-black uppercase tracking-[0.2em] text-primary px-1">Novo Pedido</p>
               <div className="bg-white p-5 rounded-2xl border border-neutral-100 shadow-sm space-y-4">
@@ -291,7 +290,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
               </div>
             </div>
 
-            {/* 3. Histórico de Itens Recebidos */}
             {receivedRequests.length > 0 && (
               <div className="space-y-3 pb-4">
                 <Separator className="bg-neutral-100 mb-6" />

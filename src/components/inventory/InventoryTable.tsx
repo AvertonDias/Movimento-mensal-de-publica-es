@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -25,7 +26,8 @@ import {
   Bell,
   PackageSearch,
   Truck,
-  Smartphone
+  Smartphone,
+  Filter
 } from "lucide-react";
 import { 
   AlertDialog,
@@ -37,6 +39,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
 import { 
   InventoryItem, 
   DEFAULT_COLUMNS
@@ -74,6 +83,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [requestingItem, setRequestingItem] = useState<InventoryItem | null>(null);
@@ -165,6 +175,16 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const { data: prevRemoteItems } = useCollection(prevMonthItemsQuery);
 
+  const categories = useMemo(() => {
+    const cats = new Set<string>();
+    OFFICIAL_PUBLICATIONS.forEach(p => {
+      if (p.isCategory && p.item) {
+        cats.add(p.item.split('(')[0].trim());
+      }
+    });
+    return Array.from(cats);
+  }, []);
+
   const items = useMemo(() => {
     const combined: InventoryItem[] = [];
     const officialIds = new Set(OFFICIAL_PUBLICATIONS.map((pub, idx) => pub.code || pub.abbr || `item_${idx}`));
@@ -220,12 +240,18 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth, historicalMinStock]);
 
   const filteredItems = useMemo(() => {
-    return items.filter(item => 
-      item.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.abbr && item.abbr.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
-  }, [items, searchTerm]);
+    return items.filter(item => {
+      const matchesSearch = item.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.abbr && item.abbr.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      const matchesCategory = selectedCategory === 'all' || 
+        (item.category && item.category.toLowerCase().includes(selectedCategory.toLowerCase())) ||
+        (item.isCategory && item.item.toLowerCase().includes(selectedCategory.toLowerCase()));
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [items, searchTerm, selectedCategory]);
 
   const calculateOutgoing = (item: InventoryItem) => {
     if (item.current === null || item.current === undefined) return '';
@@ -352,12 +378,44 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2 w-full md:flex-1 md:max-w-2xl">
-            <div className="relative flex-1">
+          
+          <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:flex-1 md:max-w-2xl">
+            <div className="relative flex-1 w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input placeholder="Pesquisar publicação..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 pr-10 h-11 w-full font-medium" />
-              {searchTerm && <Button variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setSearchTerm('')}><X className="h-4 w-4" /></Button>}
+              <Input 
+                placeholder="Pesquisar publicação..." 
+                value={searchTerm} 
+                onChange={(e) => setSearchTerm(e.target.value)} 
+                className="pl-10 pr-10 h-11 w-full font-medium shadow-sm" 
+              />
+              {searchTerm && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground" 
+                  onClick={() => setSearchTerm('')}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
             </div>
+            
+            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+              <SelectTrigger className="w-full sm:w-[180px] h-11 font-bold text-[10px] uppercase tracking-widest bg-neutral-50 border-neutral-200">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-3 w-3 text-primary" />
+                  <SelectValue placeholder="Categoria" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">Todas</SelectItem>
+                {categories.map(cat => (
+                  <SelectItem key={cat} value={cat} className="text-[10px] font-bold uppercase tracking-widest">
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
