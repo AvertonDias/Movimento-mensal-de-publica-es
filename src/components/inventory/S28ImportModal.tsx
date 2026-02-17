@@ -21,7 +21,8 @@ import {
   AlertTriangle, 
   RefreshCw,
   X,
-  Scan
+  Scan,
+  CalendarDays
 } from "lucide-react";
 import { processS28 } from "@/ai/flows/process-s28-flow";
 import { useToast } from "@/hooks/use-toast";
@@ -110,33 +111,42 @@ export function S28ImportModal({ isOpen, onClose, monthKey }: S28ImportModalProp
 
     setIsProcessing(true);
     try {
-      const result = await processS28({ files });
+      const result = await processS28({ 
+        files, 
+        currentDate: new Date().toISOString() 
+      });
       
-      if (result.items && result.items.length > 0) {
-        // Atualizar itens no Firestore
-        result.items.forEach(item => {
-          // Tentar encontrar o ID baseado no código ou nome (heurística simples)
-          const itemId = item.code || item.item.toLowerCase().replace(/\s+/g, '_');
-          const docRef = doc(db, 'users', user.uid, 'monthly_records', monthKey, 'items', itemId);
+      if (result.months && result.months.length > 0) {
+        let totalItemsProcessed = 0;
+        
+        result.months.forEach(monthData => {
+          const targetMonthKey = monthData.monthKey;
           
-          setDocumentNonBlocking(docRef, {
-            ...item,
-            id: itemId,
-            updatedAt: new Date().toISOString()
-          }, { merge: true });
+          monthData.items.forEach(item => {
+            const itemId = item.code || item.item.toLowerCase().replace(/\s+/g, '_');
+            const docRef = doc(db, 'users', user.uid, 'monthly_records', targetMonthKey, 'items', itemId);
+            
+            setDocumentNonBlocking(docRef, {
+              ...item,
+              id: itemId,
+              updatedAt: new Date().toISOString()
+            }, { merge: true });
+            
+            totalItemsProcessed++;
+          });
         });
 
         toast({
           title: "Importação Concluída!",
-          description: `Foram identificados e importados ${result.items.length} itens da sua folha S-28.`,
+          description: `Detectados ${result.months.length} meses. Total de ${totalItemsProcessed} registros atualizados com sucesso.`,
         });
         setFiles([]);
         onClose();
       } else {
         toast({
           variant: "destructive",
-          title: "Nenhum dado encontrado",
-          description: "A IA não conseguiu identificar itens válidos nestas imagens. Tente tirar fotos mais nítidas.",
+          title: "Dados não identificados",
+          description: "A IA não conseguiu ler as colunas de meses. Tente fotos mais nítidas e enquadradas.",
         });
       }
     } catch (error) {
@@ -162,7 +172,7 @@ export function S28ImportModal({ isOpen, onClose, monthKey }: S28ImportModalProp
             <DialogTitle className="uppercase font-black text-lg tracking-tight">Importar Folha S-28</DialogTitle>
           </div>
           <DialogDescription className="text-xs font-bold uppercase text-muted-foreground">
-            Use a inteligência artificial para preencher seu estoque a partir de fotos ou arquivos PDF da sua folha mensal.
+            A IA irá ler as colunas de <strong>6 meses</strong> da sua folha S-28-T e preencher o histórico completo automaticamente.
           </DialogDescription>
         </DialogHeader>
 
@@ -210,9 +220,15 @@ export function S28ImportModal({ isOpen, onClose, monthKey }: S28ImportModalProp
 
               {files.length > 0 && (
                 <div className="space-y-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
-                    Arquivos Adicionados ({files.length})
-                  </p>
+                  <div className="flex items-center justify-between px-1">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+                      Arquivos Adicionados ({files.length})
+                    </p>
+                    <div className="flex items-center gap-1 text-[9px] font-bold text-primary uppercase">
+                      <CalendarDays className="h-3 w-3" />
+                      Lendo 6 meses
+                    </div>
+                  </div>
                   <div className="grid grid-cols-3 gap-3">
                     {files.map((file, idx) => (
                       <div key={idx} className="relative aspect-[3/4] rounded-lg border-2 border-neutral-100 overflow-hidden group shadow-sm bg-neutral-50">
@@ -256,12 +272,12 @@ export function S28ImportModal({ isOpen, onClose, monthKey }: S28ImportModalProp
               {isProcessing ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Analisando Documentos...
+                  Lendo 6 meses da folha...
                 </>
               ) : (
                 <>
                   <RefreshCw className="h-4 w-4" />
-                  Processar com Inteligência Artificial
+                  Atualizar Histórico (6 Meses)
                 </>
               )}
             </Button>
