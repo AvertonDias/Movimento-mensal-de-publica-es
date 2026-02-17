@@ -230,7 +230,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth, historicalMinStock]);
 
   const filteredItems = useMemo(() => {
-    // Primeiro, filtrar apenas os itens (não categorias) que batem com a busca e status
     const matches = items.filter(item => !item.isCategory).filter(item => {
       const matchesSearch = item.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -250,12 +249,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       return matchesSearch && matchesStatus;
     });
 
-    // Se estiver filtrando por algo específico, retornar lista plana
     if (filterStatus !== 'all' || searchTerm !== '') {
       return matches;
     }
 
-    // Se não houver filtro, retornar lista original com cabeçalhos de categoria
     return items;
   }, [items, searchTerm, filterStatus, historicalMinStock]);
 
@@ -380,7 +377,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <div className="flex items-center gap-2 max-w-[340px] text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
-                O estoque anterior é herdado do mês passado. Filtre por status para focar no que precisa de atenção.
+                Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
               </p>
             </div>
           </div>

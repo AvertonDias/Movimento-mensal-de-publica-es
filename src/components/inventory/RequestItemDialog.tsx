@@ -84,7 +84,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     const requestId = `req_${Date.now()}`;
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', requestId);
     
-    // Define o horário para o meio do dia para evitar problemas de fuso horário na data
     const finalRequestDate = new Date(requestDate + 'T12:00:00').toISOString();
 
     const newRequest: ItemRequest = {
@@ -97,7 +96,6 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     setDocumentNonBlocking(reqDocRef, newRequest, { merge: true });
 
-    // Atualiza o contador de pedidos pendentes no documento do item
     const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(itemDocRef, {
       pendingRequestsCount: (item.pendingRequestsCount || 0) + 1,
