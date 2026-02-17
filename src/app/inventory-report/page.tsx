@@ -111,14 +111,14 @@ export default function InventoryReportPage() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between print:hidden">
+        <div className="flex flex-col items-start gap-4 print:hidden">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
             <h1 className="text-xl font-black uppercase tracking-tight font-headline">Relatório de Inventário</h1>
           </div>
           <Button 
             variant="outline" 
-            className="gap-2 bg-white font-bold uppercase text-xs" 
+            className="gap-2 bg-white font-bold uppercase text-xs w-full sm:w-auto" 
             onClick={() => window.print()}
           >
             <Printer className="h-4 w-4" /> Imprimir
