@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -64,7 +63,6 @@ import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYear
 import { ptBR } from 'date-fns/locale';
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { RequestItemDialog } from "./RequestItemDialog";
-import { AIInsights } from "./AIInsights";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -324,20 +322,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     }
   };
 
-  const inventoryStringData = useMemo(() => {
-    const relevant = items.filter(i => !i.isCategory && ((Number(i.current) || 0) > 0 || (Number(i.previous) || 0) > 0));
-    return JSON.stringify(relevant.map(i => ({ 
-      item: i.item, 
-      code: i.code, 
-      stock: i.current, 
-      outgoing: calculateOutgoing(i) 
-    })));
-  }, [items]);
-
-  const hasData = useMemo(() => {
-    return items.filter(i => !i.isCategory && ((Number(i.current) || 0) > 0 || (Number(i.previous) || 0) > 0)).length > 0;
-  }, [items]);
-
   return (
     <div className="space-y-6 relative">
       {isMobile && (
@@ -350,8 +334,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           </p>
         </div>
       )}
-
-      {hasData && <AIInsights inventoryData={inventoryStringData} />}
 
       <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
