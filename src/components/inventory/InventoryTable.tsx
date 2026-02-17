@@ -30,7 +30,8 @@ import {
   Filter,
   RefreshCw,
   Sparkles,
-  AlertOctagon
+  AlertOctagon,
+  FileEdit
 } from "lucide-react";
 import { 
   AlertDialog,
@@ -69,6 +70,7 @@ import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { RequestItemDialog } from "./RequestItemDialog";
 import { S28ImportModal } from "./S28ImportModal";
+import { AIInsights } from "./AIInsights";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -346,6 +348,16 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     }
   };
 
+  const inventoryStringData = useMemo(() => {
+    const relevant = items.filter(i => !i.isCategory && ((Number(i.current) || 0) > 0 || (Number(i.previous) || 0) > 0));
+    return JSON.stringify(relevant.map(i => ({ 
+      item: i.item, 
+      code: i.code, 
+      stock: i.current, 
+      outgoing: calculateOutgoing(i) 
+    })));
+  }, [items]);
+
   return (
     <div className="space-y-6 relative">
       {isMobile && (
@@ -360,14 +372,29 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       )}
 
       {isActuallyEmpty && isMyOwnInventory && (
-        <Button 
-          onClick={() => setShowImportModal(true)}
-          className="w-full bg-accent text-accent-foreground hover:bg-accent/90 h-14 font-black uppercase tracking-widest gap-3 shadow-xl animate-in zoom-in-95 duration-500 rounded-xl"
-        >
-          <Sparkles className="h-5 w-5" />
-          Atualizar Estoque com S-28 Agora
-        </Button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <Button 
+            onClick={() => setShowImportModal(true)}
+            className="bg-accent text-accent-foreground hover:bg-accent/90 h-14 font-black uppercase tracking-widest gap-3 shadow-xl animate-in zoom-in-95 duration-500 rounded-xl"
+          >
+            <Sparkles className="h-5 w-5" />
+            IA: Atualizar com S-28
+          </Button>
+          <Button 
+            variant="outline"
+            onClick={() => {
+              setShowEmptyInventoryPrompt(false);
+              sessionStorage.setItem('s28_prompt_dismissed', 'true');
+            }}
+            className="border-2 border-primary/20 h-14 font-black uppercase tracking-widest gap-3 shadow-md rounded-xl bg-white hover:bg-primary/5"
+          >
+            <FileEdit className="h-5 w-5 text-primary" />
+            Preenchimento Manual
+          </Button>
+        </div>
       )}
+
+      {!isActuallyEmpty && <AIInsights inventoryData={inventoryStringData} />}
 
       <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
