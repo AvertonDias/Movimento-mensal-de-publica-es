@@ -370,7 +370,16 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <TableHeader className="bg-white shadow-sm border-b">
               <TableRow className="bg-white hover:bg-white">
                 {DEFAULT_COLUMNS.map((col) => (
-                  <TableHead key={col.id} className={cn("font-bold text-foreground py-3 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white", col.id === 'item' && "text-left")}>{col.header}</TableHead>
+                  <TableHead 
+                    key={col.id} 
+                    className={cn(
+                      "font-bold text-foreground py-3 px-3 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white", 
+                      col.id === 'item' && "text-left",
+                      ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[90px] min-w-[90px]"
+                    )}
+                  >
+                    {col.header}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -395,7 +404,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 return (
                   <TableRow key={item.id} className={cn("hover:bg-accent/5 transition-colors border-b last:border-0 group", isLowStock && "bg-destructive/5")}>
                     {DEFAULT_COLUMNS.map((col) => (
-                      <TableCell key={`${item.id}-${col.id}`} className="p-1 px-3 border-r last:border-0 h-11">
+                      <TableCell key={`${item.id}-${col.id}`} className="p-1 px-2 border-r last:border-0 h-11">
                         {col.id === 'outgoing' ? (
                           <div className={cn("py-1.5 font-black rounded text-sm text-center", item.current !== null && typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10")}>{calculateOutgoing(item)}</div>
                         ) : col.id === 'code' ? (
@@ -443,7 +452,19 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded shrink-0">{item.abbr}</span>}
                           </div>
                         ) : (
-                          <Input type="number" value={(item[col.id] !== undefined && item[col.id] !== null) ? (item[col.id] as number) : ''} onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))} onFocus={(e) => e.target.select()} onWheel={(e) => e.currentTarget.blur()} className={cn("border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent", isLowStock && col.id === 'current' && "text-destructive")} placeholder="0" disabled={(activeUid !== user?.uid && !targetUserId)} />
+                          <Input 
+                            type="number" 
+                            value={(item[col.id] !== undefined && item[col.id] !== null) ? (item[col.id] as number) : ''} 
+                            onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))} 
+                            onFocus={(e) => e.target.select()} 
+                            onWheel={(e) => e.currentTarget.blur()} 
+                            className={cn(
+                              "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-1", 
+                              isLowStock && col.id === 'current' && "text-destructive"
+                            )} 
+                            placeholder="0" 
+                            disabled={(activeUid !== user?.uid && !targetUserId)} 
+                          />
                         )}
                       </TableCell>
                     ))}
