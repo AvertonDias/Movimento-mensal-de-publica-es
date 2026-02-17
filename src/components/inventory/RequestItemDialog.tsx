@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useEffect } from 'react';
@@ -84,6 +83,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
     const requestId = `req_${Date.now()}`;
     const reqDocRef = doc(db, 'users', activeUid, 'inventory', item.id, 'requests', requestId);
     
+    // Define o horário para o meio do dia para evitar problemas de fuso horário na data
     const finalRequestDate = new Date(requestDate + 'T12:00:00').toISOString();
 
     const newRequest: ItemRequest = {
@@ -96,6 +96,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
 
     setDocumentNonBlocking(reqDocRef, newRequest, { merge: true });
 
+    // Atualiza o contador de pedidos pendentes no documento do item
     const itemDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
     setDocumentNonBlocking(itemDocRef, {
       pendingRequestsCount: (item.pendingRequestsCount || 0) + 1,
@@ -176,7 +177,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 overflow-y-auto">
           <div className="p-6 space-y-8">
             {/* 1. Pedidos Pendentes */}
             <div className="space-y-4">
@@ -290,7 +291,7 @@ export function RequestItemDialog({ item, onClose, targetUserId }: RequestItemDi
               </div>
             </div>
 
-            {/* 3. Histórico de Itens Recebidos (Embaixo de tudo) */}
+            {/* 3. Histórico de Itens Recebidos */}
             {receivedRequests.length > 0 && (
               <div className="space-y-3 pb-4">
                 <Separator className="bg-neutral-100 mb-6" />

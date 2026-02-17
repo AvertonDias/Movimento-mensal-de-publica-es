@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -112,7 +111,7 @@ export default function InventoryReportPage() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex flex-col items-start gap-4 print:hidden">
+        <div className="flex flex-col items-start gap-2 print:hidden text-left">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
             <h1 className="text-xl font-black uppercase tracking-tight font-headline">Relatório de Inventário</h1>
@@ -128,7 +127,7 @@ export default function InventoryReportPage() {
 
         <Card className="border-none shadow-xl overflow-hidden print:shadow-none print:border">
           <CardHeader className="bg-white border-b border-neutral-100 flex flex-row items-center justify-between space-y-0 p-4">
-            <div>
+            <div className="text-left">
               <CardTitle className="uppercase font-black text-base">Resumo de Saldo Físico</CardTitle>
               <CardDescription className="uppercase font-bold text-[9px] tracking-widest text-muted-foreground mt-1">
                 Competência: {monthLabel}
@@ -160,8 +159,8 @@ export default function InventoryReportPage() {
                   <TableRow>
                     <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r h-10">N.º</TableHead>
                     <TableHead className="font-black uppercase text-[9px] border-r h-10">Publicação</TableHead>
-                    <TableHead className="w-[120px] font-black uppercase text-[9px] text-center border-r bg-primary/5 h-10 leading-tight">Anterior</TableHead>
-                    <TableHead className="w-[120px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Atual</TableHead>
+                    <TableHead className="w-[130px] font-black uppercase text-[9px] text-center border-r bg-primary/5 h-10 leading-tight">Anterior</TableHead>
+                    <TableHead className="w-[130px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Atual</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -171,7 +170,7 @@ export default function InventoryReportPage() {
                     return (
                       <TableRow key={item.id} className="hover:bg-transparent border-b h-9">
                         <TableCell className="text-center font-bold text-[10px] text-neutral-400 border-r p-1">{item.code || '---'}</TableCell>
-                        <TableCell className="border-r p-1 px-3">
+                        <TableCell className="border-r p-1 px-3 text-left">
                           <div className="flex justify-between items-center">
                             {imagePlaceholder ? (
                               <Popover>
@@ -220,7 +219,7 @@ export default function InventoryReportPage() {
           </CardContent>
         </Card>
 
-        <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-xl border border-primary/10 print:hidden">
+        <div className="flex items-center gap-2 p-3 bg-primary/5 rounded-xl border border-primary/10 print:hidden text-left">
           <Info className="h-3.5 w-3.5 text-primary shrink-0" />
           <p className="text-[9px] font-bold text-muted-foreground uppercase leading-tight">
             Este relatório oculta automaticamente publicações que não possuem estoque inicial nem final no período selecionado. Clique no nome da publicação para ver a capa.

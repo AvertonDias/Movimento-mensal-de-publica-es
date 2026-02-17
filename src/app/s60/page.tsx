@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -10,7 +9,7 @@ export default function S60Page() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-8 px-4 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex flex-col items-start gap-4 print:hidden">
+        <div className="flex flex-col items-start gap-2 print:hidden text-left">
           <div className="flex items-center gap-3">
             <div className="bg-destructive/10 p-2 rounded-lg">
               <Trash2 className="h-5 w-5 text-destructive" />
@@ -43,7 +42,7 @@ export default function S60Page() {
 
             <section className="space-y-4">
               <div className="flex items-center gap-2 border-l-4 border-primary pl-3">
-                <h3 className="text-sm font-black uppercase tracking-widest text-neutral-800">Publicações anuais</h3>
+                <h3 className="text-sm font-black uppercase tracking-widest text-neutral-800 text-left">Publicações anuais</h3>
               </div>
               <div className="border rounded-lg overflow-hidden border-neutral-200">
                 <Table>
@@ -63,8 +62,8 @@ export default function S60Page() {
                       { item: "Watchtower Library (dvly)", action: "Jogar fora todas as versões anteriores à de 2017." },
                     ].map((row, i) => (
                       <TableRow key={i} className="hover:bg-transparent">
-                        <TableCell className="font-bold text-sm italic">{row.item}</TableCell>
-                        <TableCell className="text-sm font-medium text-neutral-600">{row.action}</TableCell>
+                        <TableCell className="font-bold text-sm italic text-left">{row.item}</TableCell>
+                        <TableCell className="text-sm font-medium text-neutral-600 text-left">{row.action}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -74,7 +73,7 @@ export default function S60Page() {
 
             <section className="space-y-4">
               <div className="flex items-center gap-2 border-l-4 border-accent pl-3">
-                <h3 className="text-sm font-black uppercase tracking-widest text-neutral-800">Publicações substituídas</h3>
+                <h3 className="text-sm font-black uppercase tracking-widest text-neutral-800 text-left">Publicações substituídas</h3>
               </div>
               <div className="border rounded-lg overflow-hidden border-neutral-200">
                 <Table>
@@ -96,8 +95,8 @@ export default function S60Page() {
                       { item: "Tradução do Novo Mundo das Escrituras Gregas Cristãs (bi7, bi7ls, nwtgs e nwtgsls)", action: "Se foi substituída pela Tradução do Novo Mundo da Bíblia Sagrada (nwt) completa, deixar à mostra e depois jogar fora." },
                     ].map((row, i) => (
                       <TableRow key={i} className="hover:bg-transparent">
-                        <TableCell className="font-bold text-sm italic">{row.item}</TableCell>
-                        <TableCell className="text-sm font-medium text-neutral-600 leading-relaxed">{row.action}</TableCell>
+                        <TableCell className="font-bold text-sm italic text-left">{row.item}</TableCell>
+                        <TableCell className="text-sm font-medium text-neutral-600 leading-relaxed text-left">{row.action}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
