@@ -23,15 +23,11 @@ import {
   X,
   AlertTriangle,
   BellOff,
-  Bell,
   PackageSearch,
   Truck,
   Smartphone,
   Filter,
-  RefreshCw,
-  Sparkles,
-  AlertOctagon,
-  FileEdit
+  AlertOctagon
 } from "lucide-react";
 import { 
   AlertDialog,
@@ -66,17 +62,14 @@ import {
 import { collection, doc, getDocs } from 'firebase/firestore';
 import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears, isBefore } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import { AddCustomItemDialog } from "./AddCustomItemDialog";
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { RequestItemDialog } from "./RequestItemDialog";
-import { S28ImportModal } from "./S28ImportModal";
 import { AIInsights } from "./AIInsights";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Badge } from "@/components/ui/badge";
 
 interface InventoryTableProps {
   targetUserId?: string;
@@ -97,8 +90,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [pendingConfirmItem, setPendingConfirmItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
-  const [showEmptyInventoryPrompt, setShowEmptyInventoryPrompt] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false);
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -107,10 +98,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const prevMonthKey = format(prevMonth, 'yyyy-MM');
 
   const activeUid = targetUserId || user?.uid;
-  const isMyOwnInventory = activeUid === user?.uid;
 
   useEffect(() => {
-    if (!pendingConfirmItem && !requestingItem && !editingItem && !showImportModal && !showEmptyInventoryPrompt) {
+    if (!pendingConfirmItem && !requestingItem && !editingItem) {
       const forceUnlock = () => {
         if (typeof document !== 'undefined') {
           document.body.style.pointerEvents = 'auto';
@@ -121,7 +111,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const t = setTimeout(forceUnlock, 350);
       return () => clearTimeout(t);
     }
-  }, [pendingConfirmItem, requestingItem, editingItem, showImportModal, showEmptyInventoryPrompt]);
+  }, [pendingConfirmItem, requestingItem, editingItem]);
 
   const isDateInFuture = (date: Date) => {
     const currentMonthStart = startOfMonth(new Date());
@@ -239,20 +229,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     return combined;
   }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth, historicalMinStock]);
 
-  const isActuallyEmpty = useMemo(() => {
-    if (isFetchingMonth) return false;
-    return items.filter(i => !i.isCategory && ((Number(i.current) || 0) > 0 || (Number(i.previous) || 0) > 0)).length === 0;
-  }, [items, isFetchingMonth]);
-
-  useEffect(() => {
-    if (!isFetchingMonth && remoteItems && prevRemoteItems && !isUserLoading && isMyOwnInventory) {
-      const isDismissed = sessionStorage.getItem('s28_prompt_dismissed');
-      if (isActuallyEmpty && !isDismissed) {
-        setShowEmptyInventoryPrompt(true);
-      }
-    }
-  }, [isActuallyEmpty, isFetchingMonth, remoteItems, prevRemoteItems, isUserLoading, isMyOwnInventory]);
-
   const filteredItems = useMemo(() => {
     const matches = items.filter(item => !item.isCategory).filter(item => {
       const matchesSearch = item.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -358,6 +334,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     })));
   }, [items]);
 
+  const hasData = useMemo(() => {
+    return items.filter(i => !i.isCategory && ((Number(i.current) || 0) > 0 || (Number(i.previous) || 0) > 0)).length > 0;
+  }, [items]);
+
   return (
     <div className="space-y-6 relative">
       {isMobile && (
@@ -371,30 +351,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       )}
 
-      {isActuallyEmpty && isMyOwnInventory && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Button 
-            onClick={() => setShowImportModal(true)}
-            className="bg-accent text-accent-foreground hover:bg-accent/90 h-14 font-black uppercase tracking-widest gap-3 shadow-xl animate-in zoom-in-95 duration-500 rounded-xl"
-          >
-            <Sparkles className="h-5 w-5" />
-            IA: Atualizar com S-28
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => {
-              setShowEmptyInventoryPrompt(false);
-              sessionStorage.setItem('s28_prompt_dismissed', 'true');
-            }}
-            className="border-2 border-primary/20 h-14 font-black uppercase tracking-widest gap-3 shadow-md rounded-xl bg-white hover:bg-primary/5"
-          >
-            <FileEdit className="h-5 w-5 text-primary" />
-            Preenchimento Manual
-          </Button>
-        </div>
-      )}
-
-      {!isActuallyEmpty && <AIInsights inventoryData={inventoryStringData} />}
+      {hasData && <AIInsights inventoryData={inventoryStringData} />}
 
       <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
@@ -613,41 +570,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       </div>
 
       <AlertDialog 
-        open={showEmptyInventoryPrompt} 
-        onOpenChange={(open) => {
-          if (!open) {
-            setShowEmptyInventoryPrompt(false);
-            sessionStorage.setItem('s28_prompt_dismissed', 'true');
-          }
-        }}
-      >
-        <AlertDialogContent className="sm:max-w-md">
-          <AlertDialogHeader className="text-left">
-            <div className="bg-primary/10 w-12 h-12 rounded-full flex items-center justify-center mb-4">
-              <Sparkles className="h-6 w-6 text-primary" />
-            </div>
-            <AlertDialogTitle className="text-xl font-black uppercase tracking-tight">Estoque novo detectado!</AlertDialogTitle>
-            <AlertDialogDescription className="font-bold text-sm leading-relaxed">
-              Notamos que você ainda não possui itens cadastrados. <br /><br />
-              <strong>Gostaria de atualizar seu estoque agora usando a inteligência artificial com a sua folha S-28?</strong>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-            <AlertDialogCancel className="w-full sm:w-auto font-black uppercase text-xs">Mais tarde</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={() => {
-                setShowEmptyInventoryPrompt(false);
-                setShowImportModal(true);
-              }}
-              className="w-full sm:w-auto bg-primary hover:bg-primary/90 font-black uppercase text-xs shadow-lg"
-            >
-              Sim, Importar Agora
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      <AlertDialog 
         open={!!pendingConfirmItem} 
         onOpenChange={(open) => {
           if (!open) setPendingConfirmItem(null);
@@ -676,12 +598,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
       {editingItem && activeUid === user?.uid && <EditCustomItemDialog item={editingItem} onClose={() => setEditingItem(null)} />}
       {requestingItem && <RequestItemDialog item={requestingItem} onClose={() => setRequestingItem(null)} targetUserId={targetUserId} />}
-      
-      <S28ImportModal 
-        isOpen={showImportModal} 
-        onClose={() => setShowImportModal(false)} 
-        monthKey={monthKey} 
-      />
     </div>
   );
 }
