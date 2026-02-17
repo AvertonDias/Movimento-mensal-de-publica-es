@@ -429,7 +429,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
 
-      <div className="bg-white rounded-b-xl shadow-md border-x border-b border-border overflow-hidden">
+      <div className="bg-white rounded-b-xl shadow-md border-x border-b border-border">
         <div className="p-2 border-b border-neutral-100 flex justify-end px-6 bg-neutral-50/50">
           <Dialog>
             <DialogTrigger asChild>
@@ -472,132 +472,130 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
 
         {(isFetchingMonth || isUserLoading) && <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center backdrop-blur-[1px]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-white shadow-sm border-b">
-              <TableRow className="bg-white hover:bg-white">
-                {DEFAULT_COLUMNS.map((col) => (
-                  <TableHead 
-                    key={col.id} 
-                    className={cn(
-                      "font-bold text-foreground py-3 px-2 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white sticky top-0 z-10 shadow-sm", 
-                      col.id === 'item' && "text-left",
-                      ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[140px] min-w-[140px]"
-                    )}
-                  >
-                    {col.header}
-                  </TableHead>
-                ))}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredItems.map((item, idx) => {
-                if (item.isCategory) {
-                  const parts = item.item.split('(');
-                  return (
-                    <TableRow key={`cat-${idx}`} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
-                      <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[13px] uppercase text-neutral-600 tracking-widest text-left">
-                        {parts[0]} {parts[1] && <span className="text-[13px] font-bold text-muted-foreground/70 normal-case tracking-normal italic">({parts[1]}</span>}
-                      </TableCell>
-                    </TableRow>
-                  );
-                }
-
-                const minVal = historicalMinStock[item.id] || 0;
-                const isLowStock = !item.hidden && minVal > 0 && ((item.current !== null && item.current <= minVal) || (item.current === null && item.previous !== null && item.previous <= minVal));
-                const isTeachingKit = item.item.includes('*');
-                const isCriticalTeachingKit = isTeachingKit && isLowStock;
-                
-                const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
-                const hasPending = (item.pendingRequestsCount || 0) > 0;
-
+        <Table>
+          <TableHeader className="bg-white shadow-sm border-b">
+            <TableRow className="bg-white hover:bg-white">
+              {DEFAULT_COLUMNS.map((col) => (
+                <TableHead 
+                  key={col.id} 
+                  className={cn(
+                    "font-bold text-foreground py-3 px-2 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white sticky top-0 z-10 shadow-sm", 
+                    col.id === 'item' && "text-left",
+                    ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[140px] min-w-[140px]"
+                  )}
+                >
+                  {col.header}
+                </TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredItems.map((item, idx) => {
+              if (item.isCategory) {
+                const parts = item.item.split('(');
                 return (
-                  <TableRow 
-                    key={item.id} 
-                    className={cn(
-                      "hover:bg-accent/5 transition-colors border-b last:border-0 group", 
-                      isLowStock && "bg-destructive/5",
-                      isCriticalTeachingKit && "bg-destructive/10 animate-pulse duration-[3000ms]"
-                    )}
-                  >
-                    {DEFAULT_COLUMNS.map((col) => (
-                      <TableCell key={`${item.id}-${col.id}`} className="p-0.5 px-1 border-r last:border-0 h-11">
-                        {col.id === 'outgoing' ? (
-                          <div className={cn("py-1.5 font-black rounded text-sm text-center", item.current !== null && typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10")}>{calculateOutgoing(item)}</div>
-                        ) : col.id === 'code' ? (
-                          <div className="text-center text-[10px] font-bold py-2 text-neutral-400">{item.code || '---'}</div>
-                        ) : col.id === 'item' ? (
-                          <div className="flex justify-between items-center gap-2 min-w-[240px] px-2">
-                            <div className="flex items-center gap-2 overflow-hidden flex-1">
-                              {(isLowStock || item.hidden || item.silent) && (
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive")}>
-                                      {isCriticalTeachingKit ? <AlertOctagon className="h-4 w-4 text-destructive animate-bounce" /> : (item.hidden || item.silent) ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
-                                    </Button>
-                                  </PopoverTrigger>
-                                  <PopoverContent className="w-64 p-3">
-                                    <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest text-left">Ações de Alerta</p>
-                                    <Button 
-                                      variant="default" 
-                                      size="sm" 
-                                      className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
-                                      onClick={() => handleToggleSilence(item)}
-                                    >
-                                      {item.hidden || item.silent ? "Reativar Monitoramento" : "Silenciar este item"}
-                                    </Button>
-                                  </PopoverContent>
-                                </Popover>
-                              )}
-                              <div className="flex flex-col gap-0.5 overflow-hidden">
-                                {isCriticalTeachingKit && (
-                                  <span className="text-[7px] font-black text-destructive uppercase tracking-widest leading-none">CRÍTICO - KIT DE ENSINO</span>
-                                )}
-                                {imagePlaceholder ? (
-                                  <Popover>
-                                    <PopoverTrigger asChild>
-                                      <span className={cn("text-sm font-medium cursor-pointer border-b border-dotted transition-colors truncate", isLowStock ? "text-destructive border-destructive font-bold" : "text-foreground border-muted-foreground/50 hover:text-primary")}>{item.item}</span>
-                                    </PopoverTrigger>
-                                    <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg w-[180px]">
-                                      <div className="relative aspect-[2/3] bg-neutral-50 p-2"><Image src={imagePlaceholder.imageUrl} alt={imagePlaceholder.description} fill sizes="180px" className="object-contain" unoptimized /></div>
-                                    </PopoverContent>
-                                  </Popover>
-                                ) : (
-                                  <span className={cn("text-sm font-medium truncate text-left", isLowStock && "text-destructive font-bold")}>{item.item}</span>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-0.5 shrink-0">
-                                <Button variant="ghost" size="icon" className={cn("h-6 w-6 hover:bg-neutral-100 transition-colors", hasPending ? "text-primary bg-primary/10" : "text-muted-foreground/50")} onClick={() => setRequestingItem(item)}>
-                                  {hasPending ? <Truck className="h-3.5 w-3.5" /> : <PackageSearch className="h-3.5 w-3.5" />}
-                                </Button>
-                                {item.isCustom && activeUid === user?.uid && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}><Edit2 className="h-3.5 w-3.5" /></Button>}
-                              </div>
-                            </div>
-                            {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded shrink-0">{item.abbr}</span>}
-                          </div>
-                        ) : (
-                          <Input 
-                            type="number" 
-                            value={(item[col.id] !== undefined && item[col.id] !== null) ? (item[col.id] as number) : ''} 
-                            onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))} 
-                            onFocus={(e) => e.target.select()} 
-                            onWheel={(e) => e.currentTarget.blur()} 
-                            className={cn(
-                              "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-0.5", 
-                              isLowStock && col.id === 'current' && "text-destructive scale-110"
-                            )} 
-                            placeholder="0" 
-                            disabled={(activeUid !== user?.uid && !targetUserId)} 
-                          />
-                        )}
-                      </TableCell>
-                    ))}
+                  <TableRow key={`cat-${idx}`} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
+                    <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[13px] uppercase text-neutral-600 tracking-widest text-left">
+                      {parts[0]} {parts[1] && <span className="text-[13px] font-bold text-muted-foreground/70 normal-case tracking-normal italic">({parts[1]}</span>}
+                    </TableCell>
                   </TableRow>
                 );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+              }
+
+              const minVal = historicalMinStock[item.id] || 0;
+              const isLowStock = !item.hidden && minVal > 0 && ((item.current !== null && item.current <= minVal) || (item.current === null && item.previous !== null && item.previous <= minVal));
+              const isTeachingKit = item.item.includes('*');
+              const isCriticalTeachingKit = isTeachingKit && isLowStock;
+              
+              const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
+              const hasPending = (item.pendingRequestsCount || 0) > 0;
+
+              return (
+                <TableRow 
+                  key={item.id} 
+                  className={cn(
+                    "hover:bg-accent/5 transition-colors border-b last:border-0 group", 
+                    isLowStock && "bg-destructive/5",
+                    isCriticalTeachingKit && "bg-destructive/10 animate-pulse duration-[3000ms]"
+                  )}
+                >
+                  {DEFAULT_COLUMNS.map((col) => (
+                    <TableCell key={`${item.id}-${col.id}`} className="p-0.5 px-1 border-r last:border-0 h-11">
+                      {col.id === 'outgoing' ? (
+                        <div className={cn("py-1.5 font-black rounded text-sm text-center", item.current !== null && typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10")}>{calculateOutgoing(item)}</div>
+                      ) : col.id === 'code' ? (
+                        <div className="text-center text-[10px] font-bold py-2 text-neutral-400">{item.code || '---'}</div>
+                      ) : col.id === 'item' ? (
+                        <div className="flex justify-between items-center gap-2 min-w-[240px] px-2">
+                          <div className="flex items-center gap-2 overflow-hidden flex-1">
+                            {(isLowStock || item.hidden || item.silent) && (
+                              <Popover>
+                                <PopoverTrigger asChild>
+                                  <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive")}>
+                                    {isCriticalTeachingKit ? <AlertOctagon className="h-4 w-4 text-destructive animate-bounce" /> : (item.hidden || item.silent) ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-3">
+                                  <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest text-left">Ações de Alerta</p>
+                                  <Button 
+                                    variant="default" 
+                                    size="sm" 
+                                    className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
+                                    onClick={() => handleToggleSilence(item)}
+                                  >
+                                    {item.hidden || item.silent ? "Reativar Monitoramento" : "Silenciar este item"}
+                                  </Button>
+                                </PopoverContent>
+                              </Popover>
+                            )}
+                            <div className="flex flex-col gap-0.5 overflow-hidden">
+                              {isCriticalTeachingKit && (
+                                <span className="text-[7px] font-black text-destructive uppercase tracking-widest leading-none">CRÍTICO - KIT DE ENSINO</span>
+                              )}
+                              {imagePlaceholder ? (
+                                <Popover>
+                                  <PopoverTrigger asChild>
+                                    <span className={cn("text-sm font-medium cursor-pointer border-b border-dotted transition-colors truncate", isLowStock ? "text-destructive border-destructive font-bold" : "text-foreground border-muted-foreground/50 hover:text-primary")}>{item.item}</span>
+                                  </PopoverTrigger>
+                                  <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg w-[180px]">
+                                    <div className="relative aspect-[2/3] bg-neutral-50 p-2"><Image src={imagePlaceholder.imageUrl} alt={imagePlaceholder.description} fill sizes="180px" className="object-contain" unoptimized /></div>
+                                  </PopoverContent>
+                                </Popover>
+                              ) : (
+                                <span className={cn("text-sm font-medium truncate text-left", isLowStock && "text-destructive font-bold")}>{item.item}</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-0.5 shrink-0">
+                              <Button variant="ghost" size="icon" className={cn("h-6 w-6 hover:bg-neutral-100 transition-colors", hasPending ? "text-primary bg-primary/10" : "text-muted-foreground/50")} onClick={() => setRequestingItem(item)}>
+                                {hasPending ? <Truck className="h-3.5 w-3.5" /> : <PackageSearch className="h-3.5 w-3.5" />}
+                              </Button>
+                              {item.isCustom && activeUid === user?.uid && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}><Edit2 className="h-3.5 w-3.5" /></Button>}
+                            </div>
+                          </div>
+                          {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded shrink-0">{item.abbr}</span>}
+                        </div>
+                      ) : (
+                        <Input 
+                          type="number" 
+                          value={(item[col.id] !== undefined && item[col.id] !== null) ? (item[col.id] as number) : ''} 
+                          onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))} 
+                          onFocus={(e) => e.target.select()} 
+                          onWheel={(e) => e.currentTarget.blur()} 
+                          className={cn(
+                            "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-0.5", 
+                            isLowStock && col.id === 'current' && "text-destructive scale-110"
+                          )} 
+                          placeholder="0" 
+                          disabled={(activeUid !== user?.uid && !targetUserId)} 
+                        />
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       </div>
 
       <AlertDialog 

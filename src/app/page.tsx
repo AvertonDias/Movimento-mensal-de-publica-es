@@ -75,13 +75,9 @@ export default function Home() {
       </main>
       
       <footer className="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-border">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
-          <p>© {new Date().getFullYear()} S-28 Digital • Gestão inteligente (8/24)</p>
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground text-[10px] font-bold uppercase tracking-widest text-center md:text-left">
+          <p>© {new Date().getFullYear()} S-28 Digital • Gestão inteligente</p>
           <div className="flex gap-8">
-            {!isHelper && <Link href="/helpers" className="hover:text-primary transition-colors">Ajudantes</Link>}
-            
-            <Link href="/s60" className="hover:text-destructive transition-colors">Lista S-60</Link>
-
             <a href="https://wa.me/5535991210466?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20aplicativo%20S-28%20Digital." target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Suporte</a>
           </div>
         </div>
