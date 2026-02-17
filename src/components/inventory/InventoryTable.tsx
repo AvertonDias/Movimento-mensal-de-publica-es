@@ -29,7 +29,8 @@ import {
   Smartphone,
   Filter,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  AlertOctagon
 } from "lucide-react";
 import { 
   AlertDialog,
@@ -73,6 +74,7 @@ import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Badge } from "@/components/ui/badge";
 
 interface InventoryTableProps {
   targetUserId?: string;
@@ -240,7 +242,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     return items.filter(i => !i.isCategory && ((Number(i.current) || 0) > 0 || (Number(i.previous) || 0) > 0)).length === 0;
   }, [items, isFetchingMonth]);
 
-  // Detecção de inventário vazio para novos usuários
   useEffect(() => {
     if (!isFetchingMonth && remoteItems && prevRemoteItems && !isUserLoading && isMyOwnInventory) {
       const isDismissed = sessionStorage.getItem('s28_prompt_dismissed');
@@ -358,7 +359,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       )}
 
-      {/* Botão Persistente para Importação - Visível se o estoque estiver vazio e for meu próprio inventário */}
       {isActuallyEmpty && isMyOwnInventory && (
         <Button 
           onClick={() => setShowImportModal(true)}
@@ -490,11 +490,21 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
                 const minVal = historicalMinStock[item.id] || 0;
                 const isLowStock = !item.hidden && minVal > 0 && ((item.current !== null && item.current <= minVal) || (item.current === null && item.previous !== null && item.previous <= minVal));
+                const isTeachingKit = item.item.includes('*');
+                const isCriticalTeachingKit = isTeachingKit && isLowStock;
+                
                 const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
                 const hasPending = (item.pendingRequestsCount || 0) > 0;
 
                 return (
-                  <TableRow key={item.id} className={cn("hover:bg-accent/5 transition-colors border-b last:border-0 group", isLowStock && "bg-destructive/5")}>
+                  <TableRow 
+                    key={item.id} 
+                    className={cn(
+                      "hover:bg-accent/5 transition-colors border-b last:border-0 group", 
+                      isLowStock && "bg-destructive/5",
+                      isCriticalTeachingKit && "bg-destructive/10 animate-pulse duration-[3000ms]"
+                    )}
+                  >
                     {DEFAULT_COLUMNS.map((col) => (
                       <TableCell key={`${item.id}-${col.id}`} className="p-0.5 px-1 border-r last:border-0 h-11">
                         {col.id === 'outgoing' ? (
@@ -503,11 +513,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                           <div className="text-center text-[10px] font-bold py-2 text-neutral-400">{item.code || '---'}</div>
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px] px-2">
-                            <div className="flex items-center gap-2 overflow-hidden">
+                            <div className="flex items-center gap-2 overflow-hidden flex-1">
                               {(isLowStock || item.hidden || item.silent) && (
                                 <Popover>
                                   <PopoverTrigger asChild>
-                                    <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive")}>{(item.hidden || item.silent) ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}</Button>
+                                    <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive")}>
+                                      {isCriticalTeachingKit ? <AlertOctagon className="h-4 w-4 text-destructive animate-bounce" /> : (item.hidden || item.silent) ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
+                                    </Button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3">
                                     <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest text-left">Ações de Alerta</p>
@@ -522,23 +534,28 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                   </PopoverContent>
                                 </Popover>
                               )}
-                              {imagePlaceholder ? (
-                                <Popover>
-                                  <PopoverTrigger asChild>
-                                    <span className={cn("text-sm font-medium cursor-pointer border-b border-dotted transition-colors truncate", isLowStock ? "text-destructive border-destructive" : "text-foreground border-muted-foreground/50 hover:text-primary")}>{item.item}</span>
-                                  </PopoverTrigger>
-                                  <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg w-[180px]">
-                                    <div className="relative aspect-[2/3] bg-neutral-50 p-2"><Image src={imagePlaceholder.imageUrl} alt={imagePlaceholder.description} fill sizes="180px" className="object-contain" unoptimized /></div>
-                                  </PopoverContent>
-                                </Popover>
-                              ) : (
-                                <span className={cn("text-sm font-medium truncate text-left", isLowStock && "text-destructive")}>{item.item}</span>
-                              )}
+                              <div className="flex flex-col gap-0.5 overflow-hidden">
+                                {isCriticalTeachingKit && (
+                                  <span className="text-[7px] font-black text-destructive uppercase tracking-widest leading-none">CRÍTICO - KIT DE ENSINO</span>
+                                )}
+                                {imagePlaceholder ? (
+                                  <Popover>
+                                    <PopoverTrigger asChild>
+                                      <span className={cn("text-sm font-medium cursor-pointer border-b border-dotted transition-colors truncate", isLowStock ? "text-destructive border-destructive font-bold" : "text-foreground border-muted-foreground/50 hover:text-primary")}>{item.item}</span>
+                                    </PopoverTrigger>
+                                    <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg w-[180px]">
+                                      <div className="relative aspect-[2/3] bg-neutral-50 p-2"><Image src={imagePlaceholder.imageUrl} alt={imagePlaceholder.description} fill sizes="180px" className="object-contain" unoptimized /></div>
+                                    </PopoverContent>
+                                  </Popover>
+                                ) : (
+                                  <span className={cn("text-sm font-medium truncate text-left", isLowStock && "text-destructive font-bold")}>{item.item}</span>
+                                )}
+                              </div>
                               <div className="flex items-center gap-0.5 shrink-0">
                                 <Button variant="ghost" size="icon" className={cn("h-6 w-6 hover:bg-neutral-100 transition-colors", hasPending ? "text-primary bg-primary/10" : "text-muted-foreground/50")} onClick={() => setRequestingItem(item)}>
                                   {hasPending ? <Truck className="h-3.5 w-3.5" /> : <PackageSearch className="h-3.5 w-3.5" />}
                                 </Button>
-                                {item.isCustom && activeUid === user?.uid && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}><Edit2 className="h-3_5 w-3.5" /></Button>}
+                                {item.isCustom && activeUid === user?.uid && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}><Edit2 className="h-3.5 w-3.5" /></Button>}
                               </div>
                             </div>
                             {item.abbr && <span className="text-[9px] font-black bg-neutral-200 text-neutral-600 px-1.5 py-0.5 rounded shrink-0">{item.abbr}</span>}
@@ -552,7 +569,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             onWheel={(e) => e.currentTarget.blur()} 
                             className={cn(
                               "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-0.5", 
-                              isLowStock && col.id === 'current' && "text-destructive"
+                              isLowStock && col.id === 'current' && "text-destructive scale-110"
                             )} 
                             placeholder="0" 
                             disabled={(activeUid !== user?.uid && !targetUserId)} 
@@ -568,7 +585,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
 
-      {/* Prompt de Inventário Vazio */}
       <AlertDialog 
         open={showEmptyInventoryPrompt} 
         onOpenChange={(open) => {
@@ -604,7 +620,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Outros Diálogos */}
       <AlertDialog 
         open={!!pendingConfirmItem} 
         onOpenChange={(open) => {
@@ -624,7 +639,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <AlertDialogCancel className="font-bold uppercase text-xs text-muted-foreground">Agora não</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleOpenRequestsAfterAlert} 
-              className="bg-primary hover:bg-primary/90 font-bold uppercase text-xs"
+              className="bg-primary hover:bg-primary/90 font-black uppercase text-xs"
             >
               Sim, Abrir Pedidos
             </AlertDialogAction>
@@ -635,7 +650,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       {editingItem && activeUid === user?.uid && <EditCustomItemDialog item={editingItem} onClose={() => setEditingItem(null)} />}
       {requestingItem && <RequestItemDialog item={requestingItem} onClose={() => setRequestingItem(null)} targetUserId={targetUserId} />}
       
-      {/* Modal de Importação S-28 */}
       <S28ImportModal 
         isOpen={showImportModal} 
         onClose={() => setShowImportModal(false)} 
