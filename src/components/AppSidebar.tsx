@@ -25,6 +25,7 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -61,8 +62,24 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      {/* Espaçador para o cabeçalho fixo não cobrir o primeiro botão */}
-      <SidebarHeader className="h-16 shrink-0 group-data-[collapsible=icon]:h-0" />
+      {/* Cabeçalho com Logo e Nome */}
+      <SidebarHeader className="h-16 shrink-0 flex items-center px-4 border-b border-sidebar-border/50 group-data-[collapsible=icon]:h-16 group-data-[collapsible=icon]:justify-center">
+        <div className="flex items-center gap-3 overflow-hidden group-data-[collapsible=icon]:hidden">
+          <div className="rounded-xl overflow-hidden w-[32px] h-[32px] shrink-0 border border-primary/10">
+            <Image src="/icon.png" alt="Logo" width={32} height={32} className="object-cover w-full h-full" unoptimized />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-black uppercase tracking-tight leading-none text-foreground">S-28 Digital</span>
+            <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Gestão Inteligente</span>
+          </div>
+        </div>
+        {/* Logo visível apenas quando colapsado */}
+        <div className="hidden group-data-[collapsible=icon]:block">
+          <div className="rounded-lg overflow-hidden w-[28px] h-[28px] border border-primary/10">
+            <Image src="/icon.png" alt="Logo" width={28} height={28} className="object-cover w-full h-full" unoptimized />
+          </div>
+        </div>
+      </SidebarHeader>
       
       <SidebarContent>
         <SidebarGroup>
