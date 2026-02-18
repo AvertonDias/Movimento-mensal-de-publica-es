@@ -8,9 +8,10 @@ import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Printer, ShoppingCart, ShieldCheck, Info, FileEdit } from "lucide-react";
+import { Share2, ShoppingCart, ShieldCheck, Info, FileEdit } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 // Definição completa dos itens do formulário S-14-T
 const S14_SECTIONS = [
@@ -129,6 +130,7 @@ const S14_SECTIONS = [
 export default function OrderFormPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
+  const { toast } = useToast();
   const router = useRouter();
   
   // Estados para tornar o formulário editável
@@ -187,6 +189,36 @@ export default function OrderFormPage() {
     setOtherItems(newItems);
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: 'Pedido S-14-T',
+      text: `Pedido de publicações - Congregação ${header.congName || '---'} (${header.congNum || '---'})`,
+      url: window.location.href
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error('Erro ao compartilhar:', err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        toast({
+          title: "Link copiado!",
+          description: "O link deste formulário foi copiado para sua área de transferência.",
+        });
+      } catch (err) {
+        toast({
+          variant: "destructive",
+          title: "Erro ao copiar",
+          description: "Não foi possível copiar o link.",
+        });
+      }
+    }
+  };
+
   if (isUserLoading || isCheckingHelper || !user) return null;
 
   const FormInput = ({ value, onChange, placeholder, className }: any) => (
@@ -216,7 +248,7 @@ export default function OrderFormPage() {
               <h1 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                 <FileEdit className="h-4 w-4" /> Preencher Pedido S-14-T
               </h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase">Edite os campos abaixo e clique em imprimir.</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Edite os campos abaixo e compartilhe.</p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -228,8 +260,8 @@ export default function OrderFormPage() {
                 </span>
               </div>
             )}
-            <Button variant="outline" size="sm" className="gap-2 font-bold uppercase text-[10px] bg-white h-9" onClick={() => window.print()}>
-              <Printer className="h-4 w-4" /> Imprimir S-14-T
+            <Button variant="outline" size="sm" className="gap-2 font-bold uppercase text-[10px] bg-white h-9" onClick={handleShare}>
+              <Share2 className="h-4 w-4" /> Compartilhar
             </Button>
           </div>
         </div>
