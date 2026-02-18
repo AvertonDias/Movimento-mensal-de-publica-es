@@ -162,7 +162,6 @@ export default function OrderFormPage() {
   const { data: helperInvite, isLoading: isCheckingHelper } = useDoc(helperInviteRef);
   const activeUserId = helperInvite ? helperInvite.ownerId : user?.uid;
 
-  // Documento para salvar o estado do formulário
   const orderFormRef = useMemoFirebase(() => {
     if (!db || !activeUserId) return null;
     return doc(db, 'users', activeUserId, 'order_form', 'state');
@@ -170,7 +169,6 @@ export default function OrderFormPage() {
 
   const { data: savedState, isLoading: isStateLoading } = useDoc(orderFormRef);
 
-  // Carregar dados salvos ao iniciar
   useEffect(() => {
     if (savedState) {
       if (savedState.header) setHeader(prev => ({ ...prev, ...savedState.header }));
@@ -256,21 +254,18 @@ export default function OrderFormPage() {
         });
 
         const imgData = canvas.toDataURL('image/jpeg', 1.0);
+        const imgProps = pdf.getImageProperties(imgData);
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width; // this might error, imgProps is not defined here yet for each iteration
-        // Correcting:
-        const pdfH = pdf.internal.pageSize.getHeight();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
         
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfH, undefined, 'FAST');
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, Math.min(pdfHeight, pdf.internal.pageSize.getHeight()), undefined, 'FAST');
       }
 
-      const pdfBlob = pdf.output('blob');
-      const blobUrl = URL.createObjectURL(pdfBlob);
-      window.open(blobUrl, '_blank');
-
       const fileName = `S14_${header.congName.replace(/\s+/g, '_') || 'Pedido'}_${header.date.replace(/\//g, '-')}.pdf`;
+      const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
+      // PRIORIDADE: Compartilhamento Nativo (Perguntar qual app abrir)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -279,6 +274,10 @@ export default function OrderFormPage() {
             text: `Pedido da congregação ${header.congName} - ${header.date}`,
           });
         } catch (err) { }
+      } else {
+        // FALLBACK: Abrir em nova aba
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        window.open(blobUrl, '_blank');
       }
     } catch (error) {
       console.error('Erro ao abrir documento:', error);
@@ -354,7 +353,6 @@ export default function OrderFormPage() {
     <div className="min-h-screen bg-neutral-100 pt-24 pb-12 px-4 print:p-0 print:bg-white font-body">
       <div className="max-w-[850px] mx-auto space-y-6 print:space-y-0">
         
-        {/* Painel de Controle */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-neutral-200 shadow-sm print:hidden">
           <div className="flex items-center gap-3 text-left">
             <div className="bg-primary p-2 rounded-lg">
@@ -381,7 +379,6 @@ export default function OrderFormPage() {
           </div>
         </div>
 
-        {/* DOCUMENTO S-14-T */}
         <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 text-black space-y-8 overflow-hidden relative">
           {isStateLoading && (
             <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-50 flex items-center justify-center print:hidden">
@@ -389,7 +386,6 @@ export default function OrderFormPage() {
             </div>
           )}
           
-          {/* PÁGINA 1 */}
           <div className="space-y-4 bg-white p-4" id="s14-page-1">
             <div className="flex justify-between items-baseline text-[9px] font-bold mb-2">
               <div className="flex gap-1 items-baseline w-[220px]">
@@ -478,7 +474,6 @@ export default function OrderFormPage() {
             </div>
           </div>
 
-          {/* PÁGINA 2 */}
           <div className="print:break-before-page pt-4 space-y-4 bg-white p-4" id="s14-page-2">
             <div className="flex justify-between items-baseline border-b border-black pb-1 mb-2">
               <div className="flex gap-1 items-baseline text-[9px] font-bold w-[280px]">

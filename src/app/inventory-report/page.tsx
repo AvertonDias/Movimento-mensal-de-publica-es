@@ -148,13 +148,9 @@ export default function InventoryReportPage() {
       
       const fileName = `Saldo_Fisico_${monthKey}.pdf`;
       const pdfBlob = pdf.output('blob');
-      
-      // Abrir em nova aba
-      const blobUrl = URL.createObjectURL(pdfBlob);
-      window.open(blobUrl, '_blank');
-
-      // Compartilhar se possível
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+      // PRIORIDADE: Compartilhamento Nativo (Perguntar qual app abrir)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -162,7 +158,13 @@ export default function InventoryReportPage() {
             title: 'Relatório de Saldo Físico',
             text: `Saldo de publicações - Competência: ${monthLabel}`,
           });
-        } catch (err) { }
+        } catch (err) {
+          // Se o usuário cancelar o share, não faz nada
+        }
+      } else {
+        // FALLBACK: Abrir em nova aba (Computador ou navegadores limitados)
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        window.open(blobUrl, '_blank');
       }
     } catch (error) {
       console.error('Erro ao abrir documento:', error);

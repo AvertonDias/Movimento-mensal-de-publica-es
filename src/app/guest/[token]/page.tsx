@@ -85,13 +85,9 @@ export default function GuestHistoryPage(props: {
       
       const fileName = `S28_T_Compartilhada_${new Date().toISOString().split('T')[0]}.pdf`;
       const pdfBlob = pdf.output('blob');
-      
-      // Abrir em nova aba
-      const blobUrl = URL.createObjectURL(pdfBlob);
-      window.open(blobUrl, '_blank');
-
-      // Compartilhar fallback
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+      // PRIORIDADE: Compartilhamento Nativo (Perguntar qual app abrir)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -100,6 +96,10 @@ export default function GuestHistoryPage(props: {
             text: `Movimento mensal de publicações`,
           });
         } catch (err) { }
+      } else {
+        // FALLBACK: Abrir em nova aba
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        window.open(blobUrl, '_blank');
       }
     } catch (error) {
       console.error('Erro ao abrir documento:', error);
