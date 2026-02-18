@@ -12,7 +12,7 @@ import { Printer, ShoppingCart, ShieldCheck, Info } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 
-// Definição dos itens do formulário S-14-T baseada na imagem
+// Definição completa dos itens do formulário S-14-T baseada nas duas imagens
 const S14_SECTIONS = [
   {
     title: "Bíblias",
@@ -75,16 +75,53 @@ const S14_SECTIONS = [
       { code: "5332", name: "Organizados para Fazer a Vontade de Jeová (od)" },
       { code: "5419", name: "Imite a Sua Fé! (ia)" },
       { code: "5435", name: "A Adoração Pura de Jeová É Restaurada! (rr)" },
-      { code: "5411", name: "Estudo Perspicaz das Escrituras (conjunto completo) (it)" },
+      { code: "5411", name: "Estudo Perspicaz das Escrituras (it)" },
       { code: "5341", name: "Cante de Coração para Jeová (sjj)" },
-      { code: "5413", name: "Testemunhas de Jeová — Proclamadores do Reino de Deus (jv)" },
+      { code: "5413", name: "Testemunhas de Jeová — Proclamadores (jv)" },
       { code: "5441", name: "Cante de Coração para Jeová (tamanho grande) (sjlls)" },
       { code: "5425", name: "Jesus — o Caminho, a Verdade e a Vida (jy)" },
       { code: "5442", name: "Cante de Coração para Jeová — apenas letras (sjjyls)" },
       { code: "5422", name: "O Reino de Deus já Governa! (kr)" },
-      { code: "5339", name: "Os Jovens Perguntam — Respostas Práticas, Volume 1 (yp1)" },
+      { code: "5339", name: "Os Jovens Perguntam, Volume 1 (yp1)" },
       { code: "5427", name: "Aprenda com as Histórias da Bíblia (lfb)" },
-      { code: "5336", name: "Os Jovens Perguntam — Respostas Práticas, Volume 2 (yp2)" },
+      { code: "5336", name: "Os Jovens Perguntam, Volume 2 (yp2)" },
+    ]
+  },
+  {
+    title: "Brochuras",
+    items: [
+      { code: "6665", name: "Você Pode Ter uma Família Feliz! (hf)" },
+      { code: "6671", name: "Volte para Jeová (rj)" },
+      { code: "6662", name: "Como Você Pode Ter uma Vida Feliz? (para judeus) (hl)" },
+      { code: "6656", name: "Verdadeira Fé — O Segredo de uma Vida Feliz (rk)" },
+      { code: "6647", name: "Como Ter uma Vida Satisfatória (la)" },
+      { code: "6630", name: "Espíritos dos Mortos — Ajudam? Ou Prejudicam? (sp)" },
+      { code: "6658", name: "Escute a Deus (ld)" },
+      { code: "6667", name: "Melhore Sua Leitura e Seu Ensino (th)" },
+      { code: "6663", name: "Minhas Primeiras Lições da Bíblia (mb)" },
+      { code: "6670", name: "Aprenda com a Sabedoria de Jesus (wfg) NOVO!" },
+      { code: "6648", name: "O Caminho para a Vida Eterna (ol)" },
+      { code: "6684", name: "10 Perguntas Que os Jovens se Fazem (ypq)" },
+      { code: "6639", name: "Como Ter Verdadeira Paz e Felicidade (chineses) (pc)" },
+      { code: "6653", name: "O Caminho para a Paz e Felicidade (budistas) (ph)" },
+    ]
+  },
+  {
+    title: "Formulários e acessórios",
+    items: [
+      { code: "3505", name: "Porta-crachá (plástico) (bdg)" },
+      { code: "3503", name: "Envelope Plástico para Cartão de Território (pte)" },
+      { code: "83731", name: "Etiquetas para caixas de donativos (donate.jw.org) (cblkh1)" },
+      { code: "8704", name: "Relatório de Serviço de Campo (S-4)" },
+      { code: "83732", name: "Etiquetas para doações (sem donate.jw.org) (cblkh2)" },
+      { code: "8708", name: "Registro de Casa em Casa (S-8)" },
+      { code: "83733", name: "Etiquetas para doações (apenas obra mundial) (cblkh3)" },
+      { code: "8712", name: "Cartão de Mapa de Território (S-12)" },
+      { code: "9172", name: "Diretivas Antecipadas (dpa)" },
+      { code: "8713", name: "Registro de Designação de Território (S-13)" },
+      { code: "8724", name: "Recibo (S-24)" },
+      { code: "8789", name: "Designação Vida e Ministério (S-89)" },
+      { code: "8805", name: "Petição para Pioneiro Auxiliar (S-205b)" },
     ]
   }
 ];
@@ -94,7 +131,6 @@ export default function OrderFormPage() {
   const db = useFirestore();
   const router = useRouter();
   
-  // Usar o mês passado (competência fechada) como referência de estoque real
   const [selectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const monthKey = format(selectedMonth, 'yyyy-MM');
 
@@ -152,55 +188,54 @@ export default function OrderFormPage() {
         </div>
 
         {/* Formulário S-14-T */}
-        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 text-black">
+        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 text-black space-y-8">
           
-          {/* Cabeçalho Oficial */}
-          <div className="space-y-4 mb-6">
-            <div className="flex justify-between items-start text-[10px] font-bold">
-              <div className="flex gap-2 items-baseline">
-                <span>Número do pedido:</span>
-                <div className="border-b border-black w-32 h-4" />
+          {/* PÁGINA 1 */}
+          <div className="space-y-6">
+            <div className="space-y-4 mb-6">
+              <div className="flex justify-between items-start text-[10px] font-bold">
+                <div className="flex gap-2 items-baseline">
+                  <span>Número do pedido:</span>
+                  <div className="border-b border-black w-32 h-4" />
+                </div>
+                <div className="flex gap-2 items-baseline">
+                  <span>Número da congregação:</span>
+                  <div className="border-b border-black w-32 h-4" />
+                </div>
               </div>
-              <div className="flex gap-2 items-baseline">
-                <span>Número da congregação:</span>
-                <div className="border-b border-black w-32 h-4" />
+              
+              <h2 className="text-center text-xl font-black uppercase tracking-tighter">PEDIDO DE PUBLICAÇÕES</h2>
+              
+              <div className="grid grid-cols-4 gap-x-4 gap-y-3 text-[10px] font-bold">
+                <div className="col-span-2 flex gap-2 items-baseline">
+                  <span className="shrink-0 uppercase">Nome da congregação:</span>
+                  <div className="border-b border-black flex-1 h-4" />
+                </div>
+                <div className="flex gap-2 items-baseline">
+                  <span className="shrink-0 uppercase">Cidade:</span>
+                  <div className="border-b border-black flex-1 h-4" />
+                </div>
+                <div className="flex gap-2 items-baseline">
+                  <span className="shrink-0 uppercase">Data:</span>
+                  <div className="border-b border-black flex-1 h-4" />
+                </div>
+                <div className="col-span-2 flex gap-2 items-baseline">
+                  <span className="shrink-0 uppercase font-black italic">IDIOMA (Especifique um):</span>
+                  <div className="border-b border-black flex-1 h-4" />
+                  <span className="text-[8px] italic">(Obrigatório)</span>
+                </div>
+                <div className="col-span-2 flex items-center gap-2">
+                  <div className="w-8 h-4 bg-neutral-200 border border-neutral-300" />
+                  <span className="text-[9px] uppercase">Os itens de pedido especial estão sombreados.</span>
+                </div>
               </div>
-            </div>
-            
-            <h2 className="text-center text-xl font-black uppercase tracking-tighter">PEDIDO DE PUBLICAÇÕES</h2>
-            
-            <div className="grid grid-cols-4 gap-x-4 gap-y-3 text-[10px] font-bold">
-              <div className="col-span-2 flex gap-2 items-baseline">
-                <span className="shrink-0 uppercase">Nome da congregação:</span>
-                <div className="border-b border-black flex-1 h-4" />
-              </div>
-              <div className="flex gap-2 items-baseline">
-                <span className="shrink-0 uppercase">Cidade:</span>
-                <div className="border-b border-black flex-1 h-4" />
-              </div>
-              <div className="flex gap-2 items-baseline">
-                <span className="shrink-0 uppercase">Data:</span>
-                <div className="border-b border-black flex-1 h-4" />
-              </div>
-              <div className="col-span-2 flex gap-2 items-baseline">
-                <span className="shrink-0 uppercase font-black italic">IDIOMA (Especifique um):</span>
-                <div className="border-b border-black flex-1 h-4" />
-                <span className="text-[8px] italic">(Obrigatório)</span>
-              </div>
-              <div className="col-span-2 flex items-center gap-2">
-                <div className="w-8 h-4 bg-neutral-200 border border-neutral-300" />
-                <span className="text-[9px] uppercase">Os itens de pedido especial estão sombreados.</span>
+
+              <div className="p-2 border border-neutral-200 rounded text-[9px] text-justify leading-snug font-medium italic">
+                Os itens mais pedidos estão na lista abaixo. Acesse o JW Hub se quiser ver a lista completa de idiomas e publicações disponíveis. Outros itens poderão ser pedidos na página 2, debaixo da seção "Outros itens". Antes de enviar o pedido, por favor verifique se todos os campos do formulário estão preenchidos corretamente. Se tiver alguma dúvida, consulte as <em>Orientações sobre Pedidos de Publicações e Inventário (S-56)</em>.
               </div>
             </div>
 
-            <div className="p-2 border border-neutral-200 rounded text-[9px] text-justify leading-snug font-medium italic">
-              Os itens mais pedidos estão na lista abaixo. Acesse o JW Hub se quiser ver a lista completa de idiomas e publicações disponíveis. Outros itens poderão ser pedidos na página 2, debaixo da seção "Outros itens". Antes de enviar o pedido, por favor verifique se todos os campos do formulário estão preenchidos corretamente. Se tiver alguma dúvida, consulte as <em>Orientações sobre Pedidos de Publicações e Inventário (S-56)</em>.
-            </div>
-          </div>
-
-          {/* Seções de Itens */}
-          <div className="space-y-8">
-            {S14_SECTIONS.map((section, sIdx) => (
+            {S14_SECTIONS.slice(0, 4).map((section, sIdx) => (
               <div key={sIdx} className="space-y-2">
                 <div className="relative flex items-center justify-center">
                   <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/20" /></div>
@@ -208,18 +243,14 @@ export default function OrderFormPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-8 gap-y-0.5">
-                  <div className="flex text-[7px] font-black uppercase mb-1">
-                    <span className="w-10 text-center">Quant.</span>
-                    <span className="w-12 text-center">N.º do item</span>
-                    <span className="flex-1 px-2">Descrição</span>
-                    <span className="w-12 text-center">Estoque</span>
-                  </div>
-                  <div className="flex text-[7px] font-black uppercase mb-1">
-                    <span className="w-10 text-center">Quant.</span>
-                    <span className="w-12 text-center">N.º do item</span>
-                    <span className="flex-1 px-2">Descrição</span>
-                    <span className="w-12 text-center">Estoque</span>
-                  </div>
+                  {[0, 1].map(col => (
+                    <div key={col} className="flex text-[7px] font-black uppercase mb-1">
+                      <span className="w-10 text-center">Quant.</span>
+                      <span className="w-12 text-center">N.º do item</span>
+                      <span className="flex-1 px-2">Descrição</span>
+                      <span className="w-12 text-center">Estoque</span>
+                    </div>
+                  ))}
 
                   {Array.from({ length: Math.ceil(section.items.length / 2) }).map((_, rIdx) => {
                     const left = section.items[rIdx * 2];
@@ -247,9 +278,7 @@ export default function OrderFormPage() {
                             <span className="flex-1 px-2 truncate leading-none font-medium">{right.name}</span>
                             <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(right.code)}</span>
                           </div>
-                        ) : (
-                          <div />
-                        )}
+                        ) : <div />}
                       </React.Fragment>
                     );
                   })}
@@ -258,11 +287,106 @@ export default function OrderFormPage() {
             ))}
           </div>
 
+          <div className="print:break-before-page pt-8 space-y-6">
+            <div className="flex justify-between items-baseline border-b border-black pb-1 mb-4">
+              <div className="flex gap-2 items-baseline text-[10px] font-bold">
+                <span>Idioma:</span>
+                <div className="border-b border-black w-48 h-4" />
+              </div>
+              <div className="flex gap-2 items-baseline text-[10px] font-bold">
+                <span>Número da congregação:</span>
+                <div className="border-b border-black w-32 h-4" />
+              </div>
+            </div>
+
+            {S14_SECTIONS.slice(4).map((section, sIdx) => (
+              <div key={sIdx} className="space-y-2">
+                <div className="relative flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/20" /></div>
+                  <h3 className="relative px-4 bg-white text-lg font-black uppercase tracking-tight">{section.title}</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-x-8 gap-y-0.5">
+                  {[0, 1].map(col => (
+                    <div key={col} className="flex text-[7px] font-black uppercase mb-1">
+                      <span className="w-10 text-center">Quant.</span>
+                      <span className="w-12 text-center">N.º do item</span>
+                      <span className="flex-1 px-2">Descrição</span>
+                      <span className="w-12 text-center">Estoque</span>
+                    </div>
+                  ))}
+
+                  {Array.from({ length: Math.ceil(section.items.length / 2) }).map((_, rIdx) => {
+                    const left = section.items[rIdx * 2];
+                    const right = section.items[rIdx * 2 + 1];
+
+                    return (
+                      <React.Fragment key={rIdx}>
+                        <div className="flex items-center h-5 border-b border-black/10 text-[9px]">
+                          <div className="w-10 border-r border-black/10 flex items-end justify-center h-full pb-0.5">
+                            <div className="w-8 border-b border-black/40 h-3" />
+                          </div>
+                          <span className="w-12 text-center font-black">{left.code}</span>
+                          <span className="flex-1 px-2 truncate leading-none font-medium">{left.name}</span>
+                          <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(left.code)}</span>
+                        </div>
+                        {right ? (
+                          <div className="flex items-center h-5 border-b border-black/10 text-[9px]">
+                            <div className="w-10 border-r border-black/10 flex items-end justify-center h-full pb-0.5">
+                              <div className="w-8 border-b border-black/40 h-3" />
+                            </div>
+                            <span className="w-12 text-center font-black">{right.code}</span>
+                            <span className="flex-1 px-2 truncate leading-none font-medium">{right.name}</span>
+                            <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(right.code)}</span>
+                          </div>
+                        ) : <div />}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            {/* Outros Itens Table */}
+            <div className="space-y-2 mt-8">
+              <div className="relative flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/20" /></div>
+                <h3 className="relative px-4 bg-white text-lg font-black uppercase tracking-tight">Outros itens</h3>
+              </div>
+              
+              <div className="border border-black">
+                <div className="grid grid-cols-[60px_60px_60px_100px_1fr_60px] text-[7px] font-black uppercase bg-neutral-50 border-b border-black text-center h-8 items-center">
+                  <div className="border-r border-black h-full flex items-center justify-center">Quantidade</div>
+                  <div className="border-r border-black h-full flex items-center justify-center leading-none px-1">N.º do item</div>
+                  <div className="border-r border-black h-full flex items-center justify-center leading-none px-1">Uso da filial</div>
+                  <div className="border-r border-black h-full flex items-center justify-center leading-none px-1">Idioma (não abreviar)</div>
+                  <div className="border-r border-black h-full flex items-center justify-center">Título ou descrição breve</div>
+                  <div className="h-full flex items-center justify-center">Estoque</div>
+                </div>
+                {Array.from({ length: 15 }).map((_, i) => (
+                  <div key={i} className="grid grid-cols-[60px_60px_60px_100px_1fr_60px] h-6 border-b last:border-0 border-black">
+                    <div className="border-r border-black" />
+                    <div className="border-r border-black" />
+                    <div className="border-r border-black" />
+                    <div className="border-r border-black" />
+                    <div className="border-r border-black" />
+                    <div />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-12 flex flex-col items-center gap-2">
+              <div className="w-96 border-b border-black h-4" />
+              <span className="text-[10px] font-bold uppercase">(Superintendente de serviço)</span>
+            </div>
+          </div>
+
           <div className="mt-8 flex justify-between items-end border-t-2 border-black pt-2">
             <span className="text-[8px] font-black italic uppercase">S-14-T 6/23</span>
             <div className="flex items-center gap-2 p-2 bg-primary/5 rounded border border-primary/10 print:hidden">
               <Info className="h-3 w-3 text-primary" />
-              <p className="text-[8px] font-bold uppercase text-muted-foreground">O sistema sincroniza automaticamente o estoque real para ajudar na decisão do pedido.</p>
+              <p className="text-[8px] font-bold uppercase text-muted-foreground">O sistema sincroniza o estoque real para ajudar na decisão do pedido.</p>
             </div>
           </div>
         </div>
