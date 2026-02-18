@@ -6,7 +6,7 @@ import { collection, doc } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
-import { Share2, ShoppingCart, Info, FileEdit, Loader2 } from "lucide-react";
+import { Share2, ShoppingCart, Info, FileEdit, Loader2, Printer } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -83,6 +83,43 @@ const S14_SECTIONS = [
       { code: "5339", name: "Os Jovens Perguntam — Respostas Práticas, Volume 1 (yp1)" },
       { code: "5427", name: "Aprenda com as Histórias da Bíblia (lfb)" },
       { code: "5336", name: "Os Jovens Perguntam — Respostas Práticas, Volume 2 (yp2)" },
+    ]
+  },
+  {
+    title: "Brochuras",
+    items: [
+      { code: "6665", name: "Você Pode Ter uma Família Feliz! (hf)" },
+      { code: "6671", name: "Volte para Jeová (rj)" },
+      { code: "6662", name: "Como Você Pode Ter uma Vida Feliz? (para judeus) (hl)" },
+      { code: "6656", name: "Verdadeira Fé — O Segredo de uma Vida Feliz (para muçulmanos) (rk)" },
+      { code: "6647", name: "Como Ter uma Vida Satisfatória (la)" },
+      { code: "6630", name: "Espíritos dos Mortos — Ajudam? Ou Prejudicam? Existem realmente? (sp)" },
+      { code: "6658", name: "Escute a Deus (ld)" },
+      { code: "6667", name: "Melhore Sua Leitura e Seu Ensino (th)" },
+      { code: "6663", name: "Minhas Primeiras Lições da Bíblia (mb)" },
+      { code: "6670", name: "Aprenda com a Sabedoria de Jesus (para muçulmanos) (wfg) NOVO!" },
+      { code: "6648", name: "O Caminho para a Vida Eterna — Já o Encontrou? (para africanos) (ol)" },
+      { code: "6684", name: "10 Perguntas Que os Jovens se Fazem e as Melhores Respostas (ypq)" },
+      { code: "6639", name: "Como Ter Verdadeira Paz e Felicidade (para chineses) (pc)" },
+      { code: "6653", name: "O Caminho para a Paz e Felicidade (para budistas) (ph)" },
+    ]
+  },
+  {
+    title: "Formulários e acessórios",
+    items: [
+      { code: "3505", name: "Porta-crachá (plástico) (bdg)", isSpecial: true },
+      { code: "3503", name: "Envelope Plástico para Cartão de Território (pte)", isSpecial: true },
+      { code: "83731", name: "Etiquetas para caixas de donativos do Salão do Reino (para países onde é possível fazer donativos pelo donate.jw.org) (cblkh1)" },
+      { code: "8704", name: "Relatório de Serviço de Campo (S-4)" },
+      { code: "83732", name: "Etiquetas para caixas de donativos do Salão do Reino (para países onde não é possível fazer donativos pelo donate.jw.org) (cblkh2)" },
+      { code: "8708", name: "Registro de Casa em Casa (S-8)" },
+      { code: "83733", name: "Etiquetas para caixas de donativos do Salão do Reino (para países onde é possível fazer donativos pelo donate.jw.org apenas para a obra mundial) (cblkh3)" },
+      { code: "8712", name: "Cartão de Mapa de Território (S-12)" },
+      { code: "9172", name: "Diretivas Antecipadas e Procuração para Tratamento de Saúde (informe o estado ou a província: ________) (dpa)", isSpecial: true },
+      { code: "8713", name: "Registro de Designação de Território (S-13)" },
+      { code: "8724", name: "Recibo (S-24)" },
+      { code: "8789", name: "Designação para a Reunião Nossa Vida e Ministério Cristão (S-89)" },
+      { code: "8805", name: "Petição para o Serviço de Pioneiro Auxiliar (S-205b)" },
     ]
   }
 ];
@@ -305,16 +342,26 @@ export default function OrderFormPage() {
               <p className="text-[10px] font-bold text-muted-foreground uppercase">Formato oficial de Betel pronto para compartilhar.</p>
             </div>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="gap-2 font-bold uppercase text-[10px] bg-white h-9 shadow-sm hover:bg-primary/5 w-full sm:w-auto" 
-            onClick={handleSharePDF}
-            disabled={isGenerating}
-          >
-            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4 text-primary" />}
-            Compartilhar PDF Oficial
-          </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2 font-bold uppercase text-[10px] bg-white h-9 shadow-sm hover:bg-primary/5 flex-1 sm:flex-none" 
+              onClick={() => window.print()}
+            >
+              <Printer className="h-4 w-4" /> Imprimir
+            </Button>
+            <Button 
+              variant="default" 
+              size="sm" 
+              className="gap-2 font-bold uppercase text-[10px] h-9 shadow-sm flex-1 sm:flex-none" 
+              onClick={handleSharePDF}
+              disabled={isGenerating}
+            >
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+              Compartilhar PDF
+            </Button>
+          </div>
         </div>
 
         {/* DOCUMENTO S-14-T */}
@@ -422,14 +469,84 @@ export default function OrderFormPage() {
               </div>
             </div>
 
-            {/* SEÇÃO BROCHURAS E OUTROS NA PÁGINA 2 (SIMULAÇÃO) */}
-            <div className="mt-4 flex flex-col items-center gap-1.5 self-end ml-auto w-64">
+            {S14_SECTIONS.slice(4).map((section, sIdx) => (
+              <div key={sIdx} className="space-y-1 mt-2">
+                <div className="relative flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/30" /></div>
+                  <h3 className="relative px-4 bg-white text-[12px] font-black uppercase tracking-tight">{section.title}</h3>
+                </div>
+
+                <div className="grid grid-cols-2 gap-x-6 gap-y-0.5">
+                  {[0, 1].map(col => (
+                    <div key={col} className="flex text-[7px] font-black uppercase mb-0.5 opacity-60">
+                      <span className="w-8 text-center">Quant.</span>
+                      <span className="w-10 text-center">N.º do item</span>
+                      <span className="flex-1 px-1">Descrição</span>
+                      <span className="w-8 text-center">Estoque</span>
+                    </div>
+                  ))}
+
+                  {Array.from({ length: Math.ceil(section.items.length / 2) }).map((_, rIdx) => {
+                    const left = section.items[rIdx * 2];
+                    const right = section.items[rIdx * 2 + 1];
+
+                    return (
+                      <React.Fragment key={rIdx}>
+                        <ItemRow item={left} />
+                        {right ? <ItemRow item={right} /> : <div />}
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+
+            <div className="space-y-1 mt-4">
+              <div className="relative flex items-center justify-center">
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/30" /></div>
+                <h3 className="relative px-4 bg-white text-[12px] font-black uppercase tracking-tight">Outros itens</h3>
+              </div>
+
+              <div className="border border-black overflow-hidden">
+                <table className="w-full border-collapse text-[7px] font-bold uppercase">
+                  <thead>
+                    <tr className="border-b border-black bg-neutral-50 h-6">
+                      <th className="border-r border-black w-12 px-1">Quantidade</th>
+                      <th className="border-r border-black w-14 px-1">N.º do item</th>
+                      <th className="border-r border-black w-12 px-1">Uso da filial</th>
+                      <th className="border-r border-black w-24 px-1">Idioma (não abreviar)</th>
+                      <th className="border-r border-black px-1">Título ou descrição breve</th>
+                      <th className="w-12 px-1">Estoque</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {otherItems.map((item, idx) => (
+                      <tr key={idx} className="border-b border-black last:border-0 h-5">
+                        <td className="border-r border-black"><FormInput value={item.qty} onChange={(v: string) => handleOtherItemChange(idx, 'qty', v)} showLine={false} className="text-center" /></td>
+                        <td className="border-r border-black"><FormInput value={item.code} onChange={(v: string) => handleOtherItemChange(idx, 'code', v)} showLine={false} className="text-center" /></td>
+                        <td className="border-r border-black"><FormInput value={item.usage} onChange={(v: string) => handleOtherItemChange(idx, 'usage', v)} showLine={false} className="text-center" /></td>
+                        <td className="border-r border-black"><FormInput value={item.lang} onChange={(v: string) => handleOtherItemChange(idx, 'lang', v)} showLine={false} /></td>
+                        <td className="border-r border-black"><FormInput value={item.title} onChange={(v: string) => handleOtherItemChange(idx, 'title', v)} showLine={false} /></td>
+                        <td><FormInput value={item.stock} onChange={(v: string) => handleOtherItemChange(idx, 'stock', v)} showLine={false} className="text-center" /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-col items-center gap-1.5 self-end ml-auto w-64">
               <div className="w-full border-b border-black h-4" />
               <span className="text-[9px] font-bold uppercase">(Superintendente de serviço)</span>
             </div>
 
             <div className="flex justify-between items-end pt-4 border-t border-black/10">
-              <span className="text-[7px] font-bold uppercase opacity-40">S-14-T 6/23 (Página 2)</span>
+              <div className="flex flex-col gap-0.5">
+                <span className="text-[7px] font-bold uppercase opacity-40">S-14-T 6/23 (Página 2)</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <span className="text-[8px] font-black">2</span>
+              </div>
               <div className="flex items-center gap-2 p-1.5 bg-primary/5 rounded border border-primary/10 print:hidden">
                 <Info className="h-3 w-3 text-primary" />
                 <p className="text-[7px] font-bold uppercase text-muted-foreground">O sistema sincroniza o estoque automaticamente.</p>
