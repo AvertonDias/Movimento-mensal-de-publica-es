@@ -1,6 +1,7 @@
+
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
@@ -130,6 +131,7 @@ export default function OrderFormPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
+  const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   
   // Estados para tornar o formulário editável
@@ -138,7 +140,7 @@ export default function OrderFormPage() {
     congNum: '',
     congName: '',
     city: '',
-    date: format(new Date(), 'dd/MM/yyyy'),
+    date: '',
     lang: 'Português'
   });
 
@@ -155,7 +157,12 @@ export default function OrderFormPage() {
     }))
   );
 
-  const [selectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
+  useEffect(() => {
+    // Evita erro de hidratação setando a data apenas no cliente
+    setHeader(h => ({ ...h, date: format(new Date(), 'dd/MM/yyyy') }));
+  }, []);
+
+  const selectedMonth = useMemo(() => startOfMonth(subMonths(new Date(), 1)), []);
   const monthKey = format(selectedMonth, 'yyyy-MM');
 
   const helperInviteRef = useMemoFirebase(() => {
@@ -198,8 +205,9 @@ export default function OrderFormPage() {
     });
 
     try {
-      const { default: jsPDF } = await import('jspdf');
-      const { default: html2canvas } = await import('html2canvas');
+      // Importações dinâmicas para evitar erros no servidor/inicialização
+      const { jsPDF } = await import('jspdf');
+      const html2canvas = (await import('html2canvas')).default;
 
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageIds = ['s14-page-1', 's14-page-2'];
@@ -210,12 +218,11 @@ export default function OrderFormPage() {
 
         if (i > 0) pdf.addPage();
 
-        // Captura a página como imagem
         const canvas = await html2canvas(element, {
           scale: 2,
           logging: false,
           useCORS: true,
-          windowWidth: 850, // Largura padrão do formulário no CSS
+          windowWidth: 850,
         });
 
         const imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -229,7 +236,6 @@ export default function OrderFormPage() {
       const fileName = `Pedido_S14_${header.congName.replace(/\s+/g, '_') || 'Congregacao'}.pdf`;
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // Tenta compartilhar nativamente (funciona melhor em celulares)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -238,15 +244,13 @@ export default function OrderFormPage() {
             text: `Segue o pedido de publicações preenchido para a congregação ${header.congName}.`,
           });
         } catch (err) {
-          // Se o compartilhamento falhar ou for cancelado, faz o download como fallback
           pdf.save(fileName);
         }
       } else {
-        // Se não suportar compartilhar arquivos, faz o download
         pdf.save(fileName);
         toast({
           title: "Download Iniciado",
-          description: "O seu navegador não suporta compartilhamento direto de arquivos. O PDF foi baixado.",
+          description: "O PDF foi baixado.",
         });
       }
     } catch (error) {
@@ -254,12 +258,18 @@ export default function OrderFormPage() {
       toast({
         variant: "destructive",
         title: "Erro ao gerar arquivo",
-        description: "Não foi possível converter o formulário em PDF. Tente usar a função de impressão do sistema.",
+        description: "Tente usar a função de impressão do sistema.",
       });
     } finally {
       setIsGenerating(false);
     }
   };
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
 
   if (isUserLoading || isCheckingHelper || !user) return null;
 
@@ -386,7 +396,6 @@ export default function OrderFormPage() {
 
                     return (
                       <React.Fragment key={rIdx}>
-                        {/* Item Esquerda */}
                         <div className={cn("flex items-center h-5 border-b border-black/10 text-[9px]", left.isSpecial && "bg-neutral-100")}>
                           <div className="w-10 border-r border-black/10 flex items-center justify-center h-full">
                             <FormInput 
@@ -396,11 +405,10 @@ export default function OrderFormPage() {
                             />
                           </div>
                           <span className="w-12 text-center font-black">{left.code}</span>
-                          <span className="flex-1 px-2 truncate leading-none font-medium">{left.name}</span>
+                          <span className="flex-1 px-2 truncate leading-none font-medium text-left">{left.name}</span>
                           <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(left.code)}</span>
                         </div>
 
-                        {/* Item Direita */}
                         {right ? (
                           <div className={cn("flex items-center h-5 border-b border-black/10 text-[9px]", right.isSpecial && "bg-neutral-100")}>
                             <div className="w-10 border-r border-black/10 flex items-center justify-center h-full">
@@ -411,7 +419,7 @@ export default function OrderFormPage() {
                               />
                             </div>
                             <span className="w-12 text-center font-black">{right.code}</span>
-                            <span className="flex-1 px-2 truncate leading-none font-medium">{right.name}</span>
+                            <span className="flex-1 px-2 truncate leading-none font-medium text-left">{right.name}</span>
                             <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(right.code)}</span>
                           </div>
                         ) : <div />}
@@ -467,7 +475,7 @@ export default function OrderFormPage() {
                             />
                           </div>
                           <span className="w-12 text-center font-black">{left.code}</span>
-                          <span className="flex-1 px-2 truncate leading-none font-medium">{left.name}</span>
+                          <span className="flex-1 px-2 truncate leading-none font-medium text-left">{left.name}</span>
                           <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(left.code)}</span>
                         </div>
                         {right ? (
@@ -480,7 +488,7 @@ export default function OrderFormPage() {
                               />
                             </div>
                             <span className="w-12 text-center font-black">{right.code}</span>
-                            <span className="flex-1 px-2 truncate leading-none font-medium">{right.name}</span>
+                            <span className="flex-1 px-2 truncate leading-none font-medium text-left">{right.name}</span>
                             <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(right.code)}</span>
                           </div>
                         ) : <div />}
@@ -491,7 +499,6 @@ export default function OrderFormPage() {
               </div>
             ))}
 
-            {/* Outros Itens Table */}
             <div className="space-y-2 mt-8">
               <div className="relative flex items-center justify-center">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/20" /></div>
@@ -522,7 +529,7 @@ export default function OrderFormPage() {
                       <FormInput value={item.lang} onChange={(v: any) => handleOtherItemChange(i, 'lang', v)} className="border-0 text-center" />
                     </div>
                     <div className="border-r border-black h-full flex items-center">
-                      <FormInput value={item.title} onChange={(v: any) => handleOtherItemChange(i, 'title', v)} className="border-0" />
+                      <FormInput value={item.title} onChange={(v: any) => handleOtherItemChange(i, 'title', v)} className="border-0 text-left px-2" />
                     </div>
                     <div className="h-full flex items-center">
                       <FormInput value={item.stock} onChange={(v: any) => handleOtherItemChange(i, 'stock', v)} className="border-0 text-center" />
