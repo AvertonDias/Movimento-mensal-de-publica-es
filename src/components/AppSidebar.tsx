@@ -50,12 +50,12 @@ export function AppSidebar() {
     { href: '/', label: 'Painel Principal', icon: LayoutGrid },
     { href: '/inventory-report', label: 'Relatório de Inventário', icon: FileText },
     { href: '/history', label: 'Folha S-28', icon: History },
-    { href: '/order-form', label: 'Pedido S-14-T', icon: ShoppingCart },
-    { href: '/special-orders', label: 'Pedidos Especiais', icon: ClipboardList },
     { href: '/stats', label: 'Estatísticas', icon: BarChart3 },
     { href: '/order-schedule', label: 'Cronograma de Pedidos', icon: Truck },
     { href: '/magazine-display', label: 'Programação de Exibição', icon: LayoutGrid },
     { href: '/s60', label: 'Lista de Descartes (S-60)', icon: Trash2 },
+    { href: '/order-form', label: 'Pedido S-14-T', icon: ShoppingCart },
+    { href: '/special-orders', label: 'Pedidos Especiais', icon: ClipboardList },
     { href: '/helpers', label: 'Ajudantes', icon: Users, hideIfHelper: true },
   ];
 
