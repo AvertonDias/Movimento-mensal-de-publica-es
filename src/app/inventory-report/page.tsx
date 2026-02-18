@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FileText, Loader2, ShieldCheck, Info } from "lucide-react";
+import { FileText, Loader2, ShieldCheck, Info, Share2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
@@ -22,13 +22,16 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { useToast } from "@/hooks/use-toast";
 
 export default function InventoryReportPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const router = useRouter();
+  const { toast } = useToast();
   
   const [selectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
+  const [isSharing, setIsSharing] = useState(false);
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthLabel = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
 
@@ -106,19 +109,96 @@ export default function InventoryReportPage() {
     return combined;
   }, [remoteItems, customDefinitions, isFetchingData]);
 
+  const handleShare = async () => {
+    if (isSharing) return;
+    setIsSharing(true);
+    
+    toast({
+      title: "Gerando PDF...",
+      description: "Preparando relatório para compartilhamento.",
+    });
+
+    try {
+      const { jsPDF } = await import('jspdf');
+      const html2canvas = (await import('html2canvas')).default;
+
+      const element = document.getElementById('report-content');
+      if (!element) throw new Error('Elemento não encontrado');
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+      
+      const fileName = `Saldo_Fisico_${monthKey}.pdf`;
+      const pdfBlob = pdf.output('blob');
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Relatório de Saldo Físico',
+            text: `Saldo de publicações - Competência: ${monthLabel}`,
+          });
+        } catch (err) {
+          pdf.save(fileName);
+        }
+      } else {
+        pdf.save(fileName);
+        toast({
+          title: "Download concluído",
+          description: "O PDF foi salvo no seu dispositivo.",
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao compartilhar:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao compartilhar",
+        description: "Não foi possível gerar o arquivo PDF.",
+      });
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   if (isUserLoading || isCheckingHelper || !user) return null;
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="pb-4 pt-2 flex flex-col items-start gap-2 print:hidden text-left">
+        <div className="pb-4 pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden text-left">
           <div className="flex items-center gap-2">
             <FileText className="h-5 w-5 text-primary" />
             <h1 className="text-xl font-black uppercase tracking-tight font-headline">Relatório de Inventário</h1>
           </div>
+          <Button 
+            onClick={handleShare} 
+            disabled={isSharing || filteredItems.length === 0}
+            className="gap-2 font-black uppercase text-[10px] tracking-widest h-10 shadow-md transition-all active:scale-95"
+          >
+            {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+            Compartilhar Relatório
+          </Button>
         </div>
 
-        <Card className="border-none shadow-xl overflow-hidden print:shadow-none print:border">
+        <Card id="report-content" className="border-none shadow-xl overflow-hidden print:shadow-none print:border bg-white">
           <CardHeader className="bg-white border-b border-neutral-100 flex flex-row items-center justify-between space-y-0 p-4">
             <div className="text-left">
               <CardTitle className="uppercase font-black text-base">Resumo de Saldo Físico</CardTitle>
