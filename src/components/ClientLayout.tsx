@@ -5,6 +5,8 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 import { Header } from '@/components/Header';
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
+import { AppSidebar } from '@/components/AppSidebar';
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -14,13 +16,11 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
           (registration) => {
             console.log('SW registrado:', registration.scope);
             
-            // Monitora atualizações do Service Worker
             registration.onupdatefound = () => {
               const installingWorker = registration.installing;
               if (installingWorker) {
                 installingWorker.onstatechange = () => {
                   if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                    // Nova versão detectada, limpa caches e recarrega
                     console.log('Nova versão encontrada! Recarregando...');
                     if ('caches' in window) {
                       caches.keys().then((names) => {
@@ -39,7 +39,6 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         );
       });
 
-      // Força a atualização se o Service Worker mudar
       let refreshing = false;
       navigator.serviceWorker.addEventListener('controllerchange', () => {
         if (!refreshing) {
@@ -52,10 +51,17 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <FirebaseClientProvider>
-      <Header />
-      {children}
-      <Toaster />
-      <PWAInstallPrompt />
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset className="bg-background flex flex-col min-h-screen">
+          <Header />
+          <div className="flex-1 flex flex-col">
+            {children}
+          </div>
+          <Toaster />
+          <PWAInstallPrompt />
+        </SidebarInset>
+      </SidebarProvider>
     </FirebaseClientProvider>
   );
 }
