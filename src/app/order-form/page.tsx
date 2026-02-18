@@ -58,9 +58,9 @@ const S14_SECTIONS = [
       { code: "3522", name: "Carrinho de publicações — Kit para conserto (ldcrtrkt)", isSpecial: true },
       { code: "3518", name: "Mesa de publicações (ldtbl)", isSpecial: true },
       { code: "3523", name: "Carrinho de publicações — Rodas (ldcrtwhl)", isSpecial: true },
-      { code: "88532", name: "Curso bíblico gratuito (cartaz magnético vertical) (divulga curso bíblico presencial) (mvpfbc1) NOVO!", isSpecial: true },
+      { code: "88532", name: "Curso bíblico gratuito (cartaz magnético vertical) (mvpfbc1) NOVO!", isSpecial: true },
       { code: "3519-1", name: "Quiosque de publicações (ldksk)", isSpecial: true },
-      { code: "88533", name: "Curso bíblico gratuito (cartaz magnético vertical) (divulga curso bíblico pela internet) (mvpfbc2) NOVO!", isSpecial: true },
+      { code: "88533", name: "Curso bíblico gratuito (cartaz magnético vertical) (mvpfbc2) NOVO!", isSpecial: true },
       { code: "3517-1", name: "Display de publicações (simples) (ldstd-1)", isSpecial: true },
     ]
   },
@@ -290,7 +290,7 @@ export default function OrderFormPage() {
   );
 
   const ItemRow = ({ item }: { item: any }) => (
-    <div className={cn("flex items-start min-h-[18px] text-[8px] py-0.5", item.isSpecial && "bg-neutral-100")}>
+    <div className={cn("flex items-start min-h-[18px] text-[8px] py-0.5 transition-colors", item.isSpecial && "bg-neutral-200")}>
       <div className="w-8 flex items-center justify-center shrink-0 h-4">
         <FormInput 
           value={quantities[item.code] || ''} 
@@ -378,7 +378,7 @@ export default function OrderFormPage() {
                   <span className="text-[7px] italic font-normal">(Obrigatório)</span>
                 </div>
                 <div className="col-span-6 flex items-center gap-2 justify-end">
-                  <div className="w-10 h-3.5 bg-neutral-200 border border-neutral-300" />
+                  <div className="w-10 h-3.5 bg-neutral-200 border border-neutral-300 shadow-sm" />
                   <span className="text-[8px] uppercase font-normal">Os itens de pedido especial estão sombreados.</span>
                 </div>
               </div>
