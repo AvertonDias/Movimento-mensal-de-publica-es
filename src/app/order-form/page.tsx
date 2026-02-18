@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo } from 'react';
@@ -8,7 +7,7 @@ import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Share2, ShoppingCart, ShieldCheck, Info, FileEdit } from "lucide-react";
+import { Printer, ShoppingCart, ShieldCheck, Info, FileEdit } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -189,42 +188,8 @@ export default function OrderFormPage() {
     setOtherItems(newItems);
   };
 
-  const handleShare = async () => {
-    const shareUrl = window.location.href;
-    const shareData = {
-      title: 'Pedido S-14-T',
-      text: `Pedido de publicações - Congregação ${header.congName || '---'} (${header.congNum || '---'})`,
-      url: shareUrl
-    };
-
-    const copyFallback = async () => {
-      try {
-        await navigator.clipboard.writeText(shareUrl);
-        toast({
-          title: "Link copiado!",
-          description: "O link deste formulário foi copiado para sua área de transferência.",
-        });
-      } catch (err) {
-        toast({
-          variant: "destructive",
-          title: "Erro ao copiar",
-          description: "Não foi possível copiar o link ou compartilhar.",
-        });
-      }
-    };
-
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (err: any) {
-        // Se falhar por permissão negada ou outro erro (exceto cancelamento do usuário), tenta copiar
-        if (err.name !== 'AbortError') {
-          await copyFallback();
-        }
-      }
-    } else {
-      await copyFallback();
-    }
+  const handleGeneratePDF = () => {
+    window.print();
   };
 
   if (isUserLoading || isCheckingHelper || !user) return null;
@@ -256,7 +221,7 @@ export default function OrderFormPage() {
               <h1 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                 <FileEdit className="h-4 w-4" /> Preencher Pedido S-14-T
               </h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase">Edite os campos abaixo e compartilhe.</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Edite os campos abaixo e compartilhe como PDF.</p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -268,8 +233,8 @@ export default function OrderFormPage() {
                 </span>
               </div>
             )}
-            <Button variant="outline" size="sm" className="gap-2 font-bold uppercase text-[10px] bg-white h-9" onClick={handleShare}>
-              <Share2 className="h-4 w-4" /> Compartilhar
+            <Button variant="outline" size="sm" className="gap-2 font-bold uppercase text-[10px] bg-white h-9" onClick={handleGeneratePDF}>
+              <Printer className="h-4 w-4" /> Compartilhar PDF
             </Button>
           </div>
         </div>
