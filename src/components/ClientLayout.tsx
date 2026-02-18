@@ -13,11 +13,39 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         navigator.serviceWorker.register('/sw.js').then(
           (registration) => {
             console.log('SW registrado:', registration.scope);
+            
+            // Monitora atualizações do Service Worker
+            registration.onupdatefound = () => {
+              const installingWorker = registration.installing;
+              if (installingWorker) {
+                installingWorker.onstatechange = () => {
+                  if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                    // Nova versão detectada, limpa caches e recarrega
+                    console.log('Nova versão encontrada! Recarregando...');
+                    if ('caches' in window) {
+                      caches.keys().then((names) => {
+                        for (const name of names) caches.delete(name);
+                      });
+                    }
+                    window.location.reload();
+                  }
+                };
+              }
+            };
           },
           (err) => {
             console.log('Falha no SW:', err);
           }
         );
+      });
+
+      // Força a atualização se o Service Worker mudar
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          refreshing = true;
+          window.location.reload();
+        }
       });
     }
   }, []);

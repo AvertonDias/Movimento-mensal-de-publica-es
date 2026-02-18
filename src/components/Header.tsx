@@ -1,8 +1,7 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { History, LogOut, User as UserIcon, Users, BarChart3, Trash2, FileText, LayoutGrid, Truck } from "lucide-react";
+import { History, LogOut, User as UserIcon, Users, BarChart3, Trash2, FileText, LayoutGrid, Truck, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -20,12 +19,14 @@ import {
 import { doc } from 'firebase/firestore';
 import { cn } from "@/lib/utils";
 import { usePathname } from 'next/navigation';
+import { useToast } from "@/hooks/use-toast";
 
 export function Header() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const db = useFirestore();
   const pathname = usePathname();
+  const { toast } = useToast();
   
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -56,6 +57,33 @@ export function Header() {
 
   const handleSignOut = () => {
     initiateSignOut(auth);
+  };
+
+  const handleForceUpdate = async () => {
+    toast({
+      title: "Limpando cache...",
+      description: "O aplicativo será reiniciado para aplicar as atualizações.",
+    });
+
+    if ('serviceWorker' in navigator) {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (const registration of registrations) {
+        await registration.unregister();
+      }
+    }
+
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      for (const name of cacheNames) {
+        await caches.delete(name);
+      }
+    }
+
+    // Limpa localStorage de controle interno se houver
+    // window.localStorage.clear(); 
+
+    // Força o recarregamento ignorando o cache do navegador
+    window.location.href = window.location.origin + window.location.pathname + '?update=' + Date.now();
   };
 
   if (isUserLoading || !user || user.isAnonymous) return null;
@@ -159,6 +187,9 @@ export function Header() {
               </div>
 
               <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleForceUpdate} className="font-bold uppercase text-[10px] tracking-widest cursor-pointer text-primary">
+                <RefreshCw className="mr-2 h-4 w-4" /> Forçar Atualização
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive font-bold uppercase text-[10px] tracking-widest cursor-pointer">
                 <LogOut className="mr-2 h-4 w-4" /> Sair
               </DropdownMenuItem>
