@@ -70,12 +70,12 @@ const S14_SECTIONS = [
       { code: "5416", name: "'Dê Testemunho Cabal' sobre o Reino de Deus (bt)" },
       { code: "5415", name: "Aprenda do Grande Instrutor (lr)" },
       { code: "5331", name: "Achegue-se a Jeová (cl)" },
-      { code: "5332", name: "Organizados para Fazer a Vontade de Jeová (od)" },
+      { code: "5332", name: "Organizados para Fazer a Vontade de Jeová (od)", isSpecial: true },
       { code: "5419", name: "Imite a Sua Fé! (ia)" },
       { code: "5435", name: "A Adoração Pura de Jeová É Restaurada! (rr)" },
       { code: "5411", name: "Estudo Perspicaz das Escrituras (conjunto completo) (it)", isSpecial: true },
       { code: "5341", name: "Cante de Coração para Jeová (sjj)" },
-      { code: "5413", name: "Testemunhas de Jeová — Proclamadores do Reino de Deus (jv)" },
+      { code: "5413", name: "Testemunhas de Jeová — Proclamadores do Reino de Deus (jv)", isSpecial: true },
       { code: "5441", name: "Cante de Coração para Jeová (tamanho grande) (sjlls)" },
       { code: "5425", name: "Jesus — o Caminho, a Verdade e a Vida (jy)" },
       { code: "5442", name: "Cante de Coração para Jeová — apenas letras (sjjyls)" },
@@ -114,9 +114,9 @@ const S14_SECTIONS = [
       { code: "83732", name: "Etiquetas para caixas de donativos do Salão do Reino (para países onde não é possível fazer donativos pelo donate.jw.org) (cblkh2)" },
       { code: "8708", name: "Registro de Casa em Casa (S-8)" },
       { code: "83733", name: "Etiquetas para caixas de donativos do Salão do Reino (para países onde é possível fazer donativos pelo donate.jw.org apenas para a obra mundial) (cblkh3)" },
-      { code: "8712", name: "Cartão de Mapa de Território (S-12)" },
+      { code: "8712", name: "Cartão de Mapa de Território (S-12)", isSpecial: true },
       { code: "9172", name: "Diretivas Antecipadas e Procuração para Tratamento de Saúde (informe o estado ou a província: ________) (dpa)", isSpecial: true },
-      { code: "8713", name: "Registro de Designação de Território (S-13)" },
+      { code: "8713", name: "Registro de Designação de Território (S-13)", isSpecial: true },
       { code: "8724", name: "Recibo (S-24)" },
       { code: "8789", name: "Designação para a Reunião Nossa Vida e Ministério Cristão (S-89)" },
       { code: "8805", name: "Petição para o Serviço de Pioneiro Auxiliar (S-205b)" },
@@ -465,7 +465,7 @@ export default function OrderFormPage() {
               </div>
               <div className="flex gap-1 items-baseline text-[9px] font-bold w-[220px]">
                 <span className="uppercase">Número da congregação:</span>
-                <div className="flex-1 h-3.5"><FormInput value={header.congNum} onChange={(v: any) => setHeader({...header, congNum: v})} /></div>
+                <div className="flex-1 h-3.5"><FormInput value={header.congNum} onChange={(v: any) => setHeader({...header, lang: v})} /></div>
               </div>
             </div>
 
