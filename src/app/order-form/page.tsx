@@ -223,12 +223,12 @@ export default function OrderFormPage() {
 
         // Configurações de alta qualidade para o html2canvas
         const canvas = await html2canvas(element, {
-          scale: 3, // Aumenta a resolução significativamente
+          scale: 3, 
           useCORS: true,
           logging: false,
           allowTaint: true,
           backgroundColor: '#ffffff',
-          windowWidth: 1000, // Força renderização desktop para evitar quebras mobile
+          windowWidth: 1000, 
         });
 
         const imgData = canvas.toDataURL('image/jpeg', 1.0);
@@ -290,6 +290,21 @@ export default function OrderFormPage() {
         className
       )}
     />
+  );
+
+  const ItemRow = ({ item }: { item: any }) => (
+    <div className={cn("flex items-center min-h-[22px] border-b border-black/10 text-[9px] py-0.5", item.isSpecial && "bg-neutral-100")}>
+      <div className="w-10 border-r border-black/10 flex items-center justify-center h-full shrink-0">
+        <FormInput 
+          value={quantities[item.code] || ''} 
+          onChange={(v: any) => handleQtyChange(item.code, v)} 
+          className="border-0 text-center text-[11px]" 
+        />
+      </div>
+      <span className="w-12 text-center font-black shrink-0">{item.code}</span>
+      <span className="flex-1 px-2 text-left font-medium leading-[1.1] break-words py-0.5">{item.name}</span>
+      <span className="w-12 text-center border-l border-black/10 font-bold shrink-0">{getStock(item.code)}</span>
+    </div>
   );
 
   return (
@@ -402,33 +417,8 @@ export default function OrderFormPage() {
 
                     return (
                       <React.Fragment key={rIdx}>
-                        <div className={cn("flex items-center h-5 border-b border-black/10 text-[9px]", left.isSpecial && "bg-neutral-100")}>
-                          <div className="w-10 border-r border-black/10 flex items-center justify-center h-full">
-                            <FormInput 
-                              value={quantities[left.code] || ''} 
-                              onChange={(v: any) => handleQtyChange(left.code, v)} 
-                              className="border-0 text-center text-[11px]" 
-                            />
-                          </div>
-                          <span className="w-12 text-center font-black">{left.code}</span>
-                          <span className="flex-1 px-2 truncate leading-none font-medium text-left">{left.name}</span>
-                          <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(left.code)}</span>
-                        </div>
-
-                        {right ? (
-                          <div className={cn("flex items-center h-5 border-b border-black/10 text-[9px]", right.isSpecial && "bg-neutral-100")}>
-                            <div className="w-10 border-r border-black/10 flex items-center justify-center h-full">
-                              <FormInput 
-                                value={quantities[right.code] || ''} 
-                                onChange={(v: any) => handleQtyChange(right.code, v)} 
-                                className="border-0 text-center text-[11px]" 
-                              />
-                            </div>
-                            <span className="w-12 text-center font-black">{right.code}</span>
-                            <span className="flex-1 px-2 truncate leading-none font-medium text-left">{right.name}</span>
-                            <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(right.code)}</span>
-                          </div>
-                        ) : <div />}
+                        <ItemRow item={left} />
+                        {right ? <ItemRow item={right} /> : <div />}
                       </React.Fragment>
                     );
                   })}
@@ -473,32 +463,8 @@ export default function OrderFormPage() {
 
                     return (
                       <React.Fragment key={rIdx}>
-                        <div className="flex items-center h-5 border-b border-black/10 text-[9px]">
-                          <div className="w-10 border-r border-black/10 flex items-center justify-center h-full">
-                            <FormInput 
-                              value={quantities[left.code] || ''} 
-                              onChange={(v: any) => handleQtyChange(left.code, v)} 
-                              className="border-0 text-center text-[11px]" 
-                            />
-                          </div>
-                          <span className="w-12 text-center font-black">{left.code}</span>
-                          <span className="flex-1 px-2 truncate leading-none font-medium text-left">{left.name}</span>
-                          <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(left.code)}</span>
-                        </div>
-                        {right ? (
-                          <div className="flex items-center h-5 border-b border-black/10 text-[9px]">
-                            <div className="w-10 border-r border-black/10 flex items-center justify-center h-full">
-                              <FormInput 
-                                value={quantities[right.code] || ''} 
-                                onChange={(v: any) => handleQtyChange(right.code, v)} 
-                                className="border-0 text-center text-[11px]" 
-                              />
-                            </div>
-                            <span className="w-12 text-center font-black">{right.code}</span>
-                            <span className="flex-1 px-2 truncate leading-none font-medium text-left">{right.name}</span>
-                            <span className="w-12 text-center border-l border-black/10 font-bold">{getStock(right.code)}</span>
-                          </div>
-                        ) : <div />}
+                        <ItemRow item={left} />
+                        {right ? <ItemRow item={right} /> : <div />}
                       </React.Fragment>
                     );
                   })}
@@ -522,7 +488,7 @@ export default function OrderFormPage() {
                   <div className="h-full flex items-center justify-center">Estoque</div>
                 </div>
                 {otherItems.map((item, i) => (
-                  <div key={i} className="grid grid-cols-[60px_60px_60px_100px_1fr_60px] h-6 border-b last:border-0 border-black group">
+                  <div key={i} className="grid grid-cols-[60px_60px_60px_100px_1fr_60px] min-h-[24px] border-b last:border-0 border-black group">
                     <div className="border-r border-black h-full flex items-center">
                       <FormInput value={item.qty} onChange={(v: any) => handleOtherItemChange(i, 'qty', v)} className="border-0 text-center" />
                     </div>
@@ -535,8 +501,8 @@ export default function OrderFormPage() {
                     <div className="border-r border-black h-full flex items-center">
                       <FormInput value={item.lang} onChange={(v: any) => handleOtherItemChange(i, 'lang', v)} className="border-0 text-center" />
                     </div>
-                    <div className="border-r border-black h-full flex items-center">
-                      <FormInput value={item.title} onChange={(v: any) => handleOtherItemChange(i, 'title', v)} className="border-0 text-left px-2" />
+                    <div className="border-r border-black h-full flex items-center py-0.5">
+                      <FormInput value={item.title} onChange={(v: any) => handleOtherItemChange(i, 'title', v)} className="border-0 text-left px-2 leading-tight" />
                     </div>
                     <div className="h-full flex items-center">
                       <FormInput value={item.stock} onChange={(v: any) => handleOtherItemChange(i, 'stock', v)} className="border-0 text-center" />
