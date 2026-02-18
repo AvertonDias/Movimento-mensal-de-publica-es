@@ -28,7 +28,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 export function AppSidebar() {
@@ -62,17 +61,6 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      <SidebarHeader className="p-4">
-        <div className="flex items-center gap-3 overflow-hidden">
-          <div className="rounded-xl overflow-hidden w-[32px] h-[32px] shrink-0 shadow-sm border border-primary/10">
-            <Image src="/icon.png" alt="Logo" width={32} height={32} unoptimized priority />
-          </div>
-          <div className="flex flex-col group-data-[collapsible=icon]:hidden overflow-hidden">
-            <span className="text-sm font-black uppercase tracking-tight truncate leading-tight">S-28 Digital</span>
-            <span className="text-[8px] font-bold text-muted-foreground uppercase truncate leading-none">Gestão Inteligente</span>
-          </div>
-        </div>
-      </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden font-black uppercase text-[9px] tracking-widest text-muted-foreground/60">
