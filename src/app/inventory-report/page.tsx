@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -160,8 +159,8 @@ export default function InventoryReportPage() {
                   <TableRow>
                     <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r h-10">N.º</TableHead>
                     <TableHead className="font-black uppercase text-[9px] border-r h-10">Publicação</TableHead>
-                    <TableHead className="w-[140px] font-black uppercase text-[9px] text-center border-r bg-primary/5 h-10 leading-tight">Anterior</TableHead>
-                    <TableHead className="w-[140px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Atual</TableHead>
+                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r bg-primary/5 h-10 leading-tight">Anterior</TableHead>
+                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Atual</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

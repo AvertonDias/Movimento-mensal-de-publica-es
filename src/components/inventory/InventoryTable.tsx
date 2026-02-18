@@ -481,7 +481,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   className={cn(
                     "font-bold text-foreground py-3 px-2 text-[10px] uppercase tracking-wider text-center border-r last:border-0 bg-white sticky top-0 z-10 shadow-sm", 
                     col.id === 'item' && "text-left",
-                    ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[140px] min-w-[140px]"
+                    ['previous', 'received', 'current', 'outgoing'].includes(col.id) && "w-[80px] min-w-[80px]"
                   )}
                 >
                   {col.header}
