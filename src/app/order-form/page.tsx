@@ -124,6 +124,57 @@ const S14_SECTIONS = [
   }
 ];
 
+// Componentes extraídos para fora para evitar perda de foco durante a digitação
+const FormInput = ({ value, onChange, placeholder, className, showLine = true }: any) => (
+  <input
+    type="text"
+    value={value}
+    onChange={(e) => onChange(e.target.value)}
+    placeholder={placeholder}
+    className={cn(
+      "bg-transparent border-0 rounded-none h-full w-full px-1 text-[9px] font-bold focus:outline-none transition-colors placeholder:text-neutral-200",
+      showLine && "border-b border-black/40",
+      className
+    )}
+  />
+);
+
+const formatDescription = (name: string) => {
+  const lastParenIdx = name.lastIndexOf('(');
+  if (lastParenIdx === -1) return name;
+  
+  const base = name.substring(0, lastParenIdx);
+  const abbr = name.substring(lastParenIdx);
+  
+  return (
+    <>
+      {base}
+      <span className="font-bold">{abbr}</span>
+    </>
+  );
+};
+
+const ItemRow = ({ item, value, onChange, stock }: { item: any, value: string, onChange: (v: string) => void, stock: string | number }) => (
+  <div className={cn("flex items-start min-h-[18px] text-[8px] py-0.5 transition-colors", item.isSpecial && "bg-neutral-200")}>
+    <div className="w-8 flex items-center justify-center shrink-0 h-4">
+      <FormInput 
+        value={value} 
+        onChange={onChange} 
+        className="border-b border-black/40 text-center text-[10px] h-3.5" 
+      />
+    </div>
+    <span className="w-10 text-center font-bold shrink-0 ml-1">{item.code}</span>
+    <span className="flex-1 px-1 text-left font-medium leading-[1.1] break-words py-0.5">
+      {formatDescription(item.name)}
+    </span>
+    <div className="w-8 flex items-center justify-center shrink-0 h-4 border-l border-black/10">
+      <span className="text-[9px] font-bold border-b border-black/40 w-full text-center h-3.5 leading-none">
+        {stock}
+      </span>
+    </div>
+  </div>
+);
+
 export default function OrderFormPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
@@ -265,7 +316,6 @@ export default function OrderFormPage() {
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // ABRE O SELETOR DE APPS NATIVO
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -300,56 +350,6 @@ export default function OrderFormPage() {
   }, [user, isUserLoading, router]);
 
   if (isUserLoading || isCheckingHelper || !user) return null;
-
-  const FormInput = ({ value, onChange, placeholder, className, showLine = true }: any) => (
-    <input
-      type="text"
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className={cn(
-        "bg-transparent border-0 rounded-none h-full w-full px-1 text-[9px] font-bold focus:outline-none transition-colors placeholder:text-neutral-200",
-        showLine && "border-b border-black/40",
-        className
-      )}
-    />
-  );
-
-  const formatDescription = (name: string) => {
-    const lastParenIdx = name.lastIndexOf('(');
-    if (lastParenIdx === -1) return name;
-    
-    const base = name.substring(0, lastParenIdx);
-    const abbr = name.substring(lastParenIdx);
-    
-    return (
-      <>
-        {base}
-        <span className="font-bold">{abbr}</span>
-      </>
-    );
-  };
-
-  const ItemRow = ({ item }: { item: any }) => (
-    <div className={cn("flex items-start min-h-[18px] text-[8px] py-0.5 transition-colors", item.isSpecial && "bg-neutral-200")}>
-      <div className="w-8 flex items-center justify-center shrink-0 h-4">
-        <FormInput 
-          value={quantities[item.code] || ''} 
-          onChange={(v: any) => handleQtyChange(item.code, v)} 
-          className="border-b border-black/40 text-center text-[10px] h-3.5" 
-        />
-      </div>
-      <span className="w-10 text-center font-bold shrink-0 ml-1">{item.code}</span>
-      <span className="flex-1 px-1 text-left font-medium leading-[1.1] break-words py-0.5">
-        {formatDescription(item.name)}
-      </span>
-      <div className="w-8 flex items-center justify-center shrink-0 h-4 border-l border-black/10">
-        <span className="text-[9px] font-bold border-b border-black/40 w-full text-center h-3.5 leading-none">
-          {getStock(item.code)}
-        </span>
-      </div>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-neutral-100 pt-24 pb-12 px-4 print:p-0 print:bg-white font-body">
@@ -462,8 +462,20 @@ export default function OrderFormPage() {
 
                     return (
                       <React.Fragment key={rIdx}>
-                        <ItemRow item={left} />
-                        {right ? <ItemRow item={right} /> : <div />}
+                        <ItemRow 
+                          item={left} 
+                          value={quantities[left.code] || ''} 
+                          onChange={(v) => handleQtyChange(left.code, v)} 
+                          stock={getStock(left.code)} 
+                        />
+                        {right ? (
+                          <ItemRow 
+                            item={right} 
+                            value={quantities[right.code] || ''} 
+                            onChange={(v) => handleQtyChange(right.code, v)} 
+                            stock={getStock(right.code)} 
+                          />
+                        ) : <div />}
                       </React.Fragment>
                     );
                   })}
@@ -511,8 +523,20 @@ export default function OrderFormPage() {
 
                     return (
                       <React.Fragment key={rIdx}>
-                        <ItemRow item={left} />
-                        {right ? <ItemRow item={right} /> : <div />}
+                        <ItemRow 
+                          item={left} 
+                          value={quantities[left.code] || ''} 
+                          onChange={(v) => handleQtyChange(left.code, v)} 
+                          stock={getStock(left.code)} 
+                        />
+                        {right ? (
+                          <ItemRow 
+                            item={right} 
+                            value={quantities[right.code] || ''} 
+                            onChange={(v) => handleQtyChange(right.code, v)} 
+                            stock={getStock(right.code)} 
+                          />
+                        ) : <div />}
                       </React.Fragment>
                     );
                   })}
