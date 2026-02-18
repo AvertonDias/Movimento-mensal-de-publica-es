@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -9,7 +10,6 @@ import {
   FileText,
   LayoutGrid,
   Truck,
-  BookOpen,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -58,7 +58,7 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-border bg-white">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-3 overflow-hidden">
           <div className="rounded-xl overflow-hidden w-[32px] h-[32px] shrink-0 shadow-sm border border-primary/10">
@@ -90,7 +90,7 @@ export function AppSidebar() {
                     onClick={() => setOpenMobile(false)}
                     className={cn(
                       "font-bold uppercase text-[10px] tracking-wider transition-all duration-200 h-10",
-                      isActive ? "bg-primary/10 text-primary-foreground" : "hover:bg-primary/5"
+                      isActive ? "bg-primary/10 text-primary-foreground" : "hover:bg-sidebar-accent"
                     )}
                   >
                     <Link href={item.href}>
@@ -104,7 +104,7 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className="p-4 border-t border-border group-data-[collapsible=icon]:hidden">
+      <SidebarFooter className="p-4 border-t border-sidebar-border group-data-[collapsible=icon]:hidden">
         <div className="flex flex-col gap-1 text-center">
           <p className="text-[8px] font-black text-muted-foreground/40 uppercase tracking-tighter">S-28-T DIGITAL</p>
           <p className="text-[7px] font-bold text-muted-foreground/30 uppercase tracking-widest">v2.26.0</p>
