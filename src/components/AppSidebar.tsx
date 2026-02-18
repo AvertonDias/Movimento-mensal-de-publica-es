@@ -62,21 +62,39 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      {/* Cabeçalho com Logo e Nome */}
-      <SidebarHeader className="h-16 shrink-0 flex items-center px-4 border-b border-sidebar-border/50 group-data-[collapsible=icon]:h-16 group-data-[collapsible=icon]:justify-center">
-        <div className="flex items-center gap-3 overflow-hidden group-data-[collapsible=icon]:hidden">
-          <div className="rounded-xl overflow-hidden w-[32px] h-[32px] shrink-0 border border-primary/10">
-            <Image src="/icon.png" alt="Logo" width={32} height={32} className="object-cover w-full h-full" unoptimized />
+      {/* Cabeçalho com Logo e Nome - Ajustado para combinar exatamente com o Header */}
+      <SidebarHeader className="h-[64px] shrink-0 flex items-center px-4 border-b border-sidebar-border/50 group-data-[collapsible=icon]:justify-center overflow-hidden">
+        <div className="flex items-center gap-3 group-data-[collapsible=icon]:hidden">
+          <div className="rounded-xl overflow-hidden w-[38px] h-[38px] shrink-0 border border-primary/10 shadow-sm">
+            <Image 
+              src="/icon.png" 
+              alt="Logo" 
+              width={38} 
+              height={38} 
+              className="object-cover w-full h-full" 
+              unoptimized 
+            />
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-black uppercase tracking-tight leading-none text-foreground">S-28 Digital</span>
-            <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest mt-0.5">Gestão Inteligente</span>
+          <div className="flex flex-col justify-center text-left">
+            <h1 className="text-lg font-black tracking-tight text-foreground uppercase font-headline leading-none">
+              S-28 Digital
+            </h1>
+            <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest mt-0.5 leading-none">
+              Gestão inteligente
+            </p>
           </div>
         </div>
         {/* Logo visível apenas quando colapsado */}
         <div className="hidden group-data-[collapsible=icon]:block">
-          <div className="rounded-lg overflow-hidden w-[28px] h-[28px] border border-primary/10">
-            <Image src="/icon.png" alt="Logo" width={28} height={28} className="object-cover w-full h-full" unoptimized />
+          <div className="rounded-lg overflow-hidden w-[32px] h-[32px] border border-primary/10">
+            <Image 
+              src="/icon.png" 
+              alt="Logo" 
+              width={32} 
+              height={32} 
+              className="object-cover w-full h-full" 
+              unoptimized 
+            />
           </div>
         </div>
       </SidebarHeader>
