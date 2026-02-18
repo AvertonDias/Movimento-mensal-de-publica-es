@@ -61,6 +61,9 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
+      {/* Espaçador para o cabeçalho fixo não cobrir o primeiro botão */}
+      <SidebarHeader className="h-16 shrink-0 group-data-[collapsible=icon]:h-0" />
+      
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden font-black uppercase text-[9px] tracking-widest text-muted-foreground/60">
