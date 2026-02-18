@@ -11,7 +11,6 @@ import {
   Truck,
   ShoppingCart,
   ClipboardList,
-  Accessibility,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -54,7 +53,6 @@ export function AppSidebar() {
     { href: '/history', label: 'Folha S-28', icon: History },
     { href: '/order-form', label: 'Pedido S-14-T', icon: ShoppingCart },
     { href: '/special-orders', label: 'Pedidos Especiais', icon: ClipboardList },
-    { href: '/braille-list', label: 'Publicações em Braille', icon: Accessibility },
     { href: '/stats', label: 'Estatísticas', icon: BarChart3 },
     { href: '/order-schedule', label: 'Cronograma de Pedidos', icon: Truck },
     { href: '/magazine-display', label: 'Programação de Exibição', icon: LayoutGrid },
