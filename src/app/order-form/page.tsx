@@ -73,7 +73,7 @@ const S14_SECTIONS = [
       { code: "5332", name: "Organizados para Fazer a Vontade de Jeová (od)" },
       { code: "5419", name: "Imite a Sua Fé! (ia)" },
       { code: "5435", name: "A Adoração Pura de Jeová É Restaurada! (rr)" },
-      { code: "5411", name: "Estudo Perspicaz das Escrituras (conjunto completo) (it)" },
+      { code: "5411", name: "Estudo Perspicaz das Escrituras (conjunto completo) (it)", isSpecial: true },
       { code: "5341", name: "Cante de Coração para Jeová (sjj)" },
       { code: "5413", name: "Testemunhas de Jeová — Proclamadores do Reino de Deus (jv)" },
       { code: "5441", name: "Cante de Coração para Jeová (tamanho grande) (sjlls)" },
