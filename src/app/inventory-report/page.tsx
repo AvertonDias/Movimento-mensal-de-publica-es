@@ -126,13 +126,14 @@ export default function InventoryReportPage() {
       if (!element) throw new Error('Elemento não encontrado');
 
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        windowWidth: 1000,
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
       const pdf = new jsPDF({
         orientation: 'p',
         unit: 'mm',
@@ -241,14 +242,14 @@ export default function InventoryReportPage() {
                     const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
                     
                     return (
-                      <TableRow key={item.id} className="hover:bg-transparent border-b h-9">
-                        <TableCell className="text-center font-bold text-[10px] text-neutral-400 border-r p-1">{item.code || '---'}</TableCell>
-                        <TableCell className="border-r p-1 px-3 text-left">
+                      <TableRow key={item.id} className="hover:bg-transparent border-b h-10">
+                        <TableCell className="text-center font-bold text-[10px] text-neutral-400 border-r p-1 leading-tight">{item.code || '---'}</TableCell>
+                        <TableCell className="border-r p-1 px-3 text-left leading-tight">
                           <div className="flex justify-between items-center">
                             {imagePlaceholder ? (
                               <Popover>
                                 <PopoverTrigger asChild>
-                                  <span className="font-bold text-[11px] uppercase cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors">
+                                  <span className="font-bold text-[11px] uppercase cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors leading-tight">
                                     {item.item}
                                   </span>
                                 </PopoverTrigger>
@@ -266,19 +267,19 @@ export default function InventoryReportPage() {
                                 </PopoverContent>
                               </Popover>
                             ) : (
-                              <span className="font-bold text-[11px] uppercase">{item.item}</span>
+                              <span className="font-bold text-[11px] uppercase leading-tight">{item.item}</span>
                             )}
-                            {item.abbr && <span className="text-[8px] font-black bg-neutral-100 text-neutral-500 px-1 py-0.5 rounded ml-2">{item.abbr}</span>}
+                            {item.abbr && <span className="text-[8px] font-black bg-neutral-100 text-neutral-500 px-1 py-0.5 rounded ml-2 leading-tight">{item.abbr}</span>}
                           </div>
                         </TableCell>
                         <TableCell className={cn(
-                          "text-center font-black text-xs border-r bg-primary/5 p-1",
+                          "text-center font-black text-xs border-r bg-primary/5 p-1 leading-tight",
                           (item.previous || 0) === 0 && "text-neutral-300 font-normal"
                         )}>
                           {item.previous}
                         </TableCell>
                         <TableCell className={cn(
-                          "text-center font-black text-xs bg-accent/5 p-1",
+                          "text-center font-black text-xs bg-accent/5 p-1 leading-tight",
                           (item.current || 0) === 0 && "text-destructive"
                         )}>
                           {item.current}

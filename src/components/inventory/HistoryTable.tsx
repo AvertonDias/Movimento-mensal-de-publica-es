@@ -110,7 +110,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   };
 
   return (
-    <div className="border border-black relative mx-auto" style={{ width: '732px' }}>
+    <div className="border border-black relative mx-auto bg-white" style={{ width: '732px' }}>
       {loading && (
         <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-[1px] print:hidden">
           <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse text-black">Sincronizando...</span>
@@ -118,15 +118,15 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       )}
       <Table className="border-collapse table-fixed w-[732px]">
         <TableHeader className="print:table-row-group">
-          <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
+          <TableRow className="border-b border-black bg-white hover:bg-white h-[24px]">
             <TableHead className="w-[28px] border-r border-black p-0"></TableHead>
-            <TableHead className="w-[200px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-none">MÊS E ANO</TableHead>
+            <TableHead className="w-[200px] text-[8px] font-black uppercase text-black p-0 h-auto text-center border-r border-black leading-tight">MÊS E ANO</TableHead>
             {lastSixMonths.map((month, idx) => (
               <TableHead 
                 key={month.key} 
                 colSpan={3} 
                 className={cn(
-                  "w-[84px] text-center text-[8px] font-black uppercase text-black p-0 h-auto border-r border-black bg-neutral-50/50 leading-none",
+                  "w-[84px] text-center text-[8px] font-black uppercase text-black p-0 h-auto border-r border-black bg-neutral-50/50 leading-tight",
                   idx === 5 && "border-r-0"
                 )}
               >
@@ -134,16 +134,16 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               </TableHead>
             ))}
           </TableRow>
-          <TableRow className="border-b border-black bg-white hover:bg-white h-[22px]">
-            <TableHead className="w-[28px] text-[7px] font-bold text-black p-0 h-auto text-center leading-none border-r border-black">N.º</TableHead>
-            <TableHead className="w-[200px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-none border-r border-black">Publicações</TableHead>
+          <TableRow className="border-b border-black bg-white hover:bg-white h-[24px]">
+            <TableHead className="w-[28px] text-[7px] font-bold text-black p-0 h-auto text-center leading-tight border-r border-black">N.º</TableHead>
+            <TableHead className="w-[200px] text-[10px] font-black text-black px-1 py-0 h-auto align-middle leading-tight border-r border-black">Publicações</TableHead>
             
             {lastSixMonths.map((m, idx) => (
               <React.Fragment key={m.key}>
-                <TableHead className="w-[28px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Recebido</TableHead>
-                <TableHead className="w-[28px] text-[5.5px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-none border-r border-black">Estoque</TableHead>
+                <TableHead className="w-[28px] text-[6px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-tight border-r border-black">Recebido</TableHead>
+                <TableHead className="w-[28px] text-[6px] font-bold text-black p-0 h-auto text-center uppercase tracking-tighter leading-tight border-r border-black">Estoque</TableHead>
                 <TableHead className={cn(
-                  "w-[28px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-none",
+                  "w-[28px] text-[6px] font-black text-black p-0 h-auto text-center uppercase bg-neutral-200 leading-tight",
                   idx === 5 ? "" : "border-r border-black"
                 )}>Saída</TableHead>
               </React.Fragment>
@@ -160,13 +160,13 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               const extraInfo = parts[1] ? `(${parts[1]}` : '';
 
               return (
-                <TableRow key={`hist-cat-${idx}`} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-5">
+                <TableRow key={`hist-cat-${idx}`} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-[22px]">
                   <TableCell className="p-0 border-r border-black"></TableCell>
                   <TableCell colSpan={19} className="px-1 py-0 border-r-0">
                     <div className="flex items-baseline gap-1.5 overflow-hidden">
-                      <span className="text-[11px] font-black uppercase tracking-tight text-black shrink-0">{mainTitle}</span>
+                      <span className="text-[11px] font-black uppercase tracking-tight text-black shrink-0 leading-tight">{mainTitle}</span>
                       {extraInfo && (
-                        <span className="text-[11px] font-bold text-neutral-500 italic normal-case truncate">
+                        <span className="text-[11px] font-bold text-neutral-500 italic normal-case truncate leading-tight">
                           {extraInfo}
                         </span>
                       )}
@@ -177,21 +177,21 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             }
             
             return (
-              <TableRow key={`hist-row-${itemId}-${idx}`} className="border-b border-black h-5 hover:bg-transparent print:h-4">
-                <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{item.code}</TableCell>
-                <TableCell className="w-[200px] text-[9px] px-1 py-0 border-r border-black h-full overflow-hidden leading-none">
+              <TableRow key={`hist-row-${itemId}-${idx}`} className="border-b border-black h-[20px] hover:bg-transparent print:h-[18px]">
+                <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-tight">{item.code}</TableCell>
+                <TableCell className="w-[200px] text-[9px] px-1 py-0 border-r border-black h-full leading-tight">
                   <div className="flex justify-between items-center w-full">
-                    <span className="truncate leading-none">{item.item}</span>
-                    {item.abbr && <span className="font-bold ml-1 text-[7px] text-neutral-500">{item.abbr}</span>}
+                    <span className="truncate leading-tight">{item.item}</span>
+                    {item.abbr && <span className="font-bold ml-1 text-[7px] text-neutral-500 leading-tight">{item.abbr}</span>}
                   </div>
                 </TableCell>
                 
                 {lastSixMonths.map((m, mIdx) => (
                   <React.Fragment key={m.key}>
-                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{getValue(m.key, itemId, 'received')}</TableCell>
-                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-none">{getValue(m.key, itemId, 'current')}</TableCell>
+                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-tight">{getValue(m.key, itemId, 'received')}</TableCell>
+                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-tight">{getValue(m.key, itemId, 'current')}</TableCell>
                     <TableCell className={cn(
-                      "text-[8px] text-center p-0 font-black bg-neutral-200 leading-none",
+                      "text-[8px] text-center p-0 font-black bg-neutral-200 leading-tight",
                       mIdx === 5 ? "" : "border-r border-black"
                     )}>{calculateOutgoing(m.key, itemId)}</TableCell>
                   </React.Fragment>

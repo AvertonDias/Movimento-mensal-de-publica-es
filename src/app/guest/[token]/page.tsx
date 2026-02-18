@@ -62,14 +62,16 @@ export default function GuestHistoryPage(props: {
       const element = document.getElementById('s28-history-content-guest');
       if (!element) throw new Error('Elemento não encontrado');
 
+      // Escala 3 para evitar letras cortadas e aumentar a nitidez
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
+        windowWidth: 1000,
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
       const pdf = new jsPDF({
         orientation: 'p',
         unit: 'mm',
@@ -185,7 +187,7 @@ export default function GuestHistoryPage(props: {
           <HistoryTable targetUserId={invite.ownerId} />
 
           <div className="mt-4 flex justify-between items-end border-t border-neutral-200 pt-2 print:mt-2">
-            <span className="text-[8px] font-bold text-neutral-500 italic uppercase">S-28-T (Visualização de Convidado)</span>
+            <span className="text-[8px] font-bold text-neutral-500 italic uppercase">S-28-T (2/26)</span>
           </div>
         </div>
       </div>
