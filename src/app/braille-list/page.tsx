@@ -7,7 +7,8 @@ import {
   BookOpen, 
   Layers, 
   Filter,
-  FileText
+  FileText,
+  Globe
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,7 @@ interface BrailleItem {
   category: string;
   grade: 'Grau 1' | 'Grau 2' | 'Ambos';
   volumes: string;
+  language?: string;
 }
 
 const BRAILLE_DATA: BrailleItem[] = [
@@ -93,10 +95,24 @@ const BRAILLE_DATA: BrailleItem[] = [
   { code: '6670', name: 'Sabedoria de Jesus (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
   { code: '6684', name: '10 Perguntas Que os Jovens se Fazem (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
   
-  // Revistas
-  { code: 'wp', name: 'A Sentinela (Edição de Estudo) (G1)', category: 'Revistas', grade: 'Grau 1', volumes: '1' },
-  { code: 'wp', name: 'A Sentinela (Edição de Estudo) (G2)', category: 'Revistas', grade: 'Grau 2', volumes: '1' },
-  { code: 'g', name: 'Despertai! (Edição Anual) (G1)', category: 'Revistas', grade: 'Grau 1', volumes: '1' },
+  // Periódicos (Baseado na página 3 do S-58-T)
+  { code: 'wp', name: 'A Sentinela — edição para o público', language: 'Português', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'w', name: 'A Sentinela — edição de estudo', language: 'Português', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'g', name: 'Despertai!', language: 'Português', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'mwb', name: 'Nossa Vida e Ministério Cristão — Apostila da Reunião', language: 'Português', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+
+  { code: 'wp', name: 'A Sentinela — edição para o público', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'w', name: 'A Sentinela — edição de estudo', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'g', name: 'Despertai!', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'mwb', name: 'Nossa Vida e Ministério Cristão — Apostila da Reunião', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+
+  { code: 'w', name: 'A Sentinela — edição de estudo (Jan/2022)', language: 'Inglês', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'mwb', name: 'Nossa Vida e Ministério Cristão — Apostila da Reunião (Jan/2022)', language: 'Inglês', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+
+  { code: 'wp', name: 'A Sentinela — edição para o público', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
+  { code: 'w', name: 'A Sentinela — edição de estudo', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
+  { code: 'g', name: 'Despertai!', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
+  { code: 'mwb', name: 'Nossa Vida e Ministério Cristão — Apostila da Reunião', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
 ];
 
 export default function BrailleListPage() {
@@ -106,13 +122,14 @@ export default function BrailleListPage() {
   const filteredItems = useMemo(() => {
     return BRAILLE_DATA.filter(item => {
       const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                           item.code.toLowerCase().includes(searchTerm.toLowerCase());
+                           item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (item.language && item.language.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesGrade = selectedGrade === 'all' || item.grade === selectedGrade;
       return matchesSearch && matchesGrade;
     });
   }, [searchTerm, selectedGrade]);
 
-  const categories = ["Bíblias", "Livros", "Brochuras", "Revistas"];
+  const categories = ["Bíblias", "Livros", "Brochuras", "Periódicos"];
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-12 px-4 font-body">
@@ -134,58 +151,56 @@ export default function BrailleListPage() {
         </div>
 
         {/* Introdução e Critérios Oficiais */}
-        <div className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden">
-          <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="intro" className="border-none">
-              <AccordionTrigger className="px-6 py-4 hover:no-underline group">
-                <div className="flex items-center gap-3 text-left">
-                  <div className="bg-primary/10 p-2 rounded-full group-data-[state=open]:bg-primary group-data-[state=open]:text-white transition-colors">
-                    <FileText className="h-4 w-4" />
-                  </div>
-                  <div>
-                    <span className="font-black uppercase text-xs tracking-widest block">Introdução e Critérios</span>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Orientações importantes sobre pedidos</span>
-                  </div>
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="intro" className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden px-0">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline group">
+              <div className="flex items-center gap-3 text-left">
+                <div className="bg-primary/10 p-2 rounded-full group-data-[state=open]:bg-primary group-data-[state=open]:text-white transition-colors">
+                  <FileText className="h-4 w-4" />
                 </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-6 pb-6 pt-2">
-                <div className="space-y-6 text-sm text-justify text-neutral-600 leading-relaxed font-medium border-t border-neutral-100 pt-4">
+                <div>
+                  <span className="font-black uppercase text-xs tracking-widest block">Introdução e Critérios</span>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Orientações importantes sobre pedidos</span>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-6 pt-2">
+              <div className="space-y-6 text-sm text-justify text-neutral-600 leading-relaxed font-medium border-t border-neutral-100 pt-4">
+                <p>
+                  Para ajudar os deficientes visuais, são produzidas publicações impressas em alto-relevo em braille e diversas publicações em formato eletrônico. Os pedidos de publicações impressas em alto-relevo podem ser feitos por meio do <strong>jw.org</strong>.
+                </p>
+                
+                <div className="space-y-3">
+                  <h3 className="font-black uppercase text-xs text-primary tracking-widest flex items-center gap-2">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                    Impressão em alto-relevo
+                  </h3>
                   <p>
-                    Para ajudar os deficientes visuais, são produzidas publicações impressas em alto-relevo em braille e diversas publicações em formato eletrônico. Os pedidos de publicações impressas em alto-relevo podem ser feitos por meio do <strong>jw.org</strong>.
+                    Antes de enviar um pedido da <em>Tradução do Novo Mundo</em> em braille, a comissão de serviço da congregação deve confirmar se a pessoa cega ou com baixa visão se qualifica para receber esse item. Os critérios são os seguintes:
                   </p>
-                  
-                  <div className="space-y-3">
-                    <h3 className="font-black uppercase text-xs text-primary tracking-widest flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                      Impressão em alto-relevo
-                    </h3>
-                    <p>
-                      Antes de enviar um pedido da <em>Tradução do Novo Mundo</em> em braille, a comissão de serviço da congregação deve confirmar se a pessoa cega ou com baixa visão se qualifica para receber esse item. Os critérios são os seguintes:
-                    </p>
-                    <ul className="list-decimal pl-6 space-y-2 marker:font-black marker:text-primary">
-                      <li>
-                        A pessoa é um publicador ou um estudante da Bíblia que está fazendo progresso. (Pessoas recém-interessadas podem pedir itens menores em braille, como folhetos, brochuras e livros. Esperem a pessoa fazer mais progresso para pedir a <em>Tradução do Novo Mundo</em>. Um sinal desse progresso é estar assistindo às reuniões regularmente.)
-                      </li>
-                      <li>
-                        A pessoa consegue ler o idioma e o grau do braille da publicação que está sendo pedida.
-                      </li>
-                      <li>
-                        A pessoa tem espaço suficiente em casa ou em algum outro lugar para guardar todos os volumes.
-                      </li>
-                    </ul>
-                  </div>
-
-                  <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-100 space-y-3">
-                    <h3 className="font-black uppercase text-[10px] text-neutral-800 tracking-widest">Formatos eletrônicos</h3>
-                    <p className="text-xs">
-                      Os arquivos para leitor de tela (RTF) e notetaker (BRL) podem ser baixados da área pública do <strong>jw.org</strong>. Os anciãos devem se oferecer para ajudar os que usam esses arquivos. Talvez seja necessário designar alguns publicadores para ajudá-los regularmente a baixar os arquivos.
-                    </p>
-                  </div>
+                  <ul className="list-decimal pl-6 space-y-2 marker:font-black marker:text-primary">
+                    <li>
+                      A pessoa é um publicador ou um estudante da Bíblia que está fazendo progresso. (Pessoas recém-interessadas podem pedir itens menores em braille, como folhetos, brochuras e livros. Esperem a pessoa fazer mais progresso para pedir a <em>Tradução do Novo Mundo</em>. Um sinal desse progresso é estar assistindo às reuniões regularmente.)
+                    </li>
+                    <li>
+                      A pessoa consegue ler o idioma e o grau do braille da publicação que está sendo pedida.
+                    </li>
+                    <li>
+                      A pessoa tem espaço suficiente em casa ou em algum outro lugar para guardar todos os volumes.
+                    </li>
+                  </ul>
                 </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-        </div>
+
+                <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-100 space-y-3">
+                  <h3 className="font-black uppercase text-[10px] text-neutral-800 tracking-widest">Formatos eletrônicos</h3>
+                  <p className="text-xs">
+                    Os arquivos para leitor de tela (RTF) e notetaker (BRL) podem ser baixados da área pública do <strong>jw.org</strong>. Os anciãos devem se oferecer para ajudar os que usam esses arquivos. Talvez seja necessário designar alguns publicadores para ajudá-los regularmente a baixar os arquivos.
+                  </p>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         {/* Filtros e Busca */}
         <div className="bg-white rounded-xl shadow-md border border-neutral-200 p-4">
@@ -193,7 +208,7 @@ export default function BrailleListPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
-                placeholder="Pesquisar por nome ou código..." 
+                placeholder="Pesquisar por nome, idioma ou código..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 h-11"
@@ -242,11 +257,21 @@ export default function BrailleListPage() {
                     </TableHeader>
                     <TableBody>
                       {itemsInCat.map((item, idx) => (
-                        <TableRow key={`${item.code}-${idx}`} className="hover:bg-primary/5 transition-colors">
+                        <TableRow key={`${item.code}-${idx}-${item.language || ''}`} className="hover:bg-primary/5 transition-colors">
                           <TableCell className="text-center font-bold text-xs text-neutral-400 border-r">{item.code}</TableCell>
-                          <TableCell className="font-bold text-sm uppercase border-r flex items-center gap-2 text-left">
-                            <BookOpen className="h-3.5 w-3.5 text-primary/40 shrink-0" />
-                            {item.name}
+                          <TableCell className="border-r p-3 text-left">
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2">
+                                <BookOpen className="h-3.5 w-3.5 text-primary/40 shrink-0" />
+                                <span className="font-bold text-sm uppercase">{item.name}</span>
+                              </div>
+                              {item.language && (
+                                <div className="flex items-center gap-1 ml-5">
+                                  <Globe className="h-2.5 w-2.5 text-neutral-400" />
+                                  <span className="text-[9px] font-black uppercase text-muted-foreground tracking-widest">{item.language}</span>
+                                </div>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell className="text-center border-r">
                             <Badge className={cn(
