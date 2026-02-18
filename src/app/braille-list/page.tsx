@@ -9,7 +9,7 @@ import {
   Filter,
   FileText
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -56,6 +56,14 @@ const BRAILLE_DATA: BrailleItem[] = [
   { code: '5332', name: 'Organizados para Fazer a Vontade de Jeová (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
   { code: '5427', name: 'Aprenda com as Histórias da Bíblia (G1)', category: 'Livros', grade: 'Grau 1', volumes: '4' },
   { code: '5419', name: 'Imite a Sua Fé (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
+  { code: '5425', name: 'Jesus — o Caminho, a Verdade e a Vida (G1)', category: 'Livros', grade: 'Grau 1', volumes: '4' },
+  { code: '5422', name: 'O Reino de Deus já Governa! (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
+  { code: '5343', name: '“Continue no Amor de Deus” (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
+  { code: '5435', name: 'A Adoração Pura de Jeová É Restaurada! (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
+  { code: '5440', name: 'Princípios Bíblicos para a Vida Cristã (G1)', category: 'Livros', grade: 'Grau 1', volumes: '2' },
+  { code: '5341', name: 'Cante de Coração para Jeová (G1)', category: 'Livros', grade: 'Grau 1', volumes: '2' },
+  { code: '5339', name: 'Os Jovens Perguntam — Respostas Práticas, Volume 1 (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
+  { code: '5336', name: 'Os Jovens Perguntam — Respostas Práticas, Volume 2 (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
   
   // Brochuras
   { code: '6659', name: 'Boas Notícias de Deus para Você (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
@@ -63,6 +71,7 @@ const BRAILLE_DATA: BrailleItem[] = [
   { code: '6669', name: 'Ame as Pessoas — Faça Discípulos (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
   { code: '6671', name: 'Volte para Jeová (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
   { code: '6667', name: 'Melhore sua Leitura e seu Ensino (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6663', name: 'Minhas Lições da Bíblia (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
   
   // Revistas
   { code: 'wp', name: 'A Sentinela (Edição de Estudo)', category: 'Revistas', grade: 'Grau 1', volumes: '1' },
@@ -104,9 +113,9 @@ export default function BrailleListPage() {
         </div>
 
         {/* Introdução e Critérios Oficiais */}
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="intro" className="border-none">
-            <Card className="border-none shadow-md overflow-hidden bg-white">
+        <div className="bg-white rounded-xl shadow-md border border-neutral-200 overflow-hidden">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="intro" className="border-none">
               <AccordionTrigger className="px-6 py-4 hover:no-underline group">
                 <div className="flex items-center gap-3 text-left">
                   <div className="bg-primary/10 p-2 rounded-full group-data-[state=open]:bg-primary group-data-[state=open]:text-white transition-colors">
@@ -153,9 +162,9 @@ export default function BrailleListPage() {
                   </div>
                 </div>
               </AccordionContent>
-            </Card>
-          </AccordionItem>
-        </Accordion>
+            </AccordionItem>
+          </Accordion>
+        </div>
 
         {/* Filtros e Busca */}
         <Card className="border-none shadow-md bg-white">
@@ -196,7 +205,7 @@ export default function BrailleListPage() {
             return (
               <div key={cat} className="space-y-4">
                 <div className="flex items-center gap-3 border-l-4 border-primary pl-4">
-                  <h2 className="text-lg font-black uppercase tracking-widest text-neutral-800">{cat}</h2>
+                  <h2 className="text-lg font-black uppercase tracking-widest text-neutral-800 text-left">{cat}</h2>
                   <Badge variant="outline" className="text-[10px] font-black uppercase opacity-50">
                     {itemsInCat.length} itens
                   </Badge>
@@ -214,9 +223,9 @@ export default function BrailleListPage() {
                     </TableHeader>
                     <TableBody>
                       {itemsInCat.map((item, idx) => (
-                        <TableRow key={idx} className="hover:bg-primary/5 transition-colors">
+                        <TableRow key={`${item.code}-${idx}`} className="hover:bg-primary/5 transition-colors">
                           <TableCell className="text-center font-bold text-xs text-neutral-400 border-r">{item.code}</TableCell>
-                          <TableCell className="font-bold text-sm uppercase border-r flex items-center gap-2">
+                          <TableCell className="font-bold text-sm uppercase border-r flex items-center gap-2 text-left">
                             <BookOpen className="h-3.5 w-3.5 text-primary/40 shrink-0" />
                             {item.name}
                           </TableCell>
