@@ -100,7 +100,7 @@ const S14_SECTIONS = [
       { code: "6658", name: "Escute a Deus (ld)" },
       { code: "6667", name: "Melhore Sua Leitura e Seu Ensino (th)" },
       { code: "6663", name: "Minhas Primeiras Lições da Bíblia (mb)" },
-      { code: "6670", name: "Aprenda com a Sabedoria de Jesus (wfg)" },
+      { code: "6670", name: "Aprenda com as Sabedoria de Jesus (wfg)" },
       { code: "6648", name: "O Caminho para a Vida Eterna (ol)" },
       { code: "6684", name: "10 Perguntas Que os Jovens se Fazem (ypq)" },
       { code: "6639", name: "Como Ter Verdadeira Paz e Felicidade (chineses) (pc)" },
@@ -190,21 +190,16 @@ export default function OrderFormPage() {
   };
 
   const handleShare = async () => {
+    const shareUrl = window.location.href;
     const shareData = {
       title: 'Pedido S-14-T',
       text: `Pedido de publicações - Congregação ${header.congName || '---'} (${header.congNum || '---'})`,
-      url: window.location.href
+      url: shareUrl
     };
 
-    if (navigator.share) {
+    const copyFallback = async () => {
       try {
-        await navigator.share(shareData);
-      } catch (err) {
-        console.error('Erro ao compartilhar:', err);
-      }
-    } else {
-      try {
-        await navigator.clipboard.writeText(window.location.href);
+        await navigator.clipboard.writeText(shareUrl);
         toast({
           title: "Link copiado!",
           description: "O link deste formulário foi copiado para sua área de transferência.",
@@ -213,9 +208,22 @@ export default function OrderFormPage() {
         toast({
           variant: "destructive",
           title: "Erro ao copiar",
-          description: "Não foi possível copiar o link.",
+          description: "Não foi possível copiar o link ou compartilhar.",
         });
       }
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err: any) {
+        // Se falhar por permissão negada ou outro erro (exceto cancelamento do usuário), tenta copiar
+        if (err.name !== 'AbortError') {
+          await copyFallback();
+        }
+      }
+    } else {
+      await copyFallback();
     }
   };
 
