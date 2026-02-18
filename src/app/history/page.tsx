@@ -1,12 +1,13 @@
 'use client';
 
-import { use, useEffect } from 'react';
+import { use, useEffect, useState } from 'react';
 import { HistoryTable } from "@/components/inventory/HistoryTable";
-import { Printer, ShieldCheck } from "lucide-react";
+import { Share2, ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
+import { useToast } from "@/hooks/use-toast";
 
 export default function HistoryPage(props: {
   params: Promise<any>;
@@ -17,6 +18,8 @@ export default function HistoryPage(props: {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const router = useRouter();
+  const { toast } = useToast();
+  const [isSharing, setIsSharing] = useState(false);
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -30,6 +33,75 @@ export default function HistoryPage(props: {
       router.push('/login');
     }
   }, [user, isUserLoading, router]);
+
+  const handleShare = async () => {
+    if (isSharing) return;
+    setIsSharing(true);
+    
+    toast({
+      title: "Gerando PDF...",
+      description: "Preparando folha S-28-T para compartilhamento.",
+    });
+
+    try {
+      const { jsPDF } = await import('jspdf');
+      const html2canvas = (await import('html2canvas')).default;
+
+      const element = document.getElementById('s28-history-content');
+      if (!element) throw new Error('Elemento não encontrado');
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+      });
+
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4',
+      });
+
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, Math.min(pdfHeight, pdf.internal.pageSize.getHeight()), undefined, 'FAST');
+      
+      const fileName = `S28_T_${new Date().toISOString().split('T')[0]}.pdf`;
+      const pdfBlob = pdf.output('blob');
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Folha S-28-T Digital',
+            text: `Movimento mensal de publicações`,
+          });
+        } catch (err) {
+          pdf.save(fileName);
+        }
+      } else {
+        pdf.save(fileName);
+        toast({
+          title: "Download concluído",
+          description: "O PDF foi salvo no seu dispositivo.",
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao compartilhar:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao compartilhar",
+        description: "Não foi possível gerar o arquivo PDF.",
+      });
+    } finally {
+      setIsSharing(false);
+    }
+  };
 
   if (isUserLoading || isCheckingHelper || !user) return null;
 
@@ -54,14 +126,15 @@ export default function HistoryPage(props: {
           <Button 
             variant="outline" 
             className="gap-2 bg-white font-bold uppercase text-xs" 
-            onClick={() => window.print()}
+            onClick={handleShare}
+            disabled={isSharing}
           >
-            <Printer className="h-4 w-4" />
-            Imprimir S-28-T
+            {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+            Compartilhar S-28-T
           </Button>
         </div>
 
-        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 min-w-[750px] print:min-w-0 mx-auto">
+        <div id="s28-history-content" className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 min-w-[750px] print:min-w-0 mx-auto">
           <div className="flex justify-between items-baseline border-b-2 border-black pb-1 mb-2">
             <h1 className="text-lg font-black tracking-tight uppercase font-headline">
               MOVIMENTO MENSAL DE PUBLICAÇÕES
