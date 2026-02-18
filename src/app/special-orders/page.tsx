@@ -61,7 +61,7 @@ export default function SpecialOrdersPage() {
       item: '',
       language: 'Português',
       quantity: '1',
-      status: 'pend',
+      status: 'env',
       createdAt: new Date().toISOString()
     }, { merge: true });
   };
@@ -96,9 +96,6 @@ export default function SpecialOrdersPage() {
               <p className="text-[10px] font-bold text-muted-foreground uppercase">Gerenciamento digital do registro oficial.</p>
             </div>
           </div>
-          <Button size="sm" onClick={handleAddRow} className="gap-2 font-black uppercase text-[10px] h-9 shadow-md transition-all active:scale-95">
-            <Plus className="h-4 w-4" /> Novo Registro
-          </Button>
         </div>
 
         {/* DOCUMENTO OFICIAL */}
@@ -143,8 +140,8 @@ export default function SpecialOrdersPage() {
               </ul>
             </div>
 
-            <div className="flex justify-center gap-8 text-[11px] font-medium pt-2">
-              <span className="text-muted-foreground mr-[-20px]">Descrições da situação do pedido:</span>
+            <div className="flex justify-center gap-8 text-[11px] font-medium pt-2 text-center">
+              <span className="text-muted-foreground">Descrições da situação do pedido:</span>
               <div className="flex items-center gap-1"><span className="text-[8px]">■</span> Env. = Enviado</div>
               <div className="flex items-center gap-1"><span className="text-[8px]">■</span> Pend. = Pendente</div>
               <div className="flex items-center gap-1"><span className="text-[8px]">■</span> Rec. = Recebido</div>
