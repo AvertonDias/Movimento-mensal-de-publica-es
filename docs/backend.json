@@ -73,6 +73,20 @@
         "createdAt": { "type": "string", "format": "date-time" },
         "receivedAt": { "type": "string", "format": "date-time" }
       }
+    },
+    "SpecialOrder": {
+      "title": "Special Order",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "date": { "type": "string" },
+        "publisherName": { "type": "string" },
+        "item": { "type": "string" },
+        "language": { "type": "string" },
+        "quantity": { "type": "string" },
+        "status": { "type": "string", "enum": ["env", "pend", "rec"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      }
     }
   },
   "auth": {
@@ -106,6 +120,10 @@
     "/users/{userId}/order_form/state": {
       "schema": { "type": "object" },
       "description": "Stores the persistent state of the S-14-T order form including header and quantities."
+    },
+    "/users/{userId}/special_orders/{orderId}": {
+      "schema": { "$ref": "#/backend/entities/SpecialOrder" },
+      "description": "Stores manual records of special order items requested by publishers."
     }
   }
 }

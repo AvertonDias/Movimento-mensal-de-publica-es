@@ -11,6 +11,7 @@ import {
   LayoutGrid,
   Truck,
   ShoppingCart,
+  ClipboardList,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -52,6 +53,7 @@ export function AppSidebar() {
     { href: '/inventory-report', label: 'Relatório de Inventário', icon: FileText },
     { href: '/history', label: 'Folha S-28', icon: History },
     { href: '/order-form', label: 'Pedido S-14-T', icon: ShoppingCart },
+    { href: '/special-orders', label: 'Pedidos Especiais', icon: ClipboardList },
     { href: '/stats', label: 'Estatísticas', icon: BarChart3 },
     { href: '/order-schedule', label: 'Cronograma de Pedidos', icon: Truck },
     { href: '/magazine-display', label: 'Programação de Exibição', icon: LayoutGrid },
