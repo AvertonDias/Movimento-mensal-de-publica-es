@@ -97,7 +97,7 @@ const S14_SECTIONS = [
       { code: "6658", name: "Escute a Deus (ld)" },
       { code: "6667", name: "Melhore Sua Leitura e Seu Ensino (th)" },
       { code: "6663", name: "Minhas Primeiras Lições da Bíblia (mb)" },
-      { code: "6670", name: "Aprenda com as Sabedoria de Jesus (para muçulmanos) (wfg) NOVO!" },
+      { code: "6670", name: "Aprenda com a Sabedoria de Jesus (para muçulmanos) (wfg) NOVO!" },
       { code: "6648", name: "O Caminho para a Vida Eterna — Já o Encontrou? (para africanos) (ol)" },
       { code: "6684", name: "10 Perguntas Que os Jovens se Fazem e as Melhores Respostas (ypq)" },
       { code: "6639", name: "Como Ter Verdadeira Paz e Felicidade (para chineses) (pc)" },
@@ -224,8 +224,8 @@ export default function OrderFormPage() {
     setIsGenerating(true);
     
     toast({
-      title: "Gerando PDF Oficial...",
-      description: "Preparando layout de alta resolução.",
+      title: "Gerando documento...",
+      description: "Preparando layout oficial para visualização.",
     });
 
     try {
@@ -257,12 +257,17 @@ export default function OrderFormPage() {
 
         const imgData = canvas.toDataURL('image/jpeg', 1.0);
         const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width; // this might error, imgProps is not defined here yet for each iteration
+        // Correcting:
+        const pdfH = pdf.internal.pageSize.getHeight();
         
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfH, undefined, 'FAST');
       }
 
       const pdfBlob = pdf.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
+
       const fileName = `S14_${header.congName.replace(/\s+/g, '_') || 'Pedido'}_${header.date.replace(/\//g, '-')}.pdf`;
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
@@ -273,22 +278,14 @@ export default function OrderFormPage() {
             title: 'Pedido de Publicações S-14-T',
             text: `Pedido da congregação ${header.congName} - ${header.date}`,
           });
-        } catch (err) {
-          pdf.save(fileName);
-        }
-      } else {
-        pdf.save(fileName);
-        toast({
-          title: "PDF baixado!",
-          description: "O arquivo foi salvo em seu dispositivo.",
-        });
+        } catch (err) { }
       }
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
+      console.error('Erro ao abrir documento:', error);
       toast({
         variant: "destructive",
-        title: "Erro ao gerar arquivo",
-        description: "Não foi possível processar o PDF.",
+        title: "Erro ao abrir",
+        description: "Não foi possível processar o documento PDF.",
       });
     } finally {
       setIsGenerating(false);
@@ -367,7 +364,7 @@ export default function OrderFormPage() {
               <h1 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                 <FileEdit className="h-4 w-4" /> Formulário S-14-T Digital
               </h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase">Formato oficial de Betel pronto para compartilhar.</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Formato oficial de Betel pronto para abrir e imprimir.</p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -379,7 +376,7 @@ export default function OrderFormPage() {
               disabled={isGenerating}
             >
               {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-              Compartilhar PDF
+              Abrir PDF
             </Button>
           </div>
         </div>

@@ -39,8 +39,8 @@ export default function HistoryPage(props: {
     setIsSharing(true);
     
     toast({
-      title: "Gerando PDF...",
-      description: "Preparando folha S-28-T para compartilhamento.",
+      title: "Gerando documento...",
+      description: "Preparando folha S-28-T para visualização.",
     });
 
     try {
@@ -50,13 +50,12 @@ export default function HistoryPage(props: {
       const element = document.getElementById('s28-history-content');
       if (!element) throw new Error('Elemento não encontrado');
 
-      // Escala 3 para evitar letras cortadas e aumentar a nitidez
       const canvas = await html2canvas(element, {
         scale: 3,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        windowWidth: 1000, // Força uma largura fixa para evitar distorções responsivas
+        windowWidth: 1000,
       });
 
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
@@ -74,8 +73,13 @@ export default function HistoryPage(props: {
       
       const fileName = `S28_T_${new Date().toISOString().split('T')[0]}.pdf`;
       const pdfBlob = pdf.output('blob');
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      
+      // Tentar abrir em nova aba
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
 
+      // Manter compartilhamento como opção secundária se disponível
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -84,21 +88,15 @@ export default function HistoryPage(props: {
             text: `Movimento mensal de publicações`,
           });
         } catch (err) {
-          pdf.save(fileName);
+          // Fallback silencioso se o share for cancelado
         }
-      } else {
-        pdf.save(fileName);
-        toast({
-          title: "Download concluído",
-          description: "O PDF foi salvo no seu dispositivo.",
-        });
       }
     } catch (error) {
-      console.error('Erro ao compartilhar:', error);
+      console.error('Erro ao abrir documento:', error);
       toast({
         variant: "destructive",
-        title: "Erro ao compartilhar",
-        description: "Não foi possível gerar o arquivo PDF.",
+        title: "Erro ao abrir",
+        description: "Não foi possível processar o documento PDF.",
       });
     } finally {
       setIsSharing(false);
@@ -132,7 +130,7 @@ export default function HistoryPage(props: {
             disabled={isSharing}
           >
             {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-            Compartilhar S-28-T
+            Abrir S-28-T
           </Button>
         </div>
 

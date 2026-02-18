@@ -114,8 +114,8 @@ export default function InventoryReportPage() {
     setIsSharing(true);
     
     toast({
-      title: "Gerando PDF...",
-      description: "Preparando relatório para compartilhamento.",
+      title: "Gerando relatório...",
+      description: "Preparando documento para visualização.",
     });
 
     try {
@@ -148,8 +148,13 @@ export default function InventoryReportPage() {
       
       const fileName = `Saldo_Fisico_${monthKey}.pdf`;
       const pdfBlob = pdf.output('blob');
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      
+      // Abrir em nova aba
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
 
+      // Compartilhar se possível
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -157,22 +162,14 @@ export default function InventoryReportPage() {
             title: 'Relatório de Saldo Físico',
             text: `Saldo de publicações - Competência: ${monthLabel}`,
           });
-        } catch (err) {
-          pdf.save(fileName);
-        }
-      } else {
-        pdf.save(fileName);
-        toast({
-          title: "Download concluído",
-          description: "O PDF foi salvo no seu dispositivo.",
-        });
+        } catch (err) { }
       }
     } catch (error) {
-      console.error('Erro ao compartilhar:', error);
+      console.error('Erro ao abrir documento:', error);
       toast({
         variant: "destructive",
-        title: "Erro ao compartilhar",
-        description: "Não foi possível gerar o arquivo PDF.",
+        title: "Erro ao abrir",
+        description: "Não foi possível processar o relatório PDF.",
       });
     } finally {
       setIsSharing(false);
@@ -195,7 +192,7 @@ export default function InventoryReportPage() {
             className="gap-2 font-black uppercase text-[10px] tracking-widest h-10 shadow-md transition-all active:scale-95"
           >
             {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-            Compartilhar Relatório
+            Abrir Relatório
           </Button>
         </div>
 

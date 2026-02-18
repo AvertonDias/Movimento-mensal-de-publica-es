@@ -51,8 +51,8 @@ export default function GuestHistoryPage(props: {
     setIsSharing(true);
     
     toast({
-      title: "Gerando PDF...",
-      description: "Preparando folha S-28-T para compartilhamento.",
+      title: "Gerando documento...",
+      description: "Preparando folha S-28-T para visualização.",
     });
 
     try {
@@ -62,7 +62,6 @@ export default function GuestHistoryPage(props: {
       const element = document.getElementById('s28-history-content-guest');
       if (!element) throw new Error('Elemento não encontrado');
 
-      // Escala 3 para evitar letras cortadas e aumentar a nitidez
       const canvas = await html2canvas(element, {
         scale: 3,
         useCORS: true,
@@ -86,8 +85,13 @@ export default function GuestHistoryPage(props: {
       
       const fileName = `S28_T_Compartilhada_${new Date().toISOString().split('T')[0]}.pdf`;
       const pdfBlob = pdf.output('blob');
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      
+      // Abrir em nova aba
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
 
+      // Compartilhar fallback
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -95,22 +99,14 @@ export default function GuestHistoryPage(props: {
             title: 'Folha S-28-T Digital (Compartilhada)',
             text: `Movimento mensal de publicações`,
           });
-        } catch (err) {
-          pdf.save(fileName);
-        }
-      } else {
-        pdf.save(fileName);
-        toast({
-          title: "Download concluído",
-          description: "O PDF foi salvo no seu dispositivo.",
-        });
+        } catch (err) { }
       }
     } catch (error) {
-      console.error('Erro ao compartilhar:', error);
+      console.error('Erro ao abrir documento:', error);
       toast({
         variant: "destructive",
-        title: "Erro ao compartilhar",
-        description: "Não foi possível gerar o arquivo PDF.",
+        title: "Erro ao abrir",
+        description: "Não foi possível processar o documento PDF.",
       });
     } finally {
       setIsSharing(false);
@@ -169,7 +165,7 @@ export default function GuestHistoryPage(props: {
             disabled={isSharing}
           >
             {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-            Compartilhar S-28-T
+            Abrir S-28-T
           </Button>
         </div>
 
