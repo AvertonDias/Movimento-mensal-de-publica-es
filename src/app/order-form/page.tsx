@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -7,13 +6,11 @@ import { collection, doc } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Share2, ShoppingCart, ShieldCheck, Info, FileEdit, Loader2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-// Definição completa dos itens do formulário S-14-T
 const S14_SECTIONS = [
   {
     title: "Bíblias",
@@ -61,9 +58,9 @@ const S14_SECTIONS = [
       { code: "3522", name: "Carrinho de publicações — Kit para conserto (ldcrtrkt)", isSpecial: true },
       { code: "3518", name: "Mesa de publicações (ldtbl)", isSpecial: true },
       { code: "3523", name: "Carrinho de publicações — Rodas (ldcrtwhl)", isSpecial: true },
-      { code: "88532", name: "Curso bíblico gratuito (cartaz magnético vertical) (divulga curso bíblico presencial) (mvpfbc1)", isSpecial: true },
+      { code: "88532", name: "Curso bíblico gratuito (cartaz magnético vertical) (divulga curso bíblico presencial) (mvpfbc1) NOVO!", isSpecial: true },
       { code: "3519-1", name: "Quiosque de publicações (ldksk)", isSpecial: true },
-      { code: "88533", name: "Curso bíblico gratuito (cartaz magnético vertical) (divulga curso bíblico pela internet) (mvpfbc2)", isSpecial: true },
+      { code: "88533", name: "Curso bíblico gratuito (cartaz magnético vertical) (divulga curso bíblico pela internet) (mvpfbc2) NOVO!", isSpecial: true },
       { code: "3517-1", name: "Display de publicações (simples) (ldstd-1)", isSpecial: true },
     ]
   },
@@ -76,16 +73,16 @@ const S14_SECTIONS = [
       { code: "5332", name: "Organizados para Fazer a Vontade de Jeová (od)" },
       { code: "5419", name: "Imite a Sua Fé! (ia)" },
       { code: "5435", name: "A Adoração Pura de Jeová É Restaurada! (rr)" },
-      { code: "5411", name: "Estudo Perspicaz das Escrituras (it)" },
+      { code: "5411", name: "Estudo Perspicaz das Escrituras (conjunto completo) (it)" },
       { code: "5341", name: "Cante de Coração para Jeová (sjj)" },
-      { code: "5413", name: "Testemunhas de Jeová — Proclamadores (jv)" },
+      { code: "5413", name: "Testemunhas de Jeová — Proclamadores do Reino de Deus (jv)" },
       { code: "5441", name: "Cante de Coração para Jeová (tamanho grande) (sjlls)" },
       { code: "5425", name: "Jesus — o Caminho, a Verdade e a Vida (jy)" },
       { code: "5442", name: "Cante de Coração para Jeová — apenas letras (sjjyls)" },
       { code: "5422", name: "O Reino de Deus já Governa! (kr)" },
-      { code: "5339", name: "Os Jovens Perguntam, Volume 1 (yp1)" },
+      { code: "5339", name: "Os Jovens Perguntam — Respostas Práticas, Volume 1 (yp1)" },
       { code: "5427", name: "Aprenda com as Histórias da Bíblia (lfb)" },
-      { code: "5336", name: "Os Jovens Perguntam, Volume 2 (yp2)" },
+      { code: "5336", name: "Os Jovens Perguntam — Respostas Práticas, Volume 2 (yp2)" },
     ]
   },
   {
@@ -100,7 +97,7 @@ const S14_SECTIONS = [
       { code: "6658", name: "Escute a Deus (ld)" },
       { code: "6667", name: "Melhore Sua Leitura e Seu Ensino (th)" },
       { code: "6663", name: "Minhas Primeiras Lições da Bíblia (mb)" },
-      { code: "6670", name: "Aprenda com a Sabedoria de Jesus (wfg)" },
+      { code: "6670", name: "Aprenda com a Sabedoria de Jesus (wfg) NOVO!" },
       { code: "6648", name: "O Caminho para a Vida Eterna (ol)" },
       { code: "6684", name: "10 Perguntas Que os Jovens se Fazem (ypq)" },
       { code: "6639", name: "Como Ter Verdadeira Paz e Felicidade (chineses) (pc)" },
@@ -139,6 +136,7 @@ export default function OrderFormPage() {
     congNum: '',
     congName: '',
     city: '',
+    state: '',
     date: '',
     lang: 'Português'
   });
@@ -180,7 +178,7 @@ export default function OrderFormPage() {
 
   const getStock = (code: string) => {
     const item = remoteItems?.find(i => i.code === code || i.id === code);
-    return item?.current !== undefined && item?.current !== null ? item.current : '---';
+    return item?.current !== undefined && item?.current !== null ? item.current : '';
   };
 
   const handleQtyChange = (code: string, val: string) => {
@@ -197,9 +195,9 @@ export default function OrderFormPage() {
     if (isGenerating) return;
     setIsGenerating(true);
     
-    const loadingToast = toast({
-      title: "Gerando PDF de alta qualidade...",
-      description: "Ajustando layout para o formato oficial A4.",
+    toast({
+      title: "Gerando PDF Oficial...",
+      description: "Preparando layout de alta resolução.",
     });
 
     try {
@@ -221,12 +219,10 @@ export default function OrderFormPage() {
 
         if (i > 0) pdf.addPage();
 
-        // Configurações de alta qualidade para o html2canvas
         const canvas = await html2canvas(element, {
           scale: 3, 
           useCORS: true,
           logging: false,
-          allowTaint: true,
           backgroundColor: '#ffffff',
           windowWidth: 1000, 
         });
@@ -256,7 +252,7 @@ export default function OrderFormPage() {
         pdf.save(fileName);
         toast({
           title: "PDF baixado!",
-          description: "O arquivo de alta qualidade foi salvo em seu dispositivo.",
+          description: "O arquivo foi salvo em seu dispositivo.",
         });
       }
     } catch (error) {
@@ -264,7 +260,7 @@ export default function OrderFormPage() {
       toast({
         variant: "destructive",
         title: "Erro ao gerar arquivo",
-        description: "Ocorreu uma falha no processamento da imagem.",
+        description: "Não foi possível processar o PDF.",
       });
     } finally {
       setIsGenerating(false);
@@ -279,31 +275,36 @@ export default function OrderFormPage() {
 
   if (isUserLoading || isCheckingHelper || !user) return null;
 
-  const FormInput = ({ value, onChange, placeholder, className }: any) => (
+  const FormInput = ({ value, onChange, placeholder, className, showLine = true }: any) => (
     <input
       type="text"
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       className={cn(
-        "bg-transparent border-0 border-b border-black/30 rounded-none h-full w-full px-1 text-[10px] font-bold focus:outline-none focus:border-primary focus:bg-primary/5 transition-colors placeholder:text-neutral-300 print:border-black/50",
+        "bg-transparent border-0 rounded-none h-full w-full px-1 text-[9px] font-bold focus:outline-none transition-colors placeholder:text-neutral-200",
+        showLine && "border-b border-black/40",
         className
       )}
     />
   );
 
   const ItemRow = ({ item }: { item: any }) => (
-    <div className={cn("flex items-center min-h-[22px] border-b border-black/10 text-[9px] py-0.5", item.isSpecial && "bg-neutral-100")}>
-      <div className="w-10 border-r border-black/10 flex items-center justify-center h-full shrink-0">
+    <div className={cn("flex items-start min-h-[18px] text-[8px] py-0.5", item.isSpecial && "bg-neutral-100")}>
+      <div className="w-8 flex items-center justify-center shrink-0 h-4">
         <FormInput 
           value={quantities[item.code] || ''} 
           onChange={(v: any) => handleQtyChange(item.code, v)} 
-          className="border-0 text-center text-[11px]" 
+          className="border-b border-black/40 text-center text-[10px] h-3.5" 
         />
       </div>
-      <span className="w-12 text-center font-black shrink-0">{item.code}</span>
-      <span className="flex-1 px-2 text-left font-medium leading-[1.1] break-words py-0.5">{item.name}</span>
-      <span className="w-12 text-center border-l border-black/10 font-bold shrink-0">{getStock(item.code)}</span>
+      <span className="w-10 text-center font-black shrink-0 ml-1">{item.code}</span>
+      <span className="flex-1 px-1 text-left font-medium leading-[1.1] break-words py-0.5">{item.name}</span>
+      <div className="w-8 flex items-center justify-center shrink-0 h-4 border-l border-black/10">
+        <span className="text-[9px] font-bold border-b border-black/40 w-full text-center h-3.5 leading-none">
+          {getStock(item.code)}
+        </span>
+      </div>
     </div>
   );
 
@@ -311,103 +312,96 @@ export default function OrderFormPage() {
     <div className="min-h-screen bg-neutral-100 pt-24 pb-12 px-4 print:p-0 print:bg-white font-body">
       <div className="max-w-[850px] mx-auto space-y-6 print:space-y-0">
         
-        {/* Header de Ações */}
+        {/* Painel de Controle */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-neutral-200 shadow-sm print:hidden">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 text-left">
             <div className="bg-primary p-2 rounded-lg">
               <ShoppingCart className="h-5 w-5 text-primary-foreground" />
             </div>
-            <div className="text-left">
+            <div>
               <h1 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
-                <FileEdit className="h-4 w-4" /> Preencher Pedido S-14-T
+                <FileEdit className="h-4 w-4" /> Formulário S-14-T Digital
               </h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase">Gere o arquivo PDF oficial para compartilhar.</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Formato oficial de Betel pronto para compartilhar.</p>
             </div>
           </div>
-          <div className="flex gap-2 w-full sm:w-auto">
-            {helperInvite && (
-              <div className="bg-accent/10 border border-accent/20 px-3 py-1 rounded-lg flex items-center gap-2">
-                <ShieldCheck className="h-3 w-3 text-accent-foreground" />
-                <span className="text-[8px] font-black uppercase text-accent-foreground tracking-widest">
-                  Ajudante de {helperInvite.ownerName}
-                </span>
-              </div>
-            )}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 font-bold uppercase text-[10px] bg-white h-9 shadow-sm hover:bg-primary/5" 
-              onClick={handleSharePDF}
-              disabled={isGenerating}
-            >
-              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4 text-primary" />}
-              Compartilhar PDF Oficial
-            </Button>
-          </div>
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="gap-2 font-bold uppercase text-[10px] bg-white h-9 shadow-sm hover:bg-primary/5 w-full sm:w-auto" 
+            onClick={handleSharePDF}
+            disabled={isGenerating}
+          >
+            {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4 text-primary" />}
+            Compartilhar PDF Oficial
+          </Button>
         </div>
 
-        {/* Formulário S-14-T */}
+        {/* DOCUMENTO S-14-T */}
         <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 text-black space-y-8 overflow-hidden">
           
           {/* PÁGINA 1 */}
-          <div className="space-y-6 bg-white p-4" id="s14-page-1">
-            <div className="space-y-4 mb-6">
-              <div className="flex justify-between items-start text-[10px] font-bold">
-                <div className="flex gap-2 items-baseline w-[200px]">
-                  <span className="shrink-0">Número do pedido:</span>
-                  <div className="flex-1 h-4"><FormInput value={header.orderNum} onChange={(v: any) => setHeader({...header, orderNum: v})} /></div>
-                </div>
-                <div className="flex gap-2 items-baseline w-[200px]">
-                  <span className="shrink-0">Número da congregação:</span>
-                  <div className="flex-1 h-4"><FormInput value={header.congNum} onChange={(v: any) => setHeader({...header, congNum: v})} /></div>
-                </div>
+          <div className="space-y-4 bg-white p-4" id="s14-page-1">
+            <div className="flex justify-between items-baseline text-[9px] font-bold mb-2">
+              <div className="flex gap-1 items-baseline w-[220px]">
+                <span className="shrink-0 uppercase">Número do pedido:</span>
+                <div className="flex-1 h-3.5"><FormInput value={header.orderNum} onChange={(v: any) => setHeader({...header, orderNum: v})} /></div>
               </div>
-              
-              <h2 className="text-center text-xl font-black uppercase tracking-tighter">PEDIDO DE PUBLICAÇÕES</h2>
-              
-              <div className="grid grid-cols-4 gap-x-4 gap-y-3 text-[10px] font-bold">
-                <div className="col-span-2 flex gap-2 items-baseline">
+              <div className="flex gap-1 items-baseline w-[220px]">
+                <span className="shrink-0 uppercase">Número da congregação:</span>
+                <div className="flex-1 h-3.5"><FormInput value={header.congNum} onChange={(v: any) => setHeader({...header, congNum: v})} /></div>
+              </div>
+            </div>
+            
+            <h2 className="text-center text-lg font-black uppercase tracking-tight">PEDIDO DE PUBLICAÇÕES</h2>
+            
+            <div className="border border-black p-3 space-y-3 text-[9px] font-bold">
+              <div className="grid grid-cols-12 gap-x-4 gap-y-2">
+                <div className="col-span-6 flex gap-1 items-baseline">
                   <span className="shrink-0 uppercase">Nome da congregação:</span>
-                  <div className="flex-1 h-4"><FormInput value={header.congName} onChange={(v: any) => setHeader({...header, congName: v})} /></div>
+                  <div className="flex-1 h-3.5"><FormInput value={header.congName} onChange={(v: any) => setHeader({...header, congName: v})} /></div>
                 </div>
-                <div className="flex gap-2 items-baseline">
+                <div className="col-span-3 flex gap-1 items-baseline">
                   <span className="shrink-0 uppercase">Cidade:</span>
-                  <div className="flex-1 h-4"><FormInput value={header.city} onChange={(v: any) => setHeader({...header, city: v})} /></div>
+                  <div className="flex-1 h-3.5"><FormInput value={header.city} onChange={(v: any) => setHeader({...header, city: v})} /></div>
                 </div>
-                <div className="flex gap-2 items-baseline">
+                <div className="col-span-2 flex gap-1 items-baseline">
                   <span className="shrink-0 uppercase">Data:</span>
-                  <div className="flex-1 h-4"><FormInput value={header.date} onChange={(v: any) => setHeader({...header, date: v})} /></div>
-                </div>
-                <div className="col-span-2 flex gap-2 items-baseline">
-                  <span className="shrink-0 uppercase font-black italic">IDIOMA (Especifique um):</span>
-                  <div className="flex-1 h-4"><FormInput value={header.lang} onChange={(v: any) => setHeader({...header, lang: v})} /></div>
-                  <span className="text-[8px] italic">(Obrigatório)</span>
-                </div>
-                <div className="col-span-2 flex items-center gap-2">
-                  <div className="w-8 h-4 bg-neutral-200 border border-neutral-300" />
-                  <span className="text-[9px] uppercase">Os itens de pedido especial estão sombreados.</span>
+                  <div className="flex-1 h-3.5"><FormInput value={header.date} onChange={(v: any) => setHeader({...header, date: v})} /></div>
                 </div>
               </div>
-
-              <div className="p-2 border border-neutral-200 rounded text-[9px] text-justify leading-snug font-medium italic">
-                Os itens mais pedidos estão na lista abaixo. Acesse o JW Hub se quiser ver a lista completa de idiomas e publicações disponíveis. Outros itens poderão ser pedidos na página 2, debaixo da seção "Outros itens". Antes de enviar o pedido, por favor verifique se todos os campos do formulário estão preenchidos corretamente. Se tiver alguma dúvida, consulte as <em>Orientações sobre Pedidos de Publicações e Inventário (S-56)</em>.
+              
+              <div className="grid grid-cols-12 gap-x-4">
+                <div className="col-span-6 flex gap-1 items-baseline">
+                  <span className="shrink-0 uppercase font-black">IDIOMA (Especifique um):</span>
+                  <div className="flex-1 h-3.5"><FormInput value={header.lang} onChange={(v: any) => setHeader({...header, lang: v})} /></div>
+                  <span className="text-[7px] italic font-normal">(Obrigatório)</span>
+                </div>
+                <div className="col-span-6 flex items-center gap-2 justify-end">
+                  <div className="w-10 h-3.5 bg-neutral-200 border border-neutral-300" />
+                  <span className="text-[8px] uppercase font-normal">Os itens de pedido especial estão sombreados.</span>
+                </div>
               </div>
             </div>
 
+            <div className="p-2 border border-neutral-200 rounded text-[8px] text-justify leading-snug font-normal italic">
+              Os itens mais pedidos estão na lista abaixo. Acesse o JW Hub se quiser ver a lista completa de idiomas e publicações disponíveis. Outros itens poderão ser pedidos na página 2, debaixo da seção "Outros itens". Antes de enviar o pedido, por favor verifique se todos os campos do formulário estão preenchidos corretamente. Se tiver alguma dúvida, consulte as <em>Orientações sobre Pedidos de Publicações e Inventário (S-56)</em>.
+            </div>
+
             {S14_SECTIONS.slice(0, 4).map((section, sIdx) => (
-              <div key={sIdx} className="space-y-2">
+              <div key={sIdx} className="space-y-1 mt-2">
                 <div className="relative flex items-center justify-center">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/20" /></div>
-                  <h3 className="relative px-4 bg-white text-[14px] font-black uppercase tracking-tight">{section.title}</h3>
+                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/30" /></div>
+                  <h3 className="relative px-4 bg-white text-[12px] font-black uppercase tracking-tight">{section.title}</h3>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-8 gap-y-0.5">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-0.5">
                   {[0, 1].map(col => (
-                    <div key={col} className="flex text-[7px] font-black uppercase mb-1">
-                      <span className="w-10 text-center">Quant.</span>
-                      <span className="w-12 text-center">N.º do item</span>
-                      <span className="flex-1 px-2">Descrição</span>
-                      <span className="w-12 text-center">Estoque</span>
+                    <div key={col} className="flex text-[7px] font-black uppercase mb-0.5 opacity-60">
+                      <span className="w-8 text-center">Quant.</span>
+                      <span className="w-10 text-center">N.º do item</span>
+                      <span className="flex-1 px-1">Descrição</span>
+                      <span className="w-8 text-center">Estoque</span>
                     </div>
                   ))}
 
@@ -425,35 +419,39 @@ export default function OrderFormPage() {
                 </div>
               </div>
             ))}
+            
+            <div className="pt-2">
+              <span className="text-[7px] font-bold uppercase opacity-40">S-14-T 6/23 (Página 1)</span>
+            </div>
           </div>
 
           {/* PÁGINA 2 */}
-          <div className="print:break-before-page pt-8 space-y-6 bg-white p-4" id="s14-page-2">
-            <div className="flex justify-between items-baseline border-b border-black pb-1 mb-4">
-              <div className="flex gap-2 items-baseline text-[10px] font-bold w-[300px]">
-                <span>Idioma:</span>
-                <div className="flex-1 h-4"><FormInput value={header.lang} onChange={(v: any) => setHeader({...header, lang: v})} /></div>
+          <div className="print:break-before-page pt-4 space-y-4 bg-white p-4" id="s14-page-2">
+            <div className="flex justify-between items-baseline border-b border-black pb-1 mb-2">
+              <div className="flex gap-1 items-baseline text-[9px] font-bold w-[280px]">
+                <span className="uppercase">Idioma:</span>
+                <div className="flex-1 h-3.5"><FormInput value={header.lang} onChange={(v: any) => setHeader({...header, lang: v})} /></div>
               </div>
-              <div className="flex gap-2 items-baseline text-[10px] font-bold w-[200px]">
-                <span>Número da congregação:</span>
-                <div className="flex-1 h-4"><FormInput value={header.congNum} onChange={(v: any) => setHeader({...header, congNum: v})} /></div>
+              <div className="flex gap-1 items-baseline text-[9px] font-bold w-[220px]">
+                <span className="uppercase">Número da congregação:</span>
+                <div className="flex-1 h-3.5"><FormInput value={header.congNum} onChange={(v: any) => setHeader({...header, congNum: v})} /></div>
               </div>
             </div>
 
             {S14_SECTIONS.slice(4).map((section, sIdx) => (
-              <div key={sIdx} className="space-y-2">
+              <div key={sIdx} className="space-y-1">
                 <div className="relative flex items-center justify-center">
-                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/20" /></div>
-                  <h3 className="relative px-4 bg-white text-[14px] font-black uppercase tracking-tight">{section.title}</h3>
+                  <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/30" /></div>
+                  <h3 className="relative px-4 bg-white text-[12px] font-black uppercase tracking-tight">{section.title}</h3>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-8 gap-y-0.5">
+                <div className="grid grid-cols-2 gap-x-6 gap-y-0.5">
                   {[0, 1].map(col => (
-                    <div key={col} className="flex text-[7px] font-black uppercase mb-1">
-                      <span className="w-10 text-center">Quant.</span>
-                      <span className="w-12 text-center">N.º do item</span>
-                      <span className="flex-1 px-2">Descrição</span>
-                      <span className="w-12 text-center">Estoque</span>
+                    <div key={col} className="flex text-[7px] font-black uppercase mb-0.5 opacity-60">
+                      <span className="w-8 text-center">Quant.</span>
+                      <span className="w-10 text-center">N.º do item</span>
+                      <span className="flex-1 px-1">Descrição</span>
+                      <span className="w-8 text-center">Estoque</span>
                     </div>
                   ))}
 
@@ -472,14 +470,14 @@ export default function OrderFormPage() {
               </div>
             ))}
 
-            <div className="space-y-2 mt-8">
+            <div className="space-y-1 mt-4">
               <div className="relative flex items-center justify-center">
-                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/20" /></div>
-                <h3 className="relative px-4 bg-white text-[14px] font-black uppercase tracking-tight">Outros itens</h3>
+                <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/30" /></div>
+                <h3 className="relative px-4 bg-white text-[12px] font-black uppercase tracking-tight">Outros itens</h3>
               </div>
               
               <div className="border border-black">
-                <div className="grid grid-cols-[60px_60px_60px_100px_1fr_60px] text-[7px] font-black uppercase bg-neutral-50 border-b border-black text-center h-8 items-center">
+                <div className="grid grid-cols-[50px_50px_50px_90px_1fr_50px] text-[6px] font-black uppercase bg-neutral-50 border-b border-black text-center h-6 items-center">
                   <div className="border-r border-black h-full flex items-center justify-center">Quantidade</div>
                   <div className="border-r border-black h-full flex items-center justify-center leading-none px-1">N.º do item</div>
                   <div className="border-r border-black h-full flex items-center justify-center leading-none px-1">Uso da filial</div>
@@ -488,41 +486,29 @@ export default function OrderFormPage() {
                   <div className="h-full flex items-center justify-center">Estoque</div>
                 </div>
                 {otherItems.map((item, i) => (
-                  <div key={i} className="grid grid-cols-[60px_60px_60px_100px_1fr_60px] min-h-[24px] border-b last:border-0 border-black group">
-                    <div className="border-r border-black h-full flex items-center">
-                      <FormInput value={item.qty} onChange={(v: any) => handleOtherItemChange(i, 'qty', v)} className="border-0 text-center" />
-                    </div>
-                    <div className="border-r border-black h-full flex items-center">
-                      <FormInput value={item.code} onChange={(v: any) => handleOtherItemChange(i, 'code', v)} className="border-0 text-center" />
-                    </div>
-                    <div className="border-r border-black h-full flex items-center">
-                      <FormInput value={item.usage} onChange={(v: any) => handleOtherItemChange(i, 'usage', v)} className="border-0 text-center" />
-                    </div>
-                    <div className="border-r border-black h-full flex items-center">
-                      <FormInput value={item.lang} onChange={(v: any) => handleOtherItemChange(i, 'lang', v)} className="border-0 text-center" />
-                    </div>
-                    <div className="border-r border-black h-full flex items-center py-0.5">
-                      <FormInput value={item.title} onChange={(v: any) => handleOtherItemChange(i, 'title', v)} className="border-0 text-left px-2 leading-tight" />
-                    </div>
-                    <div className="h-full flex items-center">
-                      <FormInput value={item.stock} onChange={(v: any) => handleOtherItemChange(i, 'stock', v)} className="border-0 text-center" />
-                    </div>
+                  <div key={i} className="grid grid-cols-[50px_50px_50px_90px_1fr_50px] min-h-[20px] border-b last:border-0 border-black">
+                    <div className="border-r border-black h-full flex items-center"><FormInput value={item.qty} onChange={(v: any) => handleOtherItemChange(i, 'qty', v)} className="border-0 text-center" /></div>
+                    <div className="border-r border-black h-full flex items-center"><FormInput value={item.code} onChange={(v: any) => handleOtherItemChange(i, 'code', v)} className="border-0 text-center" /></div>
+                    <div className="border-r border-black h-full flex items-center"><FormInput value={item.usage} onChange={(v: any) => handleOtherItemChange(i, 'usage', v)} className="border-0 text-center" /></div>
+                    <div className="border-r border-black h-full flex items-center"><FormInput value={item.lang} onChange={(v: any) => handleOtherItemChange(i, 'lang', v)} className="border-0 text-center" /></div>
+                    <div className="border-r border-black h-full flex items-center py-0.5"><FormInput value={item.title} onChange={(v: any) => handleOtherItemChange(i, 'title', v)} className="border-0 text-left px-2 leading-tight" /></div>
+                    <div className="h-full flex items-center"><FormInput value={item.stock} onChange={(v: any) => handleOtherItemChange(i, 'stock', v)} className="border-0 text-center" /></div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-12 flex flex-col items-center gap-2">
-              <div className="w-96 border-b border-black h-4" />
-              <span className="text-[10px] font-bold uppercase">(Superintendente de serviço)</span>
+            <div className="mt-8 flex flex-col items-center gap-1.5 self-end ml-auto w-64">
+              <div className="w-full border-b border-black h-4" />
+              <span className="text-[9px] font-bold uppercase">(Superintendente de serviço)</span>
             </div>
-          </div>
 
-          <div className="mt-8 flex justify-between items-end border-t-2 border-black pt-2">
-            <span className="text-[8px] font-black italic uppercase">S-14-T 6/23</span>
-            <div className="flex items-center gap-2 p-2 bg-primary/5 rounded border border-primary/10 print:hidden">
-              <Info className="h-3 w-3 text-primary" />
-              <p className="text-[8px] font-bold uppercase text-muted-foreground">O sistema sincroniza o estoque real para ajudar na decisão do pedido.</p>
+            <div className="flex justify-between items-end pt-4 border-t border-black/10">
+              <span className="text-[7px] font-bold uppercase opacity-40">S-14-T 6/23 (Página 2)</span>
+              <div className="flex items-center gap-2 p-1.5 bg-primary/5 rounded border border-primary/10 print:hidden">
+                <Info className="h-3 w-3 text-primary" />
+                <p className="text-[7px] font-bold uppercase text-muted-foreground">O sistema sincroniza o estoque automaticamente.</p>
+              </div>
             </div>
           </div>
         </div>
