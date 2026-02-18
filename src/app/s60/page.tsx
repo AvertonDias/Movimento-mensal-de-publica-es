@@ -8,7 +8,7 @@ export default function S60Page() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-8 px-4 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="sticky top-20 z-10 bg-neutral-50/80 backdrop-blur-sm pb-4 pt-2 flex flex-col items-start gap-2 print:hidden text-left">
+        <div className="pb-4 pt-2 flex flex-col items-start gap-2 print:hidden text-left">
           <div className="flex items-center gap-3">
             <div className="bg-destructive/10 p-2 rounded-lg">
               <Trash2 className="h-5 w-5 text-destructive" />
