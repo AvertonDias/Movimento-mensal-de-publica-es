@@ -5,11 +5,9 @@ import {
   Accessibility, 
   Search, 
   BookOpen, 
-  Info, 
   Layers, 
   Filter,
-  ChevronRight,
-  Printer
+  FileText
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,6 +27,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 
 interface BrailleItem {
@@ -50,7 +54,7 @@ const BRAILLE_DATA: BrailleItem[] = [
   { code: '5331', name: 'Achegue-se a Jeová (G1)', category: 'Livros', grade: 'Grau 1', volumes: '4' },
   { code: '5340', name: 'O Que a Bíblia Realmente Ensina? (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
   { code: '5332', name: 'Organizados para Fazer a Vontade de Jeová (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5427', name: 'Aprendas com as Histórias da Bíblia (G1)', category: 'Livros', grade: 'Grau 1', volumes: '4' },
+  { code: '5427', name: 'Aprenda com as Histórias da Bíblia (G1)', category: 'Livros', grade: 'Grau 1', volumes: '4' },
   { code: '5419', name: 'Imite a Sua Fé (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
   
   // Brochuras
@@ -78,7 +82,7 @@ export default function BrailleListPage() {
     });
   }, [searchTerm, selectedGrade]);
 
-  const categories = Array.from(new Set(BRAILLE_DATA.map(i => i.category)));
+  const categories = ["Bíblias", "Livros", "Brochuras", "Revistas"];
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-12 px-4 font-body">
@@ -98,6 +102,60 @@ export default function BrailleListPage() {
             </p>
           </div>
         </div>
+
+        {/* Introdução e Critérios Oficiais */}
+        <Accordion type="single" collapsible className="w-full">
+          <AccordionItem value="intro" className="border-none">
+            <Card className="border-none shadow-md overflow-hidden bg-white">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline group">
+                <div className="flex items-center gap-3 text-left">
+                  <div className="bg-primary/10 p-2 rounded-full group-data-[state=open]:bg-primary group-data-[state=open]:text-white transition-colors">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <span className="font-black uppercase text-xs tracking-widest block">Introdução e Critérios</span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tighter">Orientações importantes sobre pedidos</span>
+                  </div>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pb-6 pt-2">
+                <div className="space-y-6 text-sm text-justify text-neutral-600 leading-relaxed font-medium border-t border-neutral-100 pt-4">
+                  <p>
+                    Para ajudar os deficientes visuais, são produzidas publicações impressas em alto-relevo em braille e diversas publicações em formato eletrônico. Os pedidos de publicações impressas em alto-relevo podem ser feitos por meio do <strong>jw.org</strong>.
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <h3 className="font-black uppercase text-xs text-primary tracking-widest flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-primary" />
+                      Impressão em alto-relevo
+                    </h3>
+                    <p>
+                      Antes de enviar um pedido da <em>Tradução do Novo Mundo</em> em braille, a comissão de serviço da congregação deve confirmar se a pessoa cega ou com baixa visão se qualifica para receber esse item. Os critérios são os seguintes:
+                    </p>
+                    <ul className="list-decimal pl-6 space-y-2 marker:font-black marker:text-primary">
+                      <li>
+                        A pessoa é um publicador ou um estudante da Bíblia que está fazendo progresso. (Pessoas recém-interessadas podem pedir itens menores em braille, como folhetos, brochuras e livros. Esperem a pessoa fazer mais progresso para pedir a <em>Tradução do Novo Mundo</em>. Um sinal desse progresso é estar assistindo às reuniões regularmente.)
+                      </li>
+                      <li>
+                        A pessoa consegue ler o idioma e o grau do braille da publicação que está sendo pedida.
+                      </li>
+                      <li>
+                        A pessoa tem espaço suficiente em casa ou em algum outro lugar para guardar todos os volumes.
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-100 space-y-3">
+                    <h3 className="font-black uppercase text-[10px] text-neutral-800 tracking-widest">Formatos eletrônicos</h3>
+                    <p className="text-xs">
+                      Os arquivos para leitor de tela (RTF) e notetaker (BRL) podem ser baixados da área pública do <strong>jw.org</strong>. Os anciãos devem se oferecer para ajudar os que usam esses arquivos. Talvez seja necessário designar alguns publicadores para ajudá-los regularmente a baixar os arquivos.
+                    </p>
+                  </div>
+                </div>
+              </AccordionContent>
+            </Card>
+          </AccordionItem>
+        </Accordion>
 
         {/* Filtros e Busca */}
         <Card className="border-none shadow-md bg-white">
@@ -129,8 +187,8 @@ export default function BrailleListPage() {
           </CardContent>
         </Card>
 
-        {/* Lista de Itens */}
-        <div className="space-y-10">
+        {/* Lista de Itens Organizada */}
+        <div className="space-y-10 pb-12">
           {categories.map(cat => {
             const itemsInCat = filteredItems.filter(i => i.category === cat);
             if (itemsInCat.length === 0) return null;
@@ -184,39 +242,6 @@ export default function BrailleListPage() {
               </div>
             );
           })}
-        </div>
-
-        {/* Rodapé Informativo Adaptado */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-8">
-          <Card className="bg-white border-l-4 border-l-primary shadow-sm">
-            <CardContent className="p-6 flex items-start gap-4">
-              <div className="bg-primary/10 p-3 rounded-full shrink-0">
-                <Info className="h-6 w-6 text-primary" />
-              </div>
-              <div className="space-y-2 text-left">
-                <h3 className="font-black uppercase text-sm tracking-tight">Orientações de Pedido</h3>
-                <p className="text-xs text-muted-foreground font-bold leading-relaxed uppercase">
-                  Pedidos de itens em Braille devem ser feitos apenas quando solicitados especificamente por um publicador. Devido ao alto custo e volume físico, não deve ser mantido estoque preventivo no balcão.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-neutral-100 border-none shadow-inner">
-            <CardContent className="p-6 flex flex-col justify-center h-full space-y-3">
-              <div className="flex justify-between items-center text-[10px] font-black uppercase text-neutral-500 tracking-widest">
-                <span>Formulário de Referência:</span>
-                <span className="text-neutral-800">S-58-T Ba</span>
-              </div>
-              <div className="flex justify-between items-center text-[10px] font-black uppercase text-neutral-500 tracking-widest">
-                <span>Última Revisão da Lista:</span>
-                <span className="text-neutral-800">Fevereiro de 2021</span>
-              </div>
-              <p className="text-[9px] font-bold text-neutral-400 uppercase italic text-center pt-2">
-                "O cego não pode ver a luz, mas pode senti-la."
-              </p>
-            </CardContent>
-          </Card>
         </div>
       </div>
     </div>
