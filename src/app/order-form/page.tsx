@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -7,7 +6,7 @@ import { collection, doc } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
-import { Share2, ShoppingCart, Info, FileEdit, Loader2, Printer } from "lucide-react";
+import { Share2, ShoppingCart, Info, FileEdit, Loader2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -373,17 +372,9 @@ export default function OrderFormPage() {
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
             <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-2 font-bold uppercase text-[10px] bg-white h-9 shadow-sm hover:bg-primary/5 flex-1 sm:flex-none" 
-              onClick={() => window.print()}
-            >
-              <Printer className="h-4 w-4" /> Imprimir
-            </Button>
-            <Button 
               variant="default" 
               size="sm" 
-              className="gap-2 font-bold uppercase text-[10px] h-9 shadow-sm flex-1 sm:flex-none" 
+              className="gap-2 font-bold uppercase text-[10px] h-9 shadow-sm w-full sm:w-auto" 
               onClick={handleSharePDF}
               disabled={isGenerating}
             >

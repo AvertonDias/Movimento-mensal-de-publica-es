@@ -1,10 +1,8 @@
-
 'use client';
 
 import React from 'react';
-import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Trash2, Info, Printer } from "lucide-react";
+import { Trash2, Info } from "lucide-react";
 
 export default function S60Page() {
   return (
@@ -17,14 +15,6 @@ export default function S60Page() {
             </div>
             <h1 className="text-xl font-black uppercase tracking-tight font-headline text-destructive">Lista de Descartes (S-60)</h1>
           </div>
-          <Button 
-            variant="outline" 
-            className="gap-2 bg-white font-bold uppercase text-xs w-full sm:w-auto shadow-sm" 
-            onClick={() => window.print()}
-          >
-            <Printer className="h-4 w-4" />
-            Imprimir
-          </Button>
         </div>
 
         <div className="bg-white shadow-xl rounded-2xl border border-neutral-200 overflow-hidden print:shadow-none print:border-none">

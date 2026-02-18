@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FileText, Printer, Loader2, ShieldCheck, Info } from "lucide-react";
+import { FileText, Loader2, ShieldCheck, Info } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
@@ -116,13 +116,6 @@ export default function InventoryReportPage() {
             <FileText className="h-5 w-5 text-primary" />
             <h1 className="text-xl font-black uppercase tracking-tight font-headline">Relatório de Inventário</h1>
           </div>
-          <Button 
-            variant="outline" 
-            className="gap-2 bg-white font-bold uppercase text-xs w-full sm:w-auto shadow-sm" 
-            onClick={() => window.print()}
-          >
-            <Printer className="h-4 w-4" /> Imprimir
-          </Button>
         </div>
 
         <Card className="border-none shadow-xl overflow-hidden print:shadow-none print:border">
