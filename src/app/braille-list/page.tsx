@@ -8,7 +8,8 @@ import {
   Layers, 
   Filter,
   FileText,
-  Globe
+  Globe,
+  Calendar
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -46,73 +47,64 @@ interface BrailleItem {
 }
 
 const BRAILLE_DATA: BrailleItem[] = [
-  // Bíblias
-  { code: '3140', name: 'Tradução do Novo Mundo (G1)', category: 'Bíblias', grade: 'Grau 1', volumes: '20' },
-  { code: '3140', name: 'Tradução do Novo Mundo (G2)', category: 'Bíblias', grade: 'Grau 2', volumes: '18' },
-  { code: '3142', name: 'Tradução do Novo Mundo das Escrituras Gregas (G1)', category: 'Bíblias', grade: 'Grau 1', volumes: '5' },
-  { code: '3142', name: 'Tradução do Novo Mundo das Escrituras Gregas (G2)', category: 'Bíblias', grade: 'Grau 2', volumes: '4' },
+  // ITENS ANUAIS (Português Grau 1)
+  { code: '6921', name: 'Examine as Escrituras Diariamente — 2021', category: 'Itens Anuais', grade: 'Grau 1', volumes: '1', language: 'Português' },
+
+  // BÍBLIAS (Português Grau 1)
+  { code: '5140', name: 'Tradução do Novo Mundo (Kit completo - 32 volumes)', category: 'Bíblias', grade: 'Grau 1', volumes: '32', language: 'Português' },
+  { code: '3140', name: 'Tradução do Novo Mundo (G2)', category: 'Bíblias', grade: 'Grau 2', volumes: '18', language: 'Português' },
   
-  // Livros
-  { code: '5445', name: 'Seja Feliz para Sempre! (G1)', category: 'Livros', grade: 'Grau 1', volumes: '5' },
-  { code: '5331', name: 'Achegue-se a Jeová (G1)', category: 'Livros', grade: 'Grau 1', volumes: '4' },
-  { code: '5340', name: 'O Que a Bíblia Realmente Ensina? (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5332', name: 'Organizados para Fazer a Vontade de Jeová (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5427', name: 'Aprenda com as Histórias da Bíblia (G1)', category: 'Livros', grade: 'Grau 1', volumes: '4' },
-  { code: '5419', name: 'Imite a Sua Fé (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5425', name: 'Jesus — o Caminho, a Verdade e a Vida (G1)', category: 'Livros', grade: 'Grau 1', volumes: '4' },
-  { code: '5422', name: 'O Reino de Deus já Governa! (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5343', name: '“Continue no Amor de Deus” (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5435', name: 'A Adoração Pura de Jeová É Restaurada! (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5440', name: 'Princípios Bíblicos para a Vida Cristã (G1)', category: 'Livros', grade: 'Grau 1', volumes: '2' },
-  { code: '5341', name: 'Cante de Coração para Jeová (G1)', category: 'Livros', grade: 'Grau 1', volumes: '2' },
-  { code: '5339', name: 'Os Jovens Perguntam — Respostas Práticas, Volume 1 (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5336', name: 'Os Jovens Perguntam — Respostas Práticas, Volume 2 (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5414', name: 'Beneficie-se da Escola do Ministério Teocrático (G1)', category: 'Livros', grade: 'Grau 1', volumes: '4' },
-  { code: '5416', name: '“Dê Testemunho Cabal” sobre o Reino de Deus (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5231', name: '“Venha Ser Meu Seguidor” (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5415', name: 'Aprenda do Grande Instrutor (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
-  { code: '5411', name: 'Estudo Perspicaz das Escrituras (Conjunto) (G1)', category: 'Livros', grade: 'Grau 1', volumes: '12' },
+  // LIVROS (Português Grau 1 - Sequência Oficial)
+  { code: '5435', name: 'A Adoração Pura de Jeová É Restaurada!', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+  { code: '5331', name: 'Achegue-se a Jeová', category: 'Livros', grade: 'Grau 1', volumes: '4', language: 'Português' },
+  { code: '5415', name: 'Aprenda do Grande Instrutor', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+  { code: '5414', name: 'Beneficie-se da Escola do Ministério Teocrático', category: 'Livros', grade: 'Grau 1', volumes: '4', language: 'Português' },
+  { code: '5442', name: 'Cante de Coração para Jeová — Apenas Letras', category: 'Livros', grade: 'Grau 1', volumes: '1', language: 'Português' },
+  { code: '56371', name: 'Cante de Coração para Jeová — Partitura em Braille', category: 'Livros', grade: 'Grau 1', volumes: '2', language: 'Português' },
+  { code: '5343', name: 'Continue a Amar a Deus', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+  { code: '5416', name: '“Dê Testemunho Cabal” sobre o Reino de Deus', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+  { code: '5419', name: 'Imite a Sua Fé', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+  { code: '5425', name: 'Jesus — o Caminho, a Verdade e a Vida', category: 'Livros', grade: 'Grau 1', volumes: '4', language: 'Português' },
+  { code: '5427', name: 'Aprenda com as Histórias da Bíblia', category: 'Livros', grade: 'Grau 1', volumes: '4', language: 'Português' },
+  { code: '5422', name: 'O Reino de Deus já Governa!', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+  { code: '5332', name: 'Organizados para Fazer a Vontade de Jeová', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+  { code: '5339', name: 'Os Jovens Perguntam — Respostas Práticas, Volume 1', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+  { code: '5336', name: 'Os Jovens Perguntam — Respostas Práticas, Volume 2', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+  { code: '5436', name: '“Pastoreiem o Rebanho de Deus”', category: 'Livros', grade: 'Grau 1', volumes: '2', language: 'Português' },
+  { code: '5231', name: '“Venha Ser Meu Seguidor”', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+  { code: '5340', name: 'Você Pode Entender a Bíblia!', category: 'Livros', grade: 'Grau 1', volumes: '3', language: 'Português' },
+
+  // BROCHURAS E LIVRETOS (Português Grau 1 - Sequência Oficial)
+  { code: '6684', name: '10 Perguntas Que os Jovens se Fazem', category: 'Brochuras', grade: 'Grau 1', volumes: '1', language: 'Português' },
+  { code: '6655', name: 'A Origem da Vida — Cinco Perguntas', category: 'Brochuras', grade: 'Grau 1', volumes: '1', language: 'Português' },
+  { code: '6654', name: 'A Vida — Teve um Criador?', category: 'Brochuras', grade: 'Grau 1', volumes: '1', language: 'Português' },
+  { code: '66930', name: 'Aprenda a Ler Braille (Kit Inicial)', category: 'Brochuras', grade: 'Grau 1', volumes: '1', language: 'Português' },
+  { code: '6638', name: 'As Testemunhas de Jeová e a Educação', category: 'Brochuras', grade: 'Grau 1', volumes: '1', language: 'Português' },
+  { code: '6659', name: 'Boas Notícias de Deus para Você!', category: 'Brochuras', grade: 'Grau 1', volumes: '1', language: 'Português' },
+  { code: '6647', name: 'Como Ter uma Vida Satisfatória', category: 'Brochuras', grade: 'Grau 1', volumes: '1', language: 'Português' },
   
-  // Brochuras
-  { code: '6659', name: 'Boas Notícias de Deus para Você (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6658', name: 'Escute a Deus e Viva para Sempre (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6669', name: 'Ame as Pessoas — Faça Discípulos (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6671', name: 'Volte para Jeová (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6667', name: 'Melhore sua Leitura e seu Ensino (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6663', name: 'Minhas Lições da Bíblia (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6618', name: 'Pode Aprender a Ler e a Escrever (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6628', name: 'Esforce-se para Ser um Bom Estudante (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6665', name: 'Você Pode Ter uma Família Feliz! (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6662', name: 'Como Você Pode Ter uma Vida Feliz? (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6647', name: 'Como Ter uma Vida Satisfatória (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6643', name: 'A Vida — Teve um Criador? (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6655', name: 'A Origem da Vida — Cinco Perguntas (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6657', name: 'Escute a Deus e Viva para Sempre (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6648', name: 'O Caminho para a Vida Eterna (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6639', name: 'Como Ter Verdadeira Paz e Felicidade (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6656', name: 'Verdadeira Fé — O Segredo de uma Vida Feliz (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6630', name: 'Espíritos dos Mortos (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6670', name: 'Sabedoria de Jesus (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  { code: '6684', name: '10 Perguntas Que os Jovens se Fazem (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
-  
-  // Periódicos (Baseado na página 3 do S-58-T)
+  // PERIÓDICOS (Português)
   { code: 'wp', name: 'A Sentinela — edição para o público', language: 'Português', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
   { code: 'w', name: 'A Sentinela — edição de estudo', language: 'Português', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
   { code: 'g', name: 'Despertai!', language: 'Português', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
   { code: 'mwb', name: 'Nossa Vida e Ministério Cristão — Apostila da Reunião', language: 'Português', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
 
-  { code: 'wp', name: 'A Sentinela — edição para o público', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
-  { code: 'w', name: 'A Sentinela — edição de estudo', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
-  { code: 'g', name: 'Despertai!', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
-  { code: 'mwb', name: 'Nossa Vida e Ministério Cristão — Apostila da Reunião', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  // PERIÓDICOS (Espanhol)
+  { code: 'wp', name: 'La Atalaya — edición para el público', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'w', name: 'La Atalaya — edición de estudio', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'g', name: '¡Despertad!', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'mwb', name: 'Nuestra Vida y Ministerio Cristianos — Guía de actividades', language: 'Espanhol', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
 
-  { code: 'w', name: 'A Sentinela — edição de estudo (Jan/2022)', language: 'Inglês', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
-  { code: 'mwb', name: 'Nossa Vida e Ministério Cristão — Apostila da Reunião (Jan/2022)', language: 'Inglês', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
-
-  { code: 'wp', name: 'A Sentinela — edição para o público', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
-  { code: 'w', name: 'A Sentinela — edição de estudo', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
-  { code: 'g', name: 'Despertai!', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
-  { code: 'mwb', name: 'Nossa Vida e Ministério Cristão — Apostila da Reunião', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
+  // PERIÓDICOS (Inglês)
+  { code: 'wp', name: 'The Watchtower — Public Edition', language: 'Inglês', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'w', name: 'The Watchtower — Study Edition', language: 'Inglês', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'g', name: 'Awake!', language: 'Inglês', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  { code: 'mwb', name: 'Our Christian Life and Ministry — Meeting Workbook', language: 'Inglês', category: 'Periódicos', grade: 'Grau 1', volumes: '1' },
+  
+  { code: 'wp', name: 'The Watchtower — Public Edition', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
+  { code: 'w', name: 'The Watchtower — Study Edition', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
+  { code: 'g', name: 'Awake!', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
+  { code: 'mwb', name: 'Our Christian Life and Ministry — Meeting Workbook', language: 'Inglês', category: 'Periódicos', grade: 'Grau 2', volumes: '1' },
 ];
 
 export default function BrailleListPage() {
@@ -121,15 +113,17 @@ export default function BrailleListPage() {
 
   const filteredItems = useMemo(() => {
     return BRAILLE_DATA.filter(item => {
-      const matchesSearch = item.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                           item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           (item.language && item.language.toLowerCase().includes(searchTerm.toLowerCase()));
+      const search = searchTerm.toLowerCase();
+      const matchesSearch = 
+        item.name.toLowerCase().includes(search) || 
+        item.code.toLowerCase().includes(search) ||
+        (item.language && item.language.toLowerCase().includes(search));
       const matchesGrade = selectedGrade === 'all' || item.grade === selectedGrade;
       return matchesSearch && matchesGrade;
     });
   }, [searchTerm, selectedGrade]);
 
-  const categories = ["Bíblias", "Livros", "Brochuras", "Periódicos"];
+  const categories = ["Itens Anuais", "Bíblias", "Livros", "Brochuras", "Periódicos"];
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-12 px-4 font-body">
@@ -180,7 +174,7 @@ export default function BrailleListPage() {
                   </p>
                   <ul className="list-decimal pl-6 space-y-2 marker:font-black marker:text-primary">
                     <li>
-                      A pessoa é um publicador ou um estudante da Bíblia que está fazendo progresso. (Pessoas recém-interessadas podem pedir itens menores em braille, como folhetos, brochuras e livros. Esperem a pessoa fazer mais progresso para pedir a <em>Tradução do Novo Mundo</em>. Um sinal desse progresso é estar assistindo às reuniões regularmente.)
+                      A pessoa é um publicador ou um estudante da Bíblia que está fazendo progresso. (Pessoas recém-interessadas podem pedir itens menores em braille, como folhetos, brochuras e livros. Esperem a pessoa fazer mais progresso para pedir a <em>Tradução do Novo Mundo</em>.)
                     </li>
                     <li>
                       A pessoa consegue ler o idioma e o grau do braille da publicação que está sendo pedida.
@@ -192,9 +186,9 @@ export default function BrailleListPage() {
                 </div>
 
                 <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-100 space-y-3">
-                  <h3 className="font-black uppercase text-[10px] text-neutral-800 tracking-widest">Formatos eletrônicos</h3>
+                  <h3 className="font-black uppercase text-[10px] text-neutral-800 tracking-widest text-left">Formatos eletrônicos</h3>
                   <p className="text-xs">
-                    Os arquivos para leitor de tela (RTF) e notetaker (BRL) podem ser baixados da área pública do <strong>jw.org</strong>. Os anciãos devem se oferecer para ajudar os que usam esses arquivos. Talvez seja necessário designar alguns publicadores para ajudá-los regularmente a baixar os arquivos.
+                    Os arquivos para leitor de tela (RTF) e notetaker (BRL) podem ser baixados da área pública do <strong>jw.org</strong>. Os anciãos devem se oferecer para ajudar os que usam esses arquivos.
                   </p>
                 </div>
               </div>
@@ -211,7 +205,7 @@ export default function BrailleListPage() {
                 placeholder="Pesquisar por nome, idioma ou código..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 h-11"
+                className="pl-10 h-11 font-bold"
               />
             </div>
             <div className="flex items-center gap-2">
@@ -262,7 +256,11 @@ export default function BrailleListPage() {
                           <TableCell className="border-r p-3 text-left">
                             <div className="flex flex-col gap-1">
                               <div className="flex items-center gap-2">
-                                <BookOpen className="h-3.5 w-3.5 text-primary/40 shrink-0" />
+                                {cat === 'Itens Anuais' ? (
+                                  <Calendar className="h-3.5 w-3.5 text-primary/40 shrink-0" />
+                                ) : (
+                                  <BookOpen className="h-3.5 w-3.5 text-primary/40 shrink-0" />
+                                )}
                                 <span className="font-bold text-sm uppercase">{item.name}</span>
                               </div>
                               {item.language && (
