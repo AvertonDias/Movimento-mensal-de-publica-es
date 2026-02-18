@@ -17,7 +17,7 @@ const S14_SECTIONS = [
     items: [
       { code: "5140", name: "Tradução do Novo Mundo da Bíblia Sagrada (nwt)" },
       { code: "5142", name: "Tradução do Novo Mundo da Bíblia Sagrada (tamanho de bolso) (nwtpkt)" },
-      { code: "5141", name: "Tradução do Novo Mundo da Bíblia Sagrada (tamanho grande) (nwtls)" },
+      { code: "5141", name: "Tradução do Novo Mundo da Bíblia Sagrada (tamanho grande) (nwtls)", isSpecial: true },
       { code: "5144", name: "Tradução do Novo Mundo da Bíblia Sagrada — Edição de estudo (Mateus a Atos) (nwtsty1-E)" },
     ]
   },
