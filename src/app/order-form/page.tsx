@@ -7,7 +7,7 @@ import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Printer, ShoppingCart, ShieldCheck, Info, FileEdit } from "lucide-react";
+import { Share2, ShoppingCart, ShieldCheck, Info, FileEdit, Loader2 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -130,7 +130,7 @@ export default function OrderFormPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
-  const router = useRouter();
+  const [isGenerating, setIsGenerating] = useState(false);
   
   // Estados para tornar o formulário editável
   const [header, setHeader] = useState({
@@ -188,8 +188,77 @@ export default function OrderFormPage() {
     setOtherItems(newItems);
   };
 
-  const handleGeneratePDF = () => {
-    window.print();
+  const handleSharePDF = async () => {
+    if (isGenerating) return;
+    setIsGenerating(true);
+    
+    toast({
+      title: "Gerando PDF...",
+      description: "Convertendo formulário em arquivo para compartilhamento.",
+    });
+
+    try {
+      const { default: jsPDF } = await import('jspdf');
+      const { default: html2canvas } = await import('html2canvas');
+
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageIds = ['s14-page-1', 's14-page-2'];
+
+      for (let i = 0; i < pageIds.length; i++) {
+        const element = document.getElementById(pageIds[i]);
+        if (!element) continue;
+
+        if (i > 0) pdf.addPage();
+
+        // Captura a página como imagem
+        const canvas = await html2canvas(element, {
+          scale: 2,
+          logging: false,
+          useCORS: true,
+          windowWidth: 850, // Largura padrão do formulário no CSS
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+      }
+
+      const pdfBlob = pdf.output('blob');
+      const fileName = `Pedido_S14_${header.congName.replace(/\s+/g, '_') || 'Congregacao'}.pdf`;
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+      // Tenta compartilhar nativamente (funciona melhor em celulares)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Pedido de Publicações S-14-T',
+            text: `Segue o pedido de publicações preenchido para a congregação ${header.congName}.`,
+          });
+        } catch (err) {
+          // Se o compartilhamento falhar ou for cancelado, faz o download como fallback
+          pdf.save(fileName);
+        }
+      } else {
+        // Se não suportar compartilhar arquivos, faz o download
+        pdf.save(fileName);
+        toast({
+          title: "Download Iniciado",
+          description: "O seu navegador não suporta compartilhamento direto de arquivos. O PDF foi baixado.",
+        });
+      }
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      toast({
+        variant: "destructive",
+        title: "Erro ao gerar arquivo",
+        description: "Não foi possível converter o formulário em PDF. Tente usar a função de impressão do sistema.",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   if (isUserLoading || isCheckingHelper || !user) return null;
@@ -221,7 +290,7 @@ export default function OrderFormPage() {
               <h1 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                 <FileEdit className="h-4 w-4" /> Preencher Pedido S-14-T
               </h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase">Edite os campos abaixo e compartilhe como PDF.</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Gere o arquivo PDF para enviar pelo WhatsApp.</p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -233,8 +302,15 @@ export default function OrderFormPage() {
                 </span>
               </div>
             )}
-            <Button variant="outline" size="sm" className="gap-2 font-bold uppercase text-[10px] bg-white h-9" onClick={handleGeneratePDF}>
-              <Printer className="h-4 w-4" /> Compartilhar PDF
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2 font-bold uppercase text-[10px] bg-white h-9 shadow-sm hover:bg-primary/5" 
+              onClick={handleSharePDF}
+              disabled={isGenerating}
+            >
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4 text-primary" />}
+              Compartilhar PDF
             </Button>
           </div>
         </div>
@@ -243,7 +319,7 @@ export default function OrderFormPage() {
         <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 text-black space-y-8">
           
           {/* PÁGINA 1 */}
-          <div className="space-y-6">
+          <div className="space-y-6" id="s14-page-1">
             <div className="space-y-4 mb-6">
               <div className="flex justify-between items-start text-[10px] font-bold">
                 <div className="flex gap-2 items-baseline w-[200px]">
@@ -347,7 +423,7 @@ export default function OrderFormPage() {
             ))}
           </div>
 
-          <div className="print:break-before-page pt-8 space-y-6">
+          <div className="print:break-before-page pt-8 space-y-6" id="s14-page-2">
             <div className="flex justify-between items-baseline border-b border-black pb-1 mb-4">
               <div className="flex gap-2 items-baseline text-[10px] font-bold w-[300px]">
                 <span>Idioma:</span>
