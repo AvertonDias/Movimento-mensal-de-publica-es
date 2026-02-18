@@ -28,8 +28,8 @@ export const viewport: Viewport = {
   themeColor: '#A0CFEC',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
+  maximumScale: 1, // Limita o zoom máximo para evitar distorções de layout na rotação
+  userScalable: false, // Desativa o pinch-to-zoom para manter a experiência de app nativo estável
 };
 
 export default function RootLayout({

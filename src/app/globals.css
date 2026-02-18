@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -74,8 +73,13 @@
   * {
     @apply border-border;
   }
+  
+  html {
+    -webkit-text-size-adjust: 100%; /* Previne redimensionamento de fonte indesejado na rotação */
+  }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden;
   }
   
   /* Hide number input arrows (spinners) */

@@ -1,6 +1,6 @@
 import * as React from "react"
 
-const MOBILE_BREAKPOINT = 768
+const MOBILE_BREAKPOINT = 1024 // Aumentado para 1024 para cobrir celulares em landscape e tablets menores
 
 export function useIsMobile() {
   const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
