@@ -6,10 +6,21 @@ import { collection, doc } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
-import { Share2, ShoppingCart, Info, FileEdit, Loader2 } from "lucide-react";
+import { Share2, ShoppingCart, Info, FileEdit, Loader2, RotateCcw } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const S14_SECTIONS = [
   {
@@ -268,6 +279,34 @@ export default function OrderFormPage() {
     }
   };
 
+  const handleClearQuantities = () => {
+    const emptyQuantities = {};
+    const resetOtherItems = Array.from({ length: 15 }, (_, i) => ({
+      id: i,
+      qty: '',
+      code: '',
+      usage: '',
+      lang: '',
+      title: '',
+      stock: ''
+    }));
+
+    setQuantities(emptyQuantities);
+    setOtherItems(resetOtherItems);
+
+    if (orderFormRef) {
+      setDocumentNonBlocking(orderFormRef, { 
+        quantities: emptyQuantities, 
+        otherItems: resetOtherItems 
+      }, { merge: true });
+    }
+
+    toast({
+      title: "Pedido limpo",
+      description: "As quantidades foram removidas, mas o cabeçalho foi mantido.",
+    });
+  };
+
   const handleSharePDF = async () => {
     if (isGenerating) return;
     setIsGenerating(true);
@@ -368,6 +407,37 @@ export default function OrderFormPage() {
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2 font-bold uppercase text-[10px] h-9 shadow-sm w-full sm:w-auto text-destructive hover:bg-destructive/10 border-destructive/20" 
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                  Limpar Pedido
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle className="uppercase font-black text-left">Limpar quantidades do pedido?</AlertDialogTitle>
+                  <AlertDialogDescription className="text-left">
+                    Esta ação removerá todas as quantidades digitadas no formulário (incluindo "Outros itens"). 
+                    As informações do cabeçalho (congregação, cidade, etc.) serão preservadas.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel className="font-bold uppercase text-xs">Cancelar</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={handleClearQuantities}
+                    className="bg-destructive hover:bg-destructive/90 font-bold uppercase text-xs"
+                  >
+                    Sim, Limpar Tudo
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
             <Button 
               variant="default" 
               size="sm" 
