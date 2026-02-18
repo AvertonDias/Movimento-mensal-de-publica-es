@@ -92,8 +92,8 @@ export default function SpecialOrdersPage() {
               <ClipboardList className="h-5 w-5 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-sm font-black uppercase tracking-tight">Registro de Pedidos Especiais</h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase">Gerencie as solicitações individuais dos publicadores.</p>
+              <h1 className="text-sm font-black uppercase tracking-tight">Pedidos Especiais</h1>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Gerenciamento digital do registro oficial.</p>
             </div>
           </div>
           <Button size="sm" onClick={handleAddRow} className="gap-2 font-black uppercase text-[10px] h-9 shadow-md transition-all active:scale-95">
@@ -102,33 +102,73 @@ export default function SpecialOrdersPage() {
         </div>
 
         {/* DOCUMENTO OFICIAL */}
-        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 space-y-8">
+        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 space-y-6">
           
-          <h2 className="text-center text-xl font-black uppercase tracking-widest border-b-2 border-black pb-2">
+          <h2 className="text-center text-xl font-black uppercase tracking-[0.1em]">
             REGISTRO DE ITENS DE PEDIDO ESPECIAL
           </h2>
 
-          {/* Quadro de Avisos */}
-          <div className="border border-black bg-neutral-100 p-4 text-center space-y-1">
-            <p className="text-[11px] font-bold italic leading-tight uppercase">
-              Os itens de pedido especial devem ser enviados somente quando os pedidos são feitos especificamente por um publicador.
+          {/* Quadro de Avisos Oficial */}
+          <div className="border border-black bg-neutral-100 p-4 text-center space-y-1 mx-auto max-w-[80%]">
+            <p className="text-[11px] font-medium leading-tight">
+              Os itens de pedido especial devem ser enviados somente
             </p>
-            <p className="text-[11px] font-bold italic leading-tight uppercase">
+            <p className="text-[11px] font-bold italic leading-tight">
+              quando os pedidos são feitos especificamente por um publicador.
+            </p>
+            <p className="text-[11px] font-medium leading-tight">
               As quantidades dos itens pedidos não devem ser estimativas com base no número de publicadores.
             </p>
+          </div>
+
+          {/* Seção de Informações de Itens */}
+          <div className="space-y-4 px-2">
+            <p className="text-[11px] font-medium">
+              Os itens de pedido especial são claramente identificados no JW Hub. Esses itens de pedido especial incluem:
+            </p>
+            
+            <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-[11px] font-medium ml-4">
+              <ul className="list-disc space-y-0.5">
+                <li>Volumes encadernados</li>
+                <li><span className="italic">Examine as Escrituras</span></li>
+                <li><span className="italic">Índices</span></li>
+                <li>Watchtower Library (CD-ROM)</li>
+                <li>Bíblias tamanho grande</li>
+              </ul>
+              <ul className="list-disc space-y-0.5">
+                <li>Todos os livros de letras grandes, exceto cancioneiros</li>
+                <li><span className="italic">Proclamadores</span></li>
+                <li>Volumes de <span className="italic">Estudo Perspicaz</span></li>
+                <li><span className="italic">'Boa Terra'</span></li>
+              </ul>
+            </div>
+
+            <div className="flex justify-center gap-8 text-[11px] font-medium pt-2">
+              <span className="text-muted-foreground mr-[-20px]">Descrições da situação do pedido:</span>
+              <div className="flex items-center gap-1"><span className="text-[8px]">■</span> Env. = Enviado</div>
+              <div className="flex items-center gap-1"><span className="text-[8px]">■</span> Pend. = Pendente</div>
+              <div className="flex items-center gap-1"><span className="text-[8px]">■</span> Rec. = Recebido</div>
+            </div>
           </div>
 
           {/* Tabela de Registros */}
           <div className="border-2 border-black">
             <table className="w-full border-collapse text-[10px]">
               <thead>
-                <tr className="bg-neutral-50 font-black uppercase text-center border-b-2 border-black h-10">
-                  <th className="border-r border-black p-2 w-[100px]">Data</th>
-                  <th className="border-r border-black p-2 w-[180px]">Nome do publicador</th>
-                  <th className="border-r border-black p-2">Item</th>
-                  <th className="border-r border-black p-2 w-[100px]">Idioma</th>
-                  <th className="border-r border-black p-2 w-[60px]">Qtd.</th>
-                  <th className="p-2 w-[140px]">Situação</th>
+                <tr className="bg-neutral-50 font-black uppercase text-center border-b-2 border-black h-12">
+                  <th className="border-r border-black p-1 w-[90px] leading-tight">Data do<br/>pedido</th>
+                  <th className="border-r border-black p-1 w-[180px] leading-tight">Nome do<br/>publicador</th>
+                  <th className="border-r border-black p-1">Item</th>
+                  <th className="border-r border-black p-1 w-[100px]">Idioma</th>
+                  <th className="border-r border-black p-1 w-[70px]">Quantidade</th>
+                  <th className="p-1 w-[140px] leading-tight relative">
+                    Situação
+                    <div className="flex justify-center gap-3 text-[7px] font-bold mt-1 opacity-60">
+                      <span>Env.</span>
+                      <span>Pend.</span>
+                      <span>Rec.</span>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -245,11 +285,11 @@ export default function SpecialOrdersPage() {
 
           {/* Rodapé Informativo */}
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-black/10">
-            <span className="text-[8px] font-bold opacity-40">S-14-T DIGITAL (REGISTRO ESPECIAL)</span>
+            <span className="text-[8px] font-bold opacity-40 uppercase tracking-tighter">S-14-T DIGITAL (REGISTRO ESPECIAL)</span>
             <div className="flex items-center gap-2 p-2 bg-primary/5 rounded border border-primary/10 print:hidden">
               <Info className="h-3 w-3 text-primary" />
               <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">
-                Os dados são sincronizados automaticamente em todos os seus dispositivos.
+                Este registro deve ser atualizado mensalmente conforme os pedidos forem recebidos.
               </p>
             </div>
           </div>
