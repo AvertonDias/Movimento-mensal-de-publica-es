@@ -1,7 +1,8 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc, setDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -97,7 +98,7 @@ const S14_SECTIONS = [
       { code: "6658", name: "Escute a Deus (ld)" },
       { code: "6667", name: "Melhore Sua Leitura e Seu Ensino (th)" },
       { code: "6663", name: "Minhas Primeiras Lições da Bíblia (mb)" },
-      { code: "6670", name: "Aprenda com a Sabedoria de Jesus (para muçulmanos) (wfg) NOVO!" },
+      { code: "6670", name: "Aprenda com as Sabedoria de Jesus (para muçulmanos) (wfg) NOVO!" },
       { code: "6648", name: "O Caminho para a Vida Eterna — Já o Encontrou? (para africanos) (ol)" },
       { code: "6684", name: "10 Perguntas Que os Jovens se Fazem e as Melhores Respostas (ypq)" },
       { code: "6639", name: "Como Ter Verdadeira Paz e Felicidade (para chineses) (pc)" },
@@ -137,7 +138,7 @@ export default function OrderFormPage() {
     congName: '',
     city: '',
     state: '',
-    date: '',
+    date: format(new Date(), 'dd/MM/yyyy'),
     lang: 'Português'
   });
 
@@ -154,13 +155,6 @@ export default function OrderFormPage() {
     }))
   );
 
-  useEffect(() => {
-    setHeader(h => ({ ...h, date: format(new Date(), 'dd/MM/yyyy') }));
-  }, []);
-
-  const selectedMonth = useMemo(() => startOfMonth(subMonths(new Date(), 1)), []);
-  const monthKey = format(selectedMonth, 'yyyy-MM');
-
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'invites', user.uid);
@@ -168,6 +162,26 @@ export default function OrderFormPage() {
 
   const { data: helperInvite, isLoading: isCheckingHelper } = useDoc(helperInviteRef);
   const activeUserId = helperInvite ? helperInvite.ownerId : user?.uid;
+
+  // Documento para salvar o estado do formulário
+  const orderFormRef = useMemoFirebase(() => {
+    if (!db || !activeUserId) return null;
+    return doc(db, 'users', activeUserId, 'order_form', 'state');
+  }, [db, activeUserId]);
+
+  const { data: savedState, isLoading: isStateLoading } = useDoc(orderFormRef);
+
+  // Carregar dados salvos ao iniciar
+  useEffect(() => {
+    if (savedState) {
+      if (savedState.header) setHeader(prev => ({ ...prev, ...savedState.header }));
+      if (savedState.quantities) setQuantities(savedState.quantities);
+      if (savedState.otherItems) setOtherItems(savedState.otherItems);
+    }
+  }, [savedState]);
+
+  const selectedMonth = useMemo(() => startOfMonth(subMonths(new Date(), 1)), []);
+  const monthKey = format(selectedMonth, 'yyyy-MM');
 
   const monthItemsQuery = useMemoFirebase(() => {
     if (!db || !activeUserId || !monthKey) return null;
@@ -182,13 +196,28 @@ export default function OrderFormPage() {
   };
 
   const handleQtyChange = (code: string, val: string) => {
-    setQuantities(prev => ({ ...prev, [code]: val }));
+    const newQuantities = { ...quantities, [code]: val };
+    setQuantities(newQuantities);
+    if (orderFormRef) {
+      setDocumentNonBlocking(orderFormRef, { quantities: newQuantities }, { merge: true });
+    }
+  };
+
+  const handleHeaderChange = (field: string, val: string) => {
+    const newHeader = { ...header, [field]: val };
+    setHeader(newHeader);
+    if (orderFormRef) {
+      setDocumentNonBlocking(orderFormRef, { header: newHeader }, { merge: true });
+    }
   };
 
   const handleOtherItemChange = (idx: number, field: string, val: string) => {
     const newItems = [...otherItems];
     (newItems[idx] as any)[field] = val;
     setOtherItems(newItems);
+    if (orderFormRef) {
+      setDocumentNonBlocking(orderFormRef, { otherItems: newItems }, { merge: true });
+    }
   };
 
   const handleSharePDF = async () => {
@@ -365,18 +394,23 @@ export default function OrderFormPage() {
         </div>
 
         {/* DOCUMENTO S-14-T */}
-        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 text-black space-y-8 overflow-hidden">
+        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 text-black space-y-8 overflow-hidden relative">
+          {isStateLoading && (
+            <div className="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-50 flex items-center justify-center print:hidden">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+          )}
           
           {/* PÁGINA 1 */}
           <div className="space-y-4 bg-white p-4" id="s14-page-1">
             <div className="flex justify-between items-baseline text-[9px] font-bold mb-2">
               <div className="flex gap-1 items-baseline w-[220px]">
                 <span className="shrink-0 uppercase">Número do pedido:</span>
-                <div className="flex-1 h-3.5"><FormInput value={header.orderNum} onChange={(v: any) => setHeader({...header, orderNum: v})} /></div>
+                <div className="flex-1 h-3.5"><FormInput value={header.orderNum} onChange={(v: any) => handleHeaderChange('orderNum', v)} /></div>
               </div>
               <div className="flex gap-1 items-baseline w-[220px]">
                 <span className="shrink-0 uppercase">Número da congregação:</span>
-                <div className="flex-1 h-3.5"><FormInput value={header.congNum} onChange={(v: any) => setHeader({...header, congNum: v})} /></div>
+                <div className="flex-1 h-3.5"><FormInput value={header.congNum} onChange={(v: any) => handleHeaderChange('congNum', v)} /></div>
               </div>
             </div>
             
@@ -386,26 +420,26 @@ export default function OrderFormPage() {
               <div className="grid grid-cols-12 gap-x-4 gap-y-2">
                 <div className="col-span-5 flex gap-1 items-baseline">
                   <span className="shrink-0 uppercase">Nome da congregação:</span>
-                  <div className="flex-1 h-3.5"><FormInput value={header.congName} onChange={(v: any) => setHeader({...header, congName: v})} /></div>
+                  <div className="flex-1 h-3.5"><FormInput value={header.congName} onChange={(v: any) => handleHeaderChange('congName', v)} /></div>
                 </div>
                 <div className="col-span-2 flex gap-1 items-baseline">
                   <span className="shrink-0 uppercase">Cidade:</span>
-                  <div className="flex-1 h-3.5"><FormInput value={header.city} onChange={(v: any) => setHeader({...header, city: v})} /></div>
+                  <div className="flex-1 h-3.5"><FormInput value={header.city} onChange={(v: any) => handleHeaderChange('city', v)} /></div>
                 </div>
                 <div className="col-span-3 flex gap-1 items-baseline">
                   <span className="shrink-0 uppercase">Província ou estado:</span>
-                  <div className="flex-1 h-3.5"><FormInput value={header.state} onChange={(v: any) => setHeader({...header, state: v})} /></div>
+                  <div className="flex-1 h-3.5"><FormInput value={header.state} onChange={(v: any) => handleHeaderChange('state', v)} /></div>
                 </div>
                 <div className="col-span-2 flex gap-1 items-baseline">
                   <span className="shrink-0 uppercase">Data:</span>
-                  <div className="flex-1 h-3.5"><FormInput value={header.date} onChange={(v: any) => setHeader({...header, date: v})} /></div>
+                  <div className="flex-1 h-3.5"><FormInput value={header.date} onChange={(v: any) => handleHeaderChange('date', v)} /></div>
                 </div>
               </div>
               
               <div className="grid grid-cols-12 gap-x-4">
                 <div className="col-span-6 flex gap-1 items-baseline">
                   <span className="shrink-0 uppercase font-black">IDIOMA (Especifique um):</span>
-                  <div className="flex-1 h-3.5"><FormInput value={header.lang} onChange={(v: any) => setHeader({...header, lang: v})} /></div>
+                  <div className="flex-1 h-3.5"><FormInput value={header.lang} onChange={(v: any) => handleHeaderChange('lang', v)} /></div>
                   <span className="text-[7px] italic font-normal">(Obrigatório)</span>
                 </div>
                 <div className="col-span-6 flex items-center gap-2 justify-end">
@@ -461,11 +495,11 @@ export default function OrderFormPage() {
             <div className="flex justify-between items-baseline border-b border-black pb-1 mb-2">
               <div className="flex gap-1 items-baseline text-[9px] font-bold w-[280px]">
                 <span className="uppercase">Idioma:</span>
-                <div className="flex-1 h-3.5"><FormInput value={header.lang} onChange={(v: any) => setHeader({...header, lang: v})} /></div>
+                <div className="flex-1 h-3.5"><FormInput value={header.lang} onChange={(v: any) => handleHeaderChange('lang', v)} /></div>
               </div>
               <div className="flex gap-1 items-baseline text-[9px] font-bold w-[220px]">
                 <span className="uppercase">Número da congregação:</span>
-                <div className="flex-1 h-3.5"><FormInput value={header.congNum} onChange={(v: any) => setHeader({...header, lang: v})} /></div>
+                <div className="flex-1 h-3.5"><FormInput value={header.congNum} onChange={(v: any) => handleHeaderChange('congNum', v)} /></div>
               </div>
             </div>
 

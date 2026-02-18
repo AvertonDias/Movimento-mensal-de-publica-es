@@ -102,6 +102,10 @@
     "/users/{userId}/monthly_records/{monthKey}/items/{itemId}": {
       "schema": { "type": "object" },
       "description": "Stores monthly inventory data snapshots."
+    },
+    "/users/{userId}/order_form/state": {
+      "schema": { "type": "object" },
+      "description": "Stores the persistent state of the S-14-T order form including header and quantities."
     }
   }
 }
