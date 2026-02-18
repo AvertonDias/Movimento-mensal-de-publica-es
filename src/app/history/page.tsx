@@ -39,8 +39,8 @@ export default function HistoryPage(props: {
     setIsSharing(true);
     
     toast({
-      title: "Gerando documento...",
-      description: "Preparando folha S-28-T para visualização.",
+      title: "Preparando documento...",
+      description: "Aguarde enquanto geramos a folha S-28-T.",
     });
 
     try {
@@ -75,17 +75,21 @@ export default function HistoryPage(props: {
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // PRIORIDADE: Compartilhamento Nativo (Perguntar qual app abrir)
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      // TENTA COMPARTILHAMENTO NATIVO (Isso abre o seletor de apps no celular)
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
             files: [file],
             title: 'Folha S-28-T Digital',
-            text: `Movimento mensal de publicações`,
+            text: 'Movimento mensal de publicações',
           });
-        } catch (err) { }
+        } catch (shareError) {
+          // Se falhar ou cancelar, tenta abrir em nova aba como fallback
+          const blobUrl = URL.createObjectURL(pdfBlob);
+          window.open(blobUrl, '_blank');
+        }
       } else {
-        // FALLBACK: Abrir em nova aba
+        // Fallback para navegadores que não suportam navigator.share
         const blobUrl = URL.createObjectURL(pdfBlob);
         window.open(blobUrl, '_blank');
       }
@@ -93,8 +97,8 @@ export default function HistoryPage(props: {
       console.error('Erro ao abrir documento:', error);
       toast({
         variant: "destructive",
-        title: "Erro ao abrir",
-        description: "Não foi possível processar o documento PDF.",
+        title: "Erro ao processar",
+        description: "Não foi possível gerar o PDF.",
       });
     } finally {
       setIsSharing(false);
@@ -123,7 +127,7 @@ export default function HistoryPage(props: {
 
           <Button 
             variant="outline" 
-            className="gap-2 bg-white font-bold uppercase text-xs" 
+            className="gap-2 bg-white font-bold uppercase text-xs shadow-sm hover:bg-neutral-50" 
             onClick={handleShare}
             disabled={isSharing}
           >

@@ -222,8 +222,8 @@ export default function OrderFormPage() {
     setIsGenerating(true);
     
     toast({
-      title: "Gerando documento...",
-      description: "Preparando layout oficial para visualização.",
+      title: "Preparando pedido...",
+      description: "Montando formulário S-14-T oficial.",
     });
 
     try {
@@ -261,21 +261,23 @@ export default function OrderFormPage() {
         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, Math.min(pdfHeight, pdf.internal.pageSize.getHeight()), undefined, 'FAST');
       }
 
-      const fileName = `S14_${header.congName.replace(/\s+/g, '_') || 'Pedido'}_${header.date.replace(/\//g, '-')}.pdf`;
+      const fileName = `S14_${header.congName.replace(/\s+/g, '_') || 'Pedido'}.pdf`;
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // PRIORIDADE: Compartilhamento Nativo (Perguntar qual app abrir)
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      // ABRE O SELETOR DE APPS NATIVO
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
             files: [file],
-            title: 'Pedido de Publicações S-14-T',
-            text: `Pedido da congregação ${header.congName} - ${header.date}`,
+            title: 'Pedido S-14-T',
+            text: `Pedido da congregação ${header.congName}`,
           });
-        } catch (err) { }
+        } catch (err) {
+          const blobUrl = URL.createObjectURL(pdfBlob);
+          window.open(blobUrl, '_blank');
+        }
       } else {
-        // FALLBACK: Abrir em nova aba
         const blobUrl = URL.createObjectURL(pdfBlob);
         window.open(blobUrl, '_blank');
       }
@@ -284,7 +286,7 @@ export default function OrderFormPage() {
       toast({
         variant: "destructive",
         title: "Erro ao abrir",
-        description: "Não foi possível processar o documento PDF.",
+        description: "Não foi possível gerar o PDF.",
       });
     } finally {
       setIsGenerating(false);
@@ -362,7 +364,7 @@ export default function OrderFormPage() {
               <h1 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                 <FileEdit className="h-4 w-4" /> Formulário S-14-T Digital
               </h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase">Formato oficial de Betel pronto para abrir e imprimir.</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Formato oficial pronto para abrir ou compartilhar.</p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">

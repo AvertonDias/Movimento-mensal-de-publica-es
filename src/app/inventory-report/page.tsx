@@ -114,8 +114,8 @@ export default function InventoryReportPage() {
     setIsSharing(true);
     
     toast({
-      title: "Gerando relatório...",
-      description: "Preparando documento para visualização.",
+      title: "Preparando relatório...",
+      description: "Gerando PDF de saldo físico.",
     });
 
     try {
@@ -150,19 +150,19 @@ export default function InventoryReportPage() {
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // PRIORIDADE: Compartilhamento Nativo (Perguntar qual app abrir)
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      // ABRE O SELETOR DE APPS NATIVO
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
             files: [file],
             title: 'Relatório de Saldo Físico',
-            text: `Saldo de publicações - Competência: ${monthLabel}`,
+            text: `Saldo de publicações - ${monthLabel}`,
           });
         } catch (err) {
-          // Se o usuário cancelar o share, não faz nada
+          const blobUrl = URL.createObjectURL(pdfBlob);
+          window.open(blobUrl, '_blank');
         }
       } else {
-        // FALLBACK: Abrir em nova aba (Computador ou navegadores limitados)
         const blobUrl = URL.createObjectURL(pdfBlob);
         window.open(blobUrl, '_blank');
       }
@@ -171,7 +171,7 @@ export default function InventoryReportPage() {
       toast({
         variant: "destructive",
         title: "Erro ao abrir",
-        description: "Não foi possível processar o relatório PDF.",
+        description: "Não foi possível processar o relatório.",
       });
     } finally {
       setIsSharing(false);
