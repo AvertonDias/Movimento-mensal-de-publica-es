@@ -47,7 +47,8 @@ const BRAILLE_DATA: BrailleItem[] = [
   // Bíblias
   { code: '3140', name: 'Tradução do Novo Mundo (G1)', category: 'Bíblias', grade: 'Grau 1', volumes: '20' },
   { code: '3140', name: 'Tradução do Novo Mundo (G2)', category: 'Bíblias', grade: 'Grau 2', volumes: '18' },
-  { code: '3142', name: 'Escrituras Gregas (G1)', category: 'Bíblias', grade: 'Grau 1', volumes: '5' },
+  { code: '3142', name: 'Tradução do Novo Mundo das Escrituras Gregas (G1)', category: 'Bíblias', grade: 'Grau 1', volumes: '5' },
+  { code: '3142', name: 'Tradução do Novo Mundo das Escrituras Gregas (G2)', category: 'Bíblias', grade: 'Grau 2', volumes: '4' },
   
   // Livros
   { code: '5445', name: 'Seja Feliz para Sempre! (G1)', category: 'Livros', grade: 'Grau 1', volumes: '5' },
@@ -64,6 +65,11 @@ const BRAILLE_DATA: BrailleItem[] = [
   { code: '5341', name: 'Cante de Coração para Jeová (G1)', category: 'Livros', grade: 'Grau 1', volumes: '2' },
   { code: '5339', name: 'Os Jovens Perguntam — Respostas Práticas, Volume 1 (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
   { code: '5336', name: 'Os Jovens Perguntam — Respostas Práticas, Volume 2 (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
+  { code: '5414', name: 'Beneficie-se da Escola do Ministério Teocrático (G1)', category: 'Livros', grade: 'Grau 1', volumes: '4' },
+  { code: '5416', name: '“Dê Testemunho Cabal” sobre o Reino de Deus (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
+  { code: '5231', name: '“Venha Ser Meu Seguidor” (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
+  { code: '5415', name: 'Aprenda do Grande Instrutor (G1)', category: 'Livros', grade: 'Grau 1', volumes: '3' },
+  { code: '5411', name: 'Estudo Perspicaz das Escrituras (Conjunto) (G1)', category: 'Livros', grade: 'Grau 1', volumes: '12' },
   
   // Brochuras
   { code: '6659', name: 'Boas Notícias de Deus para Você (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
@@ -72,10 +78,25 @@ const BRAILLE_DATA: BrailleItem[] = [
   { code: '6671', name: 'Volte para Jeová (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
   { code: '6667', name: 'Melhore sua Leitura e seu Ensino (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
   { code: '6663', name: 'Minhas Lições da Bíblia (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6618', name: 'Pode Aprender a Ler e a Escrever (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6628', name: 'Esforce-se para Ser um Bom Estudante (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6665', name: 'Você Pode Ter uma Família Feliz! (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6662', name: 'Como Você Pode Ter uma Vida Feliz? (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6647', name: 'Como Ter uma Vida Satisfatória (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6643', name: 'A Vida — Teve um Criador? (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6655', name: 'A Origem da Vida — Cinco Perguntas (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6657', name: 'Escute a Deus e Viva para Sempre (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6648', name: 'O Caminho para a Vida Eterna (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6639', name: 'Como Ter Verdadeira Paz e Felicidade (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6656', name: 'Verdadeira Fé — O Segredo de uma Vida Feliz (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6630', name: 'Espíritos dos Mortos (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6670', name: 'Sabedoria de Jesus (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
+  { code: '6684', name: '10 Perguntas Que os Jovens se Fazem (G1)', category: 'Brochuras', grade: 'Grau 1', volumes: '1' },
   
   // Revistas
-  { code: 'wp', name: 'A Sentinela (Edição de Estudo)', category: 'Revistas', grade: 'Grau 1', volumes: '1' },
-  { code: 'g', name: 'Despertai! (Edição Anual)', category: 'Revistas', grade: 'Grau 1', volumes: '1' },
+  { code: 'wp', name: 'A Sentinela (Edição de Estudo) (G1)', category: 'Revistas', grade: 'Grau 1', volumes: '1' },
+  { code: 'wp', name: 'A Sentinela (Edição de Estudo) (G2)', category: 'Revistas', grade: 'Grau 2', volumes: '1' },
+  { code: 'g', name: 'Despertai! (Edição Anual) (G1)', category: 'Revistas', grade: 'Grau 1', volumes: '1' },
 ];
 
 export default function BrailleListPage() {
@@ -167,34 +188,32 @@ export default function BrailleListPage() {
         </div>
 
         {/* Filtros e Busca */}
-        <Card className="border-none shadow-md bg-white">
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  placeholder="Pesquisar por nome ou código..." 
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 h-11"
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-primary shrink-0" />
-                <Select value={selectedGrade} onValueChange={setSelectedGrade}>
-                  <SelectTrigger className="w-[160px] h-11 font-bold uppercase text-[10px] tracking-widest">
-                    <SelectValue placeholder="Filtrar Grau" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all" className="text-[10px] font-black uppercase">Todos os Graus</SelectItem>
-                    <SelectItem value="Grau 1" className="text-[10px] font-black uppercase text-primary">Grau 1</SelectItem>
-                    <SelectItem value="Grau 2" className="text-[10px] font-black uppercase text-accent-foreground">Grau 2</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+        <div className="bg-white rounded-xl shadow-md border border-neutral-200 p-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder="Pesquisar por nome ou código..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 h-11"
+              />
             </div>
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-primary shrink-0" />
+              <Select value={selectedGrade} onValueChange={setSelectedGrade}>
+                <SelectTrigger className="w-[160px] h-11 font-bold uppercase text-[10px] tracking-widest">
+                  <SelectValue placeholder="Filtrar Grau" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all" className="text-[10px] font-black uppercase">Todos os Graus</SelectItem>
+                  <SelectItem value="Grau 1" className="text-[10px] font-black uppercase text-primary">Grau 1</SelectItem>
+                  <SelectItem value="Grau 2" className="text-[10px] font-black uppercase text-accent-foreground">Grau 2</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
 
         {/* Lista de Itens Organizada */}
         <div className="space-y-10 pb-12">
