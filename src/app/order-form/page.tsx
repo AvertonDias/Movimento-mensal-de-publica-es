@@ -8,11 +8,11 @@ import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Printer, ShoppingCart, ShieldCheck, Info } from "lucide-react";
+import { Printer, ShoppingCart, ShieldCheck, Info, FileEdit } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 
-// Definição completa dos itens do formulário S-14-T baseada nas duas imagens
+// Definição completa dos itens do formulário S-14-T
 const S14_SECTIONS = [
   {
     title: "Bíblias",
@@ -60,9 +60,9 @@ const S14_SECTIONS = [
       { code: "3522", name: "Carrinho de publicações — Kit para conserto (ldcrtrkt)", isSpecial: true },
       { code: "3518", name: "Mesa de publicações (ldtbl)", isSpecial: true },
       { code: "3523", name: "Carrinho de publicações — Rodas (ldcrtwhl)", isSpecial: true },
-      { code: "88532", name: "Curso bíblico gratuito (cartaz magnético vertical) (divulga curso bíblico presencial) (mvpfbc1) NOVO!", isSpecial: true },
+      { code: "88532", name: "Curso bíblico gratuito (cartaz magnético vertical) (divulga curso bíblico presencial) (mvpfbc1)", isSpecial: true },
       { code: "3519-1", name: "Quiosque de publicações (ldksk)", isSpecial: true },
-      { code: "88533", name: "Curso bíblico gratuito (cartaz magnético vertical) (divulga curso bíblico pela internet) (mvpfbc2) NOVO!", isSpecial: true },
+      { code: "88533", name: "Curso bíblico gratuito (cartaz magnético vertical) (divulga curso bíblico pela internet) (mvpfbc2)", isSpecial: true },
       { code: "3517-1", name: "Display de publicações (simples) (ldstd-1)", isSpecial: true },
     ]
   },
@@ -99,7 +99,7 @@ const S14_SECTIONS = [
       { code: "6658", name: "Escute a Deus (ld)" },
       { code: "6667", name: "Melhore Sua Leitura e Seu Ensino (th)" },
       { code: "6663", name: "Minhas Primeiras Lições da Bíblia (mb)" },
-      { code: "6670", name: "Aprenda com a Sabedoria de Jesus (wfg) NOVO!" },
+      { code: "6670", name: "Aprenda com a Sabedoria de Jesus (wfg)" },
       { code: "6648", name: "O Caminho para a Vida Eterna (ol)" },
       { code: "6684", name: "10 Perguntas Que os Jovens se Fazem (ypq)" },
       { code: "6639", name: "Como Ter Verdadeira Paz e Felicidade (chineses) (pc)" },
@@ -131,6 +131,29 @@ export default function OrderFormPage() {
   const db = useFirestore();
   const router = useRouter();
   
+  // Estados para tornar o formulário editável
+  const [header, setHeader] = useState({
+    orderNum: '',
+    congNum: '',
+    congName: '',
+    city: '',
+    date: format(new Date(), 'dd/MM/yyyy'),
+    lang: 'Português'
+  });
+
+  const [quantities, setQuantities] = useState<Record<string, string>>({});
+  const [otherItems, setOtherItems] = useState(
+    Array.from({ length: 15 }, (_, i) => ({
+      id: i,
+      qty: '',
+      code: '',
+      usage: '',
+      lang: '',
+      title: '',
+      stock: ''
+    }))
+  );
+
   const [selectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const monthKey = format(selectedMonth, 'yyyy-MM');
 
@@ -140,7 +163,6 @@ export default function OrderFormPage() {
   }, [db, user]);
 
   const { data: helperInvite, isLoading: isCheckingHelper } = useDoc(helperInviteRef);
-
   const activeUserId = helperInvite ? helperInvite.ownerId : user?.uid;
 
   const monthItemsQuery = useMemoFirebase(() => {
@@ -155,7 +177,30 @@ export default function OrderFormPage() {
     return item?.current !== undefined && item?.current !== null ? item.current : '---';
   };
 
+  const handleQtyChange = (code: string, val: string) => {
+    setQuantities(prev => ({ ...prev, [code]: val }));
+  };
+
+  const handleOtherItemChange = (idx: number, field: string, val: string) => {
+    const newItems = [...otherItems];
+    (newItems[idx] as any)[field] = val;
+    setOtherItems(newItems);
+  };
+
   if (isUserLoading || isCheckingHelper || !user) return null;
+
+  const FormInput = ({ value, onChange, placeholder, className }: any) => (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      className={cn(
+        "bg-transparent border-0 border-b border-black/30 rounded-none h-full w-full px-1 text-[10px] font-bold focus:outline-none focus:border-primary focus:bg-primary/5 transition-colors placeholder:text-neutral-300 print:border-black/50",
+        className
+      )}
+    />
+  );
 
   return (
     <div className="min-h-screen bg-neutral-100 pt-24 pb-12 px-4 print:p-0 print:bg-white font-body">
@@ -168,8 +213,10 @@ export default function OrderFormPage() {
               <ShoppingCart className="h-5 w-5 text-primary-foreground" />
             </div>
             <div className="text-left">
-              <h1 className="text-sm font-black uppercase tracking-tight">Gerar Pedido S-14-T</h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase">Baseado no estoque de {format(selectedMonth, 'MMMM/yy', { locale: ptBR })}</p>
+              <h1 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
+                <FileEdit className="h-4 w-4" /> Preencher Pedido S-14-T
+              </h1>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Edite os campos abaixo e clique em imprimir.</p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -194,13 +241,13 @@ export default function OrderFormPage() {
           <div className="space-y-6">
             <div className="space-y-4 mb-6">
               <div className="flex justify-between items-start text-[10px] font-bold">
-                <div className="flex gap-2 items-baseline">
-                  <span>Número do pedido:</span>
-                  <div className="border-b border-black w-32 h-4" />
+                <div className="flex gap-2 items-baseline w-[200px]">
+                  <span className="shrink-0">Número do pedido:</span>
+                  <div className="flex-1 h-4"><FormInput value={header.orderNum} onChange={(v: any) => setHeader({...header, orderNum: v})} /></div>
                 </div>
-                <div className="flex gap-2 items-baseline">
-                  <span>Número da congregação:</span>
-                  <div className="border-b border-black w-32 h-4" />
+                <div className="flex gap-2 items-baseline w-[200px]">
+                  <span className="shrink-0">Número da congregação:</span>
+                  <div className="flex-1 h-4"><FormInput value={header.congNum} onChange={(v: any) => setHeader({...header, congNum: v})} /></div>
                 </div>
               </div>
               
@@ -209,19 +256,19 @@ export default function OrderFormPage() {
               <div className="grid grid-cols-4 gap-x-4 gap-y-3 text-[10px] font-bold">
                 <div className="col-span-2 flex gap-2 items-baseline">
                   <span className="shrink-0 uppercase">Nome da congregação:</span>
-                  <div className="border-b border-black flex-1 h-4" />
+                  <div className="flex-1 h-4"><FormInput value={header.congName} onChange={(v: any) => setHeader({...header, congName: v})} /></div>
                 </div>
                 <div className="flex gap-2 items-baseline">
                   <span className="shrink-0 uppercase">Cidade:</span>
-                  <div className="border-b border-black flex-1 h-4" />
+                  <div className="flex-1 h-4"><FormInput value={header.city} onChange={(v: any) => setHeader({...header, city: v})} /></div>
                 </div>
                 <div className="flex gap-2 items-baseline">
                   <span className="shrink-0 uppercase">Data:</span>
-                  <div className="border-b border-black flex-1 h-4" />
+                  <div className="flex-1 h-4"><FormInput value={header.date} onChange={(v: any) => setHeader({...header, date: v})} /></div>
                 </div>
                 <div className="col-span-2 flex gap-2 items-baseline">
                   <span className="shrink-0 uppercase font-black italic">IDIOMA (Especifique um):</span>
-                  <div className="border-b border-black flex-1 h-4" />
+                  <div className="flex-1 h-4"><FormInput value={header.lang} onChange={(v: any) => setHeader({...header, lang: v})} /></div>
                   <span className="text-[8px] italic">(Obrigatório)</span>
                 </div>
                 <div className="col-span-2 flex items-center gap-2">
@@ -260,8 +307,12 @@ export default function OrderFormPage() {
                       <React.Fragment key={rIdx}>
                         {/* Item Esquerda */}
                         <div className={cn("flex items-center h-5 border-b border-black/10 text-[9px]", left.isSpecial && "bg-neutral-100")}>
-                          <div className="w-10 border-r border-black/10 flex items-end justify-center h-full pb-0.5">
-                            <div className="w-8 border-b border-black/40 h-3" />
+                          <div className="w-10 border-r border-black/10 flex items-center justify-center h-full">
+                            <FormInput 
+                              value={quantities[left.code] || ''} 
+                              onChange={(v: any) => handleQtyChange(left.code, v)} 
+                              className="border-0 text-center text-[11px]" 
+                            />
                           </div>
                           <span className="w-12 text-center font-black">{left.code}</span>
                           <span className="flex-1 px-2 truncate leading-none font-medium">{left.name}</span>
@@ -271,8 +322,12 @@ export default function OrderFormPage() {
                         {/* Item Direita */}
                         {right ? (
                           <div className={cn("flex items-center h-5 border-b border-black/10 text-[9px]", right.isSpecial && "bg-neutral-100")}>
-                            <div className="w-10 border-r border-black/10 flex items-end justify-center h-full pb-0.5">
-                              <div className="w-8 border-b border-black/40 h-3" />
+                            <div className="w-10 border-r border-black/10 flex items-center justify-center h-full">
+                              <FormInput 
+                                value={quantities[right.code] || ''} 
+                                onChange={(v: any) => handleQtyChange(right.code, v)} 
+                                className="border-0 text-center text-[11px]" 
+                              />
                             </div>
                             <span className="w-12 text-center font-black">{right.code}</span>
                             <span className="flex-1 px-2 truncate leading-none font-medium">{right.name}</span>
@@ -289,13 +344,13 @@ export default function OrderFormPage() {
 
           <div className="print:break-before-page pt-8 space-y-6">
             <div className="flex justify-between items-baseline border-b border-black pb-1 mb-4">
-              <div className="flex gap-2 items-baseline text-[10px] font-bold">
+              <div className="flex gap-2 items-baseline text-[10px] font-bold w-[300px]">
                 <span>Idioma:</span>
-                <div className="border-b border-black w-48 h-4" />
+                <div className="flex-1 h-4"><FormInput value={header.lang} onChange={(v: any) => setHeader({...header, lang: v})} /></div>
               </div>
-              <div className="flex gap-2 items-baseline text-[10px] font-bold">
+              <div className="flex gap-2 items-baseline text-[10px] font-bold w-[200px]">
                 <span>Número da congregação:</span>
-                <div className="border-b border-black w-32 h-4" />
+                <div className="flex-1 h-4"><FormInput value={header.congNum} onChange={(v: any) => setHeader({...header, congNum: v})} /></div>
               </div>
             </div>
 
@@ -323,8 +378,12 @@ export default function OrderFormPage() {
                     return (
                       <React.Fragment key={rIdx}>
                         <div className="flex items-center h-5 border-b border-black/10 text-[9px]">
-                          <div className="w-10 border-r border-black/10 flex items-end justify-center h-full pb-0.5">
-                            <div className="w-8 border-b border-black/40 h-3" />
+                          <div className="w-10 border-r border-black/10 flex items-center justify-center h-full">
+                            <FormInput 
+                              value={quantities[left.code] || ''} 
+                              onChange={(v: any) => handleQtyChange(left.code, v)} 
+                              className="border-0 text-center text-[11px]" 
+                            />
                           </div>
                           <span className="w-12 text-center font-black">{left.code}</span>
                           <span className="flex-1 px-2 truncate leading-none font-medium">{left.name}</span>
@@ -332,8 +391,12 @@ export default function OrderFormPage() {
                         </div>
                         {right ? (
                           <div className="flex items-center h-5 border-b border-black/10 text-[9px]">
-                            <div className="w-10 border-r border-black/10 flex items-end justify-center h-full pb-0.5">
-                              <div className="w-8 border-b border-black/40 h-3" />
+                            <div className="w-10 border-r border-black/10 flex items-center justify-center h-full">
+                              <FormInput 
+                                value={quantities[right.code] || ''} 
+                                onChange={(v: any) => handleQtyChange(right.code, v)} 
+                                className="border-0 text-center text-[11px]" 
+                              />
                             </div>
                             <span className="w-12 text-center font-black">{right.code}</span>
                             <span className="flex-1 px-2 truncate leading-none font-medium">{right.name}</span>
@@ -363,14 +426,26 @@ export default function OrderFormPage() {
                   <div className="border-r border-black h-full flex items-center justify-center">Título ou descrição breve</div>
                   <div className="h-full flex items-center justify-center">Estoque</div>
                 </div>
-                {Array.from({ length: 15 }).map((_, i) => (
-                  <div key={i} className="grid grid-cols-[60px_60px_60px_100px_1fr_60px] h-6 border-b last:border-0 border-black">
-                    <div className="border-r border-black" />
-                    <div className="border-r border-black" />
-                    <div className="border-r border-black" />
-                    <div className="border-r border-black" />
-                    <div className="border-r border-black" />
-                    <div />
+                {otherItems.map((item, i) => (
+                  <div key={i} className="grid grid-cols-[60px_60px_60px_100px_1fr_60px] h-6 border-b last:border-0 border-black group">
+                    <div className="border-r border-black h-full flex items-center">
+                      <FormInput value={item.qty} onChange={(v: any) => handleOtherItemChange(i, 'qty', v)} className="border-0 text-center" />
+                    </div>
+                    <div className="border-r border-black h-full flex items-center">
+                      <FormInput value={item.code} onChange={(v: any) => handleOtherItemChange(i, 'code', v)} className="border-0 text-center" />
+                    </div>
+                    <div className="border-r border-black h-full flex items-center">
+                      <FormInput value={item.usage} onChange={(v: any) => handleOtherItemChange(i, 'usage', v)} className="border-0 text-center" />
+                    </div>
+                    <div className="border-r border-black h-full flex items-center">
+                      <FormInput value={item.lang} onChange={(v: any) => handleOtherItemChange(i, 'lang', v)} className="border-0 text-center" />
+                    </div>
+                    <div className="border-r border-black h-full flex items-center">
+                      <FormInput value={item.title} onChange={(v: any) => handleOtherItemChange(i, 'title', v)} className="border-0" />
+                    </div>
+                    <div className="h-full flex items-center">
+                      <FormInput value={item.stock} onChange={(v: any) => handleOtherItemChange(i, 'stock', v)} className="border-0 text-center" />
+                    </div>
                   </div>
                 ))}
               </div>
