@@ -100,7 +100,7 @@ const S14_SECTIONS = [
       { code: "6658", name: "Escute a Deus (ld)" },
       { code: "6667", name: "Melhore Sua Leitura e Seu Ensino (th)" },
       { code: "6663", name: "Minhas Primeiras Lições da Bíblia (mb)" },
-      { code: "6670", name: "Aprenda com as Sabedoria de Jesus (wfg)" },
+      { code: "6670", name: "Aprenda com a Sabedoria de Jesus (wfg)" },
       { code: "6648", name: "O Caminho para a Vida Eterna (ol)" },
       { code: "6684", name: "10 Perguntas Que os Jovens se Fazem (ypq)" },
       { code: "6639", name: "Como Ter Verdadeira Paz e Felicidade (chineses) (pc)" },
@@ -134,7 +134,6 @@ export default function OrderFormPage() {
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   
-  // Estados para tornar o formulário editável
   const [header, setHeader] = useState({
     orderNum: '',
     congNum: '',
@@ -158,7 +157,6 @@ export default function OrderFormPage() {
   );
 
   useEffect(() => {
-    // Evita erro de hidratação setando a data apenas no cliente
     setHeader(h => ({ ...h, date: format(new Date(), 'dd/MM/yyyy') }));
   }, []);
 
@@ -199,17 +197,22 @@ export default function OrderFormPage() {
     if (isGenerating) return;
     setIsGenerating(true);
     
-    toast({
-      title: "Gerando PDF...",
-      description: "Convertendo formulário em arquivo para compartilhamento.",
+    const loadingToast = toast({
+      title: "Gerando PDF de alta qualidade...",
+      description: "Ajustando layout para o formato oficial A4.",
     });
 
     try {
-      // Importações dinâmicas para evitar erros no servidor/inicialização
       const { jsPDF } = await import('jspdf');
       const html2canvas = (await import('html2canvas')).default;
 
-      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pdf = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4',
+        compress: true
+      });
+
       const pageIds = ['s14-page-1', 's14-page-2'];
 
       for (let i = 0; i < pageIds.length; i++) {
@@ -218,22 +221,25 @@ export default function OrderFormPage() {
 
         if (i > 0) pdf.addPage();
 
+        // Configurações de alta qualidade para o html2canvas
         const canvas = await html2canvas(element, {
-          scale: 2,
-          logging: false,
+          scale: 3, // Aumenta a resolução significativamente
           useCORS: true,
-          windowWidth: 850,
+          logging: false,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          windowWidth: 1000, // Força renderização desktop para evitar quebras mobile
         });
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const imgData = canvas.toDataURL('image/jpeg', 1.0);
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
         
-        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
+        pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
       }
 
       const pdfBlob = pdf.output('blob');
-      const fileName = `Pedido_S14_${header.congName.replace(/\s+/g, '_') || 'Congregacao'}.pdf`;
+      const fileName = `S14_${header.congName.replace(/\s+/g, '_') || 'Pedido'}_${header.date.replace(/\//g, '-')}.pdf`;
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -241,7 +247,7 @@ export default function OrderFormPage() {
           await navigator.share({
             files: [file],
             title: 'Pedido de Publicações S-14-T',
-            text: `Segue o pedido de publicações preenchido para a congregação ${header.congName}.`,
+            text: `Pedido da congregação ${header.congName} - ${header.date}`,
           });
         } catch (err) {
           pdf.save(fileName);
@@ -249,8 +255,8 @@ export default function OrderFormPage() {
       } else {
         pdf.save(fileName);
         toast({
-          title: "Download Iniciado",
-          description: "O PDF foi baixado.",
+          title: "PDF baixado!",
+          description: "O arquivo de alta qualidade foi salvo em seu dispositivo.",
         });
       }
     } catch (error) {
@@ -258,7 +264,7 @@ export default function OrderFormPage() {
       toast({
         variant: "destructive",
         title: "Erro ao gerar arquivo",
-        description: "Tente usar a função de impressão do sistema.",
+        description: "Ocorreu uma falha no processamento da imagem.",
       });
     } finally {
       setIsGenerating(false);
@@ -300,7 +306,7 @@ export default function OrderFormPage() {
               <h1 className="text-sm font-black uppercase tracking-tight flex items-center gap-2">
                 <FileEdit className="h-4 w-4" /> Preencher Pedido S-14-T
               </h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase">Gere o arquivo PDF para enviar pelo WhatsApp.</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Gere o arquivo PDF oficial para compartilhar.</p>
             </div>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
@@ -320,16 +326,16 @@ export default function OrderFormPage() {
               disabled={isGenerating}
             >
               {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4 text-primary" />}
-              Compartilhar PDF
+              Compartilhar PDF Oficial
             </Button>
           </div>
         </div>
 
         {/* Formulário S-14-T */}
-        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 text-black space-y-8">
+        <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 text-black space-y-8 overflow-hidden">
           
           {/* PÁGINA 1 */}
-          <div className="space-y-6" id="s14-page-1">
+          <div className="space-y-6 bg-white p-4" id="s14-page-1">
             <div className="space-y-4 mb-6">
               <div className="flex justify-between items-start text-[10px] font-bold">
                 <div className="flex gap-2 items-baseline w-[200px]">
@@ -377,7 +383,7 @@ export default function OrderFormPage() {
               <div key={sIdx} className="space-y-2">
                 <div className="relative flex items-center justify-center">
                   <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/20" /></div>
-                  <h3 className="relative px-4 bg-white text-lg font-black uppercase tracking-tight">{section.title}</h3>
+                  <h3 className="relative px-4 bg-white text-[14px] font-black uppercase tracking-tight">{section.title}</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-8 gap-y-0.5">
@@ -431,7 +437,8 @@ export default function OrderFormPage() {
             ))}
           </div>
 
-          <div className="print:break-before-page pt-8 space-y-6" id="s14-page-2">
+          {/* PÁGINA 2 */}
+          <div className="print:break-before-page pt-8 space-y-6 bg-white p-4" id="s14-page-2">
             <div className="flex justify-between items-baseline border-b border-black pb-1 mb-4">
               <div className="flex gap-2 items-baseline text-[10px] font-bold w-[300px]">
                 <span>Idioma:</span>
@@ -447,7 +454,7 @@ export default function OrderFormPage() {
               <div key={sIdx} className="space-y-2">
                 <div className="relative flex items-center justify-center">
                   <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/20" /></div>
-                  <h3 className="relative px-4 bg-white text-lg font-black uppercase tracking-tight">{section.title}</h3>
+                  <h3 className="relative px-4 bg-white text-[14px] font-black uppercase tracking-tight">{section.title}</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-x-8 gap-y-0.5">
@@ -502,7 +509,7 @@ export default function OrderFormPage() {
             <div className="space-y-2 mt-8">
               <div className="relative flex items-center justify-center">
                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-black/20" /></div>
-                <h3 className="relative px-4 bg-white text-lg font-black uppercase tracking-tight">Outros itens</h3>
+                <h3 className="relative px-4 bg-white text-[14px] font-black uppercase tracking-tight">Outros itens</h3>
               </div>
               
               <div className="border border-black">
