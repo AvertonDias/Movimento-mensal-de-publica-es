@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { 
   useUser, 
   useFirestore, 
@@ -13,10 +12,17 @@ import {
 } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Loader2, ClipboardList, Info, Share2 } from "lucide-react";
+import { Plus, Trash2, Loader2, ClipboardList, Info, CheckCircle2, Clock, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function SpecialOrdersPage() {
   const { user, isUserLoading } = useUser();
@@ -40,7 +46,7 @@ export default function SpecialOrdersPage() {
   const { data: orders, isLoading: isOrdersLoading } = useCollection(ordersQuery);
 
   const sortedOrders = orders?.sort((a, b) => 
-    new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+    new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
   ) || [];
 
   const handleAddRow = () => {
@@ -50,11 +56,11 @@ export default function SpecialOrdersPage() {
     
     setDocumentNonBlocking(docRef, {
       id,
-      date: '',
+      date: new Date().toLocaleDateString('pt-BR'),
       publisherName: '',
       item: '',
-      language: '',
-      quantity: '',
+      language: 'Português',
+      quantity: '1',
       status: 'pend',
       createdAt: new Date().toISOString()
     }, { merge: true });
@@ -81,17 +87,18 @@ export default function SpecialOrdersPage() {
         
         {/* Ações de Topo */}
         <div className="flex justify-between items-center bg-white p-4 rounded-xl border shadow-sm print:hidden">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 text-left">
             <div className="bg-primary p-2 rounded-lg">
               <ClipboardList className="h-5 w-5 text-primary-foreground" />
             </div>
-            <h1 className="text-sm font-black uppercase tracking-tight">Registro de Pedidos Especiais</h1>
+            <div>
+              <h1 className="text-sm font-black uppercase tracking-tight">Registro de Pedidos Especiais</h1>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Gerencie as solicitações individuais dos publicadores.</p>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <Button size="sm" onClick={handleAddRow} className="gap-2 font-black uppercase text-[10px] h-9">
-              <Plus className="h-4 w-4" /> Novo Registro
-            </Button>
-          </div>
+          <Button size="sm" onClick={handleAddRow} className="gap-2 font-black uppercase text-[10px] h-9 shadow-md transition-all active:scale-95">
+            <Plus className="h-4 w-4" /> Novo Registro
+          </Button>
         </div>
 
         {/* DOCUMENTO OFICIAL */}
@@ -103,52 +110,25 @@ export default function SpecialOrdersPage() {
 
           {/* Quadro de Avisos */}
           <div className="border border-black bg-neutral-100 p-4 text-center space-y-1">
-            <p className="text-[11px] font-bold italic leading-tight">
-              Os itens de pedido especial devem ser enviados somente<br />
-              quando os pedidos são feitos especificamente por um publicador.
+            <p className="text-[11px] font-bold italic leading-tight uppercase">
+              Os itens de pedido especial devem ser enviados somente quando os pedidos são feitos especificamente por um publicador.
             </p>
-            <p className="text-[11px] font-bold italic leading-tight">
+            <p className="text-[11px] font-bold italic leading-tight uppercase">
               As quantidades dos itens pedidos não devem ser estimativas com base no número de publicadores.
             </p>
-          </div>
-
-          {/* Descrição e Lista */}
-          <div className="space-y-4">
-            <p className="text-[11px] font-medium text-justify">
-              Os itens de pedido especial são claramente identificados no JW Hub. Esses itens de pedido especial incluem:
-            </p>
-            <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-[11px] font-medium pl-4">
-              <div className="flex items-center gap-2"><span>•</span> <span>Volumes encadernados</span></div>
-              <div className="flex items-center gap-2"><span>•</span> <span>Todos os livros de letras grandes, exceto cancioneiros</span></div>
-              <div className="flex items-center gap-2"><span>•</span> <span>Examine as Escrituras</span></div>
-              <div className="flex items-center gap-2"><span>•</span> <span>Proclamadores</span></div>
-              <div className="flex items-center gap-2"><span>•</span> <span>Índices</span></div>
-              <div className="flex items-center gap-2"><span>•</span> <span>Volumes de Estudo Perspicaz</span></div>
-              <div className="flex items-center gap-2"><span>•</span> <span>Watchtower Library (CD-ROM)</span></div>
-              <div className="flex items-center gap-2"><span>•</span> <span>'Boa Terra'</span></div>
-              <div className="flex items-center gap-2"><span>•</span> <span>Bíblias tamanho grande</span></div>
-            </div>
-          </div>
-
-          {/* Legenda de Situação */}
-          <div className="flex justify-center gap-8 text-[11px] font-bold border-t border-b border-black/10 py-2">
-            <span>Descrições da situação do pedido:</span>
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-black" /> Env. = Enviado</div>
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-black" /> Pend. = Pendente</div>
-            <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 bg-black" /> Rec. = Recebido</div>
           </div>
 
           {/* Tabela de Registros */}
           <div className="border-2 border-black">
             <table className="w-full border-collapse text-[10px]">
               <thead>
-                <tr className="bg-neutral-50 font-black uppercase text-center border-b-2 border-black">
-                  <th className="border-r border-black p-2 w-[100px]">Data do pedido</th>
+                <tr className="bg-neutral-50 font-black uppercase text-center border-b-2 border-black h-10">
+                  <th className="border-r border-black p-2 w-[100px]">Data</th>
                   <th className="border-r border-black p-2 w-[180px]">Nome do publicador</th>
                   <th className="border-r border-black p-2">Item</th>
                   <th className="border-r border-black p-2 w-[100px]">Idioma</th>
-                  <th className="border-r border-black p-2 w-[80px]">Quantidade</th>
-                  <th className="p-2 w-[120px]">Situação</th>
+                  <th className="border-r border-black p-2 w-[60px]">Qtd.</th>
+                  <th className="p-2 w-[140px]">Situação</th>
                 </tr>
               </thead>
               <tbody>
@@ -157,25 +137,26 @@ export default function SpecialOrdersPage() {
                     <td colSpan={6} className="p-10 text-center"><Loader2 className="animate-spin h-6 w-6 mx-auto opacity-20" /></td>
                   </tr>
                 ) : sortedOrders.length === 0 ? (
-                  Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i} className="border-b border-black last:border-0 h-10">
-                      <td className="border-r border-black"></td>
-                      <td className="border-r border-black"></td>
-                      <td className="border-r border-black"></td>
-                      <td className="border-r border-black"></td>
-                      <td className="border-r border-black"></td>
-                      <td></td>
-                    </tr>
-                  ))
+                  <tr>
+                    <td colSpan={6} className="p-16 text-center">
+                      <div className="flex flex-col items-center gap-3 opacity-30">
+                        <ClipboardList className="h-12 w-12" />
+                        <p className="text-[10px] font-black uppercase tracking-widest">Nenhum registro encontrado</p>
+                        <Button variant="outline" size="sm" onClick={handleAddRow} className="mt-2 font-black uppercase text-[9px] print:hidden">
+                          Clique no + para começar
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
                 ) : (
                   sortedOrders.map((order) => (
-                    <tr key={order.id} className="border-b border-black last:border-0 group hover:bg-primary/5 transition-colors">
+                    <tr key={order.id} className="border-b border-black last:border-0 group hover:bg-primary/5 transition-colors h-12">
                       <td className="border-r border-black p-0">
                         <input 
                           type="text" 
                           value={order.date} 
                           onChange={(e) => handleUpdate(order.id, 'date', e.target.value)}
-                          className="w-full h-10 px-2 bg-transparent text-center font-bold focus:outline-none"
+                          className="w-full h-full px-2 bg-transparent text-center font-bold focus:outline-none"
                           placeholder="dd/mm/aa"
                         />
                       </td>
@@ -184,7 +165,8 @@ export default function SpecialOrdersPage() {
                           type="text" 
                           value={order.publisherName} 
                           onChange={(e) => handleUpdate(order.id, 'publisherName', e.target.value)}
-                          className="w-full h-10 px-2 bg-transparent font-bold focus:outline-none"
+                          className="w-full h-full px-3 bg-transparent font-bold focus:outline-none placeholder:text-neutral-200"
+                          placeholder="Nome do irmão(ã)"
                         />
                       </td>
                       <td className="border-r border-black p-0">
@@ -192,7 +174,8 @@ export default function SpecialOrdersPage() {
                           type="text" 
                           value={order.item} 
                           onChange={(e) => handleUpdate(order.id, 'item', e.target.value)}
-                          className="w-full h-10 px-2 bg-transparent font-bold focus:outline-none"
+                          className="w-full h-full px-3 bg-transparent font-bold focus:outline-none placeholder:text-neutral-200"
+                          placeholder="Ex: Examine 2026"
                         />
                       </td>
                       <td className="border-r border-black p-0">
@@ -200,7 +183,7 @@ export default function SpecialOrdersPage() {
                           type="text" 
                           value={order.language} 
                           onChange={(e) => handleUpdate(order.id, 'language', e.target.value)}
-                          className="w-full h-10 px-2 bg-transparent text-center font-bold focus:outline-none"
+                          className="w-full h-full px-2 bg-transparent text-center font-bold focus:outline-none"
                         />
                       </td>
                       <td className="border-r border-black p-0">
@@ -208,56 +191,66 @@ export default function SpecialOrdersPage() {
                           type="text" 
                           value={order.quantity} 
                           onChange={(e) => handleUpdate(order.id, 'quantity', e.target.value)}
-                          className="w-full h-10 px-2 bg-transparent text-center font-black focus:outline-none"
+                          className="w-full h-full px-2 bg-transparent text-center font-black focus:outline-none"
                         />
                       </td>
                       <td className="p-1 relative">
-                        <div className="flex flex-col gap-1 text-[8px] font-black uppercase text-center h-full justify-center">
-                          <div className="flex justify-around items-center px-1">
-                            <span>Env.</span>
-                            <span>Pend.</span>
-                            <span>Rec.</span>
-                          </div>
-                          <div className="flex justify-around items-center">
-                            <input 
-                              type="radio" 
-                              checked={order.status === 'env'} 
-                              onChange={() => handleUpdate(order.id, 'status', 'env')}
-                              className="w-3 h-3 cursor-pointer"
-                            />
-                            <input 
-                              type="radio" 
-                              checked={order.status === 'pend'} 
-                              onChange={() => handleUpdate(order.id, 'status', 'pend')}
-                              className="w-3 h-3 cursor-pointer"
-                            />
-                            <input 
-                              type="radio" 
-                              checked={order.status === 'rec'} 
-                              onChange={() => handleUpdate(order.id, 'status', 'rec')}
-                              className="w-3 h-3 cursor-pointer"
-                            />
-                          </div>
+                        <div className="flex items-center gap-1">
+                          <Select 
+                            value={order.status} 
+                            onValueChange={(val) => handleUpdate(order.id, 'status', val)}
+                          >
+                            <SelectTrigger className="h-8 border-none bg-transparent hover:bg-neutral-100 font-black uppercase text-[9px] shadow-none focus:ring-0 px-2">
+                              <div className="flex items-center gap-1.5">
+                                {order.status === 'env' && <Send className="h-3 w-3 text-primary" />}
+                                {order.status === 'pend' && <Clock className="h-3 w-3 text-amber-500" />}
+                                {order.status === 'rec' && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
+                                <SelectValue />
+                              </div>
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="env" className="text-[9px] font-black uppercase">Enviado (Env.)</SelectItem>
+                              <SelectItem value="pend" className="text-[9px] font-black uppercase">Pendente (Pend.)</SelectItem>
+                              <SelectItem value="rec" className="text-[9px] font-black uppercase">Recebido (Rec.)</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          
+                          <button 
+                            onClick={() => handleDelete(order.id)}
+                            className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-destructive/10 rounded-full print:hidden"
+                            title="Excluir"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
                         </div>
-                        <button 
-                          onClick={() => handleDelete(order.id)}
-                          className="absolute -right-8 top-1/2 -translate-y-1/2 text-destructive opacity-0 group-hover:opacity-100 transition-opacity print:hidden"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
                       </td>
                     </tr>
                   ))
                 )}
               </tbody>
             </table>
+            
+            {/* Botão de Adição no final da tabela */}
+            <div className="flex justify-center border-t border-black/10 py-3 bg-neutral-50/30 print:hidden">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={handleAddRow}
+                className="h-8 w-8 rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-white p-0 transition-all active:scale-90"
+              >
+                <Plus className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
 
-          <div className="flex justify-between items-end pt-4 opacity-40">
-            <span className="text-[8px] font-bold">S-14-T DIGITAL (REGISTRO ESPECIAL)</span>
-            <div className="flex flex-col items-center gap-1 bg-neutral-100 p-2 rounded print:hidden">
+          {/* Rodapé Informativo */}
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-black/10">
+            <span className="text-[8px] font-bold opacity-40">S-14-T DIGITAL (REGISTRO ESPECIAL)</span>
+            <div className="flex items-center gap-2 p-2 bg-primary/5 rounded border border-primary/10 print:hidden">
               <Info className="h-3 w-3 text-primary" />
-              <p className="text-[7px] font-bold uppercase text-muted-foreground">Clique nas opções para mudar a situação.</p>
+              <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">
+                Os dados são sincronizados automaticamente em todos os seus dispositivos.
+              </p>
             </div>
           </div>
         </div>
