@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -11,6 +12,7 @@ import {
   Truck,
   ShoppingCart,
   ClipboardList,
+  Menu,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -23,6 +25,7 @@ import {
   SidebarGroup,
   SidebarGroupLabel,
   useSidebar,
+  SidebarTrigger,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -62,40 +65,40 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
-      {/* Cabeçalho com Logo e Nome - Ajustado para combinar exatamente com o Header */}
       <SidebarHeader className="h-[64px] shrink-0 flex items-center px-4 border-b border-sidebar-border/50 group-data-[collapsible=icon]:justify-center overflow-hidden">
+        {/* Bloco visível quando expandido */}
         <div className="flex items-center gap-3 group-data-[collapsible=icon]:hidden">
-          <div className="rounded-xl overflow-hidden w-[38px] h-[38px] shrink-0 border border-primary/10 shadow-sm">
-            <Image 
-              src="/icon.png" 
-              alt="Logo" 
-              width={38} 
-              height={38} 
-              className="object-cover w-full h-full" 
-              unoptimized 
-            />
-          </div>
-          <div className="flex flex-col justify-center text-left">
-            <h1 className="text-lg font-black tracking-tight text-foreground uppercase font-headline leading-none">
-              S-28 Digital
-            </h1>
-            <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest mt-0.5 leading-none">
-              Gestão inteligente
-            </p>
+          <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-primary/5 text-primary border border-primary/10">
+            <Menu className="h-5 w-5" />
+          </SidebarTrigger>
+          
+          <div className="flex items-center gap-3">
+            <div className="rounded-xl overflow-hidden w-[36px] h-[36px] sm:w-[38px] sm:h-[38px] border border-primary/10 shadow-sm">
+              <Image 
+                src="/icon.png" 
+                alt="Logo" 
+                width={38} 
+                height={38} 
+                className="object-cover w-full h-full" 
+                unoptimized 
+              />
+            </div>
+            <div className="flex flex-col justify-center text-left">
+              <h1 className="text-sm sm:text-lg font-black tracking-tight text-foreground uppercase font-headline leading-none">
+                S-28 Digital
+              </h1>
+              <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest mt-0.5 leading-none">
+                Gestão inteligente
+              </p>
+            </div>
           </div>
         </div>
-        {/* Logo visível apenas quando colapsado */}
+
+        {/* Botão visível apenas quando colapsado */}
         <div className="hidden group-data-[collapsible=icon]:block">
-          <div className="rounded-lg overflow-hidden w-[32px] h-[32px] border border-primary/10">
-            <Image 
-              src="/icon.png" 
-              alt="Logo" 
-              width={32} 
-              height={32} 
-              className="object-cover w-full h-full" 
-              unoptimized 
-            />
-          </div>
+          <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-primary/5 text-primary border border-primary/10">
+            <Menu className="h-5 w-5" />
+          </SidebarTrigger>
         </div>
       </SidebarHeader>
       
