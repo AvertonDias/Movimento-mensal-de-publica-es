@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -35,8 +34,9 @@ import { doc } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 
 export function AppSidebar() {
-  const { user, isUserLoading } = useUser();
+  // Inicializamos o banco de dados primeiro para evitar erros de referência
   const db = useFirestore();
+  const { user, isUserLoading } = useUser();
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
 
@@ -50,6 +50,7 @@ export function AppSidebar() {
 
   if (isUserLoading || !user || user.isAnonymous) return null;
 
+  // Itens na sequência exata solicitada
   const navItems = [
     { href: '/', label: 'Painel Principal', icon: LayoutGrid },
     { href: '/inventory-report', label: 'Relatório de Inventário', icon: FileText },
@@ -67,13 +68,13 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="h-[64px] shrink-0 flex items-center px-4 border-b border-sidebar-border/50 group-data-[collapsible=icon]:justify-center overflow-hidden">
         {/* Bloco visível quando expandido */}
-        <div className="flex items-center gap-3 group-data-[collapsible=icon]:hidden">
-          <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-primary/5 text-primary border border-primary/10">
+        <div className="flex items-center gap-3 group-data-[collapsible=icon]:hidden w-full">
+          <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-primary/5 text-primary border border-primary/10 shrink-0">
             <Menu className="h-5 w-5" />
           </SidebarTrigger>
           
-          <div className="flex items-center gap-3">
-            <div className="rounded-xl overflow-hidden w-[36px] h-[36px] sm:w-[38px] sm:h-[38px] border border-primary/10 shadow-sm">
+          <div className="flex items-center gap-3 overflow-hidden">
+            <div className="rounded-xl overflow-hidden w-[36px] h-[36px] sm:w-[38px] sm:h-[38px] border border-primary/10 shadow-sm shrink-0">
               <Image 
                 src="/icon.png" 
                 alt="Logo" 
@@ -83,11 +84,11 @@ export function AppSidebar() {
                 unoptimized 
               />
             </div>
-            <div className="flex flex-col justify-center text-left">
-              <h1 className="text-sm sm:text-lg font-black tracking-tight text-foreground uppercase font-headline leading-none">
+            <div className="flex flex-col justify-center text-left overflow-hidden">
+              <h1 className="text-sm sm:text-lg font-black tracking-tight text-foreground uppercase font-headline leading-none truncate">
                 S-28 Digital
               </h1>
-              <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest mt-0.5 leading-none">
+              <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest mt-0.5 leading-none truncate">
                 Gestão inteligente
               </p>
             </div>
