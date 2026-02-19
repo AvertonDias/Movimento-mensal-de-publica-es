@@ -32,8 +32,9 @@ export default function InventoryReportPage() {
   
   const [selectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [isSharing, setIsSharing] = useState(false);
-  const monthKey = format(selectedMonth, 'yyyy-MM');
-  const monthLabel = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
+  
+  const monthKey = useMemo(() => format(selectedMonth, 'yyyy-MM'), [selectedMonth]);
+  const monthLabel = useMemo(() => format(selectedMonth, 'MMMM yyyy', { locale: ptBR }), [selectedMonth]);
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -119,7 +120,8 @@ export default function InventoryReportPage() {
     });
 
     try {
-      const { jsPDF } = await import('jspdf');
+      const jspdfModule = await import('jspdf');
+      const jsPDF = jspdfModule.jsPDF || jspdfModule.default;
       const html2canvas = (await import('html2canvas')).default;
 
       const element = document.getElementById('report-content');
@@ -146,11 +148,11 @@ export default function InventoryReportPage() {
 
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
       
-      const fileName = `Saldo_Fisico_${monthKey}.pdf`;
+      const fileDate = format(new Date(), 'yyyy-MM-dd');
+      const fileName = `Saldo_Fisico_${monthKey}_${fileDate}.pdf`;
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // ABRE O SELETOR DE APPS NATIVO
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -248,7 +250,10 @@ export default function InventoryReportPage() {
                             {imagePlaceholder ? (
                               <Popover>
                                 <PopoverTrigger asChild>
-                                  <span className="font-bold text-[11px] uppercase cursor-pointer border-b border-dotted border-muted-foreground/50 hover:text-primary transition-colors leading-tight">
+                                  <span className={cn(
+                                    "font-bold text-[11px] uppercase cursor-pointer border-b border-dotted transition-colors leading-tight",
+                                    (item.current || 0) === 0 ? "text-destructive border-destructive" : "text-foreground border-muted-foreground/50 hover:text-primary"
+                                  )}>
                                     {item.item}
                                   </span>
                                 </PopoverTrigger>
@@ -266,7 +271,10 @@ export default function InventoryReportPage() {
                                 </PopoverContent>
                               </Popover>
                             ) : (
-                              <span className="font-bold text-[11px] uppercase leading-tight">{item.item}</span>
+                              <span className={cn(
+                                "font-bold text-[11px] uppercase leading-tight",
+                                (item.current || 0) === 0 && "text-destructive"
+                              )}>{item.item}</span>
                             )}
                             {item.abbr && <span className="text-[8px] font-black bg-neutral-100 text-neutral-500 px-1 py-0.5 rounded ml-2 leading-tight">{item.abbr}</span>}
                           </div>

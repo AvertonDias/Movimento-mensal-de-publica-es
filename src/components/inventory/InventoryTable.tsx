@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -238,8 +237,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const filteredItems = useMemo(() => {
     const matches = items.filter(item => !item.isCategory).filter(item => {
-      const matchesSearch = item.item.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      const matchesSearch = (item.item || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.code || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
         (item.abbr && item.abbr.toLowerCase().includes(searchTerm.toLowerCase()));
       
       let matchesStatus = true;
@@ -494,8 +493,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             </TableHeader>
             <TableBody>
               {filteredItems.map((item, idx) => {
+                const itemName = item.item || "";
                 if (item.isCategory) {
-                  const parts = item.item.split('(');
+                  const parts = itemName.split('(');
                   return (
                     <TableRow key={`cat-${idx}`} className="bg-neutral-100/80 hover:bg-neutral-100/80 border-b-2 border-neutral-200">
                       <TableCell colSpan={DEFAULT_COLUMNS.length} className="py-2.5 px-4 font-black text-[13px] uppercase text-neutral-600 tracking-widest text-left">
@@ -507,7 +507,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
                 const minVal = historicalMinStock[item.id] || 0;
                 const isLowStock = !item.hidden && minVal > 0 && ((item.current !== null && item.current <= minVal) || (item.current === null && item.previous !== null && item.previous <= minVal));
-                const isTeachingKit = item.item.includes('*');
+                const isTeachingKit = itemName.includes('*');
                 const isCriticalTeachingKit = isTeachingKit && isLowStock;
                 
                 const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
@@ -558,14 +558,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                 {imagePlaceholder ? (
                                   <Popover>
                                     <PopoverTrigger asChild>
-                                      <span className={cn("text-sm font-medium cursor-pointer border-b border-dotted transition-colors truncate", isLowStock ? "text-destructive border-destructive font-bold" : "text-foreground border-muted-foreground/50 hover:text-primary")}>{item.item}</span>
+                                      <span className={cn("text-sm font-medium cursor-pointer border-b border-dotted transition-colors truncate", isLowStock ? "text-destructive border-destructive font-bold" : "text-foreground border-muted-foreground/50 hover:text-primary")}>{itemName}</span>
                                     </PopoverTrigger>
                                     <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg w-[180px]">
                                       <div className="relative aspect-[2/3] bg-neutral-50 p-2"><Image src={imagePlaceholder.imageUrl} alt={imagePlaceholder.description} fill sizes="180px" className="object-contain" unoptimized /></div>
                                     </PopoverContent>
                                   </Popover>
                                 ) : (
-                                  <span className={cn("text-sm font-medium truncate text-left", isLowStock && "text-destructive font-bold")}>{item.item}</span>
+                                  <span className={cn("text-sm font-medium truncate text-left", isLowStock && "text-destructive font-bold")}>{itemName}</span>
                                 )}
                               </div>
                               <div className="flex items-center gap-0.5 shrink-0">

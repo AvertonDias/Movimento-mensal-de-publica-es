@@ -139,7 +139,7 @@ const S14_SECTIONS = [
 const FormInput = ({ value, onChange, placeholder, className, showLine = true }: any) => (
   <input
     type="text"
-    value={value}
+    value={value || ''}
     onChange={(e) => onChange(e.target.value)}
     placeholder={placeholder}
     className={cn(
@@ -151,11 +151,12 @@ const FormInput = ({ value, onChange, placeholder, className, showLine = true }:
 );
 
 const formatDescription = (name: string) => {
-  const lastParenIdx = name.lastIndexOf('(');
-  if (lastParenIdx === -1) return name;
+  const safeName = name || "";
+  const lastParenIdx = safeName.lastIndexOf('(');
+  if (lastParenIdx === -1) return safeName;
   
-  const base = name.substring(0, lastParenIdx);
-  const abbr = name.substring(lastParenIdx);
+  const base = safeName.substring(0, lastParenIdx);
+  const abbr = safeName.substring(lastParenIdx);
   
   return (
     <>
@@ -166,7 +167,7 @@ const formatDescription = (name: string) => {
 };
 
 const ItemRow = ({ item, value, onChange, stock }: { item: any, value: string, onChange: (v: string) => void, stock: string | number }) => (
-  <div className={cn("flex items-start min-h-[18px] text-[8px] py-0.5 transition-colors", item.isSpecial && "bg-neutral-200")}>
+  <div className={cn("flex items-start min-h-[18px] text-[8px] py-0.5 transition-colors", item?.isSpecial && "bg-neutral-200")}>
     <div className="w-8 flex items-center justify-center shrink-0 h-4">
       <FormInput 
         value={value} 
@@ -174,9 +175,9 @@ const ItemRow = ({ item, value, onChange, stock }: { item: any, value: string, o
         className="border-b border-black/40 text-center text-[10px] h-3.5" 
       />
     </div>
-    <span className="w-10 text-center font-bold shrink-0 ml-1">{item.code}</span>
+    <span className="w-10 text-center font-bold shrink-0 ml-1">{item?.code}</span>
     <span className="flex-1 px-1 text-left font-medium leading-[1.1] break-words py-0.5">
-      {formatDescription(item.name)}
+      {formatDescription(item?.name || "")}
     </span>
     <div className="w-8 flex items-center justify-center shrink-0 h-4 border-l border-black/10">
       <span className="text-[9px] font-bold border-b border-black/40 w-full text-center h-3.5 leading-none">
@@ -317,7 +318,8 @@ export default function OrderFormPage() {
     });
 
     try {
-      const { jsPDF } = await import('jspdf');
+      const jspdfModule = await import('jspdf');
+      const jsPDF = jspdfModule.jsPDF || jspdfModule.default;
       const html2canvas = (await import('html2canvas')).default;
 
       const pdf = new jsPDF({
@@ -351,7 +353,8 @@ export default function OrderFormPage() {
         pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, Math.min(pdfHeight, pdf.internal.pageSize.getHeight()), undefined, 'FAST');
       }
 
-      const fileName = `S14_${header.congName.replace(/\s+/g, '_') || 'Pedido'}.pdf`;
+      const safeCongName = (header.congName || "").replace(/\s+/g, '_');
+      const fileName = `S14_${safeCongName || 'Pedido'}.pdf`;
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
@@ -360,7 +363,7 @@ export default function OrderFormPage() {
           await navigator.share({
             files: [file],
             title: 'Pedido S-14-T',
-            text: `Pedido da congregação ${header.congName}`,
+            text: `Pedido da congregação ${header.congName || ""}`,
           });
         } catch (err) {
           const blobUrl = URL.createObjectURL(pdfBlob);

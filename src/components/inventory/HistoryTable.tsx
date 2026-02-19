@@ -153,10 +153,11 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
         <TableBody>
           {combinedItems.map((item, idx) => {
             const itemId = item.id;
+            const itemName = item.item || "";
             
             if (item.isCategory) {
-              const parts = item.item.split('(');
-              const mainTitle = parts[0].trim();
+              const parts = itemName.split('(');
+              const mainTitle = parts[0]?.trim() || "";
               const extraInfo = parts[1] ? `(${parts[1]}` : '';
 
               return (
@@ -181,7 +182,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
                 <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-normal align-middle">{item.code}</TableCell>
                 <TableCell className="w-[200px] text-[9px] px-1 py-0 border-r border-black align-middle">
                   <div className="flex justify-between items-center w-full">
-                    <span className="leading-normal">{item.item}</span>
+                    <span className="leading-normal">{itemName}</span>
                     {item.abbr && <span className="font-bold ml-1 text-[7px] text-neutral-500 leading-normal">{item.abbr}</span>}
                   </div>
                 </TableCell>

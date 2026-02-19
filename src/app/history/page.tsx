@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
+import { format } from 'date-fns';
 
 export default function HistoryPage(props: {
   params: Promise<any>;
@@ -44,7 +45,8 @@ export default function HistoryPage(props: {
     });
 
     try {
-      const { jsPDF } = await import('jspdf');
+      const jspdfModule = await import('jspdf');
+      const jsPDF = jspdfModule.jsPDF || jspdfModule.default;
       const html2canvas = (await import('html2canvas')).default;
 
       const element = document.getElementById('s28-history-content');
@@ -71,11 +73,11 @@ export default function HistoryPage(props: {
 
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, Math.min(pdfHeight, pdf.internal.pageSize.getHeight()), undefined, 'FAST');
       
-      const fileName = `S28_T_${new Date().toISOString().split('T')[0]}.pdf`;
+      const fileDate = format(new Date(), 'yyyy-MM-dd');
+      const fileName = `S28_T_${fileDate}.pdf`;
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // TENTA COMPARTILHAMENTO NATIVO (Isso abre o seletor de apps no celular)
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -84,12 +86,10 @@ export default function HistoryPage(props: {
             text: 'Movimento mensal de publicações',
           });
         } catch (shareError) {
-          // Se falhar ou cancelar, tenta abrir em nova aba como fallback
           const blobUrl = URL.createObjectURL(pdfBlob);
           window.open(blobUrl, '_blank');
         }
       } else {
-        // Fallback para navegadores que não suportam navigator.share
         const blobUrl = URL.createObjectURL(pdfBlob);
         window.open(blobUrl, '_blank');
       }

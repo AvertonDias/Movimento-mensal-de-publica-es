@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
+import { format } from 'date-fns';
 
 export default function GuestHistoryPage(props: {
   params: Promise<{ token: string }>;
@@ -56,7 +57,8 @@ export default function GuestHistoryPage(props: {
     });
 
     try {
-      const { jsPDF } = await import('jspdf');
+      const jspdfModule = await import('jspdf');
+      const jsPDF = jspdfModule.jsPDF || jspdfModule.default;
       const html2canvas = (await import('html2canvas')).default;
 
       const element = document.getElementById('s28-history-content-guest');
@@ -83,11 +85,11 @@ export default function GuestHistoryPage(props: {
 
       pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, Math.min(pdfHeight, pdf.internal.pageSize.getHeight()), undefined, 'FAST');
       
-      const fileName = `S28_T_Compartilhada_${new Date().toISOString().split('T')[0]}.pdf`;
+      const fileDate = format(new Date(), 'yyyy-MM-dd');
+      const fileName = `S28_T_Compartilhada_${fileDate}.pdf`;
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // PRIORIDADE: Compartilhamento Nativo (Perguntar qual app abrir)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
           await navigator.share({
@@ -97,7 +99,6 @@ export default function GuestHistoryPage(props: {
           });
         } catch (err) { }
       } else {
-        // FALLBACK: Abrir em nova aba
         const blobUrl = URL.createObjectURL(pdfBlob);
         window.open(blobUrl, '_blank');
       }

@@ -329,6 +329,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
             const maxVal = stats.topItems[0]?.outgoing || 1;
             const percentage = (item.outgoing / maxVal) * 100;
             const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
+            const itemCat = item.category || "";
             
             return (
               <div key={idx} className="space-y-2 md:space-y-3">
@@ -360,7 +361,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
                         <span className="truncate text-xs md:text-base leading-tight">{item.name}</span>
                       )}
                       <span className="text-[8px] md:text-[11px] bg-neutral-100 px-1.5 py-0.5 md:px-2.5 md:py-1 rounded text-neutral-500 font-bold w-fit shrink-0">
-                        {item.category.split('(')[0].trim()}
+                        {itemCat.split('(')[0].trim()}
                       </span>
                     </div>
                   </div>
