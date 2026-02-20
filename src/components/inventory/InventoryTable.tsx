@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -96,6 +97,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [pendingConfirmItem, setPendingConfirmItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
+  const [focusedField, setFocusedField] = useState<{id: string, col: string} | null>(null);
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -337,7 +339,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           <div className="bg-primary/20 p-2 rounded-lg">
             <Smartphone className="h-4 w-4 text-primary rotate-90" />
           </div>
-          <p className="text-[10px] font-black uppercase text-primary-foreground leading-tight tracking-wider text-left">
+          <p className="text-[10px] font-black uppercase text-sidebar-primary-foreground leading-tight tracking-wider text-left">
             Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
           </p>
         </div>
@@ -592,10 +594,22 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                           </div>
                         ) : (
                           <Input 
-                            type="number" 
-                            value={(item[col.id] !== undefined && item[col.id] !== null) ? (item[col.id] as number) : ''} 
-                            onChange={(e) => handleUpdateItem(item.id, col.id, e.target.value === '' ? null : Number(e.target.value))} 
-                            onFocus={(e) => e.target.select()} 
+                            type="text"
+                            inputMode="numeric"
+                            value={
+                              focusedField?.id === item.id && focusedField?.col === col.id
+                                ? (item[col.id] === null || item[col.id] === undefined ? '' : String(item[col.id]))
+                                : formatNumber(item[col.id])
+                            } 
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '');
+                              handleUpdateItem(item.id, col.id, val === '' ? null : Number(val));
+                            }}
+                            onFocus={(e) => {
+                              e.target.select();
+                              setFocusedField({ id: item.id, col: col.id });
+                            }} 
+                            onBlur={() => setFocusedField(null)}
                             onWheel={(e) => e.currentTarget.blur()} 
                             className={cn(
                               "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-0.5", 
