@@ -8,7 +8,7 @@ import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
 import { Share2, ShoppingCart, Info, FileEdit, Loader2, RotateCcw } from "lucide-react";
 import { useRouter } from 'next/navigation';
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -181,7 +181,7 @@ const ItemRow = ({ item, value, onChange, stock }: { item: any, value: string, o
     </span>
     <div className="w-8 flex items-center justify-center shrink-0 h-4 border-l border-black/10">
       <span className="text-[9px] font-bold border-b border-black/40 w-full text-center h-3.5 leading-none">
-        {stock}
+        {formatNumber(stock)}
       </span>
     </div>
   </div>

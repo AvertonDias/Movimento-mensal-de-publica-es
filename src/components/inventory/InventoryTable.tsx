@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -58,7 +57,7 @@ import {
   DEFAULT_COLUMNS
 } from "@/app/types/inventory";
 import { OFFICIAL_PUBLICATIONS } from "@/app/lib/publications";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 import { 
   useFirestore, 
   useUser, 
@@ -526,7 +525,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                     {DEFAULT_COLUMNS.map((col) => (
                       <TableCell key={`${item.id}-${col.id}`} className="p-0.5 px-1 border-r last:border-0 h-11">
                         {col.id === 'outgoing' ? (
-                          <div className={cn("py-1.5 font-black rounded text-sm text-center", item.current !== null && typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10")}>{calculateOutgoing(item)}</div>
+                          <div className={cn("py-1.5 font-black rounded text-sm text-center", item.current !== null && typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10")}>
+                            {formatNumber(calculateOutgoing(item))}
+                          </div>
                         ) : col.id === 'code' ? (
                           <div className="text-center text-[10px] font-bold py-2 text-neutral-400">{item.code || '---'}</div>
                         ) : col.id === 'item' ? (

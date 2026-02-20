@@ -14,7 +14,7 @@ import { collection, getDocs } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { OFFICIAL_PUBLICATIONS, InventoryItem } from "@/app/types/inventory";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 
 interface HistoryTableProps {
   targetUserId?: string;
@@ -189,12 +189,18 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
                 
                 {lastSixMonths.map((m, mIdx) => (
                   <React.Fragment key={m.key}>
-                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-normal align-middle">{getValue(m.key, itemId, 'received')}</TableCell>
-                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-normal align-middle">{getValue(m.key, itemId, 'current')}</TableCell>
+                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-normal align-middle">
+                      {formatNumber(getValue(m.key, itemId, 'received'))}
+                    </TableCell>
+                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black leading-normal align-middle">
+                      {formatNumber(getValue(m.key, itemId, 'current'))}
+                    </TableCell>
                     <TableCell className={cn(
                       "text-[8px] text-center p-0 font-black bg-neutral-200 leading-normal align-middle",
                       mIdx === 5 ? "" : "border-r border-black"
-                    )}>{calculateOutgoing(m.key, itemId)}</TableCell>
+                    )}>
+                      {formatNumber(calculateOutgoing(m.key, itemId))}
+                    </TableCell>
                   </React.Fragment>
                 ))}
               </TableRow>

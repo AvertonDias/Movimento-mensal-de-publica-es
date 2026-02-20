@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -25,6 +24,7 @@ import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { OFFICIAL_PUBLICATIONS } from "@/app/lib/publications";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { formatNumber } from '@/lib/utils';
 
 interface StatsDashboardProps {
   targetUserId?: string;
@@ -203,7 +203,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           </div>
           <div>
             <p className="text-[8px] md:text-xs font-black text-muted-foreground uppercase tracking-wider">Estoque</p>
-            <p className="text-base md:text-2xl font-black">{stats.totals.stock}</p>
+            <p className="text-base md:text-2xl font-black">{formatNumber(stats.totals.stock)}</p>
           </div>
         </div>
         
@@ -213,7 +213,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           </div>
           <div>
             <p className="text-[8px] md:text-xs font-black text-muted-foreground uppercase tracking-wider">Saída</p>
-            <p className="text-base md:text-2xl font-black">{stats.totals.outgoing}</p>
+            <p className="text-base md:text-2xl font-black">{formatNumber(stats.totals.outgoing)}</p>
           </div>
         </div>
 
@@ -223,7 +223,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           </div>
           <div>
             <p className="text-[8px] md:text-xs font-black text-muted-foreground uppercase tracking-wider">Críticos</p>
-            <p className="text-base md:text-2xl font-black text-destructive">{stats.totals.criticalItems}</p>
+            <p className="text-base md:text-2xl font-black text-destructive">{formatNumber(stats.totals.criticalItems)}</p>
           </div>
         </div>
 
@@ -233,7 +233,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           </div>
           <div>
             <p className="text-[8px] md:text-xs font-black text-muted-foreground uppercase tracking-wider">Média</p>
-            <p className="text-base md:text-2xl font-black">{stats.totals.avgOutgoing}</p>
+            <p className="text-base md:text-2xl font-black">{formatNumber(stats.totals.avgOutgoing)}</p>
           </div>
         </div>
 
@@ -243,7 +243,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           </div>
           <div>
             <p className="text-[8px] md:text-xs font-black text-muted-foreground uppercase tracking-wider">Recebidos</p>
-            <p className="text-base md:text-2xl font-black">{stats.totals.received}</p>
+            <p className="text-base md:text-2xl font-black">{formatNumber(stats.totals.received)}</p>
           </div>
         </div>
       </div>
@@ -272,6 +272,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
                 <Tooltip 
                   cursor={{ fill: 'rgba(160, 207, 236, 0.1)' }}
                   contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 'bold' }}
+                  formatter={(value: any) => [formatNumber(value), "Saída"]}
                 />
                 <Bar dataKey="saida" fill="#A0CFEC" radius={[4, 4, 0, 0]} />
               </BarChart>
@@ -302,6 +303,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
                   </Pie>
                   <Tooltip 
                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 'bold' }}
+                    formatter={(value: any) => [formatNumber(value), "Estoque"]}
                   />
                   <Legend 
                     layout={isMobile ? "horizontal" : "vertical"} 
@@ -368,7 +370,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
                       </span>
                     </div>
                   </div>
-                  <span className="text-primary shrink-0 text-xs md:text-base ml-2">{item.outgoing} un.</span>
+                  <span className="text-primary shrink-0 text-xs md:text-base ml-2">{formatNumber(item.outgoing)} un.</span>
                 </div>
                 <div className="h-2 md:h-3.5 w-full bg-neutral-50 rounded-full overflow-hidden border border-neutral-100/50">
                   <div 

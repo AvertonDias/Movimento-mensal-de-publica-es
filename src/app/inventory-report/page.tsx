@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -19,7 +18,7 @@ import { collection, doc } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { OFFICIAL_PUBLICATIONS, InventoryItem } from "@/app/types/inventory";
-import { cn } from "@/lib/utils";
+import { cn, formatNumber } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
@@ -286,13 +285,13 @@ export default function InventoryReportPage() {
                           "text-center font-black text-xs border-r bg-primary/5 p-1 leading-tight",
                           (item.previous || 0) === 0 && "text-neutral-300 font-normal"
                         )}>
-                          {item.previous}
+                          {formatNumber(item.previous)}
                         </TableCell>
                         <TableCell className={cn(
                           "text-center font-black text-xs bg-accent/5 p-1 leading-tight",
                           (item.current || 0) === 0 && "text-destructive"
                         )}>
-                          {item.current}
+                          {formatNumber(item.current)}
                         </TableCell>
                       </TableRow>
                     );
