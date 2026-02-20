@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -337,7 +338,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           <div className="bg-primary/20 p-2 rounded-lg">
             <Smartphone className="h-4 w-4 text-primary rotate-90" />
           </div>
-          <p className="text-[10px] font-black uppercase text-primary leading-tight tracking-wider text-left">
+          <p className="text-[10px] font-black uppercase text-primary-foreground leading-tight tracking-wider text-left">
             Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
           </p>
         </div>
@@ -560,8 +561,17 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                     <PopoverTrigger asChild>
                                       <span className={cn("text-sm font-medium cursor-pointer border-b border-dotted transition-colors truncate", isLowStock ? "text-destructive border-destructive font-bold" : "text-foreground border-muted-foreground/50 hover:text-primary")}>{itemName}</span>
                                     </PopoverTrigger>
-                                    <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg w-[180px]">
-                                      <div className="relative aspect-[2/3] bg-neutral-50 p-2"><Image src={imagePlaceholder.imageUrl} alt={imagePlaceholder.description} fill sizes="180px" className="object-contain" unoptimized /></div>
+                                    <PopoverContent side="top" className="p-0 border-2 border-primary shadow-2xl overflow-hidden rounded-xl w-[180px]">
+                                      <div className="relative aspect-[2/3] bg-white p-2">
+                                        <Image 
+                                          src={imagePlaceholder.imageUrl} 
+                                          alt={imagePlaceholder.description} 
+                                          fill 
+                                          sizes="180px" 
+                                          className="object-contain" 
+                                          unoptimized 
+                                        />
+                                      </div>
                                     </PopoverContent>
                                   </Popover>
                                 ) : (
