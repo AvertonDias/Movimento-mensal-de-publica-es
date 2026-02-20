@@ -563,7 +563,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                     </PopoverTrigger>
                                     <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-xl w-[180px]">
                                       <div className="relative aspect-[2/3] bg-white p-2">
-                                        <div className="relative w-full h-full border-2 border-primary rounded shadow-sm overflow-hidden">
+                                        <div className="relative w-full h-full rounded shadow-sm overflow-hidden">
                                           <Image 
                                             src={imagePlaceholder.imageUrl} 
                                             alt={imagePlaceholder.description} 
