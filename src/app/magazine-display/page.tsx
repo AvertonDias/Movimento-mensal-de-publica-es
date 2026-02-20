@@ -70,7 +70,7 @@ export default function MagazineDisplayPage() {
                     <p className="text-[10px] font-black uppercase tracking-[0.1em] text-primary">{item.period}</p>
                   </div>
                   <CardTitle className="text-sm font-bold uppercase line-clamp-1">{item.title}</CardTitle>
-                  <CardDescription className="text-[9px] font-black opacity-60">CÓDIGO: {item.code}</CardDescription>
+                  <CardDescription className="text-[11px] font-black opacity-60">CÓDIGO: {item.code}</CardDescription>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="relative aspect-[3/4] bg-neutral-100 flex items-center justify-center">
