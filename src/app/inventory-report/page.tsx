@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -259,14 +260,16 @@ export default function InventoryReportPage() {
                                 </PopoverTrigger>
                                 <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-lg w-[180px]">
                                   <div className="relative aspect-[2/3] bg-neutral-50 p-2">
-                                    <Image 
-                                      src={imagePlaceholder.imageUrl} 
-                                      alt={imagePlaceholder.description} 
-                                      fill 
-                                      sizes="180px" 
-                                      className="object-contain" 
-                                      unoptimized 
-                                    />
+                                    <div className="relative w-full h-full border-2 border-primary rounded shadow-sm overflow-hidden">
+                                      <Image 
+                                        src={imagePlaceholder.imageUrl} 
+                                        alt={imagePlaceholder.description} 
+                                        fill 
+                                        sizes="180px" 
+                                        className="object-contain" 
+                                        unoptimized 
+                                      />
+                                    </div>
                                   </div>
                                 </PopoverContent>
                               </Popover>

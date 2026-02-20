@@ -561,16 +561,18 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                     <PopoverTrigger asChild>
                                       <span className={cn("text-sm font-medium cursor-pointer border-b border-dotted transition-colors truncate", isLowStock ? "text-destructive border-destructive font-bold" : "text-foreground border-muted-foreground/50 hover:text-primary")}>{itemName}</span>
                                     </PopoverTrigger>
-                                    <PopoverContent side="top" className="p-0 border-2 border-primary shadow-2xl overflow-hidden rounded-xl w-[180px]">
+                                    <PopoverContent side="top" className="p-0 border-none shadow-2xl overflow-hidden rounded-xl w-[180px]">
                                       <div className="relative aspect-[2/3] bg-white p-2">
-                                        <Image 
-                                          src={imagePlaceholder.imageUrl} 
-                                          alt={imagePlaceholder.description} 
-                                          fill 
-                                          sizes="180px" 
-                                          className="object-contain" 
-                                          unoptimized 
-                                        />
+                                        <div className="relative w-full h-full border-2 border-primary rounded shadow-sm overflow-hidden">
+                                          <Image 
+                                            src={imagePlaceholder.imageUrl} 
+                                            alt={imagePlaceholder.description} 
+                                            fill 
+                                            sizes="180px" 
+                                            className="object-contain" 
+                                            unoptimized 
+                                          />
+                                        </div>
                                       </div>
                                     </PopoverContent>
                                   </Popover>
