@@ -95,6 +95,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [editingItem, setEditingItem] = useState<InventoryItem | null>(null);
   const [requestingItem, setRequestingItem] = useState<InventoryItem | null>(null);
   const [pendingConfirmItem, setPendingConfirmItem] = useState<InventoryItem | null>(null);
+  const [negativeWarningItem, setNegativeWarningItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
   const [focusedField, setFocusedField] = useState<{id: string, col: string} | null>(null);
@@ -108,7 +109,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const activeUid = targetUserId || user?.uid;
 
   useEffect(() => {
-    if (!pendingConfirmItem && !requestingItem && !editingItem) {
+    if (!pendingConfirmItem && !requestingItem && !editingItem && !negativeWarningItem) {
       const forceUnlock = () => {
         if (typeof document !== 'undefined') {
           document.body.style.pointerEvents = 'auto';
@@ -119,7 +120,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const t = setTimeout(forceUnlock, 350);
       return () => clearTimeout(t);
     }
-  }, [pendingConfirmItem, requestingItem, editingItem]);
+  }, [pendingConfirmItem, requestingItem, editingItem, negativeWarningItem]);
 
   const isDateInFuture = (date: Date) => {
     const currentMonthStart = startOfMonth(new Date());
@@ -278,11 +279,21 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
 
+    let updates: Record<string, any> = { [field]: value };
+
+    // Verificação de saída negativa
+    const checkPrev = field === 'previous' ? (value ?? 0) : (Number(itemData.previous) || 0);
+    const checkRec = field === 'received' ? (value ?? 0) : (Number(itemData.received) || 0);
+    const checkCurr = field === 'current' ? (value ?? 0) : (Number(itemData.current) || 0);
+    
+    const calculatedOutgoing = (Number(checkPrev) + Number(checkRec)) - Number(checkCurr);
+    if (calculatedOutgoing < 0 && value !== null) {
+      setNegativeWarningItem({ ...itemData, ...updates });
+    }
+
     if (field === 'received' && value !== null && value > 0 && (Number(itemData.pendingRequestsCount) || 0) > 0) {
       setPendingConfirmItem({ ...itemData });
     }
-
-    let updates: Record<string, any> = { [field]: value };
     
     if (field === 'current' && value !== null) {
       if (itemData.previous !== null && (itemData.received === null || itemData.received === undefined)) {
@@ -339,7 +350,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           <div className="bg-primary/20 p-2 rounded-lg">
             <Smartphone className="h-4 w-4 text-primary rotate-90" />
           </div>
-          <p className="text-[10px] font-black uppercase text-sidebar-primary-foreground leading-tight tracking-wider text-left">
+          <p className="text-[10px] font-black uppercase text-[#1F5F5B] leading-tight tracking-wider text-left">
             Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
           </p>
         </div>
@@ -651,6 +662,36 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               className="bg-primary hover:bg-primary/90 font-black uppercase text-xs"
             >
               Sim, Abrir Pedidos
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog 
+        open={!!negativeWarningItem} 
+        onOpenChange={(open) => {
+          if (!open) setNegativeWarningItem(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="uppercase font-black text-left flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              Atenção: Saída Negativa
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-left space-y-2">
+              <p>A quantidade <strong>Atual</strong> de <span className="font-bold text-foreground">"{negativeWarningItem?.item}"</span> é maior do que a soma do estoque <strong>Anterior</strong> com o <strong>Recebido</strong>.</p>
+              <p className="text-xs text-muted-foreground uppercase font-bold">Isso resultará em uma saída negativa, o que indica um erro de contagem ou lançamento.</p>
+              <p className="font-black text-destructive pt-2">Tem certeza que os valores estão corretos?</p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-bold uppercase text-xs">Vou revisar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => setNegativeWarningItem(null)} 
+              className="bg-primary hover:bg-primary/90 font-black uppercase text-xs"
+            >
+              Sim, está correto
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
