@@ -460,7 +460,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               </DialogHeader>
               <div className="space-y-4 text-sm leading-relaxed text-justify pr-2">
                 <p>
-                  <strong>1.</strong> Todas as congregações coordenadoras de idioma devem fazer a contagem real das publicações todo mês. Se a sua congregação envia todo mês um relatório do inventário de publicações pelo JW Hub, você não precisa usar este formulário.
+                  <strong>1.</strong> Todas as congregações coordenadoras de idioma devem fazer a contagem real das publicações todo mês. Si a sua congregação envia todo mês um relatório do inventário de publicações pelo JW Hub, você não precisa usar este formulário.
                 </p>
                 <p>
                   <strong>2.</strong> Antes de fazer a contagem, recapitule a <Link href="/s60" className="text-primary font-bold hover:underline"><em>Lista de Publicações a Serem Descartadas (S-60)</em></Link> e siga as instruções sobre jogar fora os itens que aparecem na lista.
@@ -679,10 +679,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               <AlertTriangle className="h-5 w-5 text-destructive" />
               Atenção: Saída Negativa
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-left space-y-2">
-              <p>A quantidade <strong>Atual</strong> de <span className="font-bold text-foreground">"{negativeWarningItem?.item}"</span> é maior do que a soma do estoque <strong>Anterior</strong> com o <strong>Recebido</strong>.</p>
-              <p className="text-xs text-muted-foreground uppercase font-bold">Isso resultará em uma saída negativa, o que indica um erro de contagem ou lançamento.</p>
-              <p className="font-black text-destructive pt-2">Tem certeza que os valores estão corretos?</p>
+            <AlertDialogDescription asChild>
+              <div className="text-left space-y-2">
+                <p>A quantidade <strong>Atual</strong> de <span className="font-bold text-foreground">"{negativeWarningItem?.item}"</span> é maior do que a soma do estoque <strong>Anterior</strong> com o <strong>Recebido</strong>.</p>
+                <p className="text-xs text-muted-foreground uppercase font-bold">Isso resultará em uma saída negativa, o que indica um erro de contagem ou lançamento.</p>
+                <p className="font-black text-destructive pt-2">Tem certeza que os valores estão corretos?</p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
