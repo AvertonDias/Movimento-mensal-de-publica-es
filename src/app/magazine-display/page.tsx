@@ -104,7 +104,7 @@ export default function MagazineDisplayPage() {
               <h3 className="font-black uppercase text-sm tracking-tight">Dica para o Balcão</h3>
               <p className="text-xs text-muted-foreground font-bold leading-relaxed uppercase">
                 Mantenha estas revistas em destaque no balcão de publicações durante os meses indicados. 
-                Isso ajuda na uniformidade da congregação e incentiva a distribuição dos itens recomendados para o período de 2026.
+                Isso ajuda na uniformidade da congregação e incentiva a distribuição dos itens recomendados para o período.
               </p>
             </div>
           </CardContent>
