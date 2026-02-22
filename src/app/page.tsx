@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import { InventoryTable } from "@/components/inventory/InventoryTable";
 import { ShieldCheck } from "lucide-react";
-import Link from "next/link";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
 import Image from "next/image";
 import { doc } from 'firebase/firestore';
@@ -16,12 +15,17 @@ export default function Home() {
   
   const [viewMode, setViewMode] = useState<'personal' | 'shared'>('personal');
   const [sharedOwnerId, setSharedOwnerId] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isUserLoading && !user && mounted) {
       router.push('/login');
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, router, mounted]);
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -40,12 +44,20 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  if (isUserLoading) {
+  if (!mounted || isUserLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="rounded-xl w-[40px] h-[40px] overflow-hidden shadow-sm shrink-0 border border-primary/10">
-            <Image src="/icon.png" alt="Carregando" width={40} height={40} className="object-cover w-full h-full" unoptimized priority />
+            <Image 
+              src="/icon.png" 
+              alt="Carregando" 
+              width={40} 
+              height={40} 
+              className="object-cover w-full h-full" 
+              unoptimized 
+              priority 
+            />
           </div>
           <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Iniciando sistema...</p>
         </div>

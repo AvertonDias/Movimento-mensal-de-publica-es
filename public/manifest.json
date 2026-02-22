@@ -1,13 +1,11 @@
-
 {
-  "name": "S-28 Digital: Gestão inteligente de publicações",
+  "name": "S-28 Digital",
   "short_name": "S-28 Digital",
-  "description": "Sistema inteligente para formulário S-28-T e gestão de estoque.",
+  "description": "Gestão inteligente de publicações",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F5F5F5",
   "theme_color": "#A0CFEC",
-  "orientation": "any",
   "icons": [
     {
       "src": "/icon.png",
@@ -19,7 +17,7 @@
       "src": "/icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any"
     }
   ]
 }

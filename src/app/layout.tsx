@@ -14,8 +14,13 @@ export const metadata: Metadata = {
   description: 'Sistema inteligente para formulário S-28-T e gestão de estoque.',
   manifest: '/manifest.json',
   icons: {
-    icon: '/icon.png',
-    apple: '/icon.png',
+    icon: [
+      { url: '/icon.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon.png', sizes: '180x180', type: 'image/png' },
+    ],
   },
   appleWebApp: {
     capable: true,
@@ -28,8 +33,8 @@ export const viewport: Viewport = {
   themeColor: '#A0CFEC',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1, // Limita o zoom máximo para evitar distorções de layout na rotação
-  userScalable: false, // Desativa o pinch-to-zoom para manter a experiência de app nativo estável
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
