@@ -1,7 +1,7 @@
 {
   "name": "S-28 Digital",
   "short_name": "S-28 Digital",
-  "description": "Gestão inteligente de publicações",
+  "description": "Sistema inteligente para gestão de inventário de publicações.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#F5F5F5",

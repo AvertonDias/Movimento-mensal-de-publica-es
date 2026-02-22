@@ -48,7 +48,7 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="rounded-xl w-[40px] h-[40px] overflow-hidden shadow-sm shrink-0 border border-primary/10">
+          <div className="rounded-xl animate-pulse w-[40px] h-[40px] overflow-hidden">
             <Image 
               src="/icon.png" 
               alt="Carregando" 
@@ -59,7 +59,7 @@ export default function Home() {
               priority 
             />
           </div>
-          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Iniciando sistema...</p>
+          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Carregando...</p>
         </div>
       </div>
     );
