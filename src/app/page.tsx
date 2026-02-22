@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -45,10 +44,10 @@ export default function Home() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="rounded-xl animate-pulse w-[40px] h-[40px] overflow-hidden">
+          <div className="rounded-xl w-[40px] h-[40px] overflow-hidden shadow-sm shrink-0 border border-primary/10">
             <Image src="/icon.png" alt="Carregando" width={40} height={40} className="object-cover w-full h-full" unoptimized priority />
           </div>
-          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Carregando...</p>
+          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Iniciando sistema...</p>
         </div>
       </div>
     );
@@ -64,7 +63,7 @@ export default function Home() {
         {isHelper && (
           <div className="bg-accent/10 border border-accent/20 p-4 rounded-xl flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <ShieldCheck className="h-5 w-5 text-accent-foreground" />
+              <ShieldCheck className="h-5 w-5 text-accent-foreground shrink-0" />
               <div>
                 <p className="text-xs font-black uppercase text-accent-foreground">Acesso Autorizado</p>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase">Você está ajudando a gerenciar este inventário.</p>

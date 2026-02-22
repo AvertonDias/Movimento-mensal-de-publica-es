@@ -84,7 +84,7 @@ export function AppSidebar() {
                 unoptimized 
               />
             </div>
-            <div className="flex flex-col justify-center text-left overflow-hidden">
+            <div className="flex flex-col justify-center text-left overflow-hidden shrink-0">
               <h1 className="text-sm sm:text-lg font-black tracking-tight text-foreground uppercase font-headline leading-none truncate">
                 S-28 Digital
               </h1>
@@ -127,7 +127,7 @@ export function AppSidebar() {
                     )}
                   >
                     <Link href={item.href}>
-                      <item.icon className={cn("h-4 w-4", isActive && "text-primary")} />
+                      <item.icon className={cn("h-4 w-4 shrink-0", isActive && "text-primary")} />
                       <span>{item.label}</span>
                     </Link>
                   </SidebarMenuButton>

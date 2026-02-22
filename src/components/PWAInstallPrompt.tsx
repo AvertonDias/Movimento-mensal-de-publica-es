@@ -1,11 +1,11 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Download, X, BookOpen } from "lucide-react";
+import { Download, X } from "lucide-react";
 import { useUser } from "@/firebase";
+import Image from "next/image";
 
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -63,8 +63,15 @@ export function PWAInstallPrompt() {
       <Card className="bg-primary/95 backdrop-blur-md border-primary-foreground/20 shadow-2xl overflow-hidden text-primary-foreground">
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
-            <div className="bg-white/20 p-2 rounded-xl">
-              <BookOpen className="h-6 w-6" />
+            <div className="rounded-xl overflow-hidden w-[42px] h-[42px] border border-white/20 shadow-sm shrink-0">
+              <Image 
+                src="/icon.png" 
+                alt="Logo" 
+                width={42} 
+                height={42} 
+                className="object-cover w-full h-full" 
+                unoptimized 
+              />
             </div>
             <div className="flex-1 space-y-0.5">
               <p className="text-sm font-black uppercase tracking-tight">Instalar Movimento Mensal</p>
@@ -72,7 +79,7 @@ export function PWAInstallPrompt() {
                 Acesse mais rápido e preencha o formulário S-28-T mesmo offline.
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <Button 
                 onClick={handleInstallClick}
                 size="sm"

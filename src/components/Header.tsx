@@ -82,15 +82,15 @@ export function Header() {
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
         <div className="flex items-center gap-2 sm:gap-4">
-          <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-primary/5 text-primary border border-primary/10">
+          <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-primary/5 text-primary border border-primary/10 shrink-0">
             <Menu className="h-5 w-5" />
           </SidebarTrigger>
           
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0">
-            <div className="rounded-xl overflow-hidden w-[36px] h-[36px] sm:w-[38px] sm:h-[38px] border border-primary/10">
+            <div className="rounded-xl overflow-hidden w-[36px] h-[36px] sm:w-[38px] sm:h-[38px] border border-primary/10 shrink-0">
               <Image src="/icon.png" alt="Logo" width={38} height={38} className="object-cover w-full h-full" unoptimized priority />
             </div>
-            <div className="flex flex-col justify-center text-left">
+            <div className="flex flex-col justify-center text-left shrink-0">
               <h1 className="text-sm sm:text-lg font-black tracking-tight text-foreground uppercase font-headline leading-none">
                 S-28 Digital
               </h1>
@@ -101,7 +101,7 @@ export function Header() {
           </Link>
         </div>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-9 w-9 rounded-full shrink-0 ring-2 ring-primary/10 hover:ring-primary/30 transition-all">
