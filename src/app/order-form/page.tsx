@@ -47,6 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 interface Publisher {
   id: string;
@@ -70,6 +71,7 @@ export default function OrderFormPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const router = useRouter();
+  const { toast } = useToast();
 
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(new Date()));
   const [searchTerm, setSearchTerm] = useState('');
@@ -97,6 +99,7 @@ export default function OrderFormPage() {
   } | null>(null);
 
   const [localQtyValues, setLocalQtyValues] = useState<Record<string, string>>({});
+  const [localNameValues, setLocalNameValues] = useState<Record<string, string>>({});
 
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthLabel = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -266,7 +269,7 @@ export default function OrderFormPage() {
       <div className="max-w-6xl mx-auto space-y-4">
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-xl border shadow-sm">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-1">
             <div className="bg-primary/10 p-2 rounded-lg shrink-0">
               <CheckSquare2 className="h-5 w-5 text-primary" />
             </div>
@@ -276,85 +279,94 @@ export default function OrderFormPage() {
             </div>
           </div>
 
-          <div className="flex items-center bg-neutral-100 p-0.5 rounded-lg border justify-between overflow-hidden sm:min-w-[200px]">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setSelectedMonth(prev => subMonths(prev, 1))}
-              className="h-8 w-8 shrink-0 hover:bg-white transition-colors"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            
-            <Popover open={isMonthPopoverOpen} onOpenChange={setIsMonthPopoverOpen}>
-              <PopoverTrigger asChild>
-                <div className="flex-1 px-2 font-black text-[10px] uppercase tracking-widest text-center flex items-center justify-center gap-1 overflow-hidden select-none cursor-pointer hover:bg-white rounded transition-colors h-8">
-                  <CalendarIcon className="h-3 w-3 text-primary shrink-0" />
-                  <span className="truncate">{monthLabel}</span>
-                </div>
-              </PopoverTrigger>
-              <PopoverContent className="w-64 p-3" align="center">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-7 w-7" 
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
-                        setSelectedMonth(prev => subYears(prev, 1)); 
-                      }}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
-                      {format(selectedMonth, 'yyyy')}
-                    </span>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-7 w-7" 
-                      onClick={(e) => { 
-                        e.stopPropagation(); 
-                        setSelectedMonth(prev => addYears(prev, 1)); 
-                      }}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <div className="flex items-center bg-neutral-100 p-0.5 rounded-lg border justify-between overflow-hidden sm:min-w-[200px] w-full sm:w-auto">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setSelectedMonth(prev => subMonths(prev, 1))}
+                className="h-8 w-8 shrink-0 hover:bg-white transition-colors"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <Popover open={isMonthPopoverOpen} onOpenChange={setIsMonthPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <div className="flex-1 px-2 font-black text-[10px] uppercase tracking-widest text-center flex items-center justify-center gap-1 overflow-hidden select-none cursor-pointer hover:bg-white rounded transition-colors h-8">
+                    <CalendarIcon className="h-3 w-3 text-primary shrink-0" />
+                    <span className="truncate">{monthLabel}</span>
                   </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    {Array.from({ length: 12 }).map((_, i) => {
-                      const date = setMonth(selectedMonth, i);
-                      const isSelected = selectedMonth.getMonth() === i;
-                      return (
-                        <Button 
-                          key={i} 
-                          variant={isSelected ? "default" : "ghost"} 
-                          className={cn(
-                            "h-9 text-[10px] font-bold uppercase", 
-                            isSelected && "bg-primary text-primary-foreground"
-                          )} 
-                          onClick={() => { 
-                            setSelectedMonth(date); 
-                            setIsMonthPopoverOpen(false); 
-                          }}
-                        >
-                          {format(date, 'MMM', { locale: ptBR })}
-                        </Button>
-                      );
-                    })}
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3" align="center">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7" 
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          setSelectedMonth(prev => subYears(prev, 1)); 
+                        }}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
+                        {format(selectedMonth, 'yyyy')}
+                      </span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7" 
+                        onClick={(e) => { 
+                          e.stopPropagation(); 
+                          setSelectedMonth(prev => addYears(prev, 1)); 
+                        }}
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {Array.from({ length: 12 }).map((_, i) => {
+                        const date = setMonth(selectedMonth, i);
+                        const isSelected = selectedMonth.getMonth() === i;
+                        return (
+                          <Button 
+                            key={i} 
+                            variant={isSelected ? "default" : "ghost"} 
+                            className={cn(
+                              "h-9 text-[10px] font-bold uppercase", 
+                              isSelected && "bg-primary text-primary-foreground"
+                            )} 
+                            onClick={() => { 
+                              setSelectedMonth(date); 
+                              setIsMonthPopoverOpen(false); 
+                            }}
+                          >
+                            {format(date, 'MMM', { locale: ptBR })}
+                          </Button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverContent>
+              </Popover>
+
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setSelectedMonth(prev => addMonths(prev, 1))}
+                className="h-8 w-8 shrink-0 hover:bg-white transition-colors"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
 
             <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setSelectedMonth(prev => addMonths(prev, 1))}
-              className="h-8 w-8 shrink-0 hover:bg-white transition-colors"
+              onClick={handleAddPublisher} 
+              className="bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest h-9 px-6 shadow-md transition-all active:scale-95 w-full sm:w-auto"
             >
-              <ChevronRight className="h-4 w-4" />
+              <Plus className="h-4 w-4 mr-2" /> Novo Publicador
             </Button>
           </div>
         </div>
@@ -364,7 +376,7 @@ export default function OrderFormPage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input 
               placeholder="Pesquisar por nome..." 
-              value={searchTerm}
+              value={searchTerm} 
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10 h-10 bg-white border-neutral-200 focus:ring-primary shadow-sm font-bold uppercase text-[11px] w-full"
             />
@@ -398,14 +410,6 @@ export default function OrderFormPage() {
                 <SelectItem value="pending_sentinelaG" className="text-[9px] font-black uppercase">Pendente: Sentinela (G)</SelectItem>
               </SelectContent>
             </Select>
-
-            <Button 
-              onClick={handleAddPublisher} 
-              className="h-10 bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest shrink-0 shadow-sm px-4"
-            >
-              <Plus className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Adicionar</span>
-            </Button>
           </div>
         </div>
 
@@ -522,8 +526,56 @@ export default function OrderFormPage() {
                             <User className="h-4 w-4 text-primary" />
                           </div>
                           <Input 
-                            value={pub.name ?? ''}
-                            onChange={(e) => handleFieldChange(pub.id, 'name', e.target.value)}
+                            value={localNameValues[pub.id] ?? pub.name ?? ''}
+                            onChange={(e) => setLocalNameValues(prev => ({ ...prev, [pub.id]: e.target.value }))}
+                            onBlur={() => {
+                              const val = localNameValues[pub.id];
+                              if (val === undefined) return;
+                              
+                              const trimmed = val.trim();
+                              if (trimmed === pub.name?.trim()) {
+                                setLocalNameValues(prev => {
+                                  const next = { ...prev };
+                                  delete next[pub.id];
+                                  return next;
+                                });
+                                return;
+                              }
+
+                              if (trimmed === '') {
+                                setLocalNameValues(prev => {
+                                  const next = { ...prev };
+                                  delete next[pub.id];
+                                  return next;
+                                });
+                                return;
+                              }
+
+                              const isDuplicate = publishers.some(p => 
+                                p.id !== pub.id && 
+                                p.name.trim().toLowerCase() === trimmed.toLowerCase()
+                              );
+
+                              if (isDuplicate) {
+                                toast({
+                                  variant: "destructive",
+                                  title: "Nome Duplicado",
+                                  description: `O publicador "${trimmed}" já existe na sua lista.`,
+                                });
+                                setLocalNameValues(prev => {
+                                  const next = { ...prev };
+                                  delete next[pub.id];
+                                  return next;
+                                });
+                              } else {
+                                handleFieldChange(pub.id, 'name', trimmed);
+                                setLocalNameValues(prev => {
+                                  const next = { ...prev };
+                                  delete next[pub.id];
+                                  return next;
+                                });
+                              }
+                            }}
                             placeholder="Nome do publicador..."
                             className="border-none shadow-none focus-visible:ring-0 font-black uppercase text-sm h-8 bg-transparent p-0 placeholder:text-neutral-300"
                           />
