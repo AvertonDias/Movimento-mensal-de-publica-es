@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -106,6 +107,7 @@ export default function OrderFormPage() {
   };
 
   const handleRemovePublisher = (id: string) => {
+    if (!window.confirm("Deseja realmente excluir este publicador e todas as suas quantidades fixas?")) return;
     if (!publishersRef) return;
     const newList = publishers.filter(p => p.id !== id);
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
@@ -133,11 +135,19 @@ export default function OrderFormPage() {
       sentinela: false, 
       sentinelaG: false 
     };
+    
+    const isChecking = !current[field];
+    const message = isChecking 
+      ? "Confirmar entrega desta publicação?" 
+      : "Deseja remover a marcação de entrega?";
+      
+    if (!window.confirm(message)) return;
+
     const updatedChecks = {
       ...checks,
       [publisherId]: {
         ...current,
-        [field]: !current[field]
+        [field]: isChecking
       }
     };
     setDocumentNonBlocking(monthlyChecksRef, { checks: updatedChecks }, { merge: true });
