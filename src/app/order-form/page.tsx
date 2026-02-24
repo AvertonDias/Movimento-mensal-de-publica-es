@@ -4,7 +4,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { format, subMonths, addMonths, startOfMonth } from 'date-fns';
+import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Button } from "@/components/ui/button";
 import { 
@@ -17,7 +17,8 @@ import {
   Search,
   X,
   Loader2,
-  AlertTriangle
+  AlertTriangle,
+  Calendar as CalendarIcon
 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
@@ -34,6 +35,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface Publisher {
   id: string;
@@ -58,6 +64,7 @@ export default function OrderFormPage() {
 
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(new Date()));
   const [searchTerm, setSearchTerm] = useState('');
+  const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   
   // Estado para manter a ordem estável e evitar que os cards pulem enquanto o usuário digita os nomes
   const [orderedIds, setOrderedIds] = useState<string[]>([]);
@@ -140,12 +147,14 @@ export default function OrderFormPage() {
       sentinelaGQty: 0
     };
     const newList = [...publishers, newPublisher];
+    setOrderedIds([]); // Força reordenamento na próxima atualização
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
   };
 
   const confirmDelete = () => {
     if (!deleteConfig || !publishersRef) return;
     const newList = publishers.filter(p => p.id !== deleteConfig.id);
+    setOrderedIds([]); // Força reordenamento na próxima atualização
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
     setDeleteConfig(null);
   };
@@ -228,9 +237,69 @@ export default function OrderFormPage() {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <div className="flex-1 px-2 font-black text-[10px] uppercase tracking-widest text-center flex items-center justify-center gap-1 overflow-hidden select-none">
-              <span className="truncate">{monthLabel}</span>
-            </div>
+            
+            <Popover open={isMonthPopoverOpen} onOpenChange={setIsMonthPopoverOpen}>
+              <PopoverTrigger asChild>
+                <div className="flex-1 px-2 font-black text-[10px] uppercase tracking-widest text-center flex items-center justify-center gap-1 overflow-hidden select-none cursor-pointer hover:bg-white rounded transition-colors h-8">
+                  <CalendarIcon className="h-3 w-3 text-primary shrink-0" />
+                  <span className="truncate">{monthLabel}</span>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-64 p-3" align="center">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-7 w-7" 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setSelectedMonth(prev => subYears(prev, 1)); 
+                      }}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
+                      {format(selectedMonth, 'yyyy')}
+                    </span>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-7 w-7" 
+                      onClick={(e) => { 
+                        e.stopPropagation(); 
+                        setSelectedMonth(prev => addYears(prev, 1)); 
+                      }}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {Array.from({ length: 12 }).map((_, i) => {
+                      const date = setMonth(selectedMonth, i);
+                      const isSelected = selectedMonth.getMonth() === i;
+                      return (
+                        <Button 
+                          key={i} 
+                          variant={isSelected ? "default" : "ghost"} 
+                          className={cn(
+                            "h-9 text-[10px] font-bold uppercase", 
+                            isSelected && "bg-primary text-primary-foreground"
+                          )} 
+                          onClick={() => { 
+                            setSelectedMonth(date); 
+                            setIsMonthPopoverOpen(false); 
+                          }}
+                        >
+                          {format(date, 'MMM', { locale: ptBR })}
+                        </Button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
             <Button 
               variant="ghost" 
               size="icon" 
