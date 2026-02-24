@@ -16,7 +16,6 @@ import {
   Calendar,
   Loader2,
   CheckSquare2,
-  Hash,
   Search,
   Filter,
   X
@@ -26,7 +25,6 @@ import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,7 +57,6 @@ export default function OrderFormPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const router = useRouter();
-  const { toast } = useToast();
 
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(new Date()));
   const [searchTerm, setSearchTerm] = useState('');
@@ -73,13 +70,11 @@ export default function OrderFormPage() {
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthLabel = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
 
-  // Referência para os nomes e quantidades habituais dos publicadores (Global)
   const publishersRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'users', user.uid, 'order_form', 'publishers');
   }, [db, user]);
 
-  // Referência para as marcações (checks) do mês corrente
   const monthlyChecksRef = useMemoFirebase(() => {
     if (!db || !user || !monthKey) return null;
     return doc(db, 'users', user.uid, 'order_form', `checks_${monthKey}`);
@@ -196,7 +191,6 @@ export default function OrderFormPage() {
     <div className="min-h-screen bg-neutral-50 pt-24 pb-12 px-4 font-body">
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* Cabeçalho Fixo e Controles de Busca */}
         <div className="sticky top-[72px] z-20 space-y-4 bg-neutral-50/80 backdrop-blur-md pb-4 pt-2">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border shadow-sm">
             <div className="flex items-center gap-3">
@@ -256,7 +250,6 @@ export default function OrderFormPage() {
           </div>
         </div>
 
-        {/* Tabela de Pedidos */}
         <Card className="border-none shadow-xl overflow-hidden">
           <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-neutral-200">
             <div className="min-w-[900px]">
@@ -308,28 +301,35 @@ export default function OrderFormPage() {
                         sentinelaG: false 
                       };
                       
-                      const renderCell = (checkField: keyof MonthlyChecks, qtyField: keyof Publisher) => (
-                        <div className="flex items-center justify-center gap-3 px-2">
-                          <Checkbox 
-                            checked={state[checkField] || false} 
-                            onCheckedChange={() => handleToggleCheck(pub.id, checkField)}
-                            className={cn(
-                              "h-5 w-5 border-2 transition-all",
-                              state[checkField] ? "bg-emerald-500 border-emerald-600" : "border-neutral-300"
-                            )}
-                          />
-                          <div className="relative">
-                            <Input 
-                              type="text"
-                              inputMode="numeric"
-                              value={pub[qtyField] === 0 ? '' : (pub[qtyField] ?? '')}
-                              onChange={(e) => handleFieldChange(pub.id, qtyField, e.target.value)}
-                              className="w-10 h-8 p-1 text-center font-black text-xs bg-neutral-50 border-neutral-200 focus:bg-white focus:ring-1 focus:ring-primary shadow-inner"
-                              placeholder="0"
+                      const renderCell = (checkField: keyof MonthlyChecks, qtyField: keyof Publisher) => {
+                        const currentQty = pub[qtyField] ?? 0;
+                        const hasQty = currentQty > 0;
+                        
+                        return (
+                          <div className="flex items-center justify-center gap-3 px-2">
+                            <div className="relative">
+                              <Input 
+                                type="text"
+                                inputMode="numeric"
+                                value={pub[qtyField] === 0 ? '' : (pub[qtyField] ?? '')}
+                                onChange={(e) => handleFieldChange(pub.id, qtyField, e.target.value)}
+                                className="w-10 h-8 p-1 text-center font-black text-xs bg-neutral-50 border-neutral-200 focus:bg-white focus:ring-1 focus:ring-primary shadow-inner"
+                                placeholder="0"
+                              />
+                            </div>
+                            <Checkbox 
+                              checked={hasQty ? (state[checkField] || false) : false} 
+                              onCheckedChange={() => handleToggleCheck(pub.id, checkField)}
+                              disabled={!hasQty}
+                              className={cn(
+                                "h-5 w-5 border-2 transition-all",
+                                state[checkField] && hasQty ? "bg-emerald-500 border-emerald-600" : "border-neutral-300",
+                                !hasQty && "opacity-20 cursor-not-allowed"
+                              )}
                             />
                           </div>
-                        </div>
-                      );
+                        );
+                      };
 
                       return (
                         <div key={pub.id} className="grid grid-cols-12 group hover:bg-primary/5 transition-colors items-center h-14">
@@ -382,7 +382,6 @@ export default function OrderFormPage() {
           </div>
         </Card>
 
-        {/* Rodapé Informativo */}
         <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-start gap-3 text-left">
           <div className="bg-primary/20 p-1.5 rounded-full mt-0.5 shrink-0">
             <CheckSquare2 className="h-3 w-3 text-primary" />
@@ -390,7 +389,7 @@ export default function OrderFormPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase text-primary tracking-widest">Dica de Gestão Digital</p>
             <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed">
-              Use a pesquisa para encontrar irmãos rapidamente e os filtros nas colunas para identificar quem ainda não retirou as revistas no mês. As quantidades numéricas são suas assinaturas fixas.
+              Defina a quantidade de assinaturas fixas nos campos numéricos. O checkbox de entrega só será liberado quando houver uma quantidade maior que zero. Use os filtros para identificar quem ainda não retirou os itens.
             </p>
           </div>
         </div>
