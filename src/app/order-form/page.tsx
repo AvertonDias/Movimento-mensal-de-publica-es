@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -366,7 +367,7 @@ export default function OrderFormPage() {
               <AlertTriangle className="h-5 w-5" />
               Excluir Publicador?
             </AlertDialogTitle>
-            <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed">
+            <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
               Deseja realmente remover <span className="text-foreground">"{deleteConfig?.name || 'sem nome'}"</span> e todas as suas quantidades fixas do sistema?
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -400,10 +401,7 @@ export default function OrderFormPage() {
             <AlertDialogCancel className="font-black uppercase text-[10px] tracking-widest">Cancelar</AlertDialogCancel>
             <AlertDialogAction 
               onClick={confirmToggle}
-              className={cn(
-                "font-black uppercase text-[10px] tracking-widest",
-                toggleConfig?.isChecking ? "bg-emerald-600 hover:bg-emerald-700" : "bg-primary"
-              )}
+              className="font-black uppercase text-[10px] tracking-widest bg-primary hover:bg-primary/90"
             >
               {toggleConfig?.isChecking ? "Sim, Marcar" : "Sim, Remover"}
             </AlertDialogAction>
