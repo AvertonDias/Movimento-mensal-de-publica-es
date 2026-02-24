@@ -366,7 +366,7 @@ export default function OrderFormPage() {
               onClick={handleAddPublisher} 
               className="bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest h-9 px-6 shadow-md transition-all active:scale-95 w-full sm:w-auto"
             >
-              <Plus className="h-4 w-4 mr-2" /> Novo Publicador
+              <Plus className="h-4 w-4 mr-2" /> Adiciona Periódico
             </Button>
           </div>
         </div>
