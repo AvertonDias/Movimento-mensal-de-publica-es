@@ -192,19 +192,19 @@ export default function OrderFormPage() {
         
         <div className="space-y-4 pb-4 pt-2">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border shadow-sm">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 w-full md:w-auto">
               <div className="bg-primary/10 p-2 rounded-lg shrink-0">
                 <CheckSquare2 className="h-6 w-6 text-primary" />
               </div>
-              <div className="text-left">
-                <h1 className="text-lg font-black uppercase tracking-tight">Controle de Periódicos</h1>
+              <div className="text-left overflow-hidden">
+                <h1 className="text-lg font-black uppercase tracking-tight truncate">Controle de Periódicos</h1>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
-                  Quantidades fixas para todos os meses.<br />Checks exclusivos do mês atual.
+                  Assinaturas fixas mensais.<br />Entrega exclusiva do mês selecionado.
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border">
+            <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-full sm:w-auto justify-between sm:justify-center">
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -213,9 +213,9 @@ export default function OrderFormPage() {
               >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <div className="px-4 font-black text-[10px] uppercase tracking-widest min-w-[140px] text-center flex items-center justify-center gap-2">
-                <Calendar className="h-3.5 w-3.5 text-primary" />
-                {monthLabel}
+              <div className="px-4 font-black text-[10px] uppercase tracking-widest min-w-[120px] text-center flex items-center justify-center gap-2">
+                <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+                <span className="truncate">{monthLabel}</span>
               </div>
               <Button 
                 variant="ghost" 
@@ -228,13 +228,13 @@ export default function OrderFormPage() {
             </div>
           </div>
 
-          <div className="relative group">
+          <div className="relative group w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input 
               placeholder="Pesquisar publicador por nome..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 h-11 bg-white border-neutral-200 focus:ring-primary shadow-sm font-bold uppercase text-xs"
+              className="pl-10 h-11 bg-white border-neutral-200 focus:ring-primary shadow-sm font-bold uppercase text-xs w-full"
             />
             {searchTerm && (
               <Button 
@@ -388,7 +388,7 @@ export default function OrderFormPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase text-primary tracking-widest">Dica de Gestão Digital</p>
             <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed">
-              Defina a quantidade de assinaturas fixas nos campos numéricos. O checkbox de entrega só será liberado quando houver uma quantidade maior que zero. Use os filtros para identificar quem ainda não retirou os itens.
+              As quantidades de assinaturas fixas são salvas para todos os meses. O checkbox de entrega é exclusivo do mês atual e só fica disponível quando houver uma quantidade maior que zero. Use os filtros no topo das colunas para encontrar quem ainda não retirou os itens.
             </p>
           </div>
         </div>
