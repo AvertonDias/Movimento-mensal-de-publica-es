@@ -18,7 +18,8 @@ import {
   X,
   Loader2,
   AlertTriangle,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Filter
 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
@@ -40,6 +41,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Publisher {
   id: string;
@@ -57,6 +65,8 @@ interface MonthlyChecks {
   sentinelaG: boolean;
 }
 
+type FilterStatus = 'all' | 'pending' | 'completed' | 'pending_apostila' | 'pending_apostilaG' | 'pending_sentinela' | 'pending_sentinelaG';
+
 export default function OrderFormPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
@@ -64,6 +74,7 @@ export default function OrderFormPage() {
 
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(new Date()));
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   
   // Estado para manter a ordem estável e evitar que os cards pulem enquanto o usuário digita os nomes
@@ -102,23 +113,15 @@ export default function OrderFormPage() {
   useEffect(() => {
     if (publishers.length > 0) {
       const currentIds = publishers.map(p => p.id);
-      
-      // Só reordenamos se:
-      // 1. Não temos uma ordem definida ainda (load inicial)
-      // 2. Alguém foi adicionado ou removido (os IDs não batem)
       const isSync = orderedIds.length === currentIds.length && orderedIds.every(id => currentIds.includes(id));
       
       if (!isSync) {
-        // Filtramos publicadores sem nome que já não são mais "novos" (criados há mais de 20s)
         const sorted = [...publishers]
           .filter(p => {
             const hasName = p.name && p.name.trim() !== "";
             if (hasName) return true;
-            
-            // Se estiver sem nome, só mostramos se foi criado nos últimos 20 segundos (item recém-adicionado)
             const timestamp = parseInt(p.id.replace('pub_', '')) || 0;
             const isVeryNew = (Date.now() - timestamp) < 20000;
-            
             return isVeryNew;
           })
           .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
@@ -147,14 +150,14 @@ export default function OrderFormPage() {
       sentinelaGQty: 0
     };
     const newList = [...publishers, newPublisher];
-    setOrderedIds([]); // Força reordenamento na próxima atualização
+    setOrderedIds([]); 
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
   };
 
   const confirmDelete = () => {
     if (!deleteConfig || !publishersRef) return;
     const newList = publishers.filter(p => p.id !== deleteConfig.id);
-    setOrderedIds([]); // Força reordenamento na próxima atualização
+    setOrderedIds([]); 
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
     setDeleteConfig(null);
   };
@@ -197,18 +200,46 @@ export default function OrderFormPage() {
   };
 
   const filteredPublishers = useMemo(() => {
-    // Primeiro aplicamos a ordem estável baseada nos IDs que salvamos
     const baseList = orderedIds
       .map(id => publishers.find(p => p.id === id))
       .filter((p): p is Publisher => !!p);
     
-    // Se a ordem ainda não foi processada ou a lista está vazia, usamos a lista original (filtrando brancos no load)
     const listToFilter = baseList.length > 0 ? baseList : publishers.filter(p => p.name && p.name.trim() !== "");
 
     return listToFilter.filter(pub => {
-      return (pub.name || "").toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = (pub.name || "").toLowerCase().includes(searchTerm.toLowerCase());
+      if (!matchesSearch) return false;
+
+      const state = checks[pub.id] || { apostila: false, apostilaG: false, sentinela: false, sentinelaG: false };
+      
+      const hasAnyQty = pub.apostilaQty > 0 || pub.apostilaGQty > 0 || pub.sentinelaQty > 0 || pub.sentinelaGQty > 0;
+      if (!hasAnyQty && filterStatus !== 'all') return false;
+
+      const itemsWithQty = [
+        { field: 'apostila', qty: pub.apostilaQty, checked: state.apostila },
+        { field: 'apostilaG', qty: pub.apostilaGQty, checked: state.apostilaG },
+        { field: 'sentinela', qty: pub.sentinelaQty, checked: state.sentinela },
+        { field: 'sentinelaG', qty: pub.sentinelaGQty, checked: state.sentinelaG },
+      ].filter(i => i.qty > 0);
+
+      switch (filterStatus) {
+        case 'pending':
+          return itemsWithQty.some(i => !i.checked);
+        case 'completed':
+          return itemsWithQty.length > 0 && itemsWithQty.every(i => i.checked);
+        case 'pending_apostila':
+          return pub.apostilaQty > 0 && !state.apostila;
+        case 'pending_apostilaG':
+          return pub.apostilaGQty > 0 && !state.apostilaG;
+        case 'pending_sentinela':
+          return pub.sentinelaQty > 0 && !state.sentinela;
+        case 'pending_sentinelaG':
+          return pub.sentinelaGQty > 0 && !state.sentinelaG;
+        default:
+          return true;
+      }
     });
-  }, [publishers, searchTerm, orderedIds]);
+  }, [publishers, searchTerm, orderedIds, filterStatus, checks]);
 
   if (isUserLoading || !user) return null;
 
@@ -312,7 +343,7 @@ export default function OrderFormPage() {
         </div>
 
         {/* Search and Action Bar */}
-        <div className="flex gap-2 w-full">
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
           <div className="relative group flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input 
@@ -332,13 +363,34 @@ export default function OrderFormPage() {
               </Button>
             )}
           </div>
-          <Button 
-            onClick={handleAddPublisher} 
-            className="h-10 bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest shrink-0 shadow-sm"
-          >
-            <Plus className="h-4 w-4 sm:mr-2" />
-            <span className="hidden sm:inline">Adicionar</span>
-          </Button>
+
+          <div className="flex gap-2">
+            <Select value={filterStatus} onValueChange={(v: FilterStatus) => setFilterStatus(v)}>
+              <SelectTrigger className="h-10 bg-white border-neutral-200 font-bold uppercase text-[9px] tracking-widest min-w-[160px] flex-1 sm:flex-none">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-3 w-3 text-primary" />
+                  <SelectValue placeholder="Filtro de Status" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="text-[9px] font-black uppercase">Todos</SelectItem>
+                <SelectItem value="pending" className="text-[9px] font-black uppercase text-destructive">Possuem Pendências</SelectItem>
+                <SelectItem value="completed" className="text-[9px] font-black uppercase text-emerald-600">Tudo Entregue</SelectItem>
+                <SelectItem value="pending_apostila" className="text-[9px] font-black uppercase">Pendente: Apostila (N)</SelectItem>
+                <SelectItem value="pending_apostilaG" className="text-[9px] font-black uppercase">Pendente: Apostila (G)</SelectItem>
+                <SelectItem value="pending_sentinela" className="text-[9px] font-black uppercase">Pendente: Sentinela (N)</SelectItem>
+                <SelectItem value="pending_sentinelaG" className="text-[9px] font-black uppercase">Pendente: Sentinela (G)</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button 
+              onClick={handleAddPublisher} 
+              className="h-10 bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest shrink-0 shadow-sm px-4"
+            >
+              <Plus className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">Adicionar</span>
+            </Button>
+          </div>
         </div>
 
         {/* Main Content */}
@@ -352,8 +404,8 @@ export default function OrderFormPage() {
           {filteredPublishers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-30 bg-white rounded-xl border border-dashed">
               <User className="h-12 w-12" />
-              <p className="font-black uppercase text-xs tracking-widest">
-                {searchTerm ? 'Nenhum resultado' : 'Lista vazia'}
+              <p className="font-black uppercase text-xs tracking-widest text-center px-4">
+                {searchTerm || filterStatus !== 'all' ? 'Nenhum resultado para os filtros atuais' : 'Sua lista está vazia'}
               </p>
             </div>
           ) : (
