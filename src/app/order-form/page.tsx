@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -88,6 +89,19 @@ export default function OrderFormPage() {
     itemLabel: string,
     isChecking: boolean 
   } | null>(null);
+
+  // State for Qty Confirmation
+  const [confirmQtyConfig, setConfirmQtyConfig] = useState<{
+    id: string,
+    field: keyof Publisher,
+    newValue: number,
+    oldValue: number,
+    pubName: string,
+    label: string
+  } | null>(null);
+
+  // Local state for inputs to allow typing before confirmation/DB sync
+  const [localQtyValues, setLocalQtyValues] = useState<Record<string, string>>({});
 
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthLabel = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -185,6 +199,17 @@ export default function OrderFormPage() {
           const numValue = parseInt(value.replace(/\D/g, '')) || 0;
           return { ...p, [field]: numValue };
         }
+        return { ...p, [field]: value };
+      }
+      return p;
+    });
+    setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
+  };
+
+  const saveQtyChange = (id: string, field: keyof Publisher, value: number) => {
+    if (!publishersRef) return;
+    const newList = publishers.map(p => {
+      if (p.id === id) {
         return { ...p, [field]: value };
       }
       return p;
@@ -413,6 +438,10 @@ export default function OrderFormPage() {
                   const hasQty = currentQty > 0;
                   const isChecked = hasQty ? (state[checkField] || false) : false;
                   
+                  const inputKey = `${pub.id}-${qtyField}`;
+                  const currentLocalValue = localQtyValues[inputKey];
+                  const displayValue = currentLocalValue !== undefined ? currentLocalValue : (pub[qtyField] === 0 ? '' : String(pub[qtyField] ?? ''));
+
                   return (
                     <div className={cn(
                       "flex flex-col items-center justify-center p-2 rounded-xl border transition-all",
@@ -426,8 +455,36 @@ export default function OrderFormPage() {
                           <Input 
                             type="text"
                             inputMode="numeric"
-                            value={pub[qtyField] === 0 ? '' : (pub[qtyField] ?? '')}
-                            onChange={(e) => handleFieldChange(pub.id, qtyField, e.target.value)}
+                            value={displayValue}
+                            onChange={(e) => {
+                              const val = e.target.value.replace(/\D/g, '');
+                              setLocalQtyValues(prev => ({ ...prev, [inputKey]: val }));
+                            }}
+                            onFocus={(e) => e.target.select()}
+                            onBlur={() => {
+                              const newValue = parseInt(localQtyValues[inputKey] || '0') || 0;
+                              const oldValue = pub[qtyField] as number || 0;
+                              
+                              if (newValue !== oldValue) {
+                                if (oldValue > 0) {
+                                  setConfirmQtyConfig({
+                                    id: pub.id,
+                                    field: qtyField as keyof Publisher,
+                                    newValue,
+                                    oldValue,
+                                    pubName: pub.name || 'este(a) publicador(a)',
+                                    label
+                                  });
+                                } else {
+                                  saveQtyChange(pub.id, qtyField as keyof Publisher, newValue);
+                                }
+                              }
+                              setLocalQtyValues(prev => {
+                                const newState = { ...prev };
+                                delete newState[inputKey];
+                                return newState;
+                              });
+                            }}
                             className="w-12 h-9 p-1 text-center font-black text-sm bg-neutral-50 border-neutral-200 focus:bg-white focus:ring-1 focus:ring-primary shadow-inner rounded-lg"
                             placeholder="0"
                           />
@@ -558,6 +615,33 @@ export default function OrderFormPage() {
               className="font-black uppercase text-[10px] tracking-widest bg-primary hover:bg-primary/90"
             >
               {toggleConfig?.isChecking ? "Sim, Marcar" : "Sim, Remover"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Qty Change Confirmation Dialog */}
+      <AlertDialog open={!!confirmQtyConfig} onOpenChange={(open) => !open && setConfirmQtyConfig(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="uppercase font-black text-left">Confirmar Alteração?</AlertDialogTitle>
+            <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
+              Você está alterando a quantidade fixa de <span className="text-primary">"{confirmQtyConfig?.label}"</span> para <span className="text-foreground">{confirmQtyConfig?.pubName}</span>.<br/><br/>
+              De: <span className="text-destructive line-through">{confirmQtyConfig?.oldValue}</span> para: <span className="text-primary text-lg ml-1">{confirmQtyConfig?.newValue}</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-black uppercase text-[10px] tracking-widest">Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (confirmQtyConfig) {
+                  saveQtyChange(confirmQtyConfig.id, confirmQtyConfig.field, confirmQtyConfig.newValue);
+                  setConfirmQtyConfig(null);
+                }
+              }}
+              className="font-black uppercase text-[10px] tracking-widest bg-primary hover:bg-primary/90"
+            >
+              Confirmar Alteração
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
