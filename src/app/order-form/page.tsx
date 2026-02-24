@@ -394,7 +394,7 @@ export default function OrderFormPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase text-primary tracking-widest">Dica de Gestão Digital</p>
             <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed">
-              As quantidades fixas são permanentes para todos os meses. Já a marcação de entrega (o check) é individual. <strong className="text-primary">Exemplo:</strong> a apostila de estudo do mês de Abril deve ser marcada como entregue com o calendário no topo selecionado em "Abril". Registros sem nome são limpos ao atualizar.
+              As quantidades fixas são permanentes para todos os meses. Já a marcação de entrega (o check) é individual. <strong className="text-foreground">Exemplo:</strong> a apostila de estudo do mês de Abril deve ser marcada como entregue com o calendário no topo selecionado em "Abril".
             </p>
           </div>
         </div>
