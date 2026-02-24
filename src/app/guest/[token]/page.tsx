@@ -53,7 +53,7 @@ export default function GuestHistoryPage(props: {
     
     toast({
       title: "Gerando documento...",
-      description: "Preparando arquivo para abertura externa.",
+      description: "Preparando arquivo em alta definição.",
     });
 
     try {
@@ -65,14 +65,14 @@ export default function GuestHistoryPage(props: {
       if (!element) throw new Error('Elemento não encontrado');
 
       const canvas = await html2canvas(element, {
-        scale: 3,
+        scale: 4,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        windowWidth: 1000,
+        windowWidth: element.scrollWidth,
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'p',
         unit: 'mm',
@@ -83,7 +83,7 @@ export default function GuestHistoryPage(props: {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, Math.min(pdfHeight, pdf.internal.pageSize.getHeight()), undefined, 'FAST');
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
       const fileName = `S28_T_Compartilhada_${fileDate}.pdf`;
@@ -107,7 +107,10 @@ export default function GuestHistoryPage(props: {
 
       if (!shared) {
         const blobUrl = URL.createObjectURL(pdfBlob);
-        pdf.save(fileName);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = fileName;
+        link.click();
         window.open(blobUrl, '_blank');
       }
 
@@ -116,7 +119,7 @@ export default function GuestHistoryPage(props: {
       toast({
         variant: "destructive",
         title: "Erro ao abrir",
-        description: "Não foi possível processar o documento PDF.",
+        description: "Não foi possível processar o documento em alta definição.",
       });
     } finally {
       setIsSharing(false);

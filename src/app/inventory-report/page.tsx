@@ -117,7 +117,7 @@ export default function InventoryReportPage() {
     
     toast({
       title: "Gerando relatório...",
-      description: "Preparando arquivo para abertura externa.",
+      description: "Preparando arquivo em alta definição.",
     });
 
     try {
@@ -128,15 +128,16 @@ export default function InventoryReportPage() {
       const element = document.getElementById('report-content');
       if (!element) throw new Error('Elemento não encontrado');
 
+      // Escala 4x e PNG para nitidez total
       const canvas = await html2canvas(element, {
-        scale: 3,
+        scale: 4,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        windowWidth: 1000,
+        windowWidth: element.scrollWidth,
       });
 
-      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'p',
         unit: 'mm',
@@ -147,7 +148,7 @@ export default function InventoryReportPage() {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, Math.min(pdfHeight, pdf.internal.pageSize.getHeight()), undefined, 'FAST');
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
       const fileName = `Saldo_Fisico_${monthKey}_${fileDate}.pdf`;
@@ -155,7 +156,6 @@ export default function InventoryReportPage() {
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // Tenta compartilhar para abrir em apps externos
       let shared = false;
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         try {
@@ -170,10 +170,12 @@ export default function InventoryReportPage() {
         }
       }
 
-      // Fallback
       if (!shared) {
         const blobUrl = URL.createObjectURL(pdfBlob);
-        pdf.save(fileName);
+        const link = document.createElement('a');
+        link.href = blobUrl;
+        link.download = fileName;
+        link.click();
         window.open(blobUrl, '_blank');
       }
 
@@ -182,7 +184,7 @@ export default function InventoryReportPage() {
       toast({
         variant: "destructive",
         title: "Erro ao abrir",
-        description: "Não foi possível processar o relatório.",
+        description: "Não foi possível processar o relatório em alta definição.",
       });
     } finally {
       setIsSharing(false);
