@@ -27,7 +27,8 @@ export default function HelpersPage() {
     if (!isUserLoading && !user) {
       router.push('/login');
     }
-    if (!isCheckingRole && helperInvite) {
+    if (!isCheckingRole && helperInvite && helperInvite.ownerId !== user?.uid) {
+      // Se eu sou apenas ajudante de outro, não devo ver esta página de gestão
       router.push('/');
     }
   }, [user, isUserLoading, router, helperInvite, isCheckingRole]);
@@ -38,7 +39,13 @@ export default function HelpersPage() {
   }, [db, user]);
 
   const { data: allInvites } = useCollection(invitesQuery);
-  const myInvites = allInvites?.filter(inv => inv.ownerId === user?.uid) || [];
+  
+  // Filtra apenas os convites que eu criei E que não são para mim mesmo (ajudantes externos)
+  const myInvites = allInvites?.filter(inv => 
+    inv.ownerId === user?.uid && 
+    inv.id !== user?.uid && 
+    inv.helperId !== user?.uid
+  ) || [];
 
   const handleCreateInvite = () => {
     if (!user || !db) return;
@@ -76,7 +83,7 @@ export default function HelpersPage() {
     deleteDocumentNonBlocking(inviteRef);
   };
 
-  if (isUserLoading || isCheckingRole || !user || helperInvite) return null;
+  if (isUserLoading || isCheckingRole || !user) return null;
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body">
@@ -94,7 +101,7 @@ export default function HelpersPage() {
               <LinkIcon className="h-5 w-5 text-primary" />
               Novo Link de Convite
             </CardTitle>
-            <CardDescription className="text-xs font-bold uppercase tracking-wider">
+            <CardDescription className="text-xs font-bold uppercase tracking-wider text-left">
               Gere uma mensagem de convite para que outra pessoa ajude a gerenciar seu inventário.
             </CardDescription>
           </CardHeader>
@@ -109,14 +116,14 @@ export default function HelpersPage() {
         </Card>
 
         <div className="space-y-4">
-          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+          <h2 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
             Convites Ativos ({myInvites.length})
           </h2>
           
           {myInvites.length === 0 ? (
             <div className="bg-white p-12 text-center rounded-xl border border-dashed border-neutral-300">
               <Users className="h-12 w-12 text-neutral-200 mx-auto mb-4" />
-              <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Nenhum convite gerado</p>
+              <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest text-center">Nenhum ajudante cadastrado</p>
             </div>
           ) : (
             <div className="grid gap-4">
@@ -156,7 +163,7 @@ export default function HelpersPage() {
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          className="h-9 w-9 text-destructive hover:bg-destructive/10"
+                          className="h-9 w-9 text-destructive hover:bg-destructive/10 transition-colors"
                           onClick={() => handleDelete(invite.id)}
                         >
                           <Trash2 className="h-4 w-4" />
