@@ -91,18 +91,31 @@ export default function OrderFormPage() {
   const publishers: Publisher[] = publishersData?.list || [];
   const checks: Record<string, MonthlyChecks> = monthlyData?.checks || {};
 
-  // Lógica para definir a ordem estável (alfabética) apenas no carregamento ou quando a lista muda de tamanho
+  // Lógica para definir a ordem estável (alfabética) e limpeza de nomes vazios
   useEffect(() => {
     if (publishers.length > 0) {
       const currentIds = publishers.map(p => p.id);
       
       // Só reordenamos se:
-      // 1. Não temos uma ordem definida ainda
+      // 1. Não temos uma ordem definida ainda (load inicial)
       // 2. Alguém foi adicionado ou removido (os IDs não batem)
       const isSync = orderedIds.length === currentIds.length && orderedIds.every(id => currentIds.includes(id));
       
       if (!isSync) {
-        const sorted = [...publishers].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        // Filtramos publicadores sem nome que já não são mais "novos" (criados há mais de 20s)
+        const sorted = [...publishers]
+          .filter(p => {
+            const hasName = p.name && p.name.trim() !== "";
+            if (hasName) return true;
+            
+            // Se estiver sem nome, só mostramos se foi criado nos últimos 20 segundos (item recém-adicionado)
+            const timestamp = parseInt(p.id.replace('pub_', '')) || 0;
+            const isVeryNew = (Date.now() - timestamp) < 20000;
+            
+            return isVeryNew;
+          })
+          .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+          
         setOrderedIds(sorted.map(p => p.id));
       }
     } else {
@@ -180,8 +193,8 @@ export default function OrderFormPage() {
       .map(id => publishers.find(p => p.id === id))
       .filter((p): p is Publisher => !!p);
     
-    // Se a ordem ainda não foi processada ou a lista está vazia, usamos a lista original
-    const listToFilter = baseList.length > 0 ? baseList : publishers;
+    // Se a ordem ainda não foi processada ou a lista está vazia, usamos a lista original (filtrando brancos no load)
+    const listToFilter = baseList.length > 0 ? baseList : publishers.filter(p => p.name && p.name.trim() !== "");
 
     return listToFilter.filter(pub => {
       return (pub.name || "").toLowerCase().includes(searchTerm.toLowerCase());
@@ -381,7 +394,7 @@ export default function OrderFormPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase text-primary tracking-widest">Dica de Gestão Digital</p>
             <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed">
-              As quantidades de assinaturas fixas são salvas para todos os meses. O checkbox de entrega é exclusivo do mês atual e só fica disponível quando houver uma quantidade maior que zero.
+              As quantidades de assinaturas fixas são salvas para todos os meses. O checkbox de entrega é exclusivo do mês atual e só fica disponível quando houver uma quantidade maior que zero. Registros sem nome são removidos automaticamente na próxima sessão.
             </p>
           </div>
         </div>
