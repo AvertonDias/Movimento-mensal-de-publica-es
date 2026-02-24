@@ -346,8 +346,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   return (
     <div className="space-y-6 relative max-w-full overflow-x-hidden">
       {isMobile && (
-        <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden animate-pulse">
-          <div className="bg-primary/20 p-2 rounded-lg animate-bounce">
+        <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden animate-pulse-slow">
+          <div className="bg-primary/20 p-2 rounded-lg animate-bounce-slow">
             <Smartphone className="h-4 w-4 text-primary rotate-90" />
           </div>
           <p className="text-[10px] font-black uppercase text-primary-foreground leading-tight tracking-wider text-left">
@@ -535,7 +535,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                     className={cn(
                       "hover:bg-accent/5 transition-all border-b last:border-0 group cursor-pointer", 
                       isLowStock && "bg-destructive/5",
-                      isCriticalTeachingKit && "bg-destructive/10 animate-pulse duration-[3000ms]",
+                      isCriticalTeachingKit && "bg-destructive/10 animate-pulse-slow",
                       isSelected && "bg-primary/20 hover:bg-primary/25 border-l-4 border-l-primary"
                     )}
                   >
@@ -554,7 +554,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                 <Popover>
                                   <PopoverTrigger asChild>
                                     <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive")}>
-                                      {isCriticalTeachingKit ? <AlertOctagon className="h-4 w-4 text-destructive animate-bounce" /> : (item.hidden || item.silent) ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
+                                      {isCriticalTeachingKit ? <AlertOctagon className="h-4 w-4 text-destructive animate-bounce-slow" /> : (item.hidden || item.silent) ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
                                     </Button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3">
@@ -599,7 +599,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                 )}
                               </div>
                               <div className="flex items-center gap-0.5 shrink-0">
-                                <Button variant="ghost" size="icon" className={cn("h-6 w-6 hover:bg-neutral-100 transition-colors", hasPending ? "text-primary bg-primary/10 animate-pulse" : "text-muted-foreground/50")} onClick={() => setRequestingItem(item)}>
+                                <Button variant="ghost" size="icon" className={cn("h-6 w-6 hover:bg-neutral-100 transition-colors", hasPending ? "text-primary bg-primary/10 animate-pulse-slow" : "text-muted-foreground/50")} onClick={() => setRequestingItem(item)}>
                                   {hasPending ? <Truck className="h-3.5 w-3.5" /> : <PackageSearch className="h-3.5 w-3.5" />}
                                 </Button>
                                 {item.isCustom && activeUid === user?.uid && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}><Edit2 className="h-3.5 w-3.5" /></Button>}
