@@ -9,7 +9,7 @@ import {
   FileText,
   LayoutGrid,
   Truck,
-  ShoppingCart,
+  CheckSquare2,
   ClipboardList,
   Menu,
 } from 'lucide-react';
@@ -50,16 +50,16 @@ export function AppSidebar() {
 
   if (isUserLoading || !user || user.isAnonymous) return null;
 
-  // Itens na sequência exata solicitada
+  // Itens na sequência exata solicitada (Controle de Periódicos em 3º)
   const navItems = [
     { href: '/', label: 'Painel Principal', icon: LayoutGrid },
     { href: '/inventory-report', label: 'Relatório de Inventário', icon: FileText },
+    { href: '/order-form', label: 'Controle de Periódicos', icon: CheckSquare2 },
     { href: '/history', label: 'Folha S-28', icon: History },
     { href: '/stats', label: 'Estatísticas', icon: BarChart3 },
     { href: '/order-schedule', label: 'Cronograma de Pedidos', icon: Truck },
     { href: '/magazine-display', label: 'Programação de Exibição', icon: LayoutGrid },
     { href: '/s60', label: 'Lista de Descartes (S-60)', icon: Trash2 },
-    { href: '/order-form', label: 'Pedido S-14-T', icon: ShoppingCart },
     { href: '/special-orders', label: 'Pedidos Especiais', icon: ClipboardList },
     { href: '/helpers', label: 'Ajudantes', icon: Users, hideIfHelper: true },
   ];
