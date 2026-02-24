@@ -76,10 +76,8 @@ export default function OrderFormPage() {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   
-  // Estado para manter a ordem estável e evitar que os cards pulem enquanto o usuário digita os nomes
   const [orderedIds, setOrderedIds] = useState<string[]>([]);
 
-  // States for Custom Dialogs
   const [deleteConfig, setDeleteConfig] = useState<{ id: string, name: string } | null>(null);
   const [toggleConfig, setToggleConfig] = useState<{ 
     publisherId: string, 
@@ -89,7 +87,6 @@ export default function OrderFormPage() {
     isChecking: boolean 
   } | null>(null);
 
-  // State for Qty Confirmation
   const [confirmQtyConfig, setConfirmQtyConfig] = useState<{
     id: string,
     field: keyof Publisher,
@@ -99,7 +96,6 @@ export default function OrderFormPage() {
     label: string
   } | null>(null);
 
-  // Local state for inputs to allow typing before confirmation/DB sync
   const [localQtyValues, setLocalQtyValues] = useState<Record<string, string>>({});
 
   const monthKey = format(selectedMonth, 'yyyy-MM');
@@ -121,10 +117,8 @@ export default function OrderFormPage() {
   const publishers: Publisher[] = publishersData?.list || [];
   const checks: Record<string, MonthlyChecks> = monthlyData?.checks || {};
 
-  // Lógica para definir a ordem estável (alfabética) e limpeza de registros em branco
   useEffect(() => {
     if (publishers.length > 0) {
-      // Filtra registros que possuem nome (para ordem estável)
       const validPublishers = publishers.filter(p => p.name && p.name.trim() !== "");
       
       const currentIds = validPublishers.map(p => p.id);
@@ -137,12 +131,8 @@ export default function OrderFormPage() {
         setOrderedIds(sorted.map(p => p.id));
       }
 
-      // Limpeza de registros em branco (que não foram recém-criados)
       const emptyPublishers = publishers.filter(p => (!p.name || p.name.trim() === ""));
       if (emptyPublishers.length > 0 && publishersRef) {
-        // Se houver algum em branco, e ele não for o último item recém adicionado (heurística simples)
-        // ou se o usuário estiver atualizando a página, limpamos.
-        // Aqui optamos por limpar ao carregar ou mudar os dados.
         const newList = publishers.filter(p => p.name && p.name.trim() !== "");
         if (newList.length !== publishers.length) {
           setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
@@ -170,8 +160,6 @@ export default function OrderFormPage() {
       sentinelaGQty: 0
     };
     const newList = [...publishers, newPublisher];
-    // Não resetamos orderedIds aqui para manter a posição dos existentes, 
-    // o novo item aparecerá no fim até a próxima sincronização/refresh
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
   };
 
@@ -232,12 +220,10 @@ export default function OrderFormPage() {
   };
 
   const filteredPublishers = useMemo(() => {
-    // Primeiro, pegamos os que estão na ordem estável
     const baseList = orderedIds
       .map(id => publishers.find(p => p.id === id))
       .filter((p): p is Publisher => !!p);
     
-    // Adicionamos os novos (que ainda não têm nome ou não estão no orderedIds) ao final
     const newItems = publishers.filter(p => !orderedIds.includes(p.id));
     const fullList = [...baseList, ...newItems];
 
@@ -279,7 +265,6 @@ export default function OrderFormPage() {
     <div className="min-h-screen bg-neutral-50 pt-20 pb-12 px-2 sm:px-4 font-body">
       <div className="max-w-6xl mx-auto space-y-4">
         
-        {/* Compact Header */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-xl border shadow-sm">
           <div className="flex items-center gap-2">
             <div className="bg-primary/10 p-2 rounded-lg shrink-0">
@@ -374,7 +359,6 @@ export default function OrderFormPage() {
           </div>
         </div>
 
-        {/* Search and Action Bar */}
         <div className="flex flex-col sm:flex-row gap-2 w-full">
           <div className="relative group flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
@@ -425,7 +409,6 @@ export default function OrderFormPage() {
           </div>
         </div>
 
-        {/* Main Content */}
         <div className="relative min-h-[300px]">
           {(isLoadingPublishers || isLoadingMonthly) && (
             <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-xl">
@@ -533,7 +516,6 @@ export default function OrderFormPage() {
                 return (
                   <Card key={pub.id} className="overflow-hidden border-none shadow-md hover:shadow-lg transition-all bg-white">
                     <div className="p-4 space-y-4">
-                      {/* Name and Delete Row */}
                       <div className="flex items-center justify-between gap-3 border-b border-neutral-100 pb-3">
                         <div className="flex items-center gap-2 flex-1">
                           <div className="bg-primary/10 p-1.5 rounded-full">
@@ -556,7 +538,6 @@ export default function OrderFormPage() {
                         </Button>
                       </div>
                       
-                      {/* Items Grid: 2 columns on mobile, 4 columns on desktop */}
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         {renderItemCell('apostila', 'apostilaQty', 'Apostila (Normal)')}
                         {renderItemCell('apostilaG', 'apostilaGQty', 'Apostila (Grande)')}
@@ -571,7 +552,6 @@ export default function OrderFormPage() {
           )}
         </div>
 
-        {/* Tip */}
         <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-start gap-3 text-left">
           <div className="bg-primary/20 p-1.5 rounded-full mt-0.5 shrink-0">
             <CheckSquare2 className="h-3 w-3 text-primary" />
@@ -585,9 +565,6 @@ export default function OrderFormPage() {
         </div>
       </div>
 
-      {/* Custom Confirmation Dialogs */}
-      
-      {/* Delete Publisher Dialog */}
       <AlertDialog open={!!deleteConfig} onOpenChange={(open) => !open && setDeleteConfig(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -611,7 +588,6 @@ export default function OrderFormPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Toggle Check Dialog */}
       <AlertDialog open={!!toggleConfig} onOpenChange={(open) => !open && setToggleConfig(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -637,14 +613,13 @@ export default function OrderFormPage() {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Qty Change Confirmation Dialog */}
       <AlertDialog open={!!confirmQtyConfig} onOpenChange={(open) => !open && setConfirmQtyConfig(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="uppercase font-black text-left">Confirmar Alteração?</AlertDialogTitle>
             <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
               Você está alterando a quantidade fixa de <span className="text-primary">"{confirmQtyConfig?.label}"</span> para <span className="text-foreground">{confirmQtyConfig?.pubName}</span>.<br/><br/>
-              De: <span className="text-destructive line-through">{confirmQtyConfig?.oldValue}</span> para: <span className="text-primary text-lg ml-1">{confirmQtyConfig?.newValue}</span>
+              De: <span className="text-destructive line-through font-black mx-1">{confirmQtyConfig?.oldValue}</span> para: <span className="text-primary font-black mx-1">{confirmQtyConfig?.newValue}</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
