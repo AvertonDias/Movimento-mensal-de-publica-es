@@ -79,7 +79,6 @@ export default function HistoryPage(props: {
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // Tenta usar a API de Compartilhamento Nativa (abre apps externos)
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           files: [file],
@@ -87,7 +86,6 @@ export default function HistoryPage(props: {
           text: `Documento S-28-T gerado em ${format(new Date(), 'dd/MM/yyyy')}`,
         });
       } else {
-        // Fallback para download e abertura no navegador se o share não for suportado
         const blobUrl = URL.createObjectURL(pdfBlob);
         pdf.save(fileName);
         window.open(blobUrl, '_blank');
@@ -111,10 +109,10 @@ export default function HistoryPage(props: {
   const targetUserId = isHelper ? helperInvite.ownerId : user.uid;
 
   return (
-    <div className="min-h-screen bg-neutral-200 pt-24 pb-6 px-4 print:p-0 print:bg-white overflow-x-auto font-body">
-      <div className="max-w-[800px] mx-auto space-y-4 print:space-y-0">
+    <div className="min-h-screen bg-neutral-200 pt-24 pb-6 px-0 sm:px-4 print:p-0 print:bg-white font-body overflow-x-hidden">
+      <div className="max-w-[850px] mx-auto space-y-4 print:space-y-0 px-4 sm:px-0">
         <div className="flex items-center justify-between print:hidden">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 text-left">
             {isHelper && (
               <div className="flex items-center gap-2 bg-accent/10 border border-accent/20 px-3 py-1.5 rounded-lg">
                 <ShieldCheck className="h-4 w-4 text-accent-foreground" />
@@ -127,7 +125,7 @@ export default function HistoryPage(props: {
 
           <Button 
             variant="outline" 
-            className="gap-2 bg-white font-bold uppercase text-xs shadow-sm hover:bg-neutral-50" 
+            className="gap-2 bg-white font-bold uppercase text-xs shadow-sm hover:bg-neutral-50 shrink-0" 
             onClick={handleShare}
             disabled={isSharing}
           >
@@ -136,21 +134,23 @@ export default function HistoryPage(props: {
           </Button>
         </div>
 
-        <div id="s28-history-content" className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 min-w-[750px] print:min-w-0 mx-auto">
-          <div className="flex justify-between items-baseline border-b-2 border-black pb-1 mb-2">
-            <h1 className="text-lg font-black tracking-tight uppercase font-headline">
-              MOVIMENTO MENSAL DE PUBLICAÇÕES
-            </h1>
-            <div className="flex items-center gap-4">
-              <span className="text-[10px] font-bold uppercase">IDIOMA:</span>
-              <div className="border-b border-black w-32 h-5 flex items-end px-2 font-bold text-[10px]">Português</div>
+        <div className="w-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-primary/20">
+          <div id="s28-history-content" className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 w-max mx-auto">
+            <div className="flex justify-between items-baseline border-b-2 border-black pb-1 mb-2">
+              <h1 className="text-lg font-black tracking-tight uppercase font-headline">
+                MOVIMENTO MENSAL DE PUBLICAÇÕES
+              </h1>
+              <div className="flex items-center gap-4">
+                <span className="text-[10px] font-bold uppercase">IDIOMA:</span>
+                <div className="border-b border-black w-32 h-5 flex items-end px-2 font-bold text-[10px]">Português</div>
+              </div>
             </div>
-          </div>
 
-          <HistoryTable targetUserId={targetUserId} />
+            <HistoryTable targetUserId={targetUserId} />
 
-          <div className="mt-4 flex justify-between items-end border-t border-neutral-200 pt-2 print:mt-2">
-            <span className="text-[8px] font-bold text-neutral-500 italic uppercase">S-28-T (2/26)</span>
+            <div className="mt-4 flex justify-between items-end border-t border-neutral-200 pt-2 print:mt-2">
+              <span className="text-[8px] font-bold text-neutral-500 italic uppercase">S-28-T (2/26)</span>
+            </div>
           </div>
         </div>
       </div>
