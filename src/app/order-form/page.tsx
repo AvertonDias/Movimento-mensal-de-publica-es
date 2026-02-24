@@ -204,26 +204,26 @@ export default function OrderFormPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-full md:w-auto justify-between md:justify-center">
+            <div className="flex items-center bg-neutral-100 p-1 rounded-lg border w-full md:w-auto justify-between md:justify-center overflow-hidden">
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={() => setSelectedMonth(prev => subMonths(prev, 1))}
-                className="h-8 w-8 shrink-0"
+                className="h-9 w-9 shrink-0 hover:bg-white transition-colors"
               >
-                <ChevronLeft className="h-4 w-4" />
+                <ChevronLeft className="h-5 w-5" />
               </Button>
-              <div className="px-2 sm:px-4 font-black text-[10px] uppercase tracking-widest min-w-[100px] sm:min-w-[120px] text-center flex items-center justify-center gap-2 overflow-hidden">
-                <Calendar className="h-3.5 w-3.5 text-primary shrink-0 hidden sm:block" />
+              <div className="flex-1 md:flex-none px-4 font-black text-[11px] uppercase tracking-widest min-w-[120px] md:min-w-[160px] text-center flex items-center justify-center gap-2 overflow-hidden select-none">
+                <Calendar className="h-4 w-4 text-primary shrink-0 hidden sm:block" />
                 <span className="truncate">{monthLabel}</span>
               </div>
               <Button 
                 variant="ghost" 
                 size="icon" 
                 onClick={() => setSelectedMonth(prev => addMonths(prev, 1))}
-                className="h-8 w-8 shrink-0"
+                className="h-9 w-9 shrink-0 hover:bg-white transition-colors"
               >
-                <ChevronRight className="h-4 w-4" />
+                <ChevronRight className="h-5 w-5" />
               </Button>
             </div>
           </div>
