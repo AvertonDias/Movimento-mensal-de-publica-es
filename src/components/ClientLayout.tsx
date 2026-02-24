@@ -5,6 +5,7 @@ import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/AppSidebar';
 
@@ -57,6 +58,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
           <Header />
           <div className="flex-1 flex flex-col">
             {children}
+            <Footer />
           </div>
           <Toaster />
           <PWAInstallPrompt />
