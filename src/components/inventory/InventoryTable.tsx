@@ -67,7 +67,7 @@ import {
   setDocumentNonBlocking
 } from '@/firebase';
 import { collection, doc, getDocs } from 'firebase/firestore';
-import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears, isBefore } from 'date-fns';
+import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears, isAfter } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { RequestItemDialog } from "./RequestItemDialog";
@@ -123,9 +123,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     }
   }, [pendingConfirmItem, requestingItem, editingItem, negativeWarningItem]);
 
-  const isDateInFuture = (date: Date) => {
-    const currentMonthStart = startOfMonth(new Date());
-    return !isBefore(startOfMonth(date), currentMonthStart);
+  const isDateRestricted = (date: Date) => {
+    // Permite selecionar até 1 mês à frente da data real atual
+    const limitDate = startOfMonth(addMonths(new Date(), 1));
+    return isAfter(startOfMonth(date), limitDate);
   };
 
   useEffect(() => {
@@ -378,7 +379,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
                       <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{format(selectedMonth, 'yyyy')}</span>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" disabled={selectedMonth.getFullYear() >= subMonths(new Date(), 1).getFullYear()} onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => addYears(prev, 1)); }}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" disabled={isDateRestricted(addYears(selectedMonth, 1))} onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => addYears(prev, 1)); }}>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
@@ -386,15 +387,16 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                       {Array.from({ length: 12 }).map((_, i) => {
                         const date = setMonth(selectedMonth, i);
                         const isSelected = selectedMonth.getMonth() === i;
+                        const isRestricted = isDateRestricted(date);
                         return (
-                          <Button key={i} variant={isSelected ? "default" : "ghost"} className={cn("h-9 text-[10px] font-bold uppercase", isSelected && "bg-primary text-primary-foreground")} onClick={() => { setSelectedMonth(date); setIsMonthPopoverOpen(false); }} disabled={isDateInFuture(date)}>{format(date, 'MMM', { locale: ptBR })}</Button>
+                          <Button key={i} variant={isSelected ? "default" : "ghost"} className={cn("h-9 text-[10px] font-bold uppercase", isSelected && "bg-primary text-primary-foreground")} onClick={() => { setSelectedMonth(date); setIsMonthPopoverOpen(false); }} disabled={isRestricted}>{format(date, 'MMM', { locale: ptBR })}</Button>
                         );
                       })}
                     </div>
                   </div>
                 </PopoverContent>
               </Popover>
-              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8" disabled={isDateInFuture(addMonths(selectedMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8" disabled={isDateRestricted(addMonths(selectedMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
             </div>
             <div className="flex items-center gap-2 max-w-[340px] text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
