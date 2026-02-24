@@ -304,7 +304,7 @@ export default function OrderFormPage() {
                     
                     return (
                       <div className="flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-3 p-2 bg-neutral-50/30 sm:bg-transparent rounded-lg border sm:border-none">
-                        <span className="text-[8px] font-black uppercase text-muted-foreground sm:hidden mb-1">{label}</span>
+                        <span className="text-[10px] font-black uppercase text-muted-foreground sm:hidden mb-1">{label}</span>
                         <div className="flex items-center gap-2">
                           <Input 
                             type="text"
