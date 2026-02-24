@@ -346,7 +346,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   return (
     <div className="space-y-6 relative max-w-full overflow-x-hidden">
       {isMobile && (
-        <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden animate-pulse-slow">
+        <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden">
           <div className="bg-primary/20 p-2 rounded-lg animate-rotate-phone">
             <Smartphone className="h-4 w-4 text-primary" />
           </div>
