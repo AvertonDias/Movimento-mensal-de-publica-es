@@ -89,12 +89,18 @@ export default {
             height: '0',
           },
         },
+        'rotate-phone': {
+          '0%, 20%': { transform: 'rotate(0deg)' },
+          '40%, 60%': { transform: 'rotate(90deg)' },
+          '80%, 100%': { transform: 'rotate(0deg)' },
+        }
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'pulse-slow': 'pulse 8s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'bounce-slow': 'bounce 3s infinite',
+        'rotate-phone': 'rotate-phone 4s ease-in-out infinite',
       },
     },
   },

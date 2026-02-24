@@ -347,8 +347,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     <div className="space-y-6 relative max-w-full overflow-x-hidden">
       {isMobile && (
         <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden animate-pulse-slow">
-          <div className="bg-primary/20 p-2 rounded-lg animate-bounce-slow">
-            <Smartphone className="h-4 w-4 text-primary rotate-90" />
+          <div className="bg-primary/20 p-2 rounded-lg animate-rotate-phone">
+            <Smartphone className="h-4 w-4 text-primary" />
           </div>
           <p className="text-[10px] font-black uppercase text-primary-foreground leading-tight tracking-wider text-left">
             Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
