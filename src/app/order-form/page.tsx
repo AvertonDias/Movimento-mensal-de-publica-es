@@ -191,7 +191,7 @@ export default function OrderFormPage() {
     <div className="min-h-screen bg-neutral-50 pt-24 pb-12 px-4 font-body">
       <div className="max-w-6xl mx-auto space-y-6">
         
-        <div className="sticky top-[72px] z-20 space-y-4 bg-neutral-50/80 backdrop-blur-md pb-4 pt-2">
+        <div className="space-y-4 pb-4 pt-2">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border shadow-sm">
             <div className="flex items-center gap-3">
               <div className="bg-primary/10 p-2 rounded-lg shrink-0">
