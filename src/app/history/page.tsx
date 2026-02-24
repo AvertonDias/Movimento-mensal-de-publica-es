@@ -79,13 +79,23 @@ export default function HistoryPage(props: {
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
+      // Tenta usar a API de Compartilhamento Nativa (abre apps externos)
+      let shared = false;
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'S-28-T Digital',
-          text: `Documento S-28-T gerado em ${format(new Date(), 'dd/MM/yyyy')}`,
-        });
-      } else {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'S-28-T Digital',
+            text: `Documento S-28-T gerado em ${format(new Date(), 'dd/MM/yyyy')}`,
+          });
+          shared = true;
+        } catch (shareError) {
+          console.log('Navegador bloqueou compartilhamento automático, usando fallback.');
+        }
+      }
+
+      // Fallback: se não compartilhou (por erro ou falta de suporte), faz download e abre
+      if (!shared) {
         const blobUrl = URL.createObjectURL(pdfBlob);
         pdf.save(fileName);
         window.open(blobUrl, '_blank');

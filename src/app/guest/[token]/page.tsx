@@ -91,13 +91,21 @@ export default function GuestHistoryPage(props: {
       const pdfBlob = pdf.output('blob');
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
+      let shared = false;
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'S-28-T Digital Compartilhada',
-          text: `Documento compartilhado do inventário de ${invite?.label}`,
-        });
-      } else {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'S-28-T Digital Compartilhada',
+            text: `Documento compartilhado do inventário de ${invite?.label}`,
+          });
+          shared = true;
+        } catch (shareError) {
+          console.log('Erro ao compartilhar PDF, usando fallback.');
+        }
+      }
+
+      if (!shared) {
         const blobUrl = URL.createObjectURL(pdfBlob);
         pdf.save(fileName);
         window.open(blobUrl, '_blank');

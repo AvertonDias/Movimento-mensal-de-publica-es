@@ -156,13 +156,22 @@ export default function InventoryReportPage() {
       const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
       // Tenta compartilhar para abrir em apps externos
+      let shared = false;
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          files: [file],
-          title: 'Relatório de Saldo Físico',
-          text: `Relatório de inventário gerado em ${format(new Date(), 'dd/MM/yyyy')}`,
-        });
-      } else {
+        try {
+          await navigator.share({
+            files: [file],
+            title: 'Relatório de Saldo Físico',
+            text: `Relatório de inventário gerado em ${format(new Date(), 'dd/MM/yyyy')}`,
+          });
+          shared = true;
+        } catch (shareError) {
+          console.log('Erro ao compartilhar PDF, usando fallback.');
+        }
+      }
+
+      // Fallback
+      if (!shared) {
         const blobUrl = URL.createObjectURL(pdfBlob);
         pdf.save(fileName);
         window.open(blobUrl, '_blank');
