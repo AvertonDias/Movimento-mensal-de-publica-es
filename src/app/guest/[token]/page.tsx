@@ -88,12 +88,14 @@ export default function GuestHistoryPage(props: {
       const fileDate = format(new Date(), 'yyyy-MM-dd');
       const fileName = `S28_T_Compartilhada_${fileDate}.pdf`;
       
-      // 1. Salva no dispositivo
-      pdf.save(fileName);
-
-      // 2. Abre para visualização
+      // 1. Gera o Blob do arquivo
       const pdfBlob = pdf.output('blob');
       const blobUrl = URL.createObjectURL(pdfBlob);
+
+      // 2. Salva no dispositivo (Download)
+      pdf.save(fileName);
+
+      // 3. Abre o mesmo arquivo para visualização
       window.open(blobUrl, '_blank');
 
     } catch (error) {

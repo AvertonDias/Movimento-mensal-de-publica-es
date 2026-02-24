@@ -147,17 +147,19 @@ export default function InventoryReportPage() {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
-      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+      pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, Math.min(pdfHeight, pdf.internal.pageSize.getHeight()), undefined, 'FAST');
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
       const fileName = `Saldo_Fisico_${monthKey}_${fileDate}.pdf`;
       
-      // 1. Salva no dispositivo
-      pdf.save(fileName);
-
-      // 2. Abre para visualização
+      // 1. Gera o Blob do arquivo
       const pdfBlob = pdf.output('blob');
       const blobUrl = URL.createObjectURL(pdfBlob);
+
+      // 2. Salva no dispositivo (Download)
+      pdf.save(fileName);
+
+      // 3. Abre o mesmo arquivo para visualização
       window.open(blobUrl, '_blank');
 
     } catch (error) {
