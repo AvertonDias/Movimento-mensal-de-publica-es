@@ -16,7 +16,10 @@ import {
   Calendar,
   Loader2,
   CheckSquare2,
-  Hash
+  Hash,
+  Search,
+  Filter,
+  X
 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
@@ -24,6 +27,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Publisher {
   id: string;
@@ -41,6 +53,8 @@ interface MonthlyChecks {
   sentinelaG: boolean;
 }
 
+type FilterType = 'all' | 'checked' | 'unchecked';
+
 export default function OrderFormPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
@@ -48,6 +62,14 @@ export default function OrderFormPage() {
   const { toast } = useToast();
 
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(new Date()));
+  const [searchTerm, setSearchTerm] = useState('');
+  const [colFilters, setColFilters] = useState<Record<string, FilterType>>({
+    apostila: 'all',
+    apostilaG: 'all',
+    sentinela: 'all',
+    sentinelaG: 'all'
+  });
+
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthLabel = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
 
@@ -127,61 +149,134 @@ export default function OrderFormPage() {
     setDocumentNonBlocking(monthlyChecksRef, { checks: updatedChecks }, { merge: true });
   };
 
+  const filteredPublishers = useMemo(() => {
+    return publishers.filter(pub => {
+      const matchesSearch = (pub.name || "").toLowerCase().includes(searchTerm.toLowerCase());
+      const state = checks[pub.id] || { 
+        apostila: false, 
+        apostilaG: false, 
+        sentinela: false, 
+        sentinelaG: false 
+      };
+
+      const matchApo = colFilters.apostila === 'all' || (colFilters.apostila === 'checked' ? state.apostila : !state.apostila);
+      const matchApoG = colFilters.apostilaG === 'all' || (colFilters.apostilaG === 'checked' ? state.apostilaG : !state.apostilaG);
+      const matchSen = colFilters.sentinela === 'all' || (colFilters.sentinela === 'checked' ? state.sentinela : !state.sentinela);
+      const matchSenG = colFilters.sentinelaG === 'all' || (colFilters.sentinelaG === 'checked' ? state.sentinelaG : !state.sentinelaG);
+
+      return matchesSearch && matchApo && matchApoG && matchSen && matchSenG;
+    });
+  }, [publishers, searchTerm, colFilters, checks]);
+
   if (isUserLoading || !user) return null;
+
+  const renderHeaderFilter = (title: string, field: string) => (
+    <div className="flex flex-col items-center justify-center gap-1">
+      <span className="leading-tight">{title}</span>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className={cn("h-6 w-6", colFilters[field] !== 'all' && "text-primary")}>
+            <Filter className="h-3 w-3" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center" className="w-48">
+          <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest">Filtro: {title}</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuRadioGroup value={colFilters[field]} onValueChange={(val) => setColFilters(prev => ({ ...prev, [field]: val as FilterType }))}>
+            <DropdownMenuRadioItem value="all" className="text-xs font-bold uppercase">Todos</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="checked" className="text-xs font-bold uppercase text-emerald-600">Entregues</DropdownMenuRadioItem>
+            <DropdownMenuRadioItem value="unchecked" className="text-xs font-bold uppercase text-amber-600">Pendentes</DropdownMenuRadioItem>
+          </DropdownMenuRadioGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-12 px-4 font-body">
       <div className="max-w-6xl mx-auto space-y-6">
         
-        {/* Cabeçalho e Seletor de Mês */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-lg shrink-0">
-              <CheckSquare2 className="h-6 w-6 text-primary" />
+        {/* Cabeçalho Fixo e Controles de Busca */}
+        <div className="sticky top-[72px] z-20 space-y-4 bg-neutral-50/80 backdrop-blur-md pb-4 pt-2">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-lg shrink-0">
+                <CheckSquare2 className="h-6 w-6 text-primary" />
+              </div>
+              <div className="text-left">
+                <h1 className="text-lg font-black uppercase tracking-tight">Pedido de Publicadores</h1>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
+                  Quantidades fixas para todos os meses.<br />Checks exclusivos do mês atual.
+                </p>
+              </div>
             </div>
-            <div className="text-left">
-              <h1 className="text-lg font-black uppercase tracking-tight">Pedido de Publicadores</h1>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
-                As quantidades são salvas para todos os meses.<br />O check é exclusivo do mês atual.
-              </p>
+
+            <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setSelectedMonth(prev => subMonths(prev, 1))}
+                className="h-8 w-8"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="px-4 font-black text-[10px] uppercase tracking-widest min-w-[140px] text-center flex items-center justify-center gap-2">
+                <Calendar className="h-3.5 w-3.5 text-primary" />
+                {monthLabel}
+              </div>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setSelectedMonth(prev => addMonths(prev, 1))}
+                className="h-8 w-8"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setSelectedMonth(prev => subMonths(prev, 1))}
-              className="h-8 w-8"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <div className="px-4 font-black text-[10px] uppercase tracking-widest min-w-[140px] text-center flex items-center justify-center gap-2">
-              <Calendar className="h-3.5 w-3.5 text-primary" />
-              {monthLabel}
-            </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              onClick={() => setSelectedMonth(prev => addMonths(prev, 1))}
-              className="h-8 w-8"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Input 
+              placeholder="Pesquisar publicador por nome..." 
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 h-11 bg-white border-neutral-200 focus:ring-primary shadow-sm font-bold uppercase text-xs"
+            />
+            {searchTerm && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setSearchTerm('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </div>
 
-        {/* Tabela de Pedidos - Com Rolagem Horizontal em Telas Pequenas */}
+        {/* Tabela de Pedidos */}
         <Card className="border-none shadow-xl overflow-hidden">
           <div className="overflow-x-auto w-full scrollbar-thin scrollbar-thumb-neutral-200">
-            <div className="min-w-[800px]">
+            <div className="min-w-[900px]">
               <CardHeader className="bg-white border-b p-0">
                 <div className="grid grid-cols-12 w-full">
-                  <div className="col-span-4 p-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-r">Nome do Publicador</div>
-                  <div className="col-span-2 p-4 text-[10px] font-black uppercase tracking-widest text-center border-r bg-neutral-50/50 leading-tight">Apostila<br/>(Normal)</div>
-                  <div className="col-span-2 p-4 text-[10px] font-black uppercase tracking-widest text-center border-r bg-neutral-50/50 leading-tight">Apostila<br/>(Grande)</div>
-                  <div className="col-span-2 p-4 text-[10px] font-black uppercase tracking-widest text-center border-r bg-neutral-50/50 leading-tight">A Sentinela<br/>(Normal)</div>
-                  <div className="col-span-2 p-4 text-[10px] font-black uppercase tracking-widest text-center bg-neutral-50/50 leading-tight">A Sentinela<br/>(Grande)</div>
+                  <div className="col-span-4 p-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-r flex items-center">
+                    Nome do Publicador
+                  </div>
+                  <div className="col-span-2 p-2 text-[10px] font-black uppercase tracking-widest text-center border-r bg-neutral-50/50">
+                    {renderHeaderFilter('Apostila (Normal)', 'apostila')}
+                  </div>
+                  <div className="col-span-2 p-2 text-[10px] font-black uppercase tracking-widest text-center border-r bg-neutral-50/50">
+                    {renderHeaderFilter('Apostila (Grande)', 'apostilaG')}
+                  </div>
+                  <div className="col-span-2 p-2 text-[10px] font-black uppercase tracking-widest text-center border-r bg-neutral-50/50">
+                    {renderHeaderFilter('A Sentinela (Normal)', 'sentinela')}
+                  </div>
+                  <div className="col-span-2 p-2 text-[10px] font-black uppercase tracking-widest text-center bg-neutral-50/50">
+                    {renderHeaderFilter('A Sentinela (Grande)', 'sentinelaG')}
+                  </div>
                 </div>
               </CardHeader>
               <CardContent className="p-0 bg-white min-h-[400px] relative">
@@ -191,17 +286,21 @@ export default function OrderFormPage() {
                   </div>
                 )}
 
-                {publishers.length === 0 ? (
+                {filteredPublishers.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-30">
                     <User className="h-12 w-12" />
-                    <p className="font-black uppercase text-xs tracking-widest">Nenhum publicador na lista</p>
-                    <Button variant="outline" size="sm" onClick={handleAddPublisher} className="font-black uppercase text-[10px]">
-                      Adicionar Primeiro
-                    </Button>
+                    <p className="font-black uppercase text-xs tracking-widest">
+                      {searchTerm ? 'Nenhum resultado para a busca' : 'Nenhum publicador na lista'}
+                    </p>
+                    {!searchTerm && (
+                      <Button variant="outline" size="sm" onClick={handleAddPublisher} className="font-black uppercase text-[10px]">
+                        Adicionar Primeiro
+                      </Button>
+                    )}
                   </div>
                 ) : (
                   <div className="divide-y border-b">
-                    {publishers.map((pub) => {
+                    {filteredPublishers.map((pub) => {
                       const state = checks[pub.id] || { 
                         apostila: false, 
                         apostilaG: false, 
@@ -214,7 +313,10 @@ export default function OrderFormPage() {
                           <Checkbox 
                             checked={state[checkField] || false} 
                             onCheckedChange={() => handleToggleCheck(pub.id, checkField)}
-                            className="h-5 w-5 border-2"
+                            className={cn(
+                              "h-5 w-5 border-2 transition-all",
+                              state[checkField] ? "bg-emerald-500 border-emerald-600" : "border-neutral-300"
+                            )}
                           />
                           <div className="relative">
                             <Input 
@@ -288,7 +390,7 @@ export default function OrderFormPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase text-primary tracking-widest">Dica de Gestão Digital</p>
             <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed">
-              As quantidades registradas nos campos numéricos são fixas e servem como sua lista base. Ao mudar o mês, os números permanecem lá, mas os checks são resetados para que você marque as retiradas do novo mês.
+              Use a pesquisa para encontrar irmãos rapidamente e os filtros nas colunas para identificar quem ainda não retirou as revistas no mês. As quantidades numéricas são suas assinaturas fixas.
             </p>
           </div>
         </div>
