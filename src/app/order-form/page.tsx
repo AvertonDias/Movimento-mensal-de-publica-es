@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -109,7 +108,7 @@ export default function OrderFormPage() {
   const publishers: Publisher[] = publishersData?.list || [];
   const checks: Record<string, MonthlyChecks> = monthlyData?.checks || {};
 
-  // Lógica para definir a ordem estável (alfabética) e limpeza de nomes vazios
+  // Lógica para definir a ordem estável (alfabética)
   useEffect(() => {
     if (publishers.length > 0) {
       const currentIds = publishers.map(p => p.id);
@@ -117,13 +116,7 @@ export default function OrderFormPage() {
       
       if (!isSync) {
         const sorted = [...publishers]
-          .filter(p => {
-            const hasName = p.name && p.name.trim() !== "";
-            if (hasName) return true;
-            const timestamp = parseInt(p.id.replace('pub_', '')) || 0;
-            const isVeryNew = (Date.now() - timestamp) < 20000;
-            return isVeryNew;
-          })
+          .filter(p => p.name && p.name.trim() !== "")
           .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
           
         setOrderedIds(sorted.map(p => p.id));
@@ -212,9 +205,6 @@ export default function OrderFormPage() {
 
       const state = checks[pub.id] || { apostila: false, apostilaG: false, sentinela: false, sentinelaG: false };
       
-      const hasAnyQty = pub.apostilaQty > 0 || pub.apostilaGQty > 0 || pub.sentinelaQty > 0 || pub.sentinelaGQty > 0;
-      if (!hasAnyQty && filterStatus !== 'all') return false;
-
       const itemsWithQty = [
         { field: 'apostila', qty: pub.apostilaQty, checked: state.apostila },
         { field: 'apostilaG', qty: pub.apostilaGQty, checked: state.apostilaG },
@@ -486,7 +476,7 @@ export default function OrderFormPage() {
                           variant="ghost" 
                           size="icon" 
                           onClick={() => setDeleteConfig({ id: pub.id, name: pub.name })}
-                          className="h-8 w-8 text-neutral-300 hover:text-destructive hover:bg-destructive/5 transition-colors"
+                          className="h-8 w-8 text-destructive hover:bg-destructive/10 transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
