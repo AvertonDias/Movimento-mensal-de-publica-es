@@ -41,7 +41,7 @@ export default function HistoryPage(props: {
     
     toast({
       title: "Gerando documento...",
-      description: "Salvando no dispositivo e abrindo.",
+      description: "Preparando arquivo para abertura externa.",
     });
 
     try {
@@ -76,22 +76,29 @@ export default function HistoryPage(props: {
       const fileDate = format(new Date(), 'yyyy-MM-dd');
       const fileName = `S28_T_${fileDate}.pdf`;
       
-      // 1. Gera o Blob do arquivo
       const pdfBlob = pdf.output('blob');
-      const blobUrl = URL.createObjectURL(pdfBlob);
+      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
-      // 2. Salva no dispositivo (Download)
-      pdf.save(fileName);
-
-      // 3. Abre o mesmo arquivo para visualização
-      window.open(blobUrl, '_blank');
+      // Tenta usar a API de Compartilhamento Nativa (abre apps externos)
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: 'S-28-T Digital',
+          text: `Documento S-28-T gerado em ${format(new Date(), 'dd/MM/yyyy')}`,
+        });
+      } else {
+        // Fallback para download e abertura no navegador se o share não for suportado
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        pdf.save(fileName);
+        window.open(blobUrl, '_blank');
+      }
 
     } catch (error) {
       console.error('Erro ao processar documento:', error);
       toast({
         variant: "destructive",
         title: "Erro ao processar",
-        description: "Não foi possível gerar ou salvar o PDF.",
+        description: "Não foi possível gerar ou abrir o PDF.",
       });
     } finally {
       setIsSharing(false);
