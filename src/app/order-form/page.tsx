@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -198,7 +197,7 @@ export default function OrderFormPage() {
                 <CheckSquare2 className="h-6 w-6 text-primary" />
               </div>
               <div className="text-left">
-                <h1 className="text-lg font-black uppercase tracking-tight">Pedido de Publicadores</h1>
+                <h1 className="text-lg font-black uppercase tracking-tight">Controle de Periódicos</h1>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest leading-tight">
                   Quantidades fixas para todos os meses.<br />Checks exclusivos do mês atual.
                 </p>
