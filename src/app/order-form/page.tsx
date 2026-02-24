@@ -105,8 +105,8 @@ export default function OrderFormPage() {
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
   };
 
-  const handleRemovePublisher = (id: string) => {
-    if (!window.confirm("Deseja realmente excluir este publicador e todas as suas quantidades fixas?")) return;
+  const handleRemovePublisher = (id: string, name: string) => {
+    if (!window.confirm(`Deseja realmente excluir o(a) publicador(a) "${name || 'sem nome'}" e todas as suas quantidades fixas?`)) return;
     if (!publishersRef) return;
     const newList = publishers.filter(p => p.id !== id);
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
@@ -127,7 +127,7 @@ export default function OrderFormPage() {
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
   };
 
-  const handleToggleCheck = (publisherId: string, field: keyof MonthlyChecks) => {
+  const handleToggleCheck = (publisherId: string, field: keyof MonthlyChecks, pubName: string, itemLabel: string) => {
     if (!monthlyChecksRef) return;
     
     const current = checks[publisherId] || { 
@@ -139,8 +139,8 @@ export default function OrderFormPage() {
     
     const isChecking = !current[field];
     const message = isChecking 
-      ? "Confirmar entrega desta publicação?" 
-      : "Deseja remover a marcação de entrega?";
+      ? `Confirmar entrega de "${itemLabel}" para ${pubName || 'este publicador'}?` 
+      : `Deseja remover a marcação de entrega de "${itemLabel}" para ${pubName || 'este publicador'}?`;
       
     if (!window.confirm(message)) return;
 
@@ -174,28 +174,6 @@ export default function OrderFormPage() {
   }, [publishers, searchTerm, colFilters, checks]);
 
   if (isUserLoading || !user) return null;
-
-  const renderHeaderFilter = (title: string, field: string) => (
-    <div className="flex flex-col items-center justify-center gap-1">
-      <span className="leading-tight">{title}</span>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className={cn("h-6 w-6", colFilters[field] !== 'all' && "text-primary")}>
-            <Filter className="h-3 w-3" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="center" className="w-48">
-          <DropdownMenuLabel className="text-[10px] font-black uppercase tracking-widest">Filtro: {title}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuRadioGroup value={colFilters[field]} onValueChange={(val) => setColFilters(prev => ({ ...prev, [field]: val as FilterType }))}>
-            <DropdownMenuRadioItem value="all" className="text-xs font-bold uppercase">Todos</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="checked" className="text-xs font-bold uppercase text-emerald-600">Entregues</DropdownMenuRadioItem>
-            <DropdownMenuRadioItem value="unchecked" className="text-xs font-bold uppercase text-amber-600">Pendentes</DropdownMenuRadioItem>
-          </DropdownMenuRadioGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-20 pb-12 px-2 sm:px-4 font-body">
@@ -316,7 +294,7 @@ export default function OrderFormPage() {
                         </div>
                         <Checkbox 
                           checked={hasQty ? (state[checkField] || false) : false} 
-                          onCheckedChange={() => handleToggleCheck(pub.id, checkField)}
+                          onCheckedChange={() => handleToggleCheck(pub.id, checkField, pub.name, label)}
                           disabled={!hasQty}
                           className={cn(
                             "h-6 w-6 border-2 transition-all rounded-md",
@@ -348,7 +326,7 @@ export default function OrderFormPage() {
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          onClick={() => handleRemovePublisher(pub.id)}
+                          onClick={() => handleRemovePublisher(pub.id, pub.name)}
                           className="h-8 w-8 text-neutral-300 hover:text-destructive hover:bg-destructive/5 transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
