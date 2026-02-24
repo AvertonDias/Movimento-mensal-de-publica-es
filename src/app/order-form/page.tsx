@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { useUser, useFirestore, useDoc, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { format, subMonths, addMonths, startOfMonth, setMonth, addYears, subYears } from 'date-fns';
@@ -72,6 +72,7 @@ export default function OrderFormPage() {
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
+  const hasCleanedUp = useRef(false);
 
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(new Date()));
   const [searchTerm, setSearchTerm] = useState('');
@@ -120,31 +121,39 @@ export default function OrderFormPage() {
   const publishers: Publisher[] = publishersData?.list || [];
   const checks: Record<string, MonthlyChecks> = monthlyData?.checks || {};
 
+  // Sincroniza IDs para manter a ordem, mas permite nomes vazios enquanto o usuário edita
   useEffect(() => {
     if (publishers.length > 0) {
-      const validPublishers = publishers.filter(p => p.name && p.name.trim() !== "");
-      
-      const currentIds = validPublishers.map(p => p.id);
-      const isSync = orderedIds.length === currentIds.length && orderedIds.every(id => currentIds.includes(id));
+      const currentIds = publishers.map(p => p.id);
+      const isSync = orderedIds.length === currentIds.length && 
+                     orderedIds.every(id => currentIds.includes(id));
       
       if (!isSync) {
-        const sorted = [...validPublishers]
-          .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        // Separa itens com nome e sem nome para manter os novos no final da lista antes da ordenação global
+        const withName = publishers.filter(p => p.name && p.name.trim() !== "");
+        const withoutName = publishers.filter(p => !p.name || p.name.trim() === "");
+        
+        const sortedWithName = [...withName].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        const finalSorted = [...sortedWithName, ...withoutName];
           
-        setOrderedIds(sorted.map(p => p.id));
+        setOrderedIds(finalSorted.map(p => p.id));
       }
-
-      const emptyPublishers = publishers.filter(p => (!p.name || p.name.trim() === ""));
-      if (emptyPublishers.length > 0 && publishersRef) {
-        const newList = publishers.filter(p => p.name && p.name.trim() !== "");
-        if (newList.length !== publishers.length) {
-          setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
-        }
-      }
-    } else {
-      if (orderedIds.length > 0) setOrderedIds([]);
+    } else if (orderedIds.length > 0) {
+      setOrderedIds([]);
     }
-  }, [publishers.length, publishersData, orderedIds.length, publishersRef]);
+  }, [publishers.length, publishersData, orderedIds.length]);
+
+  // Limpeza de registros órfãos (vazios) apenas UMA VEZ ao carregar a página
+  useEffect(() => {
+    if (!isLoadingPublishers && publishers.length > 0 && !hasCleanedUp.current && publishersRef) {
+      const emptyItems = publishers.filter(p => !p.name || p.name.trim() === "");
+      if (emptyItems.length > 0) {
+        const cleanedList = publishers.filter(p => p.name && p.name.trim() !== "");
+        setDocumentNonBlocking(publishersRef, { list: cleanedList }, { merge: true });
+      }
+      hasCleanedUp.current = true;
+    }
+  }, [isLoadingPublishers, publishers, publishersRef]);
 
   useEffect(() => {
     if (!isUserLoading && !user) {

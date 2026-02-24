@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useEffect } from 'react';
@@ -30,6 +29,7 @@ export default function SpecialOrdersPage() {
   const db = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
+  const hasCleanedUp = React.useRef(false);
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -46,38 +46,28 @@ export default function SpecialOrdersPage() {
 
   const { data: orders, isLoading: isOrdersLoading } = useCollection(ordersQuery);
 
-  // Lógica para filtrar registros vazios e ordenar
+  // Lógica para filtrar registros e manter a ordem por data de criação
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
-    const now = Date.now();
     
-    return orders
-      .filter(order => {
-        const hasName = order.publisherName && order.publisherName.trim() !== "";
-        // Permite visualizar se tiver nome OU se tiver sido criado nos últimos 30 segundos (para não sumir enquanto digita)
-        const isVeryRecent = (now - new Date(order.createdAt || 0).getTime()) < 30000;
-        return hasName || isVeryRecent;
-      })
-      .sort((a, b) => 
-        new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
-      );
+    return [...orders].sort((a, b) => 
+      new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+    );
   }, [orders]);
 
-  // Limpeza automática do banco de dados para registros órfãos (sem nome e antigos)
+  // Limpeza automática do banco de dados para registros órfãos apenas ao carregar/atualizar a página
   useEffect(() => {
-    if (!orders || !db || !activeUserId || isOrdersLoading) return;
-
-    const now = Date.now();
-    orders.forEach(order => {
-      const isEmpty = !order.publisherName || order.publisherName.trim() === "";
-      const isOld = (now - new Date(order.createdAt || 0).getTime()) > 60000; // 1 minuto de tolerância
-
-      if (isEmpty && isOld) {
-        const docRef = doc(db, 'users', activeUserId, 'special_orders', order.id);
-        deleteDocumentNonBlocking(docRef);
-      }
-    });
-  }, [orders, db, activeUserId, isOrdersLoading]);
+    if (!isOrdersLoading && orders && orders.length > 0 && !hasCleanedUp.current && db && activeUserId) {
+      orders.forEach(order => {
+        const isEmpty = !order.publisherName || order.publisherName.trim() === "";
+        if (isEmpty) {
+          const docRef = doc(db, 'users', activeUserId, 'special_orders', order.id);
+          deleteDocumentNonBlocking(docRef);
+        }
+      });
+      hasCleanedUp.current = true;
+    }
+  }, [isOrdersLoading, orders, db, activeUserId]);
 
   const handleAddRow = () => {
     if (!activeUserId || !db) return;
@@ -322,7 +312,7 @@ export default function SpecialOrdersPage() {
             <div className="flex items-center gap-2 p-2 bg-primary/5 rounded border border-primary/10 print:hidden text-left">
               <Info className="h-3 w-3 text-primary" />
               <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest leading-tight">
-                Este registro deve ser atualizado mensalmente conforme os pedidos forem recebidos. Linhas vazias são removidas ao atualizar.
+                Este registro deve ser atualizado mensalmente conforme os pedidos forem recebidos. Linhas vazias são removidas ao atualizar a página.
               </p>
             </div>
           </div>
