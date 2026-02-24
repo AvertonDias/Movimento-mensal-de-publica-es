@@ -535,7 +535,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                     className={cn(
                       "hover:bg-accent/5 transition-all border-b last:border-0 group cursor-pointer", 
                       isLowStock && "bg-destructive/5",
-                      isCriticalTeachingKit && "bg-destructive/10 animate-pulse-slow",
+                      isCriticalTeachingKit && "bg-destructive/10",
                       isSelected && "bg-primary/20 hover:bg-primary/25 border-l-4 border-l-primary"
                     )}
                   >
