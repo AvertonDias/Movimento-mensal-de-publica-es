@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { 
   useUser, 
   useFirestore, 
@@ -46,9 +46,38 @@ export default function SpecialOrdersPage() {
 
   const { data: orders, isLoading: isOrdersLoading } = useCollection(ordersQuery);
 
-  const sortedOrders = orders?.sort((a, b) => 
-    new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
-  ) || [];
+  // Lógica para filtrar registros vazios e ordenar
+  const filteredOrders = useMemo(() => {
+    if (!orders) return [];
+    const now = Date.now();
+    
+    return orders
+      .filter(order => {
+        const hasName = order.publisherName && order.publisherName.trim() !== "";
+        // Permite visualizar se tiver nome OU se tiver sido criado nos últimos 30 segundos (para não sumir enquanto digita)
+        const isVeryRecent = (now - new Date(order.createdAt || 0).getTime()) < 30000;
+        return hasName || isVeryRecent;
+      })
+      .sort((a, b) => 
+        new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+      );
+  }, [orders]);
+
+  // Limpeza automática do banco de dados para registros órfãos (sem nome e antigos)
+  useEffect(() => {
+    if (!orders || !db || !activeUserId || isOrdersLoading) return;
+
+    const now = Date.now();
+    orders.forEach(order => {
+      const isEmpty = !order.publisherName || order.publisherName.trim() === "";
+      const isOld = (now - new Date(order.createdAt || 0).getTime()) > 60000; // 1 minuto de tolerância
+
+      if (isEmpty && isOld) {
+        const docRef = doc(db, 'users', activeUserId, 'special_orders', order.id);
+        deleteDocumentNonBlocking(docRef);
+      }
+    });
+  }, [orders, db, activeUserId, isOrdersLoading]);
 
   const handleAddRow = () => {
     if (!activeUserId || !db) return;
@@ -87,8 +116,8 @@ export default function SpecialOrdersPage() {
       <div className="max-w-[1000px] mx-auto space-y-6 print:space-y-0">
         
         {/* Ações de Topo */}
-        <div className="flex justify-between items-center bg-white p-4 rounded-xl border shadow-sm print:hidden">
-          <div className="flex items-center gap-3 text-left">
+        <div className="flex justify-between items-center bg-white p-4 rounded-xl border shadow-sm print:hidden text-left">
+          <div className="flex items-center gap-3">
             <div className="bg-primary p-2 rounded-lg">
               <ClipboardList className="h-5 w-5 text-primary-foreground" />
             </div>
@@ -97,6 +126,12 @@ export default function SpecialOrdersPage() {
               <p className="text-[10px] font-bold text-muted-foreground uppercase">Gerenciamento digital do registro oficial.</p>
             </div>
           </div>
+          <Button 
+            onClick={handleAddRow}
+            className="bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest shadow-sm"
+          >
+            <Plus className="h-4 w-4 mr-2" /> Novo Registro
+          </Button>
         </div>
 
         {/* DOCUMENTO OFICIAL */}
@@ -120,7 +155,7 @@ export default function SpecialOrdersPage() {
           </div>
 
           {/* Seção de Informações de Itens */}
-          <div className="space-y-4 px-2">
+          <div className="space-y-4 px-2 text-left">
             <p className="text-[11px] font-medium">
               Os itens de pedido especial são claramente identificados no JW Hub. Esses itens de pedido especial incluem:
             </p>
@@ -174,7 +209,7 @@ export default function SpecialOrdersPage() {
                   <tr>
                     <td colSpan={6} className="p-10 text-center"><Loader2 className="animate-spin h-6 w-6 mx-auto opacity-20" /></td>
                   </tr>
-                ) : sortedOrders.length === 0 ? (
+                ) : filteredOrders.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="p-16 text-center">
                       <div className="flex flex-col items-center gap-3 opacity-30">
@@ -187,7 +222,7 @@ export default function SpecialOrdersPage() {
                     </td>
                   </tr>
                 ) : (
-                  sortedOrders.map((order) => (
+                  filteredOrders.map((order) => (
                     <tr key={order.id} className="border-b border-black last:border-0 group hover:bg-primary/5 transition-colors h-12">
                       <td className="border-r border-black p-0">
                         <input 
@@ -203,7 +238,7 @@ export default function SpecialOrdersPage() {
                           type="text" 
                           value={order.publisherName ?? ''} 
                           onChange={(e) => handleUpdate(order.id, 'publisherName', e.target.value)}
-                          className="w-full h-full px-3 bg-transparent font-bold focus:outline-none placeholder:text-neutral-200"
+                          className="w-full h-full px-3 bg-transparent font-bold focus:outline-none placeholder:text-neutral-200 uppercase"
                           placeholder="Nome do irmão(ã)"
                         />
                       </td>
@@ -212,7 +247,7 @@ export default function SpecialOrdersPage() {
                           type="text" 
                           value={order.item ?? ''} 
                           onChange={(e) => handleUpdate(order.id, 'item', e.target.value)}
-                          className="w-full h-full px-3 bg-transparent font-bold focus:outline-none placeholder:text-neutral-200"
+                          className="w-full h-full px-3 bg-transparent font-bold focus:outline-none placeholder:text-neutral-200 uppercase"
                           placeholder="Ex: Examine 2026"
                         />
                       </td>
@@ -221,7 +256,7 @@ export default function SpecialOrdersPage() {
                           type="text" 
                           value={order.language ?? ''} 
                           onChange={(e) => handleUpdate(order.id, 'language', e.target.value)}
-                          className="w-full h-full px-2 bg-transparent text-center font-bold focus:outline-none"
+                          className="w-full h-full px-2 bg-transparent text-center font-bold focus:outline-none uppercase"
                         />
                       </td>
                       <td className="border-r border-black p-0">
@@ -284,10 +319,10 @@ export default function SpecialOrdersPage() {
           {/* Rodapé Informativo */}
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-black/10">
             <span className="text-[8px] font-bold opacity-40 uppercase tracking-tighter">S-14-T DIGITAL (REGISTRO ESPECIAL)</span>
-            <div className="flex items-center gap-2 p-2 bg-primary/5 rounded border border-primary/10 print:hidden">
+            <div className="flex items-center gap-2 p-2 bg-primary/5 rounded border border-primary/10 print:hidden text-left">
               <Info className="h-3 w-3 text-primary" />
-              <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest">
-                Este registro deve ser atualizado mensalmente conforme os pedidos forem recebidos.
+              <p className="text-[8px] font-black uppercase text-muted-foreground tracking-widest leading-tight">
+                Este registro deve ser atualizado mensalmente conforme os pedidos forem recebidos. Linhas vazias são removidas ao atualizar.
               </p>
             </div>
           </div>
