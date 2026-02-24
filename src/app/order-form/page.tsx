@@ -352,16 +352,16 @@ export default function OrderFormPage() {
                       {/* Items Grid */}
                       <div className="grid grid-cols-2 sm:contents gap-2 p-3 sm:p-0">
                         <div className="sm:col-span-2 sm:border-r flex items-center justify-center">
-                          {renderCellContent('apostila', 'apostilaQty', 'Apo (N)')}
+                          {renderCellContent('apostila', 'apostilaQty', 'Apostila (Normal)')}
                         </div>
                         <div className="sm:col-span-2 sm:border-r flex items-center justify-center">
-                          {renderCellContent('apostilaG', 'apostilaGQty', 'Apo (G)')}
+                          {renderCellContent('apostilaG', 'apostilaGQty', 'Apostila (Grande)')}
                         </div>
                         <div className="sm:col-span-2 sm:border-r flex items-center justify-center">
-                          {renderCellContent('sentinela', 'sentinelaQty', 'Sen (N)')}
+                          {renderCellContent('sentinela', 'sentinelaQty', 'Sentinela (Normal)')}
                         </div>
                         <div className="sm:col-span-2 flex items-center justify-center">
-                          {renderCellContent('sentinelaG', 'sentinelaGQty', 'Sen (G)')}
+                          {renderCellContent('sentinelaG', 'sentinelaGQty', 'Sentinela (Grande)')}
                         </div>
                       </div>
                     </div>
