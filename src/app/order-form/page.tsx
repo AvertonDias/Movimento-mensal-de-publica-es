@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -122,23 +121,37 @@ export default function OrderFormPage() {
   const publishers: Publisher[] = publishersData?.list || [];
   const checks: Record<string, MonthlyChecks> = monthlyData?.checks || {};
 
-  // Lógica para definir a ordem estável (alfabética)
+  // Lógica para definir a ordem estável (alfabética) e limpeza de registros em branco
   useEffect(() => {
     if (publishers.length > 0) {
-      const currentIds = publishers.map(p => p.id);
+      // Filtra registros que possuem nome (para ordem estável)
+      const validPublishers = publishers.filter(p => p.name && p.name.trim() !== "");
+      
+      const currentIds = validPublishers.map(p => p.id);
       const isSync = orderedIds.length === currentIds.length && orderedIds.every(id => currentIds.includes(id));
       
       if (!isSync) {
-        const sorted = [...publishers]
-          .filter(p => p.name && p.name.trim() !== "")
+        const sorted = [...validPublishers]
           .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
           
         setOrderedIds(sorted.map(p => p.id));
       }
+
+      // Limpeza de registros em branco (que não foram recém-criados)
+      const emptyPublishers = publishers.filter(p => (!p.name || p.name.trim() === ""));
+      if (emptyPublishers.length > 0 && publishersRef) {
+        // Se houver algum em branco, e ele não for o último item recém adicionado (heurística simples)
+        // ou se o usuário estiver atualizando a página, limpamos.
+        // Aqui optamos por limpar ao carregar ou mudar os dados.
+        const newList = publishers.filter(p => p.name && p.name.trim() !== "");
+        if (newList.length !== publishers.length) {
+          setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
+        }
+      }
     } else {
       if (orderedIds.length > 0) setOrderedIds([]);
     }
-  }, [publishers.length, publishersData, orderedIds.length]);
+  }, [publishers.length, publishersData, orderedIds.length, publishersRef]);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -157,7 +170,8 @@ export default function OrderFormPage() {
       sentinelaGQty: 0
     };
     const newList = [...publishers, newPublisher];
-    setOrderedIds([]); 
+    // Não resetamos orderedIds aqui para manter a posição dos existentes, 
+    // o novo item aparecerá no fim até a próxima sincronização/refresh
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
   };
 
@@ -218,13 +232,16 @@ export default function OrderFormPage() {
   };
 
   const filteredPublishers = useMemo(() => {
+    // Primeiro, pegamos os que estão na ordem estável
     const baseList = orderedIds
       .map(id => publishers.find(p => p.id === id))
       .filter((p): p is Publisher => !!p);
     
-    const listToFilter = baseList.length > 0 ? baseList : publishers.filter(p => p.name && p.name.trim() !== "");
+    // Adicionamos os novos (que ainda não têm nome ou não estão no orderedIds) ao final
+    const newItems = publishers.filter(p => !orderedIds.includes(p.id));
+    const fullList = [...baseList, ...newItems];
 
-    return listToFilter.filter(pub => {
+    return fullList.filter(pub => {
       const matchesSearch = (pub.name || "").toLowerCase().includes(searchTerm.toLowerCase());
       if (!matchesSearch) return false;
 
@@ -539,8 +556,8 @@ export default function OrderFormPage() {
                         </Button>
                       </div>
                       
-                      {/* Items Grid 2x2 for Mobile Efficiency */}
-                      <div className="grid grid-cols-2 gap-3">
+                      {/* Items Grid: 2 columns on mobile, 4 columns on desktop */}
+                      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                         {renderItemCell('apostila', 'apostilaQty', 'Apostila (Normal)')}
                         {renderItemCell('apostilaG', 'apostilaGQty', 'Apostila (Grande)')}
                         {renderItemCell('sentinela', 'sentinelaQty', 'Sentinela (Normal)')}
