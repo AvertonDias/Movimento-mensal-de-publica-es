@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { LogOut, User as UserIcon, RefreshCw, Menu } from "lucide-react";
+import { LogOut, User as UserIcon, RefreshCw, Menu, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser } from "@/firebase";
@@ -121,6 +121,12 @@ export function Header() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              
+              <DropdownMenuItem asChild className="font-bold uppercase text-[10px] tracking-widest cursor-pointer text-foreground focus:text-primary">
+                <Link href="/profile" className="flex items-center w-full">
+                  <UserCircle className="mr-2 h-4 w-4" /> Editar Perfil
+                </Link>
+              </DropdownMenuItem>
               
               <DropdownMenuItem onClick={handleForceUpdate} className="font-bold uppercase text-[10px] tracking-widest cursor-pointer text-primary focus:text-primary">
                 <RefreshCw className="mr-2 h-4 w-4" /> Forçar Atualização
