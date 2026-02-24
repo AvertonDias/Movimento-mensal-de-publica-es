@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect } from 'react';
@@ -15,24 +14,25 @@ import {
   User, 
   CheckSquare2,
   Search,
-  Filter,
   X,
-  Loader2
+  Loader2,
+  AlertTriangle
 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface Publisher {
   id: string;
@@ -50,8 +50,6 @@ interface MonthlyChecks {
   sentinelaG: boolean;
 }
 
-type FilterType = 'all' | 'checked' | 'unchecked';
-
 export default function OrderFormPage() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
@@ -59,12 +57,16 @@ export default function OrderFormPage() {
 
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(new Date()));
   const [searchTerm, setSearchTerm] = useState('');
-  const [colFilters, setColFilters] = useState<Record<string, FilterType>>({
-    apostila: 'all',
-    apostilaG: 'all',
-    sentinela: 'all',
-    sentinelaG: 'all'
-  });
+  
+  // States for Custom Dialogs
+  const [deleteConfig, setDeleteConfig] = useState<{ id: string, name: string } | null>(null);
+  const [toggleConfig, setToggleConfig] = useState<{ 
+    publisherId: string, 
+    field: keyof MonthlyChecks, 
+    pubName: string, 
+    itemLabel: string,
+    isChecking: boolean 
+  } | null>(null);
 
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthLabel = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -105,11 +107,33 @@ export default function OrderFormPage() {
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
   };
 
-  const handleRemovePublisher = (id: string, name: string) => {
-    if (!window.confirm(`Deseja realmente excluir o(a) publicador(a) "${name || 'sem nome'}" e todas as suas quantidades fixas?`)) return;
-    if (!publishersRef) return;
-    const newList = publishers.filter(p => p.id !== id);
+  const confirmDelete = () => {
+    if (!deleteConfig || !publishersRef) return;
+    const newList = publishers.filter(p => p.id !== deleteConfig.id);
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
+    setDeleteConfig(null);
+  };
+
+  const confirmToggle = () => {
+    if (!toggleConfig || !monthlyChecksRef) return;
+    
+    const { publisherId, field, isChecking } = toggleConfig;
+    const current = checks[publisherId] || { 
+      apostila: false, 
+      apostilaG: false, 
+      sentinela: false, 
+      sentinelaG: false 
+    };
+
+    const updatedChecks = {
+      ...checks,
+      [publisherId]: {
+        ...current,
+        [field]: isChecking
+      }
+    };
+    setDocumentNonBlocking(monthlyChecksRef, { checks: updatedChecks }, { merge: true });
+    setToggleConfig(null);
   };
 
   const handleFieldChange = (id: string, field: keyof Publisher, value: string | number) => {
@@ -127,51 +151,11 @@ export default function OrderFormPage() {
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
   };
 
-  const handleToggleCheck = (publisherId: string, field: keyof MonthlyChecks, pubName: string, itemLabel: string) => {
-    if (!monthlyChecksRef) return;
-    
-    const current = checks[publisherId] || { 
-      apostila: false, 
-      apostilaG: false, 
-      sentinela: false, 
-      sentinelaG: false 
-    };
-    
-    const isChecking = !current[field];
-    const message = isChecking 
-      ? `Confirmar entrega de "${itemLabel}" para ${pubName || 'este publicador'}?` 
-      : `Deseja remover a marcação de entrega de "${itemLabel}" para ${pubName || 'este publicador'}?`;
-      
-    if (!window.confirm(message)) return;
-
-    const updatedChecks = {
-      ...checks,
-      [publisherId]: {
-        ...current,
-        [field]: isChecking
-      }
-    };
-    setDocumentNonBlocking(monthlyChecksRef, { checks: updatedChecks }, { merge: true });
-  };
-
   const filteredPublishers = useMemo(() => {
     return publishers.filter(pub => {
-      const matchesSearch = (pub.name || "").toLowerCase().includes(searchTerm.toLowerCase());
-      const state = checks[pub.id] || { 
-        apostila: false, 
-        apostilaG: false, 
-        sentinela: false, 
-        sentinelaG: false 
-      };
-
-      const matchApo = colFilters.apostila === 'all' || (colFilters.apostila === 'checked' ? state.apostila : !state.apostila);
-      const matchApoG = colFilters.apostilaG === 'all' || (colFilters.apostilaG === 'checked' ? state.apostilaG : !state.apostilaG);
-      const matchSen = colFilters.sentinela === 'all' || (colFilters.sentinela === 'checked' ? state.sentinela : !state.sentinela);
-      const matchSenG = colFilters.sentinelaG === 'all' || (colFilters.sentinelaG === 'checked' ? state.sentinelaG : !state.sentinelaG);
-
-      return matchesSearch && matchApo && matchApoG && matchSen && matchSenG;
+      return (pub.name || "").toLowerCase().includes(searchTerm.toLowerCase());
     }).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-  }, [publishers, searchTerm, colFilters, checks]);
+  }, [publishers, searchTerm]);
 
   if (isUserLoading || !user) return null;
 
@@ -272,6 +256,7 @@ export default function OrderFormPage() {
                 const renderItemCell = (checkField: keyof MonthlyChecks, qtyField: keyof Publisher, label: string) => {
                   const currentQty = pub[qtyField] ?? 0;
                   const hasQty = currentQty > 0;
+                  const isChecked = hasQty ? (state[checkField] || false) : false;
                   
                   return (
                     <div className={cn(
@@ -293,12 +278,21 @@ export default function OrderFormPage() {
                           />
                         </div>
                         <Checkbox 
-                          checked={hasQty ? (state[checkField] || false) : false} 
-                          onCheckedChange={() => handleToggleCheck(pub.id, checkField, pub.name, label)}
+                          checked={isChecked} 
+                          onCheckedChange={() => {
+                            if (!hasQty) return;
+                            setToggleConfig({
+                              publisherId: pub.id,
+                              field: checkField,
+                              pubName: pub.name || 'este(a) publicador(a)',
+                              itemLabel: label,
+                              isChecking: !isChecked
+                            });
+                          }}
                           disabled={!hasQty}
                           className={cn(
                             "h-6 w-6 border-2 transition-all rounded-md",
-                            state[checkField] && hasQty ? "bg-emerald-500 border-emerald-600 text-white" : "border-neutral-300",
+                            isChecked ? "bg-emerald-500 border-emerald-600 text-white" : "border-neutral-300",
                             !hasQty && "opacity-20"
                           )}
                         />
@@ -326,7 +320,7 @@ export default function OrderFormPage() {
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          onClick={() => handleRemovePublisher(pub.id, pub.name)}
+                          onClick={() => setDeleteConfig({ id: pub.id, name: pub.name })}
                           className="h-8 w-8 text-neutral-300 hover:text-destructive hover:bg-destructive/5 transition-colors"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -361,6 +355,62 @@ export default function OrderFormPage() {
           </div>
         </div>
       </div>
+
+      {/* Custom Confirmation Dialogs */}
+      
+      {/* Delete Publisher Dialog */}
+      <AlertDialog open={!!deleteConfig} onOpenChange={(open) => !open && setDeleteConfig(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 uppercase font-black text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Excluir Publicador?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed">
+              Deseja realmente remover <span className="text-foreground">"{deleteConfig?.name || 'sem nome'}"</span> e todas as suas quantidades fixas do sistema?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-black uppercase text-[10px] tracking-widest">Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive hover:bg-destructive/90 font-black uppercase text-[10px] tracking-widest"
+            >
+              Sim, Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Toggle Check Dialog */}
+      <AlertDialog open={!!toggleConfig} onOpenChange={(open) => !open && setToggleConfig(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="uppercase font-black text-left">
+              {toggleConfig?.isChecking ? "Confirmar Entrega?" : "Remover Marcação?"}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
+              {toggleConfig?.isChecking 
+                ? `Confirmar entrega de "${toggleConfig.itemLabel}" para ${toggleConfig.pubName}?`
+                : `Deseja remover a marcação de entrega de "${toggleConfig?.itemLabel}" para ${toggleConfig?.pubName}?`
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-black uppercase text-[10px] tracking-widest">Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmToggle}
+              className={cn(
+                "font-black uppercase text-[10px] tracking-widest",
+                toggleConfig?.isChecking ? "bg-emerald-600 hover:bg-emerald-700" : "bg-primary"
+              )}
+            >
+              {toggleConfig?.isChecking ? "Sim, Marcar" : "Sim, Remover"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }
