@@ -116,8 +116,8 @@ export default function InventoryReportPage() {
     setIsSharing(true);
     
     toast({
-      title: "Preparando relatório...",
-      description: "Gerando PDF de saldo físico.",
+      title: "Gerando relatório...",
+      description: "Salvando no dispositivo e abrindo PDF.",
     });
 
     try {
@@ -151,24 +151,15 @@ export default function InventoryReportPage() {
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
       const fileName = `Saldo_Fisico_${monthKey}_${fileDate}.pdf`;
-      const pdfBlob = pdf.output('blob');
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      
+      // 1. Salva no dispositivo
+      pdf.save(fileName);
 
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: 'Relatório de Saldo Físico',
-            text: `Saldo de publicações - ${monthLabel}`,
-          });
-        } catch (err) {
-          const blobUrl = URL.createObjectURL(pdfBlob);
-          window.open(blobUrl, '_blank');
-        }
-      } else {
-        const blobUrl = URL.createObjectURL(pdfBlob);
-        window.open(blobUrl, '_blank');
-      }
+      // 2. Abre para visualização
+      const pdfBlob = pdf.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
+
     } catch (error) {
       console.error('Erro ao abrir documento:', error);
       toast({

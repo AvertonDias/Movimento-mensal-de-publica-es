@@ -53,7 +53,7 @@ export default function GuestHistoryPage(props: {
     
     toast({
       title: "Gerando documento...",
-      description: "Preparando folha S-28-T para visualização.",
+      description: "Salvando no dispositivo e abrindo.",
     });
 
     try {
@@ -87,21 +87,15 @@ export default function GuestHistoryPage(props: {
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
       const fileName = `S28_T_Compartilhada_${fileDate}.pdf`;
-      const pdfBlob = pdf.output('blob');
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      
+      // 1. Salva no dispositivo
+      pdf.save(fileName);
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: 'Folha S-28-T Digital (Compartilhada)',
-            text: `Movimento mensal de publicações`,
-          });
-        } catch (err) { }
-      } else {
-        const blobUrl = URL.createObjectURL(pdfBlob);
-        window.open(blobUrl, '_blank');
-      }
+      // 2. Abre para visualização
+      const pdfBlob = pdf.output('blob');
+      const blobUrl = URL.createObjectURL(pdfBlob);
+      window.open(blobUrl, '_blank');
+
     } catch (error) {
       console.error('Erro ao abrir documento:', error);
       toast({
