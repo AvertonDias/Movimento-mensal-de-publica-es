@@ -99,6 +99,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
   const [focusedField, setFocusedField] = useState<{id: string, col: string} | null>(null);
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
@@ -522,6 +523,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 const isLowStock = !item.hidden && minVal > 0 && ((item.current !== null && item.current <= minVal) || (item.current === null && item.previous !== null && item.previous <= minVal));
                 const isTeachingKit = itemName.includes('*');
                 const isCriticalTeachingKit = isTeachingKit && isLowStock;
+                const isSelected = selectedRowId === item.id;
                 
                 const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
                 const hasPending = (item.pendingRequestsCount || 0) > 0;
@@ -529,10 +531,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 return (
                   <TableRow 
                     key={item.id} 
+                    onClick={() => setSelectedRowId(isSelected ? null : item.id)}
                     className={cn(
-                      "hover:bg-accent/5 transition-colors border-b last:border-0 group", 
+                      "hover:bg-accent/5 transition-all border-b last:border-0 group cursor-pointer", 
                       isLowStock && "bg-destructive/5",
-                      isCriticalTeachingKit && "bg-destructive/10 animate-pulse duration-[3000ms]"
+                      isCriticalTeachingKit && "bg-destructive/10 animate-pulse duration-[3000ms]",
+                      isSelected && "bg-primary/20 hover:bg-primary/25 border-l-4 border-l-primary"
                     )}
                   >
                     {DEFAULT_COLUMNS.map((col) => (
