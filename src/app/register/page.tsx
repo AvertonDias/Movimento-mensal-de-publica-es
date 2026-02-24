@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
@@ -60,6 +61,17 @@ function RegisterForm() {
       title: "Erro no Cadastro",
       description: error.message || "Ocorreu um erro ao processar sua conta.",
     });
+  };
+
+  const initializeUserDoc = (uid: string, userEmail: string | null, userName: string) => {
+    if (!db) return;
+    const userRef = doc(db, 'users', uid);
+    setDocumentNonBlocking(userRef, {
+      id: uid,
+      email: userEmail,
+      name: userName,
+      createdAt: new Date().toISOString()
+    }, { merge: true });
   };
 
   const processInviteAssignment = async (currentUser: any) => {
@@ -125,7 +137,8 @@ function RegisterForm() {
     }
     setIsProcessing(true);
     try {
-      await initiateEmailSignUp(auth, email, password, name);
+      const userCredential = await initiateEmailSignUp(auth, email, password, name);
+      initializeUserDoc(userCredential.user.uid, userCredential.user.email, name);
     } catch (error) {
       handleAuthError(error);
     } finally {
@@ -140,7 +153,12 @@ function RegisterForm() {
     }
     setIsProcessing(true);
     try {
-      await initiateGoogleSignIn(auth);
+      const userCredential = await initiateGoogleSignIn(auth);
+      initializeUserDoc(
+        userCredential.user.uid, 
+        userCredential.user.email, 
+        userCredential.user.displayName || userCredential.user.email?.split('@')[0] || 'Usuário'
+      );
     } catch (error) {
       handleAuthError(error);
     } finally {

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -8,7 +9,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { User as UserIcon, Save, ChevronLeft, Loader2, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuth, useUser, useFirestore, updateDocumentNonBlocking } from "@/firebase";
+import { useAuth, useUser, useFirestore, setDocumentNonBlocking } from "@/firebase";
 import { updateProfile } from "firebase/auth";
 import { doc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
@@ -44,10 +45,15 @@ export default function ProfilePage() {
       });
 
       // 2. Atualiza no Firestore (Cadastro de Usuário)
+      // Usamos setDocumentNonBlocking com merge: true para garantir que o documento 
+      // seja criado caso não exista (prevenindo erro de permissão em update)
       const userRef = doc(db, 'users', user.uid);
-      updateDocumentNonBlocking(userRef, {
-        name: name
-      });
+      setDocumentNonBlocking(userRef, {
+        id: user.uid,
+        name: name,
+        email: user.email,
+        updatedAt: new Date().toISOString()
+      }, { merge: true });
 
       toast({
         title: "Perfil atualizado!",
