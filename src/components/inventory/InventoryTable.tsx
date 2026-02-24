@@ -124,7 +124,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [pendingConfirmItem, requestingItem, editingItem, negativeWarningItem]);
 
   const isDateRestricted = (date: Date) => {
-    // Permite selecionar até 1 mês à frente da data real atual
     const limitDate = startOfMonth(addMonths(new Date(), 1));
     return isAfter(startOfMonth(date), limitDate);
   };
@@ -283,7 +282,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
     let updates: Record<string, any> = { [field]: value };
 
-    // Verificação de saída negativa
     const checkPrev = field === 'previous' ? (value ?? 0) : (Number(itemData.previous) || 0);
     const checkRec = field === 'received' ? (value ?? 0) : (Number(itemData.received) || 0);
     const checkCurr = field === 'current' ? (value ?? 0) : (Number(itemData.current) || 0);
@@ -348,8 +346,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   return (
     <div className="space-y-6 relative max-w-full overflow-x-hidden">
       {isMobile && (
-        <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden">
-          <div className="bg-primary/20 p-2 rounded-lg">
+        <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden animate-pulse">
+          <div className="bg-primary/20 p-2 rounded-lg animate-bounce">
             <Smartphone className="h-4 w-4 text-primary rotate-90" />
           </div>
           <p className="text-[10px] font-black uppercase text-primary-foreground leading-tight tracking-wider text-left">
@@ -601,7 +599,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                 )}
                               </div>
                               <div className="flex items-center gap-0.5 shrink-0">
-                                <Button variant="ghost" size="icon" className={cn("h-6 w-6 hover:bg-neutral-100 transition-colors", hasPending ? "text-primary bg-primary/10" : "text-muted-foreground/50")} onClick={() => setRequestingItem(item)}>
+                                <Button variant="ghost" size="icon" className={cn("h-6 w-6 hover:bg-neutral-100 transition-colors", hasPending ? "text-primary bg-primary/10 animate-pulse" : "text-muted-foreground/50")} onClick={() => setRequestingItem(item)}>
                                   {hasPending ? <Truck className="h-3.5 w-3.5" /> : <PackageSearch className="h-3.5 w-3.5" />}
                                 </Button>
                                 {item.isCustom && activeUid === user?.uid && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}><Edit2 className="h-3.5 w-3.5" /></Button>}
