@@ -59,6 +59,9 @@ export default function OrderFormPage() {
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(new Date()));
   const [searchTerm, setSearchTerm] = useState('');
   
+  // Estado para manter a ordem estável e evitar que os cards pulem enquanto o usuário digita os nomes
+  const [orderedIds, setOrderedIds] = useState<string[]>([]);
+
   // States for Custom Dialogs
   const [deleteConfig, setDeleteConfig] = useState<{ id: string, name: string } | null>(null);
   const [toggleConfig, setToggleConfig] = useState<{ 
@@ -87,6 +90,25 @@ export default function OrderFormPage() {
 
   const publishers: Publisher[] = publishersData?.list || [];
   const checks: Record<string, MonthlyChecks> = monthlyData?.checks || {};
+
+  // Lógica para definir a ordem estável (alfabética) apenas no carregamento ou quando a lista muda de tamanho
+  useEffect(() => {
+    if (publishers.length > 0) {
+      const currentIds = publishers.map(p => p.id);
+      
+      // Só reordenamos se:
+      // 1. Não temos uma ordem definida ainda
+      // 2. Alguém foi adicionado ou removido (os IDs não batem)
+      const isSync = orderedIds.length === currentIds.length && orderedIds.every(id => currentIds.includes(id));
+      
+      if (!isSync) {
+        const sorted = [...publishers].sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        setOrderedIds(sorted.map(p => p.id));
+      }
+    } else {
+      if (orderedIds.length > 0) setOrderedIds([]);
+    }
+  }, [publishers.length, publishersData, orderedIds.length]);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -153,10 +175,18 @@ export default function OrderFormPage() {
   };
 
   const filteredPublishers = useMemo(() => {
-    return publishers.filter(pub => {
+    // Primeiro aplicamos a ordem estável baseada nos IDs que salvamos
+    const baseList = orderedIds
+      .map(id => publishers.find(p => p.id === id))
+      .filter((p): p is Publisher => !!p);
+    
+    // Se a ordem ainda não foi processada ou a lista está vazia, usamos a lista original
+    const listToFilter = baseList.length > 0 ? baseList : publishers;
+
+    return listToFilter.filter(pub => {
       return (pub.name || "").toLowerCase().includes(searchTerm.toLowerCase());
-    }).sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-  }, [publishers, searchTerm]);
+    });
+  }, [publishers, searchTerm, orderedIds]);
 
   if (isUserLoading || !user) return null;
 
@@ -293,7 +323,7 @@ export default function OrderFormPage() {
                           disabled={!hasQty}
                           className={cn(
                             "h-6 w-6 border-2 transition-all rounded-md",
-                            isChecked ? "bg-emerald-500 border-emerald-600 text-white" : "border-neutral-300",
+                            isChecked ? "bg-primary border-primary text-primary-foreground" : "border-neutral-300",
                             !hasQty && "opacity-20"
                           )}
                         />
