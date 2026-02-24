@@ -32,6 +32,7 @@ export default function InventoryReportPage() {
   
   const [selectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
   const [isSharing, setIsSharing] = useState(false);
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   
   const monthKey = useMemo(() => format(selectedMonth, 'yyyy-MM'), [selectedMonth]);
   const monthLabel = useMemo(() => format(selectedMonth, 'MMMM yyyy', { locale: ptBR }), [selectedMonth]);
@@ -240,10 +241,18 @@ export default function InventoryReportPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredItems.map((item) => {
+                    const isSelected = selectedRowId === item.id;
                     const imagePlaceholder = item.imageKey ? PlaceHolderImages.find(img => img.id === item.imageKey) : null;
                     
                     return (
-                      <TableRow key={item.id} className="hover:bg-transparent border-b h-10">
+                      <TableRow 
+                        key={item.id} 
+                        onClick={() => setSelectedRowId(isSelected ? null : item.id)}
+                        className={cn(
+                          "hover:bg-accent/5 transition-all border-b h-10 cursor-pointer",
+                          isSelected && "bg-primary/20 hover:bg-primary/25 border-l-4 border-l-primary"
+                        )}
+                      >
                         <TableCell className="text-center font-bold text-[10px] text-neutral-400 border-r p-1 leading-tight">{item.code || '---'}</TableCell>
                         <TableCell className="border-r p-1 px-3 text-left leading-tight">
                           <div className="flex justify-between items-center">
