@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -191,7 +192,7 @@ export default function SpecialOrdersPage() {
                       <td className="border-r border-black p-0">
                         <input 
                           type="text" 
-                          value={order.date} 
+                          value={order.date ?? ''} 
                           onChange={(e) => handleUpdate(order.id, 'date', e.target.value)}
                           className="w-full h-full px-2 bg-transparent text-center font-bold focus:outline-none"
                           placeholder="dd/mm/aa"
@@ -200,7 +201,7 @@ export default function SpecialOrdersPage() {
                       <td className="border-r border-black p-0">
                         <input 
                           type="text" 
-                          value={order.publisherName} 
+                          value={order.publisherName ?? ''} 
                           onChange={(e) => handleUpdate(order.id, 'publisherName', e.target.value)}
                           className="w-full h-full px-3 bg-transparent font-bold focus:outline-none placeholder:text-neutral-200"
                           placeholder="Nome do irmão(ã)"
@@ -209,7 +210,7 @@ export default function SpecialOrdersPage() {
                       <td className="border-r border-black p-0">
                         <input 
                           type="text" 
-                          value={order.item} 
+                          value={order.item ?? ''} 
                           onChange={(e) => handleUpdate(order.id, 'item', e.target.value)}
                           className="w-full h-full px-3 bg-transparent font-bold focus:outline-none placeholder:text-neutral-200"
                           placeholder="Ex: Examine 2026"
@@ -218,7 +219,7 @@ export default function SpecialOrdersPage() {
                       <td className="border-r border-black p-0">
                         <input 
                           type="text" 
-                          value={order.language} 
+                          value={order.language ?? ''} 
                           onChange={(e) => handleUpdate(order.id, 'language', e.target.value)}
                           className="w-full h-full px-2 bg-transparent text-center font-bold focus:outline-none"
                         />
@@ -226,7 +227,7 @@ export default function SpecialOrdersPage() {
                       <td className="border-r border-black p-0">
                         <input 
                           type="text" 
-                          value={order.quantity} 
+                          value={order.quantity ?? ''} 
                           onChange={(e) => handleUpdate(order.id, 'quantity', e.target.value)}
                           className="w-full h-full px-2 bg-transparent text-center font-black focus:outline-none"
                         />
@@ -234,7 +235,7 @@ export default function SpecialOrdersPage() {
                       <td className="p-1 relative">
                         <div className="flex items-center gap-1">
                           <Select 
-                            value={order.status} 
+                            value={order.status ?? 'env'} 
                             onValueChange={(val) => handleUpdate(order.id, 'status', val)}
                           >
                             <SelectTrigger className="h-8 border-none bg-transparent hover:bg-neutral-100 font-black uppercase text-[9px] shadow-none focus:ring-0 px-2">

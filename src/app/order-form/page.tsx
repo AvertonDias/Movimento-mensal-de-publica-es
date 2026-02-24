@@ -212,7 +212,7 @@ export default function OrderFormPage() {
                       const renderCell = (checkField: keyof MonthlyChecks, qtyField: keyof Publisher) => (
                         <div className="flex items-center justify-center gap-3 px-2">
                           <Checkbox 
-                            checked={state[checkField]} 
+                            checked={state[checkField] || false} 
                             onCheckedChange={() => handleToggleCheck(pub.id, checkField)}
                             className="h-5 w-5 border-2"
                           />
@@ -220,7 +220,7 @@ export default function OrderFormPage() {
                             <Input 
                               type="text"
                               inputMode="numeric"
-                              value={pub[qtyField] === 0 ? '' : pub[qtyField]}
+                              value={pub[qtyField] === 0 ? '' : (pub[qtyField] ?? '')}
                               onChange={(e) => handleFieldChange(pub.id, qtyField, e.target.value)}
                               className="w-10 h-8 p-1 text-center font-black text-xs bg-neutral-50 border-neutral-200 focus:bg-white focus:ring-1 focus:ring-primary shadow-inner"
                               placeholder="0"
@@ -241,7 +241,7 @@ export default function OrderFormPage() {
                               <Trash2 className="h-3.5 w-3.5" />
                             </Button>
                             <Input 
-                              value={pub.name}
+                              value={pub.name ?? ''}
                               onChange={(e) => handleFieldChange(pub.id, 'name', e.target.value)}
                               placeholder="Nome do publicador..."
                               className="border-none shadow-none focus-visible:ring-0 font-bold uppercase text-xs h-8 bg-transparent w-full"
