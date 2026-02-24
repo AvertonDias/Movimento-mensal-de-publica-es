@@ -16,7 +16,7 @@ import {
   Calendar,
   Loader2,
   CheckSquare2,
-  Square
+  Hash
 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
@@ -32,9 +32,13 @@ interface Publisher {
 
 interface MonthlySelection {
   apostila: boolean;
+  apostilaQty: number;
   apostilaG: boolean;
+  apostilaGQty: number;
   sentinela: boolean;
+  sentinelaQty: number;
   sentinelaG: boolean;
+  sentinelaGQty: number;
 }
 
 export default function OrderFormPage() {
@@ -95,7 +99,12 @@ export default function OrderFormPage() {
 
   const handleToggleCheck = (publisherId: string, field: keyof MonthlySelection) => {
     if (!monthlySelectionsRef) return;
-    const current = selections[publisherId] || { apostila: false, apostilaG: false, sentinela: false, sentinelaG: false };
+    const current = selections[publisherId] || { 
+      apostila: false, apostilaQty: 0, 
+      apostilaG: false, apostilaGQty: 0, 
+      sentinela: false, sentinelaQty: 0, 
+      sentinelaG: false, sentinelaGQty: 0 
+    };
     const updatedSelections = {
       ...selections,
       [publisherId]: {
@@ -106,11 +115,30 @@ export default function OrderFormPage() {
     setDocumentNonBlocking(monthlySelectionsRef, { selections: updatedSelections }, { merge: true });
   };
 
+  const handleQtyChange = (publisherId: string, field: keyof MonthlySelection, value: string) => {
+    if (!monthlySelectionsRef) return;
+    const numValue = parseInt(value.replace(/\D/g, '')) || 0;
+    const current = selections[publisherId] || { 
+      apostila: false, apostilaQty: 0, 
+      apostilaG: false, apostilaGQty: 0, 
+      sentinela: false, sentinelaQty: 0, 
+      sentinelaG: false, sentinelaGQty: 0 
+    };
+    const updatedSelections = {
+      ...selections,
+      [publisherId]: {
+        ...current,
+        [field]: numValue
+      }
+    };
+    setDocumentNonBlocking(monthlySelectionsRef, { selections: updatedSelections }, { merge: true });
+  };
+
   if (isUserLoading || !user) return null;
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-12 px-4 font-body">
-      <div className="max-w-5xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6">
         
         {/* Cabeçalho e Seletor de Mês */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border shadow-sm">
@@ -118,7 +146,7 @@ export default function OrderFormPage() {
             <div className="bg-primary/10 p-2 rounded-lg">
               <CheckSquare2 className="h-6 w-6 text-primary" />
             </div>
-            <div>
+            <div className="text-left">
               <h1 className="text-lg font-black uppercase tracking-tight">Pedido de Publicadores</h1>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Controle de pedidos individuais</p>
             </div>
@@ -177,16 +205,41 @@ export default function OrderFormPage() {
             ) : (
               <div className="divide-y border-b">
                 {publishers.map((pub) => {
-                  const state = selections[pub.id] || { apostila: false, apostilaG: false, sentinela: false, sentinelaG: false };
+                  const state = selections[pub.id] || { 
+                    apostila: false, apostilaQty: 0, 
+                    apostilaG: false, apostilaGQty: 0, 
+                    sentinela: false, sentinelaQty: 0, 
+                    sentinelaG: false, sentinelaGQty: 0 
+                  };
                   
+                  const renderCell = (field: keyof MonthlySelection, qtyField: keyof MonthlySelection) => (
+                    <div className="flex items-center justify-center gap-2 px-2">
+                      <Checkbox 
+                        checked={state[field] as boolean} 
+                        onCheckedChange={() => handleToggleCheck(pub.id, field)}
+                        className="h-5 w-5"
+                      />
+                      <div className="relative">
+                        <Input 
+                          type="text"
+                          inputMode="numeric"
+                          value={state[qtyField] === 0 ? '' : state[qtyField]}
+                          onChange={(e) => handleQtyChange(pub.id, qtyField, e.target.value)}
+                          className="w-10 h-8 p-1 text-center font-black text-xs bg-neutral-50 border-neutral-200 focus:bg-white"
+                          placeholder="0"
+                        />
+                      </div>
+                    </div>
+                  );
+
                   return (
-                    <div key={pub.id} className="grid grid-cols-12 group hover:bg-primary/5 transition-colors items-center">
-                      <div className="col-span-4 p-2 flex items-center gap-2 border-r">
+                    <div key={pub.id} className="grid grid-cols-12 group hover:bg-primary/5 transition-colors items-center h-14">
+                      <div className="col-span-4 px-2 flex items-center gap-2 border-r h-full">
                         <Button 
                           variant="ghost" 
                           size="icon" 
                           onClick={() => handleRemovePublisher(pub.id)}
-                          className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                          className="h-7 w-7 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -199,32 +252,16 @@ export default function OrderFormPage() {
                       </div>
                       
                       <div className="col-span-2 border-r h-full flex items-center justify-center">
-                        <Checkbox 
-                          checked={state.apostila} 
-                          onCheckedChange={() => handleToggleCheck(pub.id, 'apostila')}
-                          className="h-5 w-5"
-                        />
+                        {renderCell('apostila', 'apostilaQty')}
                       </div>
                       <div className="col-span-2 border-r h-full flex items-center justify-center">
-                        <Checkbox 
-                          checked={state.apostilaG} 
-                          onCheckedChange={() => handleToggleCheck(pub.id, 'apostilaG')}
-                          className="h-5 w-5"
-                        />
+                        {renderCell('apostilaG', 'apostilaGQty')}
                       </div>
                       <div className="col-span-2 border-r h-full flex items-center justify-center">
-                        <Checkbox 
-                          checked={state.sentinela} 
-                          onCheckedChange={() => handleToggleCheck(pub.id, 'sentinela')}
-                          className="h-5 w-5"
-                        />
+                        {renderCell('sentinela', 'sentinelaQty')}
                       </div>
                       <div className="col-span-2 h-full flex items-center justify-center">
-                        <Checkbox 
-                          checked={state.sentinelaG} 
-                          onCheckedChange={() => handleToggleCheck(pub.id, 'sentinelaG')}
-                          className="h-5 w-5"
-                        />
+                        {renderCell('sentinelaG', 'sentinelaGQty')}
                       </div>
                     </div>
                   );
@@ -245,15 +282,15 @@ export default function OrderFormPage() {
         </Card>
 
         {/* Rodapé Informativo */}
-        <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-start gap-3">
+        <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-start gap-3 text-left">
           <div className="bg-primary/20 p-1.5 rounded-full mt-0.5">
             <CheckSquare2 className="h-3 w-3 text-primary" />
           </div>
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase text-primary tracking-widest">Dica de Gestão</p>
             <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed">
-              Os nomes são salvos globalmente. As marcações de pedido são exclusivas para cada mês selecionado no topo da página. 
-              Isso facilita o controle de quem retirou publicações no balcão mês a mês.
+              Utilize o campo numérico para registrar a quantidade de cada item. O check ajuda a identificar quem já retirou as publicações no balcão. 
+              As quantidades são salvas apenas para o mês selecionado.
             </p>
           </div>
         </div>
