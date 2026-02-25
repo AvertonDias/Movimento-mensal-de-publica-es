@@ -45,34 +45,32 @@ export default function Home() {
   }, [isHelper, helperInvite]);
 
   // Estrutura idêntica no servidor e no primeiro render do cliente para evitar erros de hidratação
-  if (!mounted) {
-    return <div className="min-h-screen bg-background" />;
-  }
-
-  if (isUserLoading) {
+  if (!mounted || isUserLoading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-6">
-        <div className="flex flex-col items-center gap-6">
-          <div className="relative">
-            <div className="rounded-2xl overflow-hidden w-[64px] h-[64px] shadow-2xl">
-              <Image 
-                src="/icon.png" 
-                alt="Logo S-28 Digital" 
-                width={64} 
-                height={64} 
-                className="object-cover w-full h-full" 
-                unoptimized 
-                priority 
-              />
-            </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
+        <div className="relative">
+          <div className="rounded-2xl overflow-hidden w-[64px] h-[64px] shadow-2xl">
+            <Image 
+              src="/icon.png" 
+              alt="Logo S-28 Digital" 
+              width={64} 
+              height={64} 
+              className="object-cover w-full h-full" 
+              unoptimized 
+              priority 
+            />
+          </div>
+          {mounted && isUserLoading && (
             <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-md">
               <Loader2 className="h-5 w-5 text-primary animate-spin" />
             </div>
-          </div>
-          <div className="text-center space-y-2">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Sincronizando</p>
-            <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">Preparando ambiente...</p>
-          </div>
+          )}
+        </div>
+        <div className="text-center space-y-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Sincronizando</p>
+          <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">
+            {mounted ? "Preparando ambiente..." : "Carregando..."}
+          </p>
         </div>
       </div>
     );

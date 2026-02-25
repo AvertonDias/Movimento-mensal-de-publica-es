@@ -367,7 +367,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           <div className="bg-primary/20 p-2 rounded-lg animate-rotate-phone">
             <Smartphone className="h-4 w-4 text-primary" />
           </div>
-          <p className="text-[10px] font-black uppercase text-primary-foreground leading-tight tracking-wider text-left">
+          <p className="text-[10px] font-black uppercase text-foreground leading-tight tracking-wider text-left">
             Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
           </p>
         </div>

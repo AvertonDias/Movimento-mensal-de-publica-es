@@ -105,7 +105,6 @@ export default function OrderFormPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    // Persistência de mês apenas nesta página
     const savedMonth = localStorage.getItem('order_form_selected_month');
     if (savedMonth) {
       try {
@@ -647,7 +646,7 @@ export default function OrderFormPage() {
             <CheckSquare2 className="h-3 w-3 text-primary-foreground" />
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-black uppercase text-primary-foreground tracking-widest">Dica de Gestão Digital</p>
+            <p className="text-[10px] font-black uppercase text-foreground tracking-widest">Dica de Gestão Digital</p>
             <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed">
               Exemplo: a apostila do mês de Abril deve ser marcada como entregue com o calendário no topo selecionado em "Abril". As quantidades fixas são permanentes para todos os meses. Já a marcação de entrega (o check) é individual.
             </p>
@@ -708,8 +707,8 @@ export default function OrderFormPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="uppercase font-black text-left">Confirmar Alteração?</AlertDialogTitle>
             <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
-              Você está alterando a quantidade fixa de <span className="text-primary">"{confirmQtyConfig?.label}"</span> para <span className="text-foreground">{confirmQtyConfig?.pubName}</span>.<br/><br/>
-              De: <span className="text-destructive line-through font-black mx-1">{confirmQtyConfig?.oldValue}</span> para: <span className="text-primary font-black mx-1">{confirmQtyConfig?.newValue}</span>
+              Você está alterando a quantidade fixa de <span className="text-foreground">"{confirmQtyConfig?.label}"</span> para <span className="text-foreground">{confirmQtyConfig?.pubName}</span>.<br/><br/>
+              De: <span className="text-destructive line-through font-black mx-1">{confirmQtyConfig?.oldValue}</span> para: <span className="text-foreground font-black mx-1">{confirmQtyConfig?.newValue}</span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
