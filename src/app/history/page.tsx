@@ -9,6 +9,7 @@ import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 export default function HistoryPage(props: {
   params: Promise<any>;
@@ -83,8 +84,11 @@ export default function HistoryPage(props: {
 
       let currentYPx = 0;
       let isFirstPage = true;
-      const marginMm = 7; // Margem reduzida para 7mm para evitar espaços grandes
+      const marginMm = 7;
       const marginPx = marginMm / pxToMm;
+
+      const now = new Date();
+      const timestamp = format(now, "dd/MM/yyyy HH:mm");
 
       while (currentYPx < canvas.height) {
         if (!isFirstPage) {
@@ -110,6 +114,11 @@ export default function HistoryPage(props: {
           ctx.drawImage(canvas, 0, currentYPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
           const pageImgData = tempCanvas.toDataURL('image/png');
           pdf.addImage(pageImgData, 'PNG', 0, marginMm, pdfWidth, sliceHeightPx * pxToMm);
+          
+          // Adiciona o rodapé com a data
+          pdf.setFontSize(7);
+          pdf.setTextColor(150);
+          pdf.text(`Impresso por S-28 Digital em ${timestamp}`, pdfWidth - 7, pdfHeight - 5, { align: 'right' });
         }
 
         currentYPx += sliceHeightPx;

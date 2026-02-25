@@ -172,6 +172,9 @@ export default function InventoryReportPage() {
       const marginMm = 7;
       const marginPx = marginMm / pxToMm;
 
+      const now = new Date();
+      const timestamp = format(now, "dd/MM/yyyy HH:mm");
+
       while (currentYPx < canvas.height) {
         if (!isFirstPage) {
           pdf.addPage();
@@ -196,6 +199,11 @@ export default function InventoryReportPage() {
           ctx.drawImage(canvas, 0, currentYPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
           const pageImgData = tempCanvas.toDataURL('image/png');
           pdf.addImage(pageImgData, 'PNG', 0, marginMm, pdfWidth, sliceHeightPx * pxToMm);
+          
+          // Rodapé com data
+          pdf.setFontSize(7);
+          pdf.setTextColor(150);
+          pdf.text(`Impresso por S-28 Digital em ${timestamp}`, pdfWidth - 7, pdfHeight - 5, { align: 'right' });
         }
 
         currentYPx += sliceHeightPx;
