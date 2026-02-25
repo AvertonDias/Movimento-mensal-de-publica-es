@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -620,7 +621,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                 )}
                               </div>
                               <div className="flex items-center gap-0.5 shrink-0">
-                                <Button variant="ghost" size="icon" className={cn("h-6 w-6 hover:bg-neutral-100 transition-colors", hasPending ? "text-primary bg-primary/10 animate-pulse-slow" : "text-muted-foreground/50")} onClick={() => setRequestingItem(item)}>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className={cn(
+                                    "h-6 w-6 hover:bg-neutral-100 transition-colors", 
+                                    hasPending ? "text-primary-foreground bg-primary shadow-sm animate-pulse-slow" : "text-muted-foreground/50"
+                                  )} 
+                                  onClick={() => setRequestingItem(item)}
+                                >
                                   {hasPending ? <Truck className="h-3.5 w-3.5" /> : <PackageSearch className="h-3.5 w-3.5" />}
                                 </Button>
                                 {item.isCustom && activeUid === user?.uid && <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground/50 hover:text-primary" onClick={() => setEditingItem(item)}><Edit2 className="h-3.5 w-3.5" /></Button>}
