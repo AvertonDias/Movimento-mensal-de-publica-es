@@ -631,7 +631,7 @@ export default function OrderFormPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 uppercase font-black text-destructive">
               <AlertTriangle className="h-5 w-5" />
-              Excluir Publicador?
+              Remover Registro?
             </AlertDialogTitle>
             <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
               Deseja realmente remover <span className="text-foreground">"{deleteConfig?.name || 'sem nome'}"</span> e todas as suas quantidades fixas do sistema?
