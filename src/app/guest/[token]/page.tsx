@@ -53,8 +53,8 @@ export default function GuestHistoryPage(props: {
     setIsDownloading(true);
     
     toast({
-      title: "Gerando PDF...",
-      description: "Preparando documento com quebras de página otimizadas.",
+      title: "Preparando PDF...",
+      description: "Preparando Formulário S-28",
     });
 
     try {

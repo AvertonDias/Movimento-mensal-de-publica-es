@@ -39,8 +39,8 @@ export default function HistoryPage(props: {
     setIsDownloading(true);
     
     toast({
-      title: "Gerando PDF...",
-      description: "Organizando páginas para evitar cortes entre as linhas.",
+      title: "Preparando PDF...",
+      description: "Preparando Formulário S-28",
     });
 
     try {
