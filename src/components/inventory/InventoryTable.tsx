@@ -375,18 +375,18 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4 overflow-hidden">
-        <div className="flex flex-col md:flex-row gap-4 items-start justify-between overflow-hidden">
-          <div className="flex flex-col gap-2 items-start shrink-0">
-            <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
-              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => prev ? subMonths(prev, 1) : null)} className="h-8 w-8">
+      <div className="bg-white p-4 sm:p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4 overflow-hidden max-w-full">
+        <div className="flex flex-col md:flex-row gap-4 items-start justify-between overflow-hidden w-full">
+          <div className="flex flex-col gap-2 items-start shrink-0 max-w-full overflow-hidden">
+            <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit max-w-full overflow-hidden">
+              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => prev ? subMonths(prev, 1) : null)} className="h-8 w-8 shrink-0">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <Popover open={isMonthPopoverOpen} onOpenChange={setIsMonthPopoverOpen}>
                 <PopoverTrigger asChild>
-                  <Button variant="ghost" className="px-2 font-bold text-xs uppercase tracking-wider min-w-[140px] justify-center gap-2 h-8">
-                    <CalendarIcon className="h-3.5 w-3.5 text-primary" />
-                    {monthName}
+                  <Button variant="ghost" className="px-2 font-bold text-xs uppercase tracking-wider min-w-[120px] sm:min-w-[140px] justify-center gap-2 h-8 truncate">
+                    <CalendarIcon className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span className="truncate">{monthName}</span>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-64 p-3" align="start">
@@ -413,17 +413,17 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   </div>
                 </PopoverContent>
               </Popover>
-              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => prev ? addMonths(prev, 1) : null)} className="h-8 w-8" disabled={isDateRestricted(addMonths(displayMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => prev ? addMonths(prev, 1) : null)} className="h-8 w-8 shrink-0" disabled={isDateRestricted(addMonths(displayMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
             </div>
-            <div className="flex items-center gap-2 max-w-full md:max-w-[340px] text-left">
+            <div className="flex items-center gap-2 max-w-full text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
-                Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
+                Os valores para o estoque são sempre referentes ao mês anterior.
               </p>
             </div>
           </div>
           
-          <div className="flex flex-col items-stretch gap-2 w-full md:flex-1 md:max-w-2xl overflow-hidden">
+          <div className="flex flex-col items-stretch gap-2 w-full md:flex-1 md:max-w-2xl overflow-hidden min-w-0">
             <div className="relative w-full overflow-hidden">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
@@ -462,7 +462,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
 
-      <div className="bg-white rounded-b-xl shadow-md border-x border-b border-border overflow-hidden">
+      <div className="bg-white rounded-b-xl shadow-md border-x border-b border-border overflow-hidden max-w-full">
         <div className="p-2 border-b border-neutral-100 flex justify-end px-6 bg-neutral-50/50">
           <Dialog>
             <DialogTrigger asChild>
