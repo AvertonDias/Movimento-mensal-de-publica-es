@@ -281,7 +281,7 @@ export default function SpecialOrdersPage() {
                           
                           <button 
                             onClick={() => handleDelete(order.id)}
-                            className="text-destructive opacity-0 group-hover:opacity-100 transition-opacity p-1.5 hover:bg-destructive/10 rounded-full print:hidden"
+                            className="text-destructive p-1.5 hover:bg-destructive/10 rounded-full print:hidden transition-colors"
                             title="Excluir"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
