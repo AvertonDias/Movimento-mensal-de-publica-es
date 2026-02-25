@@ -89,6 +89,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '6663', item: 'Minhas Lições da Bíblia', abbr: 'mb', category: 'Brochuras', imageKey: 'mb' },
   { code: '6648', item: 'Caminho para a Vida', abbr: 'ol', category: 'Brochuras', imageKey: 'ol' },
   { code: '6639', item: 'Verdadeira Paz e Felicidade', abbr: 'pc', category: 'Brochuras', imageKey: 'pc' },
+  { code: '6653', item: 'Caminho', abbr: 'ph', category: 'Brochuras', imageKey: 'ph' },
   { code: '6671', item: 'Volte para Jeová', abbr: 'rj', category: 'Brochuras', imageKey: 'rj' },
   { code: '6656', item: 'Verdadeira Fé', abbr: 'rk', category: 'Brochuras', imageKey: 'rk' },
   { code: '6630', item: 'Espíritos dos Mortos', abbr: 'sp', category: 'Brochuras', imageKey: 'sp' },
