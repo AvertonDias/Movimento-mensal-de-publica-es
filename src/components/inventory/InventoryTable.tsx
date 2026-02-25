@@ -103,11 +103,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   useEffect(() => {
     setIsMounted(true);
-    // Inicializa a data apenas no cliente para evitar Hydration Error
     setSelectedMonth(startOfMonth(subMonths(new Date(), 1)));
   }, []);
 
-  // Use uma data de fallback segura para evitar erros de renderização enquanto monta
   const displayMonth = selectedMonth || new Date();
   const monthKey = format(displayMonth, 'yyyy-MM');
   const monthName = format(displayMonth, 'MMMM yyyy', { locale: ptBR });

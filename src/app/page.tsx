@@ -21,7 +21,7 @@ export default function Home() {
     setMounted(true);
   }, []);
 
-  // Redirecionamento centralizado e mais seguro
+  // Redirecionamento centralizado
   useEffect(() => {
     if (mounted && !isUserLoading && !user) {
       router.replace('/login');
@@ -45,14 +45,9 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Durante a hidratação e sincronização inicial, renderizamos um container neutro 
-  // idêntico no servidor e no cliente para evitar erros de Hydration Mismatch.
-  if (!mounted) {
-    return <div className="min-h-screen bg-background" />;
-  }
-
-  // Se ainda estiver carregando os dados do usuário após a montagem
-  if (isUserLoading) {
+  // Durante a hidratação ou carregamento inicial, renderizamos o shell de carregamento
+  // para evitar erros de Hydration Mismatch entre servidor e cliente.
+  if (!mounted || isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
         <div className="relative">
