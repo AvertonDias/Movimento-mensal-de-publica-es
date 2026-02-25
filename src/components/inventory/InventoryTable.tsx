@@ -82,7 +82,7 @@ interface InventoryTableProps {
 }
 
 export function InventoryTable({ targetUserId }: InventoryTableProps) {
-  const { user, isUserLoading } = useUser();
+  const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -357,7 +357,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   };
 
   if (!isMounted || !selectedMonth) {
-    return null; // O carregamento já é tratado pelo componente pai src/app/page.tsx
+    return null;
   }
 
   return (
@@ -502,7 +502,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           </Dialog>
         </div>
 
-        {(isFetchingMonth || isUserLoading) && <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center backdrop-blur-[1px]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
+        {isFetchingMonth && <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center backdrop-blur-[1px]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
         
         <div className="overflow-x-auto w-full">
           <Table>

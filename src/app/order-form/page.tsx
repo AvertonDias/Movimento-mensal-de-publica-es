@@ -314,7 +314,7 @@ export default function OrderFormPage() {
             </div>
             <div className="text-left overflow-hidden">
               <h1 className="text-base font-black uppercase tracking-tight truncate leading-none">Controle de Periódicos</h1>
-              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Selecione o mês referente a publicação a ser entregue</p>
+              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Controle a entrega de pedidos periódicos da congregação</p>
             </div>
           </div>
 
@@ -661,7 +661,7 @@ export default function OrderFormPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 uppercase font-black text-destructive text-left">
               <AlertTriangle className="h-5 w-5" />
-              Remover Registro?
+              Remova publicador
             </AlertDialogTitle>
             <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
               Deseja realmente remover <span className="text-foreground">"{deleteConfig?.name || 'sem nome'}"</span> e todas as suas quantidades fixas do sistema?
