@@ -44,9 +44,12 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Estrutura unificada para o primeiro render (SSR e Hydration)
-  // O servidor e o cliente renderizam o mesmo loader inicial
-  if (!mounted || isUserLoading) {
+  // Estrutura idêntica no servidor e no primeiro render do cliente para evitar erros de hidratação
+  if (!mounted) {
+    return <div className="min-h-screen bg-background" />;
+  }
+
+  if (isUserLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-6">
         <div className="flex flex-col items-center gap-6">
