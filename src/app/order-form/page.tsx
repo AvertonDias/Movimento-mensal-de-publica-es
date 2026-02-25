@@ -415,7 +415,7 @@ export default function OrderFormPage() {
                 <SelectItem value="completed" className="text-[9px] font-black uppercase text-emerald-600">Tudo Entregue</SelectItem>
                 <SelectItem value="pending_apostila" className="text-[9px] font-black uppercase">Pendente: Apostila (N)</SelectItem>
                 <SelectItem value="pending_apostilaG" className="text-[9px] font-black uppercase">Pendente: Apostila (G)</SelectItem>
-                <SelectItem value="pending_sentinela" className="text-[9px] font-black uppercase">Pendente: Sentinela (N)</SelectItem>
+                <SelectItem value="pending_sentinela" className="text-[9px) font-black uppercase">Pendente: Sentinela (N)</SelectItem>
                 <SelectItem value="pending_sentinelaG" className="text-[9px] font-black uppercase">Pendente: Sentinela (G)</SelectItem>
               </SelectContent>
             </Select>
@@ -585,7 +585,7 @@ export default function OrderFormPage() {
                                 });
                               }
                             }}
-                            placeholder="Nome do publicador..."
+                            placeholder="Nome"
                             className="border-none shadow-none focus-visible:ring-0 font-black uppercase text-sm h-8 bg-transparent p-0 placeholder:text-neutral-300"
                           />
                         </div>
