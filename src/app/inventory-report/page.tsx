@@ -275,7 +275,7 @@ export default function InventoryReportPage() {
           </div>
         </div>
 
-        <Card id="report-content" className="border-none shadow-xl overflow-hidden print:shadow-none print:border bg-white">
+        <Card id="report-content" className="border-none shadow-xl overflow-hidden print:shadow-none print:border border-black bg-white">
           <CardHeader className="bg-white border-b border-neutral-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4">
             <div className="text-left space-y-1">
               <CardTitle className="uppercase font-black text-base">Resumo de Saldo Físico</CardTitle>
@@ -304,12 +304,12 @@ export default function InventoryReportPage() {
                 <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Nenhuma movimentação no mês selecionado</p>
               </div>
             ) : (
-              <Table>
+              <Table className="border-black">
                 <TableHeader className="bg-neutral-50/50">
-                  <TableRow>
-                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r h-10">N.º</TableHead>
-                    <TableHead className="font-black uppercase text-[9px] border-r h-10">Publicação</TableHead>
-                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r bg-primary/5 h-10 leading-tight">Anterior</TableHead>
+                  <TableRow className="border-b border-black">
+                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r border-black h-10">N.º</TableHead>
+                    <TableHead className="font-black uppercase text-[9px] border-r border-black h-10">Publicação</TableHead>
+                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r border-black bg-primary/5 h-10 leading-tight">Anterior</TableHead>
                     <TableHead className="w-[80px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Atual</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -323,12 +323,12 @@ export default function InventoryReportPage() {
                         key={item.id} 
                         onClick={() => setSelectedRowId(isSelected ? null : item.id)}
                         className={cn(
-                          "hover:bg-accent/5 transition-all border-b h-10 cursor-pointer",
+                          "hover:bg-accent/5 transition-all border-b border-black h-10 cursor-pointer",
                           isSelected && "bg-primary/20 hover:bg-primary/25 border-l-4 border-l-primary"
                         )}
                       >
-                        <TableCell className="text-center font-bold text-[10px] text-neutral-400 border-r p-1 leading-tight">{item.code || '---'}</TableCell>
-                        <TableCell className="border-r p-1 px-3 text-left leading-tight">
+                        <TableCell className="text-center font-bold text-[10px] text-neutral-400 border-r border-black p-1 leading-tight">{item.code || '---'}</TableCell>
+                        <TableCell className="border-r border-black p-1 px-3 text-left leading-tight">
                           <div className="flex justify-between items-center">
                             {imagePlaceholder ? (
                               <Popover>
@@ -365,7 +365,7 @@ export default function InventoryReportPage() {
                           </div>
                         </TableCell>
                         <TableCell className={cn(
-                          "text-center font-black text-xs border-r bg-primary/5 p-1 leading-tight",
+                          "text-center font-black text-xs border-r border-black bg-primary/5 p-1 leading-tight",
                           (item.previous || 0) === 0 && "text-neutral-300 font-normal"
                         )}>
                           {formatNumber(item.previous)}

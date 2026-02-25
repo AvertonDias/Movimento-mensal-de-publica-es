@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -107,6 +108,7 @@
   
   .bg-neutral-200 {
     background-color: #e5e5e5 !important;
+    border-color: #000000 !important;
   }
 
   .bg-muted {
@@ -121,10 +123,16 @@
     color: #dc2626 !important;
   }
 
-  /* Garante que colunas de Saída apareçam cinza no papel */
-  td.bg-neutral-200, th.bg-neutral-200 {
-    background-color: #e5e5e5 !important;
-    -webkit-print-color-adjust: exact !important;
+  /* Garante que colunas de Saída e tabelas oficiais tenham linhas pretas nítidas */
+  td.bg-neutral-200, th.bg-neutral-200, 
+  .border-black, .border-r-black, .border-b-black {
+    border-color: #000000 !important;
+    border-style: solid !important;
+    border-width: 1px !important;
+  }
+
+  table {
+    border-collapse: collapse !important;
   }
 
   body {
