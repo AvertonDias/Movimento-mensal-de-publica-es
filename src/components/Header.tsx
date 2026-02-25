@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { LogOut, User as UserIcon, RefreshCw, Menu, UserCircle } from "lucide-react";
+import { LogOut, User as UserIcon, Menu, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser } from "@/firebase";
@@ -57,29 +57,6 @@ export function Header() {
 
   const handleSignOut = () => {
     initiateSignOut(auth);
-  };
-
-  const handleForceUpdate = async () => {
-    toast({
-      title: "Limpando cache...",
-      description: "O aplicativo será reiniciado para aplicar as atualizações.",
-    });
-
-    if ('serviceWorker' in navigator) {
-      const registrations = await navigator.serviceWorker.getRegistrations();
-      for (const registration of registrations) {
-        await registration.unregister();
-      }
-    }
-
-    if ('caches' in window) {
-      const cacheNames = await caches.keys();
-      for (const name of cacheNames) {
-        await caches.delete(name);
-      }
-    }
-
-    window.location.href = window.location.origin + window.location.pathname + '?update=' + Date.now();
   };
 
   // Previne erro de hidratação: o estado de autenticação só é conhecido no cliente
@@ -140,10 +117,6 @@ export function Header() {
                   className="font-bold uppercase text-[10px] tracking-widest cursor-pointer text-foreground focus:text-primary"
                 >
                   <UserCircle className="mr-2 h-4 w-4" /> Editar Perfil
-                </DropdownMenuItem>
-                
-                <DropdownMenuItem onClick={handleForceUpdate} className="font-bold uppercase text-[10px] tracking-widest cursor-pointer text-primary focus:text-primary">
-                  <RefreshCw className="mr-2 h-4 w-4" /> Forçar Atualização
                 </DropdownMenuItem>
                 
                 <DropdownMenuSeparator />
