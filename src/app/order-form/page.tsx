@@ -284,7 +284,7 @@ export default function OrderFormPage() {
             </div>
             <div className="text-left overflow-hidden">
               <h1 className="text-base font-black uppercase tracking-tight truncate leading-none">Controle de Periódicos</h1>
-              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Assinaturas Fixas</p>
+              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Selecione o mês referente a publicação a ser entregue</p>
             </div>
           </div>
 
