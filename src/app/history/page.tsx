@@ -50,9 +50,9 @@ export default function HistoryPage(props: {
       const element = document.getElementById('s28-history-content');
       if (!element) throw new Error('Elemento não encontrado');
 
-      // Captura o canvas em alta definição
+      const scale = 3;
       const canvas = await html2canvas(element, {
-        scale: 3,
+        scale: scale,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -75,15 +75,15 @@ export default function HistoryPage(props: {
       const rowData = rows.map(row => {
         const rowRect = row.getBoundingClientRect();
         return {
-          top: rowRect.top - rect.top,
-          height: rowRect.height,
-          bottom: (rowRect.top - rect.top) + rowRect.height
+          top: (rowRect.top - rect.top) * scale,
+          height: rowRect.height * scale,
+          bottom: (rowRect.top - rect.top + rowRect.height) * scale
         };
       });
 
       let currentYPx = 0;
       let isFirstPage = true;
-      const marginMm = 10;
+      const marginMm = 7; // Margem reduzida para 7mm para evitar espaços grandes
       const marginPx = marginMm / pxToMm;
 
       while (currentYPx < canvas.height) {
@@ -91,12 +91,10 @@ export default function HistoryPage(props: {
           pdf.addPage();
         }
 
-        // Espaço útil na página (descontando margens)
         const availableHeightPx = (pdfHeight / pxToMm) - (marginPx * 2);
         let sliceHeightPx = availableHeightPx;
 
-        // Encontrar a última linha que cabe inteira neste bloco
-        const rowsFitting = rowData.filter(r => r.top >= currentYPx && r.bottom <= (currentYPx + availableHeightPx));
+        const rowsFitting = rowData.filter(r => r.top >= currentYPx - 1 && r.bottom <= (currentYPx + availableHeightPx + 1));
         
         if (rowsFitting.length > 0) {
           const lastRow = rowsFitting[rowsFitting.length - 1];
@@ -117,8 +115,7 @@ export default function HistoryPage(props: {
         currentYPx += sliceHeightPx;
         isFirstPage = false;
 
-        // Se o que restar for muito pequeno, encerra
-        if (canvas.height - currentYPx < 5) break;
+        if (canvas.height - currentYPx < 10) break;
       }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');

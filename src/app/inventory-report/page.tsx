@@ -136,8 +136,9 @@ export default function InventoryReportPage() {
       const element = document.getElementById('report-content');
       if (!element) throw new Error('Elemento não encontrado');
 
+      const scale = 3;
       const canvas = await html2canvas(element, {
-        scale: 3,
+        scale: scale,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -160,15 +161,15 @@ export default function InventoryReportPage() {
       const rowData = rows.map(row => {
         const rowRect = row.getBoundingClientRect();
         return {
-          top: rowRect.top - rect.top,
-          height: rowRect.height,
-          bottom: (rowRect.top - rect.top) + rowRect.height
+          top: (rowRect.top - rect.top) * scale,
+          height: rowRect.height * scale,
+          bottom: (rowRect.top - rect.top + rowRect.height) * scale
         };
       });
 
       let currentYPx = 0;
       let isFirstPage = true;
-      const marginMm = 10;
+      const marginMm = 7;
       const marginPx = marginMm / pxToMm;
 
       while (currentYPx < canvas.height) {
@@ -179,7 +180,7 @@ export default function InventoryReportPage() {
         const availableHeightPx = (pdfHeight / pxToMm) - (marginPx * 2);
         let sliceHeightPx = availableHeightPx;
 
-        const rowsFitting = rowData.filter(r => r.top >= currentYPx && r.bottom <= (currentYPx + availableHeightPx));
+        const rowsFitting = rowData.filter(r => r.top >= currentYPx - 1 && r.bottom <= (currentYPx + availableHeightPx + 1));
         
         if (rowsFitting.length > 0) {
           const lastRow = rowsFitting[rowsFitting.length - 1];
@@ -199,7 +200,7 @@ export default function InventoryReportPage() {
 
         currentYPx += sliceHeightPx;
         isFirstPage = false;
-        if (canvas.height - currentYPx < 5) break;
+        if (canvas.height - currentYPx < 10) break;
       }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
