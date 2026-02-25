@@ -38,6 +38,23 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
     }
   }, [user, isOpen]);
 
+  // Efeito de segurança para destravar a tela após fechar o modal
+  useEffect(() => {
+    if (!isOpen) {
+      const forceUnlock = () => {
+        if (typeof document !== 'undefined') {
+          document.body.style.pointerEvents = 'auto';
+          document.body.style.overflow = 'auto';
+        }
+      };
+      
+      // Executa imediatamente e após a animação de saída
+      forceUnlock();
+      const timer = setTimeout(forceUnlock, 400);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen]);
+
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !auth.currentUser || !name.trim()) return;
@@ -63,7 +80,8 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         description: "Seu nome foi alterado com sucesso.",
       });
       
-      setTimeout(() => onClose(), 500);
+      // Fecha o modal sem atrasos excessivos para evitar conflitos de estado
+      onClose();
     } catch (error: any) {
       console.error(error);
       toast({
