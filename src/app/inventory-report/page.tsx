@@ -152,7 +152,7 @@ export default function InventoryReportPage() {
       });
 
       const sideMarginMm = 10;
-      const topBottomMarginMm = 7;
+      const topBottomMarginMm = 10;
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const contentWidthMm = pdfWidth - (sideMarginMm * 2);
@@ -172,29 +172,28 @@ export default function InventoryReportPage() {
 
       let currentYPx = 0;
       let isFirstPage = true;
-      const marginPx = topBottomMarginMm / pxToMm;
-
       const now = new Date();
       const timestamp = format(now, "dd/MM/yyyy HH:mm");
 
       while (currentYPx < canvas.height) {
-        const remainingRows = rowData.filter(r => r.top >= currentYPx - 1);
-        if (remainingRows.length === 0 && !isFirstPage) break;
+        const remainingHeightPx = canvas.height - currentYPx;
+        if (remainingHeightPx < 5 && !isFirstPage) break;
 
         if (!isFirstPage) {
           pdf.addPage();
         }
 
-        const availableHeightPx = (pdfHeight / pxToMm) - (topBottomMarginMm * 2);
-        let sliceHeightPx = availableHeightPx;
+        const availableHeightPx = (pdfHeight - (topBottomMarginMm * 2)) / pxToMm;
+        let sliceHeightPx = Math.min(availableHeightPx, remainingHeightPx);
 
-        const rowsFitting = remainingRows.filter(r => r.bottom <= (currentYPx + availableHeightPx + 1));
-        
-        if (rowsFitting.length > 0) {
-          const lastRow = rowsFitting[rowsFitting.length - 1];
+        const rowsInThisSlice = rowData.filter(r => 
+          r.top >= currentYPx - 1 && 
+          r.bottom <= currentYPx + availableHeightPx + 1
+        );
+
+        if (rowsInThisSlice.length > 0) {
+          const lastRow = rowsInThisSlice[rowsInThisSlice.length - 1];
           sliceHeightPx = lastRow.bottom - currentYPx;
-        } else if (remainingRows.length > 0) {
-          sliceHeightPx = remainingRows[0].bottom - currentYPx;
         }
 
         const tempCanvas = document.createElement('canvas');
@@ -214,13 +213,10 @@ export default function InventoryReportPage() {
 
         currentYPx += sliceHeightPx;
         isFirstPage = false;
-        if (canvas.height - currentYPx < 10) break;
       }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
-      const fileName = `Saldo_Fisico_${monthKey}_${fileDate}.pdf`;
-      
-      pdf.save(fileName);
+      pdf.save(`Saldo_Fisico_${monthKey}_${fileDate}.pdf`);
 
       toast({
         title: "Download concluído!",
