@@ -45,13 +45,13 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Durante a hidratação, renderizamos um container neutro para evitar 
-  // conflitos estruturais entre o servidor e o cliente.
+  // Durante a hidratação e sincronização inicial, renderizamos um container neutro 
+  // idêntico no servidor e no cliente para evitar erros de Hydration Mismatch.
   if (!mounted) {
     return <div className="min-h-screen bg-background" />;
   }
 
-  // Se ainda estiver carregando os dados do usuário
+  // Se ainda estiver carregando os dados do usuário após a montagem
   if (isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
@@ -72,7 +72,7 @@ export default function Home() {
           </div>
         </div>
         <div className="text-center space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground animate-pulse">Sincronizando</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Sincronizando</p>
           <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">Carregando seus dados...</p>
         </div>
       </div>
@@ -85,8 +85,8 @@ export default function Home() {
   const activeUserId = (viewMode === 'shared' && sharedOwnerId) ? sharedOwnerId : user.uid;
 
   return (
-    <div className="min-h-screen pb-12 bg-background/50 font-body">
-      <main className="max-w-7xl mx-auto px-6 pt-24 space-y-8">
+    <div className="min-h-screen pb-12 bg-background/50 font-body overflow-x-hidden">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 space-y-8 overflow-hidden">
         {isHelper && (
           <div className="bg-accent/10 border border-accent/20 p-4 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-3">
@@ -98,7 +98,9 @@ export default function Home() {
             </div>
           </div>
         )}
-        <InventoryTable targetUserId={activeUserId} />
+        <div className="w-full overflow-hidden">
+          <InventoryTable targetUserId={activeUserId} />
+        </div>
       </main>
     </div>
   );

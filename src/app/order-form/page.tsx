@@ -105,8 +105,30 @@ export default function OrderFormPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    setSelectedMonth(startOfMonth(new Date()));
+    // Tenta carregar o mês salvo especificamente para esta página
+    const savedMonth = localStorage.getItem('order_form_selected_month');
+    if (savedMonth) {
+      try {
+        const date = new Date(savedMonth);
+        if (!isNaN(date.getTime())) {
+          setSelectedMonth(startOfMonth(date));
+        } else {
+          setSelectedMonth(startOfMonth(new Date()));
+        }
+      } catch (e) {
+        setSelectedMonth(startOfMonth(new Date()));
+      }
+    } else {
+      setSelectedMonth(startOfMonth(new Date()));
+    }
   }, []);
+
+  // Salva o mês sempre que ele mudar (apenas nesta página)
+  useEffect(() => {
+    if (isMounted && selectedMonth) {
+      localStorage.setItem('order_form_selected_month', selectedMonth.toISOString());
+    }
+  }, [selectedMonth, isMounted]);
 
   const displayMonth = selectedMonth || new Date();
   const monthKey = format(displayMonth, 'yyyy-MM');

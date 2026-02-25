@@ -375,8 +375,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       )}
 
-      <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
-        <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
+      <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4 overflow-hidden">
+        <div className="flex flex-col md:flex-row gap-4 items-start justify-between overflow-hidden">
           <div className="flex flex-col gap-2 items-start shrink-0">
             <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
               <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => prev ? subMonths(prev, 1) : null)} className="h-8 w-8">
@@ -415,7 +415,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               </Popover>
               <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => prev ? addMonths(prev, 1) : null)} className="h-8 w-8" disabled={isDateRestricted(addMonths(displayMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
             </div>
-            <div className="flex items-center gap-2 max-w-[340px] text-left">
+            <div className="flex items-center gap-2 max-w-full md:max-w-[340px] text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
                 Os valores para o estoque são sempre referentes ao mês anterior. O sistema destaca automaticamente itens que precisam de reposição.
@@ -445,9 +445,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             </div>
             
             <Select value={filterStatus} onValueChange={(v: any) => setFilterStatus(v)}>
-              <SelectTrigger className="w-full h-11 font-bold text-[10px] uppercase tracking-widest bg-neutral-50 border-neutral-200">
-                <div className="flex items-center gap-2">
-                  <Filter className="h-3 w-3 text-primary" />
+              <SelectTrigger className="w-full h-11 font-bold text-[10px] uppercase tracking-widest bg-neutral-50 border-neutral-200 max-w-full overflow-hidden">
+                <div className="flex items-center gap-2 truncate">
+                  <Filter className="h-3 w-3 text-primary shrink-0" />
                   <SelectValue placeholder="Filtrar por Status" />
                 </div>
               </SelectTrigger>
@@ -462,7 +462,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       </div>
 
-      <div className="bg-white rounded-b-xl shadow-md border-x border-b border-border">
+      <div className="bg-white rounded-b-xl shadow-md border-x border-b border-border overflow-hidden">
         <div className="p-2 border-b border-neutral-100 flex justify-end px-6 bg-neutral-50/50">
           <Dialog>
             <DialogTrigger asChild>
