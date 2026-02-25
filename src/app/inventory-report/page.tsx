@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -138,7 +137,7 @@ export default function InventoryReportPage() {
       if (!element) throw new Error('Elemento não encontrado');
 
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -155,26 +154,29 @@ export default function InventoryReportPage() {
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const pxToMm = pdfWidth / canvas.width;
       
-      const rect = element.getBoundingClientRect();
       const rows = Array.from(element.querySelectorAll('tr'));
+      const rect = element.getBoundingClientRect();
+      
       const rowData = rows.map(row => {
-        const rRect = row.getBoundingClientRect();
+        const rowRect = row.getBoundingClientRect();
         return {
-          top: rRect.top - rect.top,
-          bottom: rRect.bottom - rect.top
+          top: rowRect.top - rect.top,
+          height: rowRect.height,
+          bottom: (rowRect.top - rect.top) + rowRect.height
         };
       });
 
       let currentYPx = 0;
       let isFirstPage = true;
-      const bottomMarginPx = 10 / pxToMm;
+      const marginMm = 10;
+      const marginPx = marginMm / pxToMm;
 
       while (currentYPx < canvas.height) {
         if (!isFirstPage) {
           pdf.addPage();
         }
 
-        const availableHeightPx = (pdfHeight / pxToMm) - (isFirstPage ? 0 : bottomMarginPx);
+        const availableHeightPx = (pdfHeight / pxToMm) - (marginPx * 2);
         let sliceHeightPx = availableHeightPx;
 
         const rowsFitting = rowData.filter(r => r.top >= currentYPx && r.bottom <= (currentYPx + availableHeightPx));
@@ -192,7 +194,7 @@ export default function InventoryReportPage() {
         if (ctx) {
           ctx.drawImage(canvas, 0, currentYPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
           const pageImgData = tempCanvas.toDataURL('image/png');
-          pdf.addImage(pageImgData, 'PNG', 0, isFirstPage ? 0 : 5, pdfWidth, sliceHeightPx * pxToMm);
+          pdf.addImage(pageImgData, 'PNG', 0, marginMm, pdfWidth, sliceHeightPx * pxToMm);
         }
 
         currentYPx += sliceHeightPx;
@@ -305,7 +307,7 @@ export default function InventoryReportPage() {
           </div>
         </div>
 
-        <Card id="report-content" className="border-none shadow-xl overflow-hidden print:shadow-none print:border border-black bg-white">
+        <Card id="report-content" className="border-none shadow-xl overflow-hidden print:shadow-none print:border border-black bg-white pdf-export-content">
           <CardHeader className="bg-white border-b border-neutral-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4">
             <div className="text-left space-y-1">
               <CardTitle className="uppercase font-black text-base">Resumo de Saldo Físico</CardTitle>

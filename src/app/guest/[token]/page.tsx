@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { use, useEffect, useState } from 'react';
@@ -84,27 +83,35 @@ export default function GuestHistoryPage(props: {
       const pxToMm = pdfWidth / canvas.width;
       
       const rows = Array.from(element.querySelectorAll('tr'));
+      const rect = element.getBoundingClientRect();
       
+      const rowData = rows.map(row => {
+        const rowRect = row.getBoundingClientRect();
+        return {
+          top: rowRect.top - rect.top,
+          height: rowRect.height,
+          bottom: (rowRect.top - rect.top) + rowRect.height
+        };
+      });
+
       let currentYPx = 0;
       let isFirstPage = true;
+      const marginMm = 10;
+      const marginPx = marginMm / pxToMm;
 
       while (currentYPx < canvas.height) {
         if (!isFirstPage) {
           pdf.addPage();
         }
 
-        const availableHeightMm = isFirstPage ? pdfHeight : pdfHeight - 10;
-        const availableHeightPx = availableHeightMm / pxToMm;
-
+        const availableHeightPx = (pdfHeight / pxToMm) - (marginPx * 2);
         let sliceHeightPx = availableHeightPx;
-        const rowsInPage = rows.filter(row => {
-          const rowBottom = row.offsetTop + row.offsetHeight;
-          return row.offsetTop >= currentYPx && rowBottom <= (currentYPx + availableHeightPx);
-        });
 
-        if (rowsInPage.length > 0) {
-          const lastRow = rowsInPage[rowsInPage.length - 1];
-          sliceHeightPx = (lastRow.offsetTop + lastRow.offsetHeight) - currentYPx;
+        const rowsFitting = rowData.filter(r => r.top >= currentYPx && r.bottom <= (currentYPx + availableHeightPx));
+        
+        if (rowsFitting.length > 0) {
+          const lastRow = rowsFitting[rowsFitting.length - 1];
+          sliceHeightPx = lastRow.bottom - currentYPx;
         }
 
         const tempCanvas = document.createElement('canvas');
@@ -115,12 +122,12 @@ export default function GuestHistoryPage(props: {
         if (ctx) {
           ctx.drawImage(canvas, 0, currentYPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
           const pageImgData = tempCanvas.toDataURL('image/png');
-          pdf.addImage(pageImgData, 'PNG', 0, isFirstPage ? 0 : 5, pdfWidth, sliceHeightPx * pxToMm);
+          pdf.addImage(pageImgData, 'PNG', 0, isFirstPage ? marginMm : marginMm, pdfWidth, sliceHeightPx * pxToMm);
         }
 
         currentYPx += sliceHeightPx;
         isFirstPage = false;
-        if (canvas.height - currentYPx < 10) break;
+        if (canvas.height - currentYPx < 5) break;
       }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
@@ -202,7 +209,7 @@ export default function GuestHistoryPage(props: {
         </div>
 
         <div className="w-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-primary/20">
-          <div id="s28-history-content-guest" className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 w-max mx-auto">
+          <div id="s28-history-content-guest" className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 w-max mx-auto pdf-export-content">
             <div className="flex justify-between items-baseline border-b-2 border-black pb-1 mb-2">
               <h1 className="text-lg font-black tracking-tight uppercase font-headline">
                 MOVIMENTO MENSAL DE PUBLICAÇÕES

@@ -70,11 +70,14 @@ export default function HistoryPage(props: {
       const pxToMm = pdfWidth / canvas.width;
       
       const rows = Array.from(element.querySelectorAll('tr'));
+      const rect = element.getBoundingClientRect();
+      
       const rowData = rows.map(row => {
+        const rowRect = row.getBoundingClientRect();
         return {
-          top: (row as HTMLElement).offsetTop,
-          height: (row as HTMLElement).offsetHeight,
-          bottom: (row as HTMLElement).offsetTop + (row as HTMLElement).offsetHeight
+          top: rowRect.top - rect.top,
+          height: rowRect.height,
+          bottom: (rowRect.top - rect.top) + rowRect.height
         };
       });
 
