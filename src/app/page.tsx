@@ -1,8 +1,9 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, Loader2 } from "lucide-react";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
 import Image from "next/image";
 import { doc } from 'firebase/firestore';
@@ -21,9 +22,10 @@ export default function Home() {
     setMounted(true);
   }, []);
 
+  // Redirecionamento centralizado e mais seguro
   useEffect(() => {
-    if (!isUserLoading && !user && mounted) {
-      router.push('/login');
+    if (mounted && !isUserLoading && !user) {
+      router.replace('/login');
     }
   }, [user, isUserLoading, router, mounted]);
 
@@ -44,28 +46,35 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Exibe o spinner enquanto carrega ou se não estiver autenticado (preparando redirect)
-  if (!mounted || isUserLoading || (!user && mounted)) {
+  // Se ainda estiver carregando os dados do usuário ou não estiver montado
+  if (!mounted || isUserLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <div className="rounded-xl animate-pulse w-[40px] h-[40px] overflow-hidden">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
+        <div className="relative">
+          <div className="rounded-2xl overflow-hidden w-[64px] h-[64px] shadow-2xl animate-in fade-in zoom-in duration-700">
             <Image 
               src="/icon.png" 
-              alt="Carregando" 
-              width={40} 
-              height={40} 
+              alt="Logo S-28 Digital" 
+              width={64} 
+              height={64} 
               className="object-cover w-full h-full" 
               unoptimized 
               priority 
             />
           </div>
-          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Sincronizando...</p>
+          <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-md">
+            <Loader2 className="h-5 w-5 text-primary animate-spin" />
+          </div>
+        </div>
+        <div className="text-center space-y-2">
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground animate-pulse">Sincronizando</p>
+          <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">Carregando seus dados...</p>
         </div>
       </div>
     );
   }
 
+  // Se não houver usuário, não renderiza nada (o useEffect cuidará do redirecionamento)
   if (!user) return null;
 
   const activeUserId = (viewMode === 'shared' && sharedOwnerId) ? sharedOwnerId : user.uid;

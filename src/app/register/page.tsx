@@ -347,7 +347,7 @@ function RegisterForm() {
             disabled={(inviteOwner && !confirmReplace) || isProcessing}
           >
             {isProcessing ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <UserPlus className="mr-2 h-4 w-4" />}
-            {isProcessing ? "Processando..." : "Finalizar Cadastro"}
+            {isProcessing ? "Finalizando..." : "Finalizar Cadastro"}
           </Button>
         </form>
 
@@ -386,10 +386,17 @@ function RegisterForm() {
   );
 }
 
+const LoadingFallback = () => (
+  <div className="flex flex-col items-center justify-center gap-4">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Iniciando ambiente...</p>
+  </div>
+);
+
 export default function RegisterPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background/50 p-4">
-      <Suspense fallback={<div>Carregando...</div>}>
+      <Suspense fallback={<LoadingFallback />}>
         <RegisterForm />
       </Suspense>
     </div>
