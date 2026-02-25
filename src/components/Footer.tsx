@@ -1,10 +1,15 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useUser } from "@/firebase";
 
 export function Footer() {
   const { user } = useUser();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   return (
     <footer className="w-full px-6 py-8 border-t border-border mt-auto bg-transparent print:hidden">
@@ -19,7 +24,8 @@ export function Footer() {
           >
             Conheça meus aplicativos
           </a>
-          {user && !user.isAnonymous && (
+          {/* O link de suporte depende do estado de autenticação, por isso só renderiza após o mount */}
+          {mounted && user && !user.isAnonymous && (
             <a 
               href="https://wa.me/5535991210466?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20aplicativo%20S-28%20Digital." 
               target="_blank" 

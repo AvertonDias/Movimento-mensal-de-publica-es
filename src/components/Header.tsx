@@ -26,9 +26,14 @@ export function Header() {
   const auth = useAuth();
   const { toast } = useToast();
   
+  const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const controlHeader = () => {
@@ -73,7 +78,9 @@ export function Header() {
     window.location.href = window.location.origin + window.location.pathname + '?update=' + Date.now();
   };
 
-  if (isUserLoading || !user || user.isAnonymous) return null;
+  // Se não estiver montado ou o usuário ainda estiver carregando, não renderiza nada 
+  // para manter consistência com o servidor (que não tem acesso ao Auth)
+  if (!mounted || isUserLoading || !user || user.isAnonymous) return null;
 
   return (
     <>
