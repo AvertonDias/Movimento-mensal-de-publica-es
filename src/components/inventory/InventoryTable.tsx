@@ -124,7 +124,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [pendingConfirmItem, requestingItem, editingItem, negativeWarningItem]);
 
   const isDateRestricted = (date: Date) => {
-    const limitDate = startOfMonth(addMonths(new Date(), 1));
+    // Permite avançar no máximo até o mês atual (mês anterior + 1)
+    const limitDate = startOfMonth(new Date());
     return isAfter(startOfMonth(date), limitDate);
   };
 
