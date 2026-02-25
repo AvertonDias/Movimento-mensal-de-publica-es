@@ -76,14 +76,13 @@
   }
   
   html {
-    -webkit-text-size-adjust: 100%; /* Previne redimensionamento de fonte indesejado na rotação */
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     @apply bg-background text-foreground overflow-x-hidden;
   }
   
-  /* Hide number input arrows (spinners) */
   input::-webkit-outer-spin-button,
   input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -106,36 +105,30 @@
     color-adjust: exact !important;
   }
   
-  .bg-neutral-200 {
-    background-color: #e5e5e5 !important;
-    border-color: #000000 !important;
-  }
-
-  .bg-muted {
-    background-color: #f3f4f6 !important;
-  }
-
-  .bg-destructive\/5 {
-    background-color: rgba(239, 68, 68, 0.05) !important;
-  }
-
-  .text-destructive {
-    color: #dc2626 !important;
-  }
-
   /* Garante que colunas de Saída e tabelas oficiais tenham linhas pretas nítidas */
-  td.bg-neutral-200, th.bg-neutral-200, 
-  .border-black, .border-r-black, .border-b-black {
+  .border-black, 
+  .border-r-black, 
+  .border-b-black,
+  table, tr, th, td {
     border-color: #000000 !important;
     border-style: solid !important;
-    border-width: 1px !important;
   }
 
-  table {
-    border-collapse: collapse !important;
+  td.bg-neutral-200, th.bg-neutral-200 {
+    background-color: #e5e5e5 !important;
   }
 
   body {
     background-color: white !important;
   }
+}
+
+/* Utilitários para o Canvas de exportação */
+#s28-history-content table {
+  border-collapse: collapse !important;
+}
+
+#s28-history-content td, 
+#s28-history-content th {
+  border: 1px solid #000000 !important;
 }

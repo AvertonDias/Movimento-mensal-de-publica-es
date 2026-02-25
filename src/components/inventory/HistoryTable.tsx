@@ -111,7 +111,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   };
 
   return (
-    <div className="border border-black relative mx-auto bg-white" style={{ width: '732px' }}>
+    <div className="border-2 border-black relative mx-auto bg-white overflow-visible" style={{ width: '732px' }}>
       {loading && (
         <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-[1px] print:hidden">
           <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse text-black">Sincronizando...</span>
@@ -119,7 +119,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
       )}
       <Table className="border-collapse table-fixed w-[732px] border-black">
         <TableHeader className="print:table-row-group">
-          <TableRow className="border-b border-black bg-white hover:bg-white h-[40px]">
+          <TableRow className="border-b-2 border-black bg-white hover:bg-white h-[40px]">
             <TableHead className="w-[28px] border-r border-black p-0"></TableHead>
             <TableHead className="w-[200px] text-[8px] font-black uppercase text-black p-0 text-center border-r border-black align-middle">MÊS E ANO</TableHead>
             {lastSixMonths.map((month, idx) => (
@@ -134,7 +134,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               </TableHead>
             ))}
           </TableRow>
-          <TableRow className="border-b border-black bg-white hover:bg-white h-[40px]">
+          <TableRow className="border-b-2 border-black bg-white hover:bg-white h-[40px]">
             <TableHead className="w-[28px] text-[7px] font-bold text-black p-0 text-center border-r border-black align-middle">N.º</TableHead>
             <TableHead className="w-[200px] text-[10px] font-black text-black px-2 py-0 align-middle border-r border-black text-left">Publicações</TableHead>
             
@@ -160,13 +160,13 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               const extraInfo = parts[1] ? `(${parts[1]}` : '';
 
               return (
-                <TableRow key={`hist-cat-${idx}`} className="border-b border-black bg-neutral-100/50 hover:bg-neutral-100/50 h-[36px]">
-                  <TableCell className="p-0 border-r border-black"></TableCell>
-                  <TableCell colSpan={19} className="px-2 py-0 border-r border-black align-middle">
-                    <div className="flex items-center gap-1.5 overflow-hidden">
-                      <span className="text-[11px] font-black uppercase tracking-tight text-black shrink-0 leading-tight">{mainTitle}</span>
+                <TableRow key={`hist-cat-${idx}`} className="border-b border-black bg-neutral-100 hover:bg-neutral-100 min-h-[44px]">
+                  <TableCell className="p-0 border-r border-black h-full"></TableCell>
+                  <TableCell colSpan={19} className="px-3 py-3 border-r border-black align-middle">
+                    <div className="flex items-center gap-2 overflow-visible">
+                      <span className="text-[12px] font-black uppercase tracking-widest text-black shrink-0 leading-normal">{mainTitle}</span>
                       {extraInfo && (
-                        <span className="text-[11px] font-bold text-neutral-500 italic normal-case truncate leading-tight">
+                        <span className="text-[11px] font-bold text-neutral-600 italic normal-case truncate leading-normal">
                           {extraInfo}
                         </span>
                       )}
