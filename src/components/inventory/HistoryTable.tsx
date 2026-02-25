@@ -29,11 +29,11 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
 
   const activeUserId = targetUserId || currentUser?.uid;
 
-  // Define os últimos 6 meses incluindo o atual para busca de dados
+  // Define uma janela de 7 meses (do atual até 6 meses atrás) para decidir o que exibir
   const allPotentialMonths = useMemo(() => {
     const months = [];
     const baseDate = startOfMonth(new Date()); 
-    for (let i = 5; i >= 0; i--) {
+    for (let i = 6; i >= 0; i--) {
       const date = subMonths(baseDate, i);
       months.push({
         key: format(date, 'yyyy-MM'),
@@ -43,18 +43,20 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
     return months;
   }, []);
 
-  // Determina quais meses mostrar (sempre os 5 anteriores + o atual se tiver dados)
+  // Determina quais 6 meses mostrar baseando-se no preenchimento do mês atual
   const displayedMonths = useMemo(() => {
-    const currentMonth = allPotentialMonths[5];
-    const pastMonths = allPotentialMonths.slice(0, 5);
+    const currentMonth = allPotentialMonths[6]; // O mês atual é o último do array de 7
     
     const currentMonthData = historyData[currentMonth.key];
     const hasData = currentMonthData && Object.keys(currentMonthData).some(id => {
       const d = currentMonthData[id];
+      // Considera preenchido se tiver Recebido ou Estoque Atual (diferente de null/zero)
       return (Number(d.received) || 0) > 0 || (Number(d.current) || 0) > 0;
     });
     
-    return hasData ? allPotentialMonths : pastMonths;
+    // Se o mês atual tem dados: mostra de [M-5] até [Atual] (total 6)
+    // Se não tem dados: mostra de [M-6] até [M-1] (total 6)
+    return hasData ? allPotentialMonths.slice(1) : allPotentialMonths.slice(0, 6);
   }, [allPotentialMonths, historyData]);
 
   const customItemsQuery = useMemoFirebase(() => {
@@ -83,7 +85,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
     return combined;
   }, [customDefinitions]);
 
-  // Configura ouvintes em tempo real para os 6 meses potenciais
+  // Configura ouvintes em tempo real para toda a janela de 7 meses
   useEffect(() => {
     if (!activeUserId || !db) return;
 
@@ -130,7 +132,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
     return result;
   };
 
-  // Largura dinâmica: Nº(28) + Pub(200) + Meses(84 cada)
+  // Largura dinâmica mantendo o padrão: Nº(28) + Pub(200) + 6 meses(84 cada)
   const tableWidth = 228 + (displayedMonths.length * 84);
 
   return (
