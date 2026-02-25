@@ -21,7 +21,6 @@ export default function Home() {
     setMounted(true);
   }, []);
 
-  // Redirecionamento centralizado
   useEffect(() => {
     if (mounted && !isUserLoading && !user) {
       router.replace('/login');
@@ -45,8 +44,7 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Durante a hidratação ou carregamento inicial, renderizamos o shell de carregamento
-  // O container deve ser idêntico no servidor e no cliente para evitar erros de Hydration Mismatch.
+  // Estrutura de carregamento idêntica para Servidor e Cliente (evita Hydration Error)
   if (!mounted || isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
@@ -68,13 +66,12 @@ export default function Home() {
         </div>
         <div className="text-center space-y-2">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Sincronizando</p>
-          <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">Carregando seus dados...</p>
+          <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">Preparando ambiente...</p>
         </div>
       </div>
     );
   }
 
-  // Se não houver usuário, o useEffect cuidará do redirecionamento
   if (!user) return null;
 
   const activeUserId = (viewMode === 'shared' && sharedOwnerId) ? sharedOwnerId : user.uid;

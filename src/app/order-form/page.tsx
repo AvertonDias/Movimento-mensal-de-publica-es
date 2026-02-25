@@ -659,7 +659,7 @@ export default function OrderFormPage() {
       <AlertDialog open={!!deleteConfig} onOpenChange={(open) => !open && setDeleteConfig(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 uppercase font-black text-destructive">
+            <AlertDialogTitle className="flex items-center gap-2 uppercase font-black text-destructive text-left">
               <AlertTriangle className="h-5 w-5" />
               Remover Registro?
             </AlertDialogTitle>

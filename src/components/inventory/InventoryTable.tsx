@@ -357,7 +357,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   };
 
   if (!isMounted || !selectedMonth) {
-    return <div className="p-20 text-center"><Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" /></div>;
+    return null; // O carregamento já é tratado pelo componente pai src/app/page.tsx
   }
 
   return (
