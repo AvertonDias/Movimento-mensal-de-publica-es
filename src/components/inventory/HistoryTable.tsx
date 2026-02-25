@@ -111,39 +111,39 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   };
 
   return (
-    <div className="border-2 border-black relative mx-auto bg-white overflow-visible" style={{ width: '732px' }}>
+    <div className="border-[1.5px] border-black relative mx-auto bg-white overflow-visible" style={{ width: '732px' }}>
       {loading && (
         <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-[1px] print:hidden">
           <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse text-black">Sincronizando...</span>
         </div>
       )}
-      <Table className="border-collapse table-fixed w-[732px] border-black">
+      <Table className="w-[732px] border-separate border-spacing-0 border-none">
         <TableHeader className="print:table-row-group">
-          <TableRow className="border-b-2 border-black bg-white hover:bg-white h-[40px]">
-            <TableHead className="w-[28px] border-r border-black p-0"></TableHead>
-            <TableHead className="w-[200px] text-[8px] font-black uppercase text-black p-0 text-center border-r border-black align-middle">MÊS E ANO</TableHead>
+          <TableRow className="bg-white hover:bg-white border-none">
+            <TableHead className="w-[28px] border-r border-b border-black p-0"></TableHead>
+            <TableHead className="w-[200px] text-[8px] font-black uppercase text-black p-0 text-center border-r border-b border-black align-middle">MÊS E ANO</TableHead>
             {lastSixMonths.map((month, idx) => (
               <TableHead 
                 key={month.key} 
                 colSpan={3} 
                 className={cn(
-                  "w-[84px] text-center text-[8px] font-black uppercase text-black p-0 border-r border-black bg-neutral-50/50 align-middle"
+                  "w-[84px] text-center text-[8px] font-black uppercase text-black p-0 border-r border-b border-black bg-neutral-50/50 align-middle"
                 )}
               >
                 {month.label}
               </TableHead>
             ))}
           </TableRow>
-          <TableRow className="border-b-2 border-black bg-white hover:bg-white h-[40px]">
-            <TableHead className="w-[28px] text-[7px] font-bold text-black p-0 text-center border-r border-black align-middle">N.º</TableHead>
-            <TableHead className="w-[200px] text-[10px] font-black text-black px-2 py-0 align-middle border-r border-black text-left">Publicações</TableHead>
+          <TableRow className="bg-white hover:bg-white border-none">
+            <TableHead className="w-[28px] text-[7px] font-bold text-black p-0 text-center border-r border-b border-black align-middle">N.º</TableHead>
+            <TableHead className="w-[200px] text-[10px] font-black text-black px-2 py-0 align-middle border-r border-b border-black text-left">Publicações</TableHead>
             
             {lastSixMonths.map((m, idx) => (
               <React.Fragment key={m.key}>
-                <TableHead className="w-[28px] text-[6px] font-bold text-black p-0 text-center uppercase tracking-tighter border-r border-black align-middle">Recebido</TableHead>
-                <TableHead className="w-[28px] text-[6px] font-bold text-black p-0 text-center uppercase tracking-tighter border-r border-black align-middle">Estoque</TableHead>
+                <TableHead className="w-[28px] text-[6px] font-bold text-black p-0 text-center uppercase tracking-tighter border-r border-b border-black align-middle">Recebido</TableHead>
+                <TableHead className="w-[28px] text-[6px] font-bold text-black p-0 text-center uppercase tracking-tighter border-r border-b border-black align-middle">Estoque</TableHead>
                 <TableHead className={cn(
-                  "w-[28px] text-[6px] font-black text-black p-0 text-center uppercase bg-neutral-200 align-middle border-r border-black"
+                  "w-[28px] text-[6px] font-black text-black p-0 text-center uppercase bg-neutral-200 align-middle border-r border-b border-black"
                 )}>Saída</TableHead>
               </React.Fragment>
             ))}
@@ -160,9 +160,9 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               const extraInfo = parts[1] ? `(${parts[1]}` : '';
 
               return (
-                <TableRow key={`hist-cat-${idx}`} className="border-b border-black bg-neutral-100 hover:bg-neutral-100 min-h-[44px]">
-                  <TableCell className="p-0 border-r border-black h-full"></TableCell>
-                  <TableCell colSpan={19} className="px-3 py-3 border-r border-black align-middle">
+                <TableRow key={`hist-cat-${idx}`} className="bg-neutral-100 hover:bg-neutral-100 border-none">
+                  <TableCell className="p-0 border-r border-b border-black"></TableCell>
+                  <TableCell colSpan={19} className="px-3 py-4 border-r border-b border-black align-middle">
                     <div className="flex items-center gap-2 overflow-visible">
                       <span className="text-[12px] font-black uppercase tracking-widest text-black shrink-0 leading-normal">{mainTitle}</span>
                       {extraInfo && (
@@ -177,9 +177,9 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             }
             
             return (
-              <TableRow key={`hist-row-${itemId}-${idx}`} className="border-b border-black h-[32px] hover:bg-transparent">
-                <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black align-middle">{item.code}</TableCell>
-                <TableCell className="w-[200px] text-[9px] px-2 py-0 border-r border-black align-middle">
+              <TableRow key={`hist-row-${itemId}-${idx}`} className="h-[32px] hover:bg-transparent border-none">
+                <TableCell className="text-[8px] text-center p-0 font-bold border-r border-b border-black align-middle">{item.code}</TableCell>
+                <TableCell className="w-[200px] text-[9px] px-2 py-0 border-r border-b border-black align-middle">
                   <div className="flex justify-between items-center w-full">
                     <span className="leading-tight">{itemName}</span>
                     {item.abbr && <span className="font-bold ml-1 text-[7px] text-neutral-500 leading-tight">{item.abbr}</span>}
@@ -188,14 +188,14 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
                 
                 {lastSixMonths.map((m, mIdx) => (
                   <React.Fragment key={m.key}>
-                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black align-middle">
+                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-b border-black align-middle">
                       {formatNumber(getValue(m.key, itemId, 'received'))}
                     </TableCell>
-                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-black align-middle">
+                    <TableCell className="text-[8px] text-center p-0 font-bold border-r border-b border-black align-middle">
                       {formatNumber(getValue(m.key, itemId, 'current'))}
                     </TableCell>
                     <TableCell className={cn(
-                      "text-[8px] text-center p-0 font-black bg-neutral-200 align-middle border-r border-black"
+                      "text-[8px] text-center p-0 font-black bg-neutral-200 align-middle border-r border-b border-black"
                     )}>
                       {formatNumber(calculateOutgoing(m.key, itemId))}
                     </TableCell>

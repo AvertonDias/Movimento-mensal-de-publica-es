@@ -8,7 +8,7 @@ import { useFirestore, useDoc, useMemoFirebase, useUser, updateDocumentNonBlocki
 import { doc } from 'firebase/firestore';
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
-import Link from 'link';
+import Link from 'next/link';
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
 
@@ -54,7 +54,7 @@ export default function GuestHistoryPage(props: {
     
     toast({
       title: "Gerando PDF...",
-      description: "Preparando documento completo.",
+      description: "Preparando documento com quebras de página otimizadas.",
     });
 
     try {
@@ -66,36 +66,61 @@ export default function GuestHistoryPage(props: {
       if (!element) throw new Error('Elemento não encontrado');
 
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
         windowWidth: element.scrollWidth,
       });
 
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'p',
         unit: 'mm',
         format: 'a4',
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const pxToMm = pdfWidth / canvas.width;
       
-      let heightLeft = imgHeight;
-      let position = 0;
+      const rows = Array.from(element.querySelectorAll('tr'));
+      
+      let currentYPx = 0;
+      let isFirstPage = true;
 
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      while (currentYPx < canvas.height) {
+        if (!isFirstPage) {
+          pdf.addPage();
+        }
 
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+        const availableHeightMm = isFirstPage ? pdfHeight : pdfHeight - 10;
+        const availableHeightPx = availableHeightMm / pxToMm;
+
+        let sliceHeightPx = availableHeightPx;
+        const rowsInPage = rows.filter(row => {
+          const rowBottom = row.offsetTop + row.offsetHeight;
+          return row.offsetTop >= currentYPx && rowBottom <= (currentYPx + availableHeightPx);
+        });
+
+        if (rowsInPage.length > 0) {
+          const lastRow = rowsInPage[rowsInPage.length - 1];
+          sliceHeightPx = (lastRow.offsetTop + lastRow.offsetHeight) - currentYPx;
+        }
+
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = sliceHeightPx;
+        const ctx = tempCanvas.getContext('2d');
+        
+        if (ctx) {
+          ctx.drawImage(canvas, 0, currentYPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
+          const pageImgData = tempCanvas.toDataURL('image/png');
+          pdf.addImage(pageImgData, 'PNG', 0, isFirstPage ? 0 : 5, pdfWidth, sliceHeightPx * pxToMm);
+        }
+
+        currentYPx += sliceHeightPx;
+        isFirstPage = false;
+        if (canvas.height - currentYPx < 10) break;
       }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');

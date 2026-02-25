@@ -42,7 +42,7 @@ export default function HistoryPage(props: {
     
     toast({
       title: "Gerando PDF...",
-      description: "Aguarde enquanto preparamos o documento completo.",
+      description: "Ajustando quebras de página para melhor visualização.",
     });
 
     try {
@@ -53,40 +53,78 @@ export default function HistoryPage(props: {
       const element = document.getElementById('s28-history-content');
       if (!element) throw new Error('Elemento não encontrado');
 
-      // Captura o conteúdo com escala 2x para equilíbrio entre nitidez e tamanho de arquivo
+      // Captura o conteúdo em alta definição
       const canvas = await html2canvas(element, {
-        scale: 2,
+        scale: 3,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
         windowWidth: element.scrollWidth,
       });
 
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'p',
         unit: 'mm',
         format: 'a4',
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      let heightLeft = imgHeight;
-      let position = 0;
+      // Proporção de mm por pixel
+      const pxToMm = pdfWidth / canvas.width;
+      
+      // Encontrar todas as linhas para evitar cortes no meio delas
+      const rows = Array.from(element.querySelectorAll('tr'));
+      const headerElement = element.querySelector('.border-b-2.border-black'); // Cabeçalho do documento
+      const headerHeightPx = headerElement ? (headerElement as HTMLElement).offsetTop + (headerElement as HTMLElement).offsetHeight : 50;
 
-      // Adiciona a primeira página
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      let currentYPx = 0;
+      let isFirstPage = true;
 
-      // Adiciona páginas extras se o conteúdo transbordar o A4
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+      while (currentYPx < canvas.height) {
+        if (!isFirstPage) {
+          pdf.addPage();
+        }
+
+        // Calcula a altura disponível na página em pixels
+        const availableHeightMm = isFirstPage ? pdfHeight : pdfHeight - 10;
+        const availableHeightPx = availableHeightMm / pxToMm;
+
+        // Tenta encontrar a última linha que cabe inteira na página
+        let sliceHeightPx = availableHeightPx;
+        const rowsInPage = rows.filter(row => {
+          const rowBottom = row.offsetTop + row.offsetHeight;
+          return row.offsetTop >= currentYPx && rowBottom <= (currentYPx + availableHeightPx);
+        });
+
+        if (rowsInPage.length > 0) {
+          const lastRow = rowsInPage[rowsInPage.length - 1];
+          sliceHeightPx = (lastRow.offsetTop + lastRow.offsetHeight) - currentYPx;
+        }
+
+        // Criar um canvas temporário para o "crop" da página
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = sliceHeightPx;
+        const ctx = tempCanvas.getContext('2d');
+        
+        if (ctx) {
+          ctx.drawImage(
+            canvas, 
+            0, currentYPx, canvas.width, sliceHeightPx, // Fonte
+            0, 0, canvas.width, sliceHeightPx // Destino
+          );
+          
+          const pageImgData = tempCanvas.toDataURL('image/png');
+          pdf.addImage(pageImgData, 'PNG', 0, isFirstPage ? 0 : 5, pdfWidth, sliceHeightPx * pxToMm);
+        }
+
+        currentYPx += sliceHeightPx;
+        isFirstPage = false;
+
+        // Se o que sobrou for muito pequeno (ex: apenas o rodapé), encerra
+        if (canvas.height - currentYPx < 10) break;
       }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
