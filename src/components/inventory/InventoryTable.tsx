@@ -504,8 +504,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
 
         {isFetchingMonth && !items.some(i => i.id === remoteItems?.[0]?.id) && (
-          <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center backdrop-blur-[1px]">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="absolute inset-0 bg-white/20 z-50 flex items-center justify-center backdrop-blur-[1px]">
+            <Loader2 className="h-6 w-6 animate-spin text-primary opacity-40" />
           </div>
         )}
         

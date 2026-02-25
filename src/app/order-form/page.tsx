@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
@@ -127,7 +128,7 @@ export default function OrderFormPage() {
     if (isMounted && selectedMonth) {
       localStorage.setItem('order_form_selected_month', selectedMonth.toISOString());
     }
-  }, [selectedMonth, isMounted]);
+  }, [selectedMonth, i<ctrl61>sMounted]);
 
   const displayMonth = selectedMonth || new Date();
   const monthKey = format(displayMonth, 'yyyy-MM');
@@ -536,7 +537,7 @@ export default function OrderFormPage() {
                           onCheckedChange={() => {
                             if (!hasQty) return;
                             setToggleConfig({
-                              publisherId: checkField,
+                              publisherId: pub.id,
                               field: checkField,
                               pubName: pub.name || 'este(a) publicador(a)',
                               itemLabel: label,

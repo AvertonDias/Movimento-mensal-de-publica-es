@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -44,30 +45,35 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Estrutura de carregamento idêntica para Servidor e Cliente (evita Hydration Error)
+  // Estrutura de carregamento neutra para evitar erro de hidratação.
+  // O servidor renderiza apenas o background, e o cliente preenche após a montagem.
   if (!mounted || isUserLoading) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
-        <div className="relative">
-          <div className="rounded-2xl overflow-hidden w-[64px] h-[64px] shadow-2xl">
-            <Image 
-              src="/icon.png" 
-              alt="Logo S-28 Digital" 
-              width={64} 
-              height={64} 
-              className="object-cover w-full h-full" 
-              unoptimized 
-              priority 
-            />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-6">
+        {mounted && (
+          <div className="flex flex-col items-center gap-6 animate-in fade-in duration-500">
+            <div className="relative">
+              <div className="rounded-2xl overflow-hidden w-[64px] h-[64px] shadow-2xl">
+                <Image 
+                  src="/icon.png" 
+                  alt="Logo S-28 Digital" 
+                  width={64} 
+                  height={64} 
+                  className="object-cover w-full h-full" 
+                  unoptimized 
+                  priority 
+                />
+              </div>
+              <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-md">
+                <Loader2 className="h-5 w-5 text-primary animate-spin" />
+              </div>
+            </div>
+            <div className="text-center space-y-2">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Sincronizando</p>
+              <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">Preparando ambiente...</p>
+            </div>
           </div>
-          <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-md">
-            <Loader2 className="h-5 w-5 text-primary animate-spin" />
-          </div>
-        </div>
-        <div className="text-center space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Sincronizando</p>
-          <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">Preparando ambiente...</p>
-        </div>
+        )}
       </div>
     );
   }
