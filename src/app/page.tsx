@@ -47,6 +47,7 @@ export default function Home() {
 
   // Durante a hidratação ou carregamento inicial, renderizamos o shell de carregamento
   // para evitar erros de Hydration Mismatch entre servidor e cliente.
+  // O container deve ser simples e sem estados dinâmicos pesados no primeiro render.
   if (!mounted || isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
