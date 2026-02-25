@@ -232,10 +232,10 @@ export default function OrderSchedulePage() {
                               >
                                 <TableCell className={cn(
                                   "text-center font-black text-xs h-14 border-r",
-                                  isCurrent ? "text-primary" : "text-destructive"
+                                  isCurrent ? "text-blue-800" : "text-destructive"
                                 )}>
                                   <div className="flex flex-col items-center gap-1">
-                                    {isCurrent && <span className="text-[8px] bg-primary text-primary-foreground px-1.5 rounded-full mb-1">ATUAL</span>}
+                                    {isCurrent && <span className="text-[8px] bg-primary text-primary-foreground px-1.5 rounded-full mb-1 font-black">ATUAL</span>}
                                     {item.deadline}
                                   </div>
                                 </TableCell>
