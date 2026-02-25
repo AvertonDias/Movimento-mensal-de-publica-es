@@ -34,11 +34,15 @@ import { doc } from 'firebase/firestore';
 import { cn } from '@/lib/utils';
 
 export function AppSidebar() {
-  // Inicializamos o banco de dados primeiro para evitar erros de referência
   const db = useFirestore();
   const { user, isUserLoading } = useUser();
   const pathname = usePathname();
   const { setOpenMobile } = useSidebar();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -48,9 +52,9 @@ export function AppSidebar() {
   const { data: helperInvite } = useDoc(helperInviteRef);
   const isHelper = !!helperInvite;
 
-  if (isUserLoading || !user || user.isAnonymous) return null;
+  // Previne erro de hidratação: o estado de autenticação só é conhecido no cliente
+  if (!mounted || isUserLoading || !user || user.isAnonymous) return null;
 
-  // Itens na sequência exata solicitada (Controle de Periódicos em 3º)
   const navItems = [
     { href: '/', label: 'Painel Principal', icon: LayoutGrid },
     { href: '/inventory-report', label: 'Relatório de Inventário', icon: FileText },
@@ -67,7 +71,6 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon" className="border-r border-sidebar-border bg-sidebar">
       <SidebarHeader className="h-[64px] shrink-0 flex items-center px-4 border-b border-sidebar-border/50 group-data-[collapsible=icon]:justify-center overflow-hidden">
-        {/* Bloco visível quando expandido */}
         <div className="flex items-center gap-3 group-data-[collapsible=icon]:hidden w-full">
           <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-primary/5 text-primary border border-primary/10 shrink-0">
             <Menu className="h-5 w-5" />
@@ -95,7 +98,6 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {/* Botão visível apenas quando colapsado */}
         <div className="hidden group-data-[collapsible=icon]:block">
           <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-primary/5 text-primary border border-primary/10">
             <Menu className="h-5 w-5" />

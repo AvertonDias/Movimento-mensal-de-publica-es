@@ -11,6 +11,9 @@ export function Footer() {
     setMounted(true);
   }, []);
 
+  // Previne erro de hidratação: não renderiza nada no servidor ou no primeiro passo do cliente
+  if (!mounted || !user || user.isAnonymous) return null;
+
   return (
     <footer className="w-full px-6 py-8 border-t border-border mt-auto bg-transparent print:hidden">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6 text-muted-foreground text-[10px] font-bold uppercase tracking-widest text-center md:text-left">
@@ -24,17 +27,14 @@ export function Footer() {
           >
             Conheça meus aplicativos
           </a>
-          {/* O link de suporte depende do estado de autenticação, por isso só renderiza após o mount */}
-          {mounted && user && !user.isAnonymous && (
-            <a 
-              href="https://wa.me/5535991210466?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20aplicativo%20S-28%20Digital." 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="hover:text-primary transition-colors"
-            >
-              Suporte
-            </a>
-          )}
+          <a 
+            href="https://wa.me/5535991210466?text=Ol%C3%A1!%20Preciso%20de%20ajuda%20com%20o%20aplicativo%20S-28%20Digital." 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="hover:text-primary transition-colors"
+          >
+            Suporte
+          </a>
         </div>
       </div>
     </footer>

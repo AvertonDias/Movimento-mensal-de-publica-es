@@ -11,13 +11,14 @@ export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isVisible, setIsVisible] = useState(false);
   const { user, isUserLoading } = useUser();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
       const isDismissed = sessionStorage.getItem('pwa_prompt_dismissed');
-      // Só mostra se não foi dispensado nesta sessão
       if (!isDismissed) {
         setIsVisible(true);
       }
@@ -25,7 +26,6 @@ export function PWAInstallPrompt() {
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
-    // Se já estiver em modo standalone (instalado), não mostra nada
     if (window.matchMedia('(display-mode: standalone)').matches) {
       setIsVisible(false);
     }
@@ -53,8 +53,8 @@ export function PWAInstallPrompt() {
     sessionStorage.setItem('pwa_prompt_dismissed', 'true');
   };
 
-  // LÓGICA PRINCIPAL: Se não há usuário logado ou está carregando, não mostra o prompt
-  if (!isVisible || isUserLoading || !user || user.isAnonymous) {
+  // Previne erro de hidratação: aguarda a montagem e o estado de autenticação
+  if (!mounted || !isVisible || isUserLoading || !user || user.isAnonymous) {
     return null;
   }
 
