@@ -502,7 +502,11 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           </Dialog>
         </div>
 
-        {isFetchingMonth && <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center backdrop-blur-[1px]"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}
+        {isFetchingMonth && !items.some(i => i.id === remoteItems?.[0]?.id) && (
+          <div className="absolute inset-0 bg-white/50 z-50 flex items-center justify-center backdrop-blur-[1px]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        )}
         
         <div className="overflow-x-auto w-full">
           <Table>

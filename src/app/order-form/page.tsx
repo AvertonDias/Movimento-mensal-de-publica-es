@@ -105,7 +105,6 @@ export default function OrderFormPage() {
 
   useEffect(() => {
     setIsMounted(true);
-    // Tenta carregar o mês salvo especificamente para esta página
     const savedMonth = localStorage.getItem('order_form_selected_month');
     if (savedMonth) {
       try {
@@ -123,7 +122,6 @@ export default function OrderFormPage() {
     }
   }, []);
 
-  // Salva o mês sempre que ele mudar (apenas nesta página)
   useEffect(() => {
     if (isMounted && selectedMonth) {
       localStorage.setItem('order_form_selected_month', selectedMonth.toISOString());
@@ -650,7 +648,7 @@ export default function OrderFormPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase text-primary tracking-widest">Dica de Gestão Digital</p>
             <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed">
-              As quantidades fixas são permanentes para todos os meses. Já a marcação de entrega (o check) é individual. <strong className="text-foreground">Exemplo:</strong> a apostila de estudo do mês de Abril deve ser marcada como entregue com o calendário no topo selecionado em "Abril".
+              Exemplo: a apostila do mês de Abril deve ser marcada como entregue com o calendário no topo selecionado em "Abril". As quantidades fixas são permanentes para todos os meses. Já a marcação de entrega (o check) é individual.
             </p>
           </div>
         </div>
