@@ -91,6 +91,10 @@ export default function HistoryPage(props: {
       const timestamp = format(now, "dd/MM/yyyy HH:mm");
 
       while (currentYPx < canvas.height) {
+        // Verifica se ainda existem linhas de conteúdo antes de adicionar nova página
+        const remainingRows = rowData.filter(r => r.top >= currentYPx - 1);
+        if (remainingRows.length === 0 && !isFirstPage) break;
+
         if (!isFirstPage) {
           pdf.addPage();
         }
@@ -98,11 +102,14 @@ export default function HistoryPage(props: {
         const availableHeightPx = (pdfHeight / pxToMm) - (marginPx * 2);
         let sliceHeightPx = availableHeightPx;
 
-        const rowsFitting = rowData.filter(r => r.top >= currentYPx - 1 && r.bottom <= (currentYPx + availableHeightPx + 1));
+        const rowsFitting = remainingRows.filter(r => r.bottom <= (currentYPx + availableHeightPx + 1));
         
         if (rowsFitting.length > 0) {
           const lastRow = rowsFitting[rowsFitting.length - 1];
           sliceHeightPx = lastRow.bottom - currentYPx;
+        } else if (remainingRows.length > 0) {
+          // Garante que pelo menos uma linha seja pega se for maior que a página
+          sliceHeightPx = remainingRows[0].bottom - currentYPx;
         }
 
         const tempCanvas = document.createElement('canvas');
@@ -124,6 +131,7 @@ export default function HistoryPage(props: {
         currentYPx += sliceHeightPx;
         isFirstPage = false;
 
+        // Tolerância para evitar loops infinitos ou páginas extras por ruído de pixels
         if (canvas.height - currentYPx < 10) break;
       }
       
