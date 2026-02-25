@@ -44,7 +44,8 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  if (!mounted || isUserLoading) {
+  // Exibe o spinner enquanto carrega ou se não estiver autenticado (preparando redirect)
+  if (!mounted || isUserLoading || (!user && mounted)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-4">
@@ -59,7 +60,7 @@ export default function Home() {
               priority 
             />
           </div>
-          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Carregando...</p>
+          <p className="text-xs font-black uppercase tracking-widest text-muted-foreground">Sincronizando...</p>
         </div>
       </div>
     );
@@ -73,7 +74,7 @@ export default function Home() {
     <div className="min-h-screen pb-12 bg-background/50 font-body">
       <main className="max-w-7xl mx-auto px-6 pt-24 space-y-8">
         {isHelper && (
-          <div className="bg-accent/10 border border-accent/20 p-4 rounded-xl flex items-center justify-between">
+          <div className="bg-accent/10 border border-accent/20 p-4 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-3">
               <ShieldCheck className="h-5 w-5 text-accent-foreground shrink-0" />
               <div>

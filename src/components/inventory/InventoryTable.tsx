@@ -1,7 +1,6 @@
-
 "use client"
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { 
   Table, 
   TableBody, 
@@ -88,7 +87,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
+  // Inicialização segura para evitar hydration mismatch
   const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
+  const [isMounted, setIsMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'low-stock' | 'pending' | 'received'>('all');
   const [localData, setLocalData] = useState<Record<string, Partial<InventoryItem>>>({});
@@ -101,6 +102,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [focusedField, setFocusedField] = useState<{id: string, col: string} | null>(null);
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const monthKey = format(selectedMonth, 'yyyy-MM');
   const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
   
@@ -109,37 +114,43 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const activeUid = targetUserId || user?.uid;
 
+  // Função para destravar interatividade da página
+  const unlockBody = useCallback(() => {
+    if (typeof document !== 'undefined') {
+      document.body.style.pointerEvents = 'auto';
+      document.body.style.overflow = 'auto';
+    }
+  }, []);
+
   useEffect(() => {
     if (!pendingConfirmItem && !requestingItem && !editingItem && !negativeWarningItem) {
-      const forceUnlock = () => {
-        if (typeof document !== 'undefined') {
-          document.body.style.pointerEvents = 'auto';
-          document.body.style.overflow = 'auto';
-        }
-      };
-      forceUnlock();
-      const t = setTimeout(forceUnlock, 350);
+      unlockBody();
+      const t = setTimeout(unlockBody, 400);
       return () => clearTimeout(t);
     }
-  }, [pendingConfirmItem, requestingItem, editingItem, negativeWarningItem]);
+  }, [pendingConfirmItem, requestingItem, editingItem, negativeWarningItem, unlockBody]);
 
   const isDateRestricted = (date: Date) => {
-    // Permite avançar no máximo até o mês atual (mês anterior + 1)
     const limitDate = startOfMonth(new Date());
     return isAfter(startOfMonth(date), limitDate);
   };
 
   useEffect(() => {
     async function calculateSmartMinStock() {
-      if (!db || !activeUid) return;
+      if (!db || !activeUid || !isMounted) return;
       
       const last6Months = [1, 2, 3, 4, 5, 6].map(i => format(subMonths(selectedMonth, i), 'yyyy-MM'));
       const itemOutgoings: Record<string, number[]> = {};
 
-      for (const mKey of last6Months) {
-        const colRef = collection(db, 'users', activeUid, 'monthly_records', mKey, 'items');
-        try {
-          const snap = await getDocs(colRef);
+      try {
+        // Busca os dados de todos os meses em paralelo para performance
+        const snapshots = await Promise.all(
+          last6Months.map(mKey => 
+            getDocs(collection(db, 'users', activeUid, 'monthly_records', mKey, 'items'))
+          )
+        );
+
+        snapshots.forEach(snap => {
           snap.forEach(docSnap => {
             const d = docSnap.data();
             const prev = Number(d.previous) || 0;
@@ -150,20 +161,22 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             if (!itemOutgoings[docSnap.id]) itemOutgoings[docSnap.id] = [];
             itemOutgoings[docSnap.id].push(outgoing);
           });
-        } catch (e) {}
-      }
+        });
 
-      const smartMins: Record<string, number> = {};
-      Object.entries(itemOutgoings).forEach(([id, outs]) => {
-        const nonZeroOuts = outs.filter(v => v > 0);
-        if (nonZeroOuts.length === 0) return;
-        const avg = outs.reduce((a, b) => a + b, 0) / outs.length;
-        smartMins[id] = Math.max(1, Math.ceil(avg * 1.2));
-      });
-      setHistoricalMinStock(smartMins);
+        const smartMins: Record<string, number> = {};
+        Object.entries(itemOutgoings).forEach(([id, outs]) => {
+          const nonZeroOuts = outs.filter(v => v > 0);
+          if (nonZeroOuts.length === 0) return;
+          const avg = outs.reduce((a, b) => a + b, 0) / outs.length;
+          smartMins[id] = Math.max(1, Math.ceil(avg * 1.2));
+        });
+        setHistoricalMinStock(smartMins);
+      } catch (e) {
+        console.error("Erro ao calcular estoque inteligente:", e);
+      }
     }
     calculateSmartMinStock();
-  }, [db, activeUid, selectedMonth]);
+  }, [db, activeUid, selectedMonth, isMounted]);
 
   const customItemsQuery = useMemoFirebase(() => {
     if (!db || !activeUid) return null;
@@ -238,7 +251,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       }
     });
     return combined;
-  }, [remoteItems, localData, customDefinitions, prevRemoteItems, selectedMonth, historicalMinStock]);
+  }, [remoteItems, localData, customDefinitions, prevRemoteItems, historicalMinStock]);
 
   const filteredItems = useMemo(() => {
     const matches = items.filter(item => !item.isCategory).filter(item => {
@@ -343,6 +356,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       }, 350);
     }
   };
+
+  if (!isMounted) return null;
 
   return (
     <div className="space-y-6 relative max-w-full overflow-x-hidden">
@@ -648,7 +663,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       <AlertDialog 
         open={!!pendingConfirmItem} 
         onOpenChange={(open) => {
-          if (!open) setPendingConfirmItem(null);
+          if (!open) {
+            setPendingConfirmItem(null);
+            unlockBody();
+          }
         }}
       >
         <AlertDialogContent>
@@ -675,7 +693,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       <AlertDialog 
         open={!!negativeWarningItem} 
         onOpenChange={(open) => {
-          if (!open) setNegativeWarningItem(null);
+          if (!open) {
+            setNegativeWarningItem(null);
+            unlockBody();
+          }
         }}
       >
         <AlertDialogContent>
@@ -695,7 +716,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           <AlertDialogFooter>
             <AlertDialogCancel className="font-bold uppercase text-xs">Vou revisar</AlertDialogCancel>
             <AlertDialogAction 
-              onClick={() => setNegativeWarningItem(null)} 
+              onClick={() => {
+                setNegativeWarningItem(null);
+                unlockBody();
+              }} 
               className="bg-primary hover:bg-primary/90 font-black uppercase text-xs"
             >
               Sim, está correto
@@ -704,8 +728,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {editingItem && activeUid === user?.uid && <EditCustomItemDialog item={editingItem} onClose={() => setEditingItem(null)} />}
-      {requestingItem && <RequestItemDialog item={requestingItem} onClose={() => setRequestingItem(null)} targetUserId={targetUserId} />}
+      {editingItem && activeUid === user?.uid && <EditCustomItemDialog item={editingItem} onClose={() => { setEditingItem(null); unlockBody(); }} />}
+      {requestingItem && <RequestItemDialog item={requestingItem} onClose={() => { setRequestingItem(null); unlockBody(); }} targetUserId={targetUserId} />}
     </div>
   );
 }
