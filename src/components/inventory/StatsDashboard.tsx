@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -371,7 +370,7 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
                       </span>
                     </div>
                   </div>
-                  <span className="text-primary-foreground shrink-0 text-xs md:text-base ml-2 font-black">
+                  <span className="text-neutral-900 shrink-0 text-xs md:text-base ml-2 font-black">
                     {formatNumber(item.outgoing)} un.
                   </span>
                 </div>

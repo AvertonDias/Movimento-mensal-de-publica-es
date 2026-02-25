@@ -189,7 +189,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     return collection(db, 'users', activeUid, 'monthly_records', monthKey, 'items');
   }, [db, activeUid, monthKey, isMounted]);
 
-  const { data: remoteItems, isLoading: isFetchingMonth } = useCollection(monthItemsQuery);
+  const { data: remoteItems } = useCollection(monthItemsQuery);
   
   const prevMonthItemsQuery = useMemoFirebase(() => {
     if (!db || !activeUid || !prevMonthKey || !isMounted) return null;
@@ -481,7 +481,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   <strong>1.</strong> Todas as congregações coordenadoras de idioma devem fazer a contagem real das publicações todo mês. Si a sua congregação envia todo mês um relatório do inventário de publicações pelo JW Hub, você não precisa usar este formulário.
                 </p>
                 <p>
-                  <strong>2.</strong> Antes de fazer a contagem, recapitule a <Link href="/s60" className="text-primary font-bold hover:underline"><em>Lista de Publicações a Serem Descartadas (S-60)</em></Link> e siga as instruções sobre jogar fora os itens que aparecem na lista.
+                  <strong>2.</strong> Antes de fazer a contagem, recapitule a <Link href="/s60" className="text-blue-800 font-bold hover:underline"><em>Lista de Publicações a Serem Descartadas (S-60)</em></Link> e siga as instruções sobre jogar fora os itens que aparecem na lista.
                 </p>
                 <p>
                   <strong>3.</strong> Se a sua congregação não puder enviar todo mês um relatório do inventário de publicações pelo JW Hub, certifique-se de que as informações a seguir sejam preenchidas abaixo para cada mês:
@@ -502,12 +502,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           </Dialog>
         </div>
 
-        {isFetchingMonth && !items.some(i => i.id === remoteItems?.[0]?.id) && (
-          <div className="absolute inset-0 bg-white/20 z-50 flex items-center justify-center backdrop-blur-[1px]">
-            <Loader2 className="h-6 w-6 animate-spin text-primary opacity-40" />
-          </div>
-        )}
-        
         <div className="overflow-x-auto w-full">
           <Table>
             <TableHeader className="bg-white shadow-sm border-b">

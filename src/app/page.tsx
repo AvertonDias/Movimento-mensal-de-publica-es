@@ -44,16 +44,12 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Estrutura neutra para o primeiro render (SSR e Hydration) para evitar erros do Next.js
-  if (!mounted) {
-    return <div className="min-h-screen bg-background" />;
-  }
-
-  // Tela de carregamento exibida apenas após a hidratação bem-sucedida
-  if (isUserLoading) {
+  // Estrutura unificada para o primeiro render (SSR e Hydration)
+  // O servidor e o cliente renderizam o mesmo loader inicial
+  if (!mounted || isUserLoading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-6">
-        <div className="flex flex-col items-center gap-6 animate-in fade-in duration-500">
+        <div className="flex flex-col items-center gap-6">
           <div className="relative">
             <div className="rounded-2xl overflow-hidden w-[64px] h-[64px] shadow-2xl">
               <Image 
