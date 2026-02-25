@@ -42,7 +42,7 @@ export default function HistoryPage(props: {
     
     toast({
       title: "Gerando PDF...",
-      description: "Ajustando quebras de página para melhor visualização.",
+      description: "Ajustando quebras de página para garantir que nada seja cortado.",
     });
 
     try {
@@ -70,52 +70,47 @@ export default function HistoryPage(props: {
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      // Proporção de mm por pixel
       const pxToMm = pdfWidth / canvas.width;
       
-      // Encontrar todas as linhas para evitar cortes no meio delas
+      const rect = element.getBoundingClientRect();
       const rows = Array.from(element.querySelectorAll('tr'));
-      const headerElement = element.querySelector('.border-b-2.border-black'); // Cabeçalho do documento
-      const headerHeightPx = headerElement ? (headerElement as HTMLElement).offsetTop + (headerElement as HTMLElement).offsetHeight : 50;
+      
+      const rowData = rows.map(row => {
+        const rRect = row.getBoundingClientRect();
+        return {
+          top: rRect.top - rect.top,
+          bottom: rRect.bottom - rect.top,
+          height: rRect.height
+        };
+      });
 
       let currentYPx = 0;
       let isFirstPage = true;
+      const bottomMarginPx = 10 / pxToMm;
 
       while (currentYPx < canvas.height) {
         if (!isFirstPage) {
           pdf.addPage();
         }
 
-        // Calcula a altura disponível na página em pixels
-        const availableHeightMm = isFirstPage ? pdfHeight : pdfHeight - 10;
-        const availableHeightPx = availableHeightMm / pxToMm;
-
-        // Tenta encontrar a última linha que cabe inteira na página
+        const availableHeightPx = (pdfHeight / pxToMm) - (isFirstPage ? 0 : bottomMarginPx);
         let sliceHeightPx = availableHeightPx;
-        const rowsInPage = rows.filter(row => {
-          const rowBottom = row.offsetTop + row.offsetHeight;
-          return row.offsetTop >= currentYPx && rowBottom <= (currentYPx + availableHeightPx);
-        });
 
-        if (rowsInPage.length > 0) {
-          const lastRow = rowsInPage[rowsInPage.length - 1];
-          sliceHeightPx = (lastRow.offsetTop + lastRow.offsetHeight) - currentYPx;
+        // Encontrar a última linha que cabe inteira na página
+        const rowsFitting = rowData.filter(r => r.top >= currentYPx && r.bottom <= (currentYPx + availableHeightPx));
+        
+        if (rowsFitting.length > 0) {
+          const lastRow = rowsFitting[rowsFitting.length - 1];
+          sliceHeightPx = lastRow.bottom - currentYPx;
         }
 
-        // Criar um canvas temporário para o "crop" da página
         const tempCanvas = document.createElement('canvas');
         tempCanvas.width = canvas.width;
         tempCanvas.height = sliceHeightPx;
         const ctx = tempCanvas.getContext('2d');
         
         if (ctx) {
-          ctx.drawImage(
-            canvas, 
-            0, currentYPx, canvas.width, sliceHeightPx, // Fonte
-            0, 0, canvas.width, sliceHeightPx // Destino
-          );
-          
+          ctx.drawImage(canvas, 0, currentYPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
           const pageImgData = tempCanvas.toDataURL('image/png');
           pdf.addImage(pageImgData, 'PNG', 0, isFirstPage ? 0 : 5, pdfWidth, sliceHeightPx * pxToMm);
         }
@@ -123,8 +118,7 @@ export default function HistoryPage(props: {
         currentYPx += sliceHeightPx;
         isFirstPage = false;
 
-        // Se o que sobrou for muito pequeno (ex: apenas o rodapé), encerra
-        if (canvas.height - currentYPx < 10) break;
+        if (canvas.height - currentYPx < 5) break;
       }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');

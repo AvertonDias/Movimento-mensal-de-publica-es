@@ -177,12 +177,12 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             }
             
             return (
-              <TableRow key={`hist-row-${itemId}-${idx}`} className="h-[32px] hover:bg-transparent border-none">
+              <TableRow key={`hist-row-${itemId}-${idx}`} className="hover:bg-transparent border-none min-h-[32px]">
                 <TableCell className="text-[8px] text-center p-0 font-bold border-r border-b border-black align-middle">{item.code}</TableCell>
-                <TableCell className="w-[200px] text-[9px] px-2 py-0 border-r border-b border-black align-middle">
-                  <div className="flex justify-between items-center w-full">
-                    <span className="leading-tight">{itemName}</span>
-                    {item.abbr && <span className="font-bold ml-1 text-[7px] text-neutral-500 leading-tight">{item.abbr}</span>}
+                <TableCell className="w-[200px] text-[9px] px-2 py-1.5 border-r border-b border-black align-middle">
+                  <div className="flex justify-between items-center w-full gap-2">
+                    <span className="leading-tight break-words">{itemName}</span>
+                    {item.abbr && <span className="font-bold ml-auto text-[7px] text-neutral-500 leading-tight shrink-0">{item.abbr}</span>}
                   </div>
                 </TableCell>
                 

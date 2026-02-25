@@ -126,7 +126,7 @@ export default function InventoryReportPage() {
     
     toast({
       title: "Gerando Relatório...",
-      description: "Preparando documento completo.",
+      description: "Ajustando o corte das páginas para uma visão profissional.",
     });
 
     try {
@@ -145,29 +145,59 @@ export default function InventoryReportPage() {
         windowWidth: element.scrollWidth,
       });
 
-      const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({
         orientation: 'p',
         unit: 'mm',
         format: 'a4',
       });
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const pxToMm = pdfWidth / canvas.width;
       
-      let heightLeft = imgHeight;
-      let position = 0;
+      const rect = element.getBoundingClientRect();
+      const rows = Array.from(element.querySelectorAll('tr'));
+      const rowData = rows.map(row => {
+        const rRect = row.getBoundingClientRect();
+        return {
+          top: rRect.top - rect.top,
+          bottom: rRect.bottom - rect.top
+        };
+      });
 
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
+      let currentYPx = 0;
+      let isFirstPage = true;
+      const bottomMarginPx = 10 / pxToMm;
 
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+      while (currentYPx < canvas.height) {
+        if (!isFirstPage) {
+          pdf.addPage();
+        }
+
+        const availableHeightPx = (pdfHeight / pxToMm) - (isFirstPage ? 0 : bottomMarginPx);
+        let sliceHeightPx = availableHeightPx;
+
+        const rowsFitting = rowData.filter(r => r.top >= currentYPx && r.bottom <= (currentYPx + availableHeightPx));
+        
+        if (rowsFitting.length > 0) {
+          const lastRow = rowsFitting[rowsFitting.length - 1];
+          sliceHeightPx = lastRow.bottom - currentYPx;
+        }
+
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = canvas.width;
+        tempCanvas.height = sliceHeightPx;
+        const ctx = tempCanvas.getContext('2d');
+        
+        if (ctx) {
+          ctx.drawImage(canvas, 0, currentYPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
+          const pageImgData = tempCanvas.toDataURL('image/png');
+          pdf.addImage(pageImgData, 'PNG', 0, isFirstPage ? 0 : 5, pdfWidth, sliceHeightPx * pxToMm);
+        }
+
+        currentYPx += sliceHeightPx;
+        isFirstPage = false;
+        if (canvas.height - currentYPx < 5) break;
       }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
@@ -304,13 +334,13 @@ export default function InventoryReportPage() {
                 <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest">Nenhuma movimentação no mês selecionado</p>
               </div>
             ) : (
-              <Table className="border-black">
+              <Table className="border-black border-separate border-spacing-0">
                 <TableHeader className="bg-neutral-50/50">
                   <TableRow className="border-b border-black">
-                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r border-black h-10">N.º</TableHead>
-                    <TableHead className="font-black uppercase text-[9px] border-r border-black h-10">Publicação</TableHead>
-                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r border-black bg-primary/5 h-10 leading-tight">Anterior</TableHead>
-                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center bg-accent/5 h-10 leading-tight">Atual</TableHead>
+                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r border-b border-black h-10">N.º</TableHead>
+                    <TableHead className="font-black uppercase text-[9px] border-r border-b border-black h-10">Publicação</TableHead>
+                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-r border-b border-black bg-primary/5 h-10 leading-tight">Anterior</TableHead>
+                    <TableHead className="w-[80px] font-black uppercase text-[9px] text-center border-b border-black bg-accent/5 h-10 leading-tight">Atual</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -323,12 +353,12 @@ export default function InventoryReportPage() {
                         key={item.id} 
                         onClick={() => setSelectedRowId(isSelected ? null : item.id)}
                         className={cn(
-                          "hover:bg-accent/5 transition-all border-b border-black h-10 cursor-pointer",
-                          isSelected && "bg-primary/20 hover:bg-primary/25 border-l-4 border-l-primary"
+                          "hover:bg-accent/5 transition-all border-none cursor-pointer",
+                          isSelected && "bg-primary/20 hover:bg-primary/25"
                         )}
                       >
-                        <TableCell className="text-center font-bold text-[10px] text-neutral-400 border-r border-black p-1 leading-tight">{item.code || '---'}</TableCell>
-                        <TableCell className="border-r border-black p-1 px-3 text-left leading-tight">
+                        <TableCell className="text-center font-bold text-[10px] text-neutral-400 border-r border-b border-black p-1 leading-tight">{item.code || '---'}</TableCell>
+                        <TableCell className="border-r border-b border-black p-1 px-3 text-left leading-tight">
                           <div className="flex justify-between items-center">
                             {imagePlaceholder ? (
                               <Popover>
@@ -365,13 +395,13 @@ export default function InventoryReportPage() {
                           </div>
                         </TableCell>
                         <TableCell className={cn(
-                          "text-center font-black text-xs border-r border-black bg-primary/5 p-1 leading-tight",
+                          "text-center font-black text-xs border-r border-b border-black bg-primary/5 p-1 leading-tight",
                           (item.previous || 0) === 0 && "text-neutral-300 font-normal"
                         )}>
                           {formatNumber(item.previous)}
                         </TableCell>
                         <TableCell className={cn(
-                          "text-center font-black text-xs bg-accent/5 p-1 leading-tight",
+                          "text-center font-black text-xs border-b border-black bg-accent/5 p-1 leading-tight",
                           (item.current || 0) === 0 && "text-destructive"
                         )}>
                           {formatNumber(item.current)}
