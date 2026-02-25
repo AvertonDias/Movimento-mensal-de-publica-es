@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { FileText, Loader2, ShieldCheck, Info, Share2, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { FileText, Loader2, ShieldCheck, Info, FileDown, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
@@ -32,7 +32,7 @@ export default function InventoryReportPage() {
   const { toast } = useToast();
   
   const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
-  const [isSharing, setIsSharing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
@@ -120,13 +120,13 @@ export default function InventoryReportPage() {
     return combined;
   }, [remoteItems, customDefinitions, isFetchingData]);
 
-  const handleShare = async () => {
-    if (isSharing) return;
-    setIsSharing(true);
+  const handleDownloadPDF = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
     
     toast({
-      title: "Gerando relatório...",
-      description: "Preparando arquivo em alta definição.",
+      title: "Gerando Relatório...",
+      description: "Preparando documento completo.",
     });
 
     try {
@@ -138,7 +138,7 @@ export default function InventoryReportPage() {
       if (!element) throw new Error('Elemento não encontrado');
 
       const canvas = await html2canvas(element, {
-        scale: 4,
+        scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -152,50 +152,43 @@ export default function InventoryReportPage() {
         format: 'a4',
       });
 
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      let heightLeft = imgHeight;
+      let position = 0;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
       const fileName = `Saldo_Fisico_${monthKey}_${fileDate}.pdf`;
       
-      const pdfBlob = pdf.output('blob');
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      pdf.save(fileName);
 
-      let shared = false;
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: 'Relatório de Saldo Físico',
-            text: `Relatório de inventário gerado em ${format(new Date(), 'dd/MM/yyyy')}`,
-          });
-          shared = true;
-        } catch (shareError) {
-          console.log('Erro ao compartilhar PDF, usando fallback.');
-        }
-      }
-
-      if (!shared) {
-        const blobUrl = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = fileName;
-        link.click();
-        window.open(blobUrl, '_blank');
-      }
+      toast({
+        title: "Download concluído!",
+        description: "O relatório foi salvo com sucesso.",
+      });
 
     } catch (error) {
-      console.error('Erro ao abrir documento:', error);
+      console.error('Erro ao baixar documento:', error);
       toast({
         variant: "destructive",
-        title: "Erro ao abrir",
-        description: "Não foi possível processar o relatório em alta definição.",
+        title: "Erro ao baixar",
+        description: "Não foi possível gerar o PDF completo.",
       });
     } finally {
-      setIsSharing(false);
+      setIsDownloading(false);
     }
   };
 
@@ -272,12 +265,12 @@ export default function InventoryReportPage() {
               </Button>
             </div>
             <Button 
-              onClick={handleShare} 
-              disabled={isSharing || filteredItems.length === 0}
+              onClick={handleDownloadPDF} 
+              disabled={isDownloading || filteredItems.length === 0}
               className="gap-2 font-black uppercase text-[10px] tracking-widest h-10 shadow-md transition-all active:scale-95"
             >
-              {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-              Abrir Relatório
+              {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
+              Baixar PDF
             </Button>
           </div>
         </div>

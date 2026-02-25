@@ -3,12 +3,12 @@
 
 import React, { use, useEffect, useState } from 'react';
 import { HistoryTable } from "@/components/inventory/HistoryTable";
-import { BookOpen, ShieldCheck, Share2, AlertTriangle, Loader2 } from "lucide-react";
+import { BookOpen, ShieldCheck, FileDown, AlertTriangle, Loader2 } from "lucide-react";
 import { useFirestore, useDoc, useMemoFirebase, useUser, updateDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import Link from 'link';
 import { useToast } from "@/hooks/use-toast";
 import { format } from 'date-fns';
 
@@ -20,7 +20,7 @@ export default function GuestHistoryPage(props: {
   const { user: guestUser, isUserLoading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const [isSharing, setIsSharing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   useEffect(() => {
     if (!isUserLoading && !guestUser) {
@@ -48,13 +48,13 @@ export default function GuestHistoryPage(props: {
     }
   }, [invite, guestUser, db]);
 
-  const handleShare = async () => {
-    if (isSharing) return;
-    setIsSharing(true);
+  const handleDownloadPDF = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
     
     toast({
-      title: "Gerando documento...",
-      description: "Preparando arquivo em alta definição.",
+      title: "Gerando PDF...",
+      description: "Preparando documento completo.",
     });
 
     try {
@@ -66,7 +66,7 @@ export default function GuestHistoryPage(props: {
       if (!element) throw new Error('Elemento não encontrado');
 
       const canvas = await html2canvas(element, {
-        scale: 4,
+        scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -80,50 +80,43 @@ export default function GuestHistoryPage(props: {
         format: 'a4',
       });
 
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      let heightLeft = imgHeight;
+      let position = 0;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
       const fileName = `S28_T_Compartilhada_${fileDate}.pdf`;
       
-      const pdfBlob = pdf.output('blob');
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      pdf.save(fileName);
 
-      let shared = false;
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: 'S-28-T Digital Compartilhada',
-            text: `Documento compartilhado do inventário de ${invite?.label}`,
-          });
-          shared = true;
-        } catch (shareError) {
-          console.log('Erro ao compartilhar PDF, usando fallback.');
-        }
-      }
-
-      if (!shared) {
-        const blobUrl = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = fileName;
-        link.click();
-        window.open(blobUrl, '_blank');
-      }
+      toast({
+        title: "Download concluído!",
+        description: "O documento foi baixado com sucesso.",
+      });
 
     } catch (error) {
-      console.error('Erro ao abrir documento:', error);
+      console.error('Erro ao baixar documento:', error);
       toast({
         variant: "destructive",
-        title: "Erro ao abrir",
-        description: "Não foi possível processar o documento em alta definição.",
+        title: "Erro ao baixar",
+        description: "Não foi possível gerar o PDF completo.",
       });
     } finally {
-      setIsSharing(false);
+      setIsDownloading(false);
     }
   };
 
@@ -174,12 +167,12 @@ export default function GuestHistoryPage(props: {
           </div>
           <Button 
             variant="outline" 
-            className="gap-2 bg-white font-bold uppercase text-xs shrink-0" 
-            onClick={handleShare}
-            disabled={isSharing}
+            className="gap-2 bg-white font-bold uppercase text-xs shrink-0 border-primary/20" 
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
           >
-            {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-            Abrir S-28-T
+            {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
+            Baixar PDF
           </Button>
         </div>
 

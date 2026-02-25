@@ -3,7 +3,7 @@
 
 import { use, useEffect, useState } from 'react';
 import { HistoryTable } from "@/components/inventory/HistoryTable";
-import { Share2, ShieldCheck, Loader2 } from "lucide-react";
+import { FileDown, ShieldCheck, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -21,7 +21,7 @@ export default function HistoryPage(props: {
   const db = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
-  const [isSharing, setIsSharing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -36,13 +36,13 @@ export default function HistoryPage(props: {
     }
   }, [user, isUserLoading, router]);
 
-  const handleShare = async () => {
-    if (isSharing) return;
-    setIsSharing(true);
+  const handleDownloadPDF = async () => {
+    if (isDownloading) return;
+    setIsDownloading(true);
     
     toast({
-      title: "Gerando documento...",
-      description: "Aguarde enquanto preparamos o arquivo em alta definição.",
+      title: "Gerando PDF...",
+      description: "Aguarde enquanto preparamos o documento completo.",
     });
 
     try {
@@ -53,9 +53,9 @@ export default function HistoryPage(props: {
       const element = document.getElementById('s28-history-content');
       if (!element) throw new Error('Elemento não encontrado');
 
-      // Escala 4x e PNG para máxima nitidez de texto
+      // Captura o conteúdo com escala 2x para equilíbrio entre nitidez e tamanho de arquivo
       const canvas = await html2canvas(element, {
-        scale: 4,
+        scale: 2,
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
@@ -69,51 +69,45 @@ export default function HistoryPage(props: {
         format: 'a4',
       });
 
-      const imgProps = pdf.getImageProperties(imgData);
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      let heightLeft = imgHeight;
+      let position = 0;
 
-      // Adiciona a imagem sem achatar (usa a altura calculada real)
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      // Adiciona a primeira página
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      // Adiciona páginas extras se o conteúdo transbordar o A4
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
       const fileName = `S28_T_${fileDate}.pdf`;
       
-      const pdfBlob = pdf.output('blob');
-      const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+      pdf.save(fileName);
 
-      let shared = false;
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: 'S-28-T Digital',
-            text: `Documento S-28-T gerado em ${format(new Date(), 'dd/MM/yyyy')}`,
-          });
-          shared = true;
-        } catch (shareError) {
-          console.log('Navegador bloqueou compartilhamento automático, usando fallback.');
-        }
-      }
-
-      if (!shared) {
-        const blobUrl = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = blobUrl;
-        link.download = fileName;
-        link.click();
-        window.open(blobUrl, '_blank');
-      }
+      toast({
+        title: "Download concluído!",
+        description: "O formulário S-28-T foi salvo com sucesso.",
+      });
 
     } catch (error) {
       console.error('Erro ao processar documento:', error);
       toast({
         variant: "destructive",
-        title: "Erro ao processar",
-        description: "Não foi possível gerar o PDF em alta definição.",
+        title: "Erro ao baixar",
+        description: "Não foi possível gerar o PDF completo.",
       });
     } finally {
-      setIsSharing(false);
+      setIsDownloading(false);
     }
   };
 
@@ -139,12 +133,12 @@ export default function HistoryPage(props: {
 
           <Button 
             variant="outline" 
-            className="gap-2 bg-white font-bold uppercase text-xs shadow-sm hover:bg-neutral-50 shrink-0" 
-            onClick={handleShare}
-            disabled={isSharing}
+            className="gap-2 bg-white font-bold uppercase text-xs shadow-sm hover:bg-neutral-50 shrink-0 border-primary/20" 
+            onClick={handleDownloadPDF}
+            disabled={isDownloading}
           >
-            {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-            Abrir S-28-T
+            {isDownloading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileDown className="h-4 w-4" />}
+            Baixar PDF
           </Button>
         </div>
 
