@@ -536,7 +536,7 @@ export default function OrderFormPage() {
                           onCheckedChange={() => {
                             if (!hasQty) return;
                             setToggleConfig({
-                              publisherId: pub.id,
+                              publisherId: checkField,
                               field: checkField,
                               pubName: pub.name || 'este(a) publicador(a)',
                               itemLabel: label,
@@ -643,8 +643,8 @@ export default function OrderFormPage() {
         </div>
 
         <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 flex items-start gap-3 text-left">
-          <div className="bg-primary/20 p-1.5 rounded-full mt-0.5 shrink-0">
-            <CheckSquare2 className="h-3 w-3 text-primary" />
+          <div className="bg-primary p-1.5 rounded-full mt-0.5 shrink-0">
+            <CheckSquare2 className="h-3 w-3 text-primary-foreground" />
           </div>
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase text-primary-foreground tracking-widest">Dica de Gestão Digital</p>

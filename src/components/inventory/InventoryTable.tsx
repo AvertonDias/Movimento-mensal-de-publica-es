@@ -373,7 +373,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         </div>
       )}
 
-      <div className="bg-white p-4 sm:p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4 overflow-hidden max-w-full">
+      <div className="bg-white p-4 rounded-t-xl shadow-md border-x border-t border-border space-y-4 overflow-hidden max-w-full">
         <div className="flex flex-col md:flex-row gap-4 items-start justify-between overflow-hidden w-full">
           <div className="flex flex-col gap-2 items-start shrink-0 max-w-full overflow-hidden">
             <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit max-w-full overflow-hidden">
@@ -492,7 +492,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   <p><strong>(3) Saída:</strong> Anote a quantidade de cada item que saiu durante o mês. Pode-se determinar essa quantidade por: (1) somar a quantidade em “Estoque” do mês anterior à quantidade anotada em “Recebido” durante o mês atual e depois (2) subtrair desse total a contagem real que acabou de ser feita (“Estoque”).</p>
                 </div>
                 <p>
-                  <strong>4.</strong> Duas vezes por ano, Betel vai pedir que as congregações coordenadoras de idiomas enviem seu inventário pelo JW Hub, se possível. Para enviar um relatório do inventário de publicações, faça o seguinte: na página inicial do JW Hub, seção “Congregação”, clique em “Publicações” &rarr; “Relatórios de inventário”. Veja na seção “Ajuda” instruções sobre como enviar relatórios.
+                  <strong>4.</strong> Duas vezes por ano, Betel vai pedir que as congregações coordenadoras de idiomas enviem seu inventário pelo JW Hub, si possível. Para enviar um relatório do inventário de publicações, faça o seguinte: na página inicial do JW Hub, seção “Congregação”, clique em “Publicações” &rarr; “Relatórios de inventário”. Veja na seção “Ajuda” instruções sobre como enviar relatórios.
                 </p>
                 <p>
                   <strong>5.</strong> Neste formulário, um asterisco (*) depois do título ou da descrição de um item indica que ele faz parte do Kit de Ensino.
