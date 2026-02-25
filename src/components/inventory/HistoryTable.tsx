@@ -11,7 +11,7 @@ import {
   TableRow 
 } from "@/components/ui/table";
 import { useFirestore, useUser, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, onSnapshot, query } from 'firebase/firestore';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { OFFICIAL_PUBLICATIONS, InventoryItem } from "@/app/types/inventory";
@@ -29,8 +29,8 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
 
   const activeUserId = targetUserId || currentUser?.uid;
 
-  // Define os últimos 6 meses incluindo o atual
-  const lastSixMonths = useMemo(() => {
+  // Define os últimos 6 meses incluindo o atual para busca de dados
+  const allPotentialMonths = useMemo(() => {
     const months = [];
     const baseDate = startOfMonth(new Date()); 
     for (let i = 5; i >= 0; i--) {
@@ -42,6 +42,20 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
     }
     return months;
   }, []);
+
+  // Determina quais meses mostrar (sempre os 5 anteriores + o atual se tiver dados)
+  const displayedMonths = useMemo(() => {
+    const currentMonth = allPotentialMonths[5];
+    const pastMonths = allPotentialMonths.slice(0, 5);
+    
+    const currentMonthData = historyData[currentMonth.key];
+    const hasData = currentMonthData && Object.keys(currentMonthData).some(id => {
+      const d = currentMonthData[id];
+      return (Number(d.received) || 0) > 0 || (Number(d.current) || 0) > 0;
+    });
+    
+    return hasData ? allPotentialMonths : pastMonths;
+  }, [allPotentialMonths, historyData]);
 
   const customItemsQuery = useMemoFirebase(() => {
     if (!db || !activeUserId) return null;
@@ -69,14 +83,14 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
     return combined;
   }, [customDefinitions]);
 
-  // Configura ouvintes em tempo real para cada um dos 6 meses
+  // Configura ouvintes em tempo real para os 6 meses potenciais
   useEffect(() => {
     if (!activeUserId || !db) return;
 
     setLoading(true);
     const unsubscribes: (() => void)[] = [];
 
-    lastSixMonths.forEach(month => {
+    allPotentialMonths.forEach(month => {
       const colRef = collection(db, 'users', activeUserId, 'monthly_records', month.key, 'items');
       const unsub = onSnapshot(colRef, (snapshot) => {
         const monthItems: Record<string, any> = {};
@@ -89,7 +103,6 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
           [month.key]: monthItems
         }));
         
-        // Desativa o loading assim que o primeiro snapshot chegar (ou após percorrer todos)
         setLoading(false);
       }, (error) => {
         console.error(`Erro no listener do mês ${month.key}:`, error);
@@ -100,7 +113,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
     return () => {
       unsubscribes.forEach(unsub => unsub());
     };
-  }, [activeUserId, db, lastSixMonths]);
+  }, [activeUserId, db, allPotentialMonths]);
 
   const getValue = (monthKey: string, itemId: string, field: string) => {
     const val = historyData[monthKey]?.[itemId]?.[field];
@@ -117,8 +130,11 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
     return result;
   };
 
+  // Largura dinâmica: Nº(28) + Pub(200) + Meses(84 cada)
+  const tableWidth = 228 + (displayedMonths.length * 84);
+
   return (
-    <div className="relative mx-auto bg-white overflow-visible" style={{ width: '732px' }}>
+    <div className="relative mx-auto bg-white overflow-visible" style={{ width: `${tableWidth}px` }}>
       {loading && (
         <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-[1px] print:hidden">
           <div className="flex flex-col items-center gap-2">
@@ -126,12 +142,12 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
           </div>
         </div>
       )}
-      <Table className="w-[732px] border-separate border-spacing-0 border-black border-t border-l">
+      <Table className="border-separate border-spacing-0 border-black border-t border-l" style={{ width: `${tableWidth}px` }}>
         <TableHeader className="print:table-row-group">
           <TableRow className="bg-white hover:bg-white border-none">
             <TableHead className="w-[28px] border-r border-b border-black p-0"></TableHead>
             <TableHead className="w-[200px] text-[8px] font-black uppercase text-black p-0 text-center border-r border-b border-black align-middle">MÊS E ANO</TableHead>
-            {lastSixMonths.map((month) => (
+            {displayedMonths.map((month) => (
               <TableHead 
                 key={month.key} 
                 colSpan={3} 
@@ -147,7 +163,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
             <TableHead className="w-[28px] text-[7px] font-bold text-black p-0 text-center border-r border-b border-black align-middle">N.º</TableHead>
             <TableHead className="w-[200px] text-[10px] font-black text-black px-2 py-0 align-middle border-r border-b border-black text-left">Publicações</TableHead>
             
-            {lastSixMonths.map((m) => (
+            {displayedMonths.map((m) => (
               <React.Fragment key={m.key}>
                 <TableHead className="w-[28px] text-[6px] font-bold text-black p-0 text-center uppercase tracking-tighter border-r border-b border-black align-middle">Recebido</TableHead>
                 <TableHead className="w-[28px] text-[6px] font-bold text-black p-0 text-center uppercase tracking-tighter border-r border-b border-black align-middle">Estoque</TableHead>
@@ -171,7 +187,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
               return (
                 <TableRow key={`hist-cat-${idx}`} className="bg-neutral-100 hover:bg-neutral-100 border-none">
                   <TableCell className="p-0 border-r border-b border-black"></TableCell>
-                  <TableCell colSpan={19} className="px-3 py-4 border-r border-b border-black align-middle">
+                  <TableCell colSpan={displayedMonths.length * 3 + 1} className="px-3 py-4 border-r border-b border-black align-middle">
                     <div className="flex items-center gap-2 overflow-visible">
                       <span className="text-[12px] font-black uppercase tracking-widest text-black shrink-0 leading-normal">{mainTitle}</span>
                       {extraInfo && (
@@ -195,7 +211,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
                   </div>
                 </TableCell>
                 
-                {lastSixMonths.map((m) => (
+                {displayedMonths.map((m) => (
                   <React.Fragment key={m.key}>
                     <TableCell className="text-[8px] text-center p-0 font-bold border-r border-b border-black align-middle">
                       {formatNumber(getValue(m.key, itemId, 'received'))}
