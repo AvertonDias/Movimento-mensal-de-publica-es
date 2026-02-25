@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -453,7 +452,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               <SelectContent>
                 <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">Todas as Publicações</SelectItem>
                 <SelectItem value="low-stock" className="text-[10px] font-black uppercase tracking-widest text-destructive">Estoque Baixo</SelectItem>
-                <SelectItem value="pending" className="text-[10px] font-black uppercase tracking-widest text-primary">Pedidos Pendentes</SelectItem>
+                <SelectItem value="pending" className="text-[10px] font-black uppercase tracking-widest text-blue-800">Pedidos Pendentes</SelectItem>
                 <SelectItem value="received" className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Itens Recebidos</SelectItem>
               </SelectContent>
             </Select>
