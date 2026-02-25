@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo, useEffect } from 'react';
@@ -81,7 +82,7 @@ export default function SpecialOrdersPage() {
       item: '',
       language: 'Português',
       quantity: '1',
-      status: 'env',
+      status: 'pend',
       createdAt: new Date().toISOString()
     }, { merge: true });
   };
@@ -187,8 +188,8 @@ export default function SpecialOrdersPage() {
                   <th className="p-1 w-[140px] leading-tight relative">
                     Situação
                     <div className="flex justify-center gap-3 text-[7px] font-bold mt-1 opacity-60">
-                      <span>Env.</span>
                       <span>Pend.</span>
+                      <span>Env.</span>
                       <span>Rec.</span>
                     </div>
                   </th>
@@ -260,20 +261,20 @@ export default function SpecialOrdersPage() {
                       <td className="p-1 relative">
                         <div className="flex items-center gap-1">
                           <Select 
-                            value={order.status ?? 'env'} 
+                            value={order.status ?? 'pend'} 
                             onValueChange={(val) => handleUpdate(order.id, 'status', val)}
                           >
                             <SelectTrigger className="h-8 border-none bg-transparent hover:bg-neutral-100 font-black uppercase text-[9px] shadow-none focus:ring-0 px-2">
                               <div className="flex items-center gap-1.5">
-                                {order.status === 'env' && <Send className="h-3 w-3 text-primary" />}
                                 {order.status === 'pend' && <Clock className="h-3 w-3 text-amber-500" />}
+                                {order.status === 'env' && <Send className="h-3 w-3 text-primary" />}
                                 {order.status === 'rec' && <CheckCircle2 className="h-3 w-3 text-emerald-600" />}
                                 <SelectValue />
                               </div>
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="env" className="text-[9px] font-black uppercase">Enviado (Env.)</SelectItem>
                               <SelectItem value="pend" className="text-[9px] font-black uppercase">Pendente (Pend.)</SelectItem>
+                              <SelectItem value="env" className="text-[9px] font-black uppercase">Enviado (Env.)</SelectItem>
                               <SelectItem value="rec" className="text-[9px] font-black uppercase">Recebido (Rec.)</SelectItem>
                             </SelectContent>
                           </Select>
