@@ -105,6 +105,7 @@ export default function OrderFormPage() {
 
   useEffect(() => {
     setIsMounted(true);
+    // Persistência de mês apenas nesta página
     const savedMonth = localStorage.getItem('order_form_selected_month');
     if (savedMonth) {
       try {
@@ -646,7 +647,7 @@ export default function OrderFormPage() {
             <CheckSquare2 className="h-3 w-3 text-primary" />
           </div>
           <div className="space-y-1">
-            <p className="text-[10px] font-black uppercase text-primary tracking-widest">Dica de Gestão Digital</p>
+            <p className="text-[10px] font-black uppercase text-primary-foreground tracking-widest">Dica de Gestão Digital</p>
             <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed">
               Exemplo: a apostila do mês de Abril deve ser marcada como entregue com o calendário no topo selecionado em "Abril". As quantidades fixas são permanentes para todos os meses. Já a marcação de entrega (o check) é individual.
             </p>
@@ -659,7 +660,7 @@ export default function OrderFormPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 uppercase font-black text-destructive text-left">
               <AlertTriangle className="h-5 w-5" />
-              Remova publicador
+              Remover Registro?
             </AlertDialogTitle>
             <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
               Deseja realmente remover <span className="text-foreground">"{deleteConfig?.name || 'sem nome'}"</span> e todas as suas quantidades fixas do sistema?
