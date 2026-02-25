@@ -213,84 +213,82 @@ export default function InventoryReportPage() {
             <FileText className="h-5 w-5 text-primary" />
             <h1 className="text-xl font-black uppercase tracking-tight font-headline">Relatório de Inventário</h1>
           </div>
-          <Button 
-            onClick={handleShare} 
-            disabled={isSharing || filteredItems.length === 0}
-            className="gap-2 font-black uppercase text-[10px] tracking-widest h-10 shadow-md transition-all active:scale-95"
-          >
-            {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
-            Abrir Relatório
-          </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center bg-white p-1 rounded-lg border shadow-sm print:hidden">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setSelectedMonth(prev => prev ? subMonths(prev, 1) : null)} 
+                className="h-8 w-8"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              <Popover open={isMonthPopoverOpen} onOpenChange={setIsMonthPopoverOpen}>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" className="h-8 px-3 font-black text-[10px] uppercase tracking-widest gap-2">
+                    <CalendarIcon className="h-3.5 w-3.5 text-primary" />
+                    {monthLabel}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-3" align="center">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSelectedMonth(prev => prev ? subYears(prev, 1) : null)}>
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{format(displayMonth, 'yyyy')}</span>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSelectedMonth(prev => prev ? addYears(prev, 1) : null)}>
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      {Array.from({ length: 12 }).map((_, i) => {
+                        const date = setMonth(displayMonth, i);
+                        const isSelected = displayMonth.getMonth() === i;
+                        return (
+                          <Button 
+                            key={i} 
+                            variant={isSelected ? "default" : "ghost"} 
+                            className={cn("h-9 text-[10px] font-bold uppercase", isSelected && "bg-primary text-primary-foreground")} 
+                            onClick={() => { setSelectedMonth(date); setIsMonthPopoverOpen(false); }}
+                          >
+                            {format(date, 'MMM', { locale: ptBR })}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setSelectedMonth(prev => prev ? addMonths(prev, 1) : null)} 
+                className="h-8 w-8"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+            <Button 
+              onClick={handleShare} 
+              disabled={isSharing || filteredItems.length === 0}
+              className="gap-2 font-black uppercase text-[10px] tracking-widest h-10 shadow-md transition-all active:scale-95"
+            >
+              {isSharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+              Abrir Relatório
+            </Button>
+          </div>
         </div>
 
         <Card id="report-content" className="border-none shadow-xl overflow-hidden print:shadow-none print:border bg-white">
           <CardHeader className="bg-white border-b border-neutral-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4">
             <div className="text-left space-y-1">
               <CardTitle className="uppercase font-black text-base">Resumo de Saldo Físico</CardTitle>
-              
-              <div className="flex items-center gap-2 bg-neutral-50 p-1 rounded-lg border w-fit print:hidden">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => setSelectedMonth(prev => prev ? subMonths(prev, 1) : null)} 
-                  className="h-7 w-7"
-                >
-                  <ChevronLeft className="h-3 w-3" />
-                </Button>
-                
-                <Popover open={isMonthPopoverOpen} onOpenChange={setIsMonthPopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <Button variant="ghost" className="h-7 px-2 font-black text-[9px] uppercase tracking-widest gap-1.5">
-                      <CalendarIcon className="h-3 w-3 text-primary" />
-                      {monthLabel}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-64 p-3" align="start">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSelectedMonth(prev => prev ? subYears(prev, 1) : null)}>
-                          <ChevronLeft className="h-4 w-4" />
-                        </Button>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{format(displayMonth, 'yyyy')}</span>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setSelectedMonth(prev => prev ? addYears(prev, 1) : null)}>
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2">
-                        {Array.from({ length: 12 }).map((_, i) => {
-                          const date = setMonth(displayMonth, i);
-                          const isSelected = displayMonth.getMonth() === i;
-                          return (
-                            <Button 
-                              key={i} 
-                              variant={isSelected ? "default" : "ghost"} 
-                              className={cn("h-9 text-[10px] font-bold uppercase", isSelected && "bg-primary text-primary-foreground")} 
-                              onClick={() => { setSelectedMonth(date); setIsMonthPopoverOpen(false); }}
-                            >
-                              {format(date, 'MMM', { locale: ptBR })}
-                            </Button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => setSelectedMonth(prev => prev ? addMonths(prev, 1) : null)} 
-                  className="h-7 w-7"
-                >
-                  <ChevronRight className="h-3 w-3" />
-                </Button>
-              </div>
-              
-              <div className="hidden print:block">
-                <CardDescription className="uppercase font-bold text-[9px] tracking-widest text-muted-foreground mt-1">
-                  Competência: {monthLabel}
-                </CardDescription>
-              </div>
+              <CardDescription className="uppercase font-bold text-[10px] tracking-widest text-muted-foreground">
+                Competência: {monthLabel}
+              </CardDescription>
             </div>
             {helperInvite && (
               <div className="bg-accent/10 border border-accent/20 px-3 py-1 rounded-lg flex items-center gap-2 print:hidden">

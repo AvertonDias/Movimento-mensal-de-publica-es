@@ -45,7 +45,7 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Estrutura idêntica no servidor e no primeiro render do cliente para evitar erros de hidratação
+  // Estrutura neutra para evitar divergências de hidratação
   if (!mounted || isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">

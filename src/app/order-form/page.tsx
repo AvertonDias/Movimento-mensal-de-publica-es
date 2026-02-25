@@ -708,7 +708,7 @@ export default function OrderFormPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="uppercase font-black text-left">Confirmar Alteração?</AlertDialogTitle>
             <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
-              Você está alterando a quantidade fixa de <span className="text-foreground">"{confirmQtyConfig?.label}"</span> para <span className="text-foreground">{confirmQtyConfig?.pubName}</span>.<br/><br/>
+              Você está alterando a quantidade fixa de <span className="text-foreground font-black">"{confirmQtyConfig?.label}"</span> para <span className="text-foreground font-black">{confirmQtyConfig?.pubName}</span>.<br/><br/>
               De: <span className="text-destructive line-through font-black mx-1">{confirmQtyConfig?.oldValue}</span> para: <span className="text-foreground font-black mx-1">{confirmQtyConfig?.newValue}</span>
             </AlertDialogDescription>
           </AlertDialogHeader>

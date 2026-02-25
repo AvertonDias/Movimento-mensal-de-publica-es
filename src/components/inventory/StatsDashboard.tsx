@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useEffect, useState, useMemo } from 'react';
@@ -195,7 +196,6 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
 
   return (
     <div className="space-y-8 md:space-y-12">
-      {/* Resumo de Totais */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-6">
         <div className="bg-white p-3 md:p-6 rounded-lg md:rounded-xl border border-neutral-100 shadow-sm flex items-center gap-3 md:gap-5">
           <div className="bg-primary/10 p-2 md:p-4 rounded-lg">
@@ -248,7 +248,6 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
         </div>
       </div>
 
-      {/* Gráficos */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-10">
         <div className="space-y-4 md:space-y-5">
           <h3 className="text-sm md:text-base font-black uppercase text-neutral-500 tracking-widest pl-2 flex items-center gap-2">
@@ -322,7 +321,6 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
         </div>
       </div>
 
-      {/* Top 10 Itens */}
       <div className="bg-white p-4 md:p-10 rounded-xl border border-neutral-100 shadow-sm">
         <h3 className="text-sm md:text-base font-black uppercase text-neutral-500 tracking-widest mb-6 md:mb-10 flex items-center gap-2">
           <Activity className="h-4 w-4 md:h-5 md:w-5" /> Top 10 Mais Distribuídos

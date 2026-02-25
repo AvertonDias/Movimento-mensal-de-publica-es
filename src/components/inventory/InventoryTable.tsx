@@ -712,7 +712,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <AlertDialogTitle className="uppercase font-black text-left flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-destructive" />
               Atenção: Saída Negativa
-            </AlertTriangle>
+            </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="text-left space-y-2">
                 <p>A quantidade <strong>Atual</strong> de <span className="font-bold text-foreground">"{negativeWarningItem?.item}"</span> é maior do que a soma do estoque <strong>Anterior</strong> com o <strong>Recebido</strong>.</p>

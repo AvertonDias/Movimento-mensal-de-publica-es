@@ -56,7 +56,7 @@ export default function SpecialOrdersPage() {
     );
   }, [orders]);
 
-  // Limpeza automática do banco de dados para registros órfãos apenas ao carregar/atualizar a página
+  // Limpeza automática do banco de dados para registros órfãos
   useEffect(() => {
     if (!isOrdersLoading && orders && orders.length > 0 && !hasCleanedUp.current && db && activeUserId) {
       orders.forEach(order => {
@@ -143,36 +143,6 @@ export default function SpecialOrdersPage() {
             <p className="text-[11px] font-medium leading-tight">
               As quantidades dos itens pedidos não devem ser estimativas com base no número de publicadores.
             </p>
-          </div>
-
-          {/* Seção de Informações de Itens */}
-          <div className="space-y-4 px-2 text-left">
-            <p className="text-[11px] font-medium">
-              Os itens de pedido especial são claramente identificados no JW Hub. Esses itens de pedido especial incluem:
-            </p>
-            
-            <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-[11px] font-medium ml-4">
-              <ul className="list-disc space-y-0.5">
-                <li>Volumes encadernados</li>
-                <li><span className="italic">Examine as Escrituras</span></li>
-                <li><span className="italic">Índices</span></li>
-                <li>Watchtower Library (CD-ROM)</li>
-                <li>Bíblias tamanho grande</li>
-              </ul>
-              <ul className="list-disc space-y-0.5">
-                <li>Todos os livros de letras grandes, exceto cancioneiros</li>
-                <li><span className="italic">Proclamadores</span></li>
-                <li>Volumes de <span className="italic">Estudo Perspicaz</span></li>
-                <li><span className="italic">'Boa Terra'</span></li>
-              </ul>
-            </div>
-
-            <div className="flex justify-center gap-8 text-[11px] font-medium pt-2 text-center">
-              <span className="text-muted-foreground">Descrições da situação do pedido:</span>
-              <div className="flex items-center gap-1"><span className="text-[8px]">■</span> Env. = Enviado</div>
-              <div className="flex items-center gap-1"><span className="text-[8px]">■</span> Pend. = Pendente</div>
-              <div className="flex items-center gap-1"><span className="text-[8px]">■</span> Rec. = Recebido</div>
-            </div>
           </div>
 
           {/* Tabela de Registros */}
@@ -281,7 +251,7 @@ export default function SpecialOrdersPage() {
                           
                           <button 
                             onClick={() => handleDelete(order.id)}
-                            className="text-destructive p-1.5 hover:bg-destructive/10 rounded-full print:hidden transition-colors"
+                            className="text-destructive p-1.5 hover:bg-destructive/10 bg-destructive/5 border border-destructive/10 rounded-full print:hidden transition-colors"
                             title="Excluir"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -294,7 +264,6 @@ export default function SpecialOrdersPage() {
               </tbody>
             </table>
             
-            {/* Botão de Adição no final da tabela */}
             <div className="flex justify-center border-t border-black/10 py-3 bg-neutral-50/30 print:hidden">
               <Button 
                 variant="ghost" 
