@@ -66,8 +66,8 @@ export default function MagazineDisplayPage() {
               <Card key={idx} className="overflow-hidden border-none shadow-md hover:shadow-xl transition-all hover:scale-[1.02] bg-white">
                 <CardHeader className="bg-primary/5 p-4 border-b border-primary/10 space-y-1">
                   <div className="flex items-center gap-2">
-                    <Calendar className="h-3 w-3 text-primary opacity-70" />
-                    <p className="text-[10px] font-black uppercase tracking-[0.1em] text-primary">{item.period}</p>
+                    <Calendar className="h-3 w-3 text-blue-800" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.1em] text-blue-800">{item.period}</p>
                   </div>
                   <CardTitle className="text-sm font-bold uppercase line-clamp-1">{item.title}</CardTitle>
                   <CardDescription className="text-[11px] font-black opacity-60">CÓDIGO: {item.code}</CardDescription>

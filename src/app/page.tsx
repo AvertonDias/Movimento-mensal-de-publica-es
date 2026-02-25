@@ -60,16 +60,14 @@ export default function Home() {
               priority 
             />
           </div>
-          {mounted && isUserLoading && (
-            <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-md">
-              <Loader2 className="h-5 w-5 text-primary animate-spin" />
-            </div>
-          )}
+          <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-md">
+            <Loader2 className="h-5 w-5 text-primary animate-spin" />
+          </div>
         </div>
         <div className="text-center space-y-2">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Sincronizando</p>
           <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">
-            {mounted ? "Preparando ambiente..." : "Carregando..."}
+            Preparando ambiente...
           </p>
         </div>
       </div>
