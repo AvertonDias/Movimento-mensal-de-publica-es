@@ -66,9 +66,12 @@ export default function HistoryPage(props: {
         format: 'a4',
       });
 
+      const sideMarginMm = 10;
+      const topBottomMarginMm = 7;
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const pxToMm = pdfWidth / canvas.width;
+      const contentWidthMm = pdfWidth - (sideMarginMm * 2);
+      const pxToMm = contentWidthMm / canvas.width;
       
       const rows = Array.from(element.querySelectorAll('tr'));
       const rect = element.getBoundingClientRect();
@@ -84,14 +87,12 @@ export default function HistoryPage(props: {
 
       let currentYPx = 0;
       let isFirstPage = true;
-      const marginMm = 7;
-      const marginPx = marginMm / pxToMm;
+      const marginPx = topBottomMarginMm / pxToMm;
 
       const now = new Date();
       const timestamp = format(now, "dd/MM/yyyy HH:mm");
 
       while (currentYPx < canvas.height) {
-        // Verifica se ainda existem linhas de conteúdo antes de adicionar nova página
         const remainingRows = rowData.filter(r => r.top >= currentYPx - 1);
         if (remainingRows.length === 0 && !isFirstPage) break;
 
@@ -99,7 +100,7 @@ export default function HistoryPage(props: {
           pdf.addPage();
         }
 
-        const availableHeightPx = (pdfHeight / pxToMm) - (marginPx * 2);
+        const availableHeightPx = (pdfHeight / pxToMm) - (topBottomMarginMm * 2);
         let sliceHeightPx = availableHeightPx;
 
         const rowsFitting = remainingRows.filter(r => r.bottom <= (currentYPx + availableHeightPx + 1));
@@ -108,7 +109,6 @@ export default function HistoryPage(props: {
           const lastRow = rowsFitting[rowsFitting.length - 1];
           sliceHeightPx = lastRow.bottom - currentYPx;
         } else if (remainingRows.length > 0) {
-          // Garante que pelo menos uma linha seja pega se for maior que a página
           sliceHeightPx = remainingRows[0].bottom - currentYPx;
         }
 
@@ -120,18 +120,15 @@ export default function HistoryPage(props: {
         if (ctx) {
           ctx.drawImage(canvas, 0, currentYPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
           const pageImgData = tempCanvas.toDataURL('image/png');
-          pdf.addImage(pageImgData, 'PNG', 0, marginMm, pdfWidth, sliceHeightPx * pxToMm);
+          pdf.addImage(pageImgData, 'PNG', sideMarginMm, topBottomMarginMm, contentWidthMm, sliceHeightPx * pxToMm);
           
-          // Adiciona o rodapé com a data
           pdf.setFontSize(7);
           pdf.setTextColor(150);
-          pdf.text(`Impresso por S-28 Digital em ${timestamp}`, pdfWidth - 7, pdfHeight - 5, { align: 'right' });
+          pdf.text(`Impresso por S-28 Digital em ${timestamp}`, pdfWidth - sideMarginMm, pdfHeight - 5, { align: 'right' });
         }
 
         currentYPx += sliceHeightPx;
         isFirstPage = false;
-
-        // Tolerância para evitar loops infinitos ou páginas extras por ruído de pixels
         if (canvas.height - currentYPx < 10) break;
       }
       
