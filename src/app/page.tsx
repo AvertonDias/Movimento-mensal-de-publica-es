@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -46,12 +45,18 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Se ainda estiver carregando os dados do usuário ou não estiver montado
-  if (!mounted || isUserLoading) {
+  // Durante a hidratação, renderizamos um container neutro para evitar 
+  // conflitos estruturais entre o servidor e o cliente.
+  if (!mounted) {
+    return <div className="min-h-screen bg-background" />;
+  }
+
+  // Se ainda estiver carregando os dados do usuário
+  if (isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
         <div className="relative">
-          <div className="rounded-2xl overflow-hidden w-[64px] h-[64px] shadow-2xl animate-in fade-in zoom-in duration-700">
+          <div className="rounded-2xl overflow-hidden w-[64px] h-[64px] shadow-2xl">
             <Image 
               src="/icon.png" 
               alt="Logo S-28 Digital" 
@@ -74,7 +79,7 @@ export default function Home() {
     );
   }
 
-  // Se não houver usuário, não renderiza nada (o useEffect cuidará do redirecionamento)
+  // Se não houver usuário, o useEffect cuidará do redirecionamento
   if (!user) return null;
 
   const activeUserId = (viewMode === 'shared' && sharedOwnerId) ? sharedOwnerId : user.uid;

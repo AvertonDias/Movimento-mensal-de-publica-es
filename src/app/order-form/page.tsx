@@ -74,10 +74,11 @@ export default function OrderFormPage() {
   const { toast } = useToast();
   const hasCleanedUp = useRef(false);
 
-  const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(new Date()));
+  const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   
   const [orderedIds, setOrderedIds] = useState<string[]>([]);
 
@@ -102,8 +103,14 @@ export default function OrderFormPage() {
   const [localQtyValues, setLocalQtyValues] = useState<Record<string, string>>({});
   const [localNameValues, setLocalNameValues] = useState<Record<string, string>>({});
 
-  const monthKey = format(selectedMonth, 'yyyy-MM');
-  const monthLabel = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
+  useEffect(() => {
+    setIsMounted(true);
+    setSelectedMonth(startOfMonth(new Date()));
+  }, []);
+
+  const displayMonth = selectedMonth || new Date();
+  const monthKey = format(displayMonth, 'yyyy-MM');
+  const monthLabel = format(displayMonth, 'MMMM yyyy', { locale: ptBR });
 
   const publishersRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -111,9 +118,9 @@ export default function OrderFormPage() {
   }, [db, user]);
 
   const monthlyChecksRef = useMemoFirebase(() => {
-    if (!db || !user || !monthKey) return null;
+    if (!db || !user || !monthKey || !isMounted) return null;
     return doc(db, 'users', user.uid, 'order_form', `checks_${monthKey}`);
-  }, [db, user, monthKey]);
+  }, [db, user, monthKey, isMounted]);
 
   const { data: publishersData, isLoading: isLoadingPublishers } = useDoc(publishersRef);
   const { data: monthlyData, isLoading: isLoadingMonthly } = useDoc(monthlyChecksRef);
@@ -121,7 +128,6 @@ export default function OrderFormPage() {
   const publishers: Publisher[] = publishersData?.list || [];
   const checks: Record<string, MonthlyChecks> = monthlyData?.checks || {};
 
-  // Sincroniza IDs para manter a ordem, mas permite nomes vazios enquanto o usuário edita
   useEffect(() => {
     if (publishers.length > 0) {
       const currentIds = publishers.map(p => p.id);
@@ -129,7 +135,6 @@ export default function OrderFormPage() {
                      orderedIds.every(id => currentIds.includes(id));
       
       if (!isSync) {
-        // Separa itens com nome e sem nome para manter os novos no final da lista antes da ordenação global
         const withName = publishers.filter(p => p.name && p.name.trim() !== "");
         const withoutName = publishers.filter(p => !p.name || p.name.trim() === "");
         
@@ -143,7 +148,6 @@ export default function OrderFormPage() {
     }
   }, [publishers.length, publishersData, orderedIds.length]);
 
-  // Limpeza de registros órfãos (vazios) apenas UMA VEZ ao carregar a página
   useEffect(() => {
     if (!isLoadingPublishers && publishers.length > 0 && !hasCleanedUp.current && publishersRef) {
       const emptyItems = publishers.filter(p => !p.name || p.name.trim() === "");
@@ -156,10 +160,10 @@ export default function OrderFormPage() {
   }, [isLoadingPublishers, publishers, publishersRef]);
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    if (isMounted && !isUserLoading && !user) {
       router.push('/login');
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, router, isMounted]);
 
   const handleAddPublisher = () => {
     if (!publishersRef) return;
@@ -271,7 +275,11 @@ export default function OrderFormPage() {
     });
   }, [publishers, searchTerm, orderedIds, filterStatus, checks]);
 
-  if (isUserLoading || !user) return null;
+  if (!isMounted || !selectedMonth) return null;
+
+  if (isUserLoading || !user) {
+    return <div className="p-20 text-center"><Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" /></div>;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-20 pb-12 px-2 sm:px-4 font-body">
@@ -293,7 +301,7 @@ export default function OrderFormPage() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={() => setSelectedMonth(prev => subMonths(prev, 1))}
+                onClick={() => setSelectedMonth(prev => prev ? subMonths(prev, 1) : null)}
                 className="h-8 w-8 shrink-0 hover:bg-white transition-colors"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -315,13 +323,13 @@ export default function OrderFormPage() {
                         className="h-7 w-7" 
                         onClick={(e) => { 
                           e.stopPropagation(); 
-                          setSelectedMonth(prev => subYears(prev, 1)); 
+                          setSelectedMonth(prev => prev ? subYears(prev, 1) : null); 
                         }}
                       >
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
                       <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
-                        {format(selectedMonth, 'yyyy')}
+                        {format(displayMonth, 'yyyy')}
                       </span>
                       <Button 
                         variant="ghost" 
@@ -329,7 +337,7 @@ export default function OrderFormPage() {
                         className="h-7 w-7" 
                         onClick={(e) => { 
                           e.stopPropagation(); 
-                          setSelectedMonth(prev => addYears(prev, 1)); 
+                          setSelectedMonth(prev => prev ? addYears(prev, 1) : null); 
                         }}
                       >
                         <ChevronRight className="h-4 w-4" />
@@ -337,8 +345,8 @@ export default function OrderFormPage() {
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                       {Array.from({ length: 12 }).map((_, i) => {
-                        const date = setMonth(selectedMonth, i);
-                        const isSelected = selectedMonth.getMonth() === i;
+                        const date = setMonth(displayMonth, i);
+                        const isSelected = displayMonth.getMonth() === i;
                         return (
                           <Button 
                             key={i} 
@@ -364,7 +372,7 @@ export default function OrderFormPage() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={() => setSelectedMonth(prev => addMonths(prev, 1))}
+                onClick={() => setSelectedMonth(prev => prev ? addMonths(prev, 1) : null)}
                 className="h-8 w-8 shrink-0 hover:bg-white transition-colors"
               >
                 <ChevronRight className="h-4 w-4" />

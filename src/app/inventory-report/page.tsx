@@ -30,12 +30,19 @@ export default function InventoryReportPage() {
   const router = useRouter();
   const { toast } = useToast();
   
-  const [selectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
+  const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
   const [isSharing, setIsSharing] = useState(false);
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    setSelectedMonth(startOfMonth(subMonths(new Date(), 1)));
+  }, []);
   
-  const monthKey = useMemo(() => format(selectedMonth, 'yyyy-MM'), [selectedMonth]);
-  const monthLabel = useMemo(() => format(selectedMonth, 'MMMM yyyy', { locale: ptBR }), [selectedMonth]);
+  const displayMonth = selectedMonth || new Date();
+  const monthKey = format(displayMonth, 'yyyy-MM');
+  const monthLabel = format(displayMonth, 'MMMM yyyy', { locale: ptBR });
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -45,10 +52,10 @@ export default function InventoryReportPage() {
   const { data: helperInvite, isLoading: isCheckingHelper } = useDoc(helperInviteRef);
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    if (isMounted && !isUserLoading && !user) {
       router.push('/login');
     }
-  }, [user, isUserLoading, router]);
+  }, [user, isUserLoading, router, isMounted]);
 
   const activeUserId = helperInvite ? helperInvite.ownerId : user?.uid;
 
@@ -60,9 +67,9 @@ export default function InventoryReportPage() {
   const { data: customDefinitions } = useCollection(customItemsQuery);
 
   const monthItemsQuery = useMemoFirebase(() => {
-    if (!db || !activeUserId || !monthKey) return null;
+    if (!db || !activeUserId || !monthKey || !isMounted) return null;
     return collection(db, 'users', activeUserId, 'monthly_records', monthKey, 'items');
-  }, [db, activeUserId, monthKey]);
+  }, [db, activeUserId, monthKey, isMounted]);
 
   const { data: remoteItems, isLoading: isFetchingData } = useCollection(monthItemsQuery);
 
@@ -128,7 +135,6 @@ export default function InventoryReportPage() {
       const element = document.getElementById('report-content');
       if (!element) throw new Error('Elemento não encontrado');
 
-      // Escala 4x e PNG para nitidez total
       const canvas = await html2canvas(element, {
         scale: 4,
         useCORS: true,
@@ -191,7 +197,11 @@ export default function InventoryReportPage() {
     }
   };
 
-  if (isUserLoading || isCheckingHelper || !user) return null;
+  if (!isMounted || !selectedMonth) return null;
+
+  if (isUserLoading || isCheckingHelper || !user) {
+    return <div className="p-20 text-center"><Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" /></div>;
+  }
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body print:bg-white print:p-0">

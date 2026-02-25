@@ -87,8 +87,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
-  // Inicialização segura para evitar hydration mismatch
-  const [selectedMonth, setSelectedMonth] = useState<Date>(() => startOfMonth(subMonths(new Date(), 1)));
+  const [selectedMonth, setSelectedMonth] = useState<Date | null>(null);
   const [isMounted, setIsMounted] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<'all' | 'low-stock' | 'pending' | 'received'>('all');
@@ -104,17 +103,20 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   useEffect(() => {
     setIsMounted(true);
+    // Inicializa a data apenas no cliente para evitar Hydration Error
+    setSelectedMonth(startOfMonth(subMonths(new Date(), 1)));
   }, []);
 
-  const monthKey = format(selectedMonth, 'yyyy-MM');
-  const monthName = format(selectedMonth, 'MMMM yyyy', { locale: ptBR });
+  // Use uma data de fallback segura para evitar erros de renderização enquanto monta
+  const displayMonth = selectedMonth || new Date();
+  const monthKey = format(displayMonth, 'yyyy-MM');
+  const monthName = format(displayMonth, 'MMMM yyyy', { locale: ptBR });
   
-  const prevMonth = startOfMonth(subMonths(selectedMonth, 1));
+  const prevMonth = startOfMonth(subMonths(displayMonth, 1));
   const prevMonthKey = format(prevMonth, 'yyyy-MM');
 
   const activeUid = targetUserId || user?.uid;
 
-  // Função para destravar interatividade da página
   const unlockBody = useCallback(() => {
     if (typeof document !== 'undefined') {
       document.body.style.pointerEvents = 'auto';
@@ -137,13 +139,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   useEffect(() => {
     async function calculateSmartMinStock() {
-      if (!db || !activeUid || !isMounted) return;
+      if (!db || !activeUid || !isMounted || !selectedMonth) return;
       
       const last6Months = [1, 2, 3, 4, 5, 6].map(i => format(subMonths(selectedMonth, i), 'yyyy-MM'));
       const itemOutgoings: Record<string, number[]> = {};
 
       try {
-        // Busca os dados de todos os meses em paralelo para performance
         const snapshots = await Promise.all(
           last6Months.map(mKey => 
             getDocs(collection(db, 'users', activeUid, 'monthly_records', mKey, 'items'))
@@ -186,16 +187,16 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const { data: customDefinitions } = useCollection(customItemsQuery);
 
   const monthItemsQuery = useMemoFirebase(() => {
-    if (!db || !activeUid || !monthKey) return null;
+    if (!db || !activeUid || !monthKey || !isMounted) return null;
     return collection(db, 'users', activeUid, 'monthly_records', monthKey, 'items');
-  }, [db, activeUid, monthKey]);
+  }, [db, activeUid, monthKey, isMounted]);
 
   const { data: remoteItems, isLoading: isFetchingMonth } = useCollection(monthItemsQuery);
   
   const prevMonthItemsQuery = useMemoFirebase(() => {
-    if (!db || !activeUid || !prevMonthKey) return null;
+    if (!db || !activeUid || !prevMonthKey || !isMounted) return null;
     return collection(db, 'users', activeUid, 'monthly_records', prevMonthKey, 'items');
-  }, [db, activeUid, prevMonthKey]);
+  }, [db, activeUid, prevMonthKey, isMounted]);
   
   const { data: prevRemoteItems } = useCollection(prevMonthItemsQuery);
 
@@ -290,7 +291,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   };
 
   const handleUpdateItem = (id: string, field: string, value: number | null) => {
-    if (!activeUid || !db) return;
+    if (!activeUid || !db || !selectedMonth) return;
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
 
@@ -357,7 +358,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     }
   };
 
-  if (!isMounted) return null;
+  if (!isMounted || !selectedMonth) {
+    return <div className="p-20 text-center"><Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" /></div>;
+  }
 
   return (
     <div className="space-y-6 relative max-w-full overflow-x-hidden">
@@ -376,7 +379,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
           <div className="flex flex-col gap-2 items-start">
             <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
-              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => subMonths(prev, 1))} className="h-8 w-8">
+              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => prev ? subMonths(prev, 1) : null)} className="h-8 w-8">
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <Popover open={isMonthPopoverOpen} onOpenChange={setIsMonthPopoverOpen}>
@@ -389,18 +392,18 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 <PopoverContent className="w-64 p-3" align="start">
                   <div className="space-y-4">
                     <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
-                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => subYears(prev, 1)); }}>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => prev ? subYears(prev, 1) : null); }}>
                         <ChevronLeft className="h-4 w-4" />
                       </Button>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{format(selectedMonth, 'yyyy')}</span>
-                      <Button variant="ghost" size="icon" className="h-7 w-7" disabled={isDateRestricted(addYears(selectedMonth, 1))} onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => addYears(prev, 1)); }}>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-foreground">{format(displayMonth, 'yyyy')}</span>
+                      <Button variant="ghost" size="icon" className="h-7 w-7" disabled={isDateRestricted(addYears(displayMonth, 1))} onClick={(e) => { e.stopPropagation(); setSelectedMonth(prev => prev ? addYears(prev, 1) : null); }}>
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
                     <div className="grid grid-cols-3 gap-2">
                       {Array.from({ length: 12 }).map((_, i) => {
-                        const date = setMonth(selectedMonth, i);
-                        const isSelected = selectedMonth.getMonth() === i;
+                        const date = setMonth(displayMonth, i);
+                        const isSelected = displayMonth.getMonth() === i;
                         const isRestricted = isDateRestricted(date);
                         return (
                           <Button key={i} variant={isSelected ? "default" : "ghost"} className={cn("h-9 text-[10px] font-bold uppercase", isSelected && "bg-primary text-primary-foreground")} onClick={() => { setSelectedMonth(date); setIsMonthPopoverOpen(false); }} disabled={isRestricted}>{format(date, 'MMM', { locale: ptBR })}</Button>
@@ -410,7 +413,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   </div>
                 </PopoverContent>
               </Popover>
-              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => addMonths(prev, 1))} className="h-8 w-8" disabled={isDateRestricted(addMonths(selectedMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => prev ? addMonths(prev, 1) : null)} className="h-8 w-8" disabled={isDateRestricted(addMonths(displayMonth, 1))}><ChevronRight className="h-4 w-4" /></Button>
             </div>
             <div className="flex items-center gap-2 max-w-[340px] text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
