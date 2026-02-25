@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useMemo, useEffect, useState } from 'react';
@@ -111,13 +110,13 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   };
 
   return (
-    <div className="border-[1.5px] border-black relative mx-auto bg-white overflow-visible" style={{ width: '732px' }}>
+    <div className="relative mx-auto bg-white overflow-visible" style={{ width: '732px' }}>
       {loading && (
         <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-[1px] print:hidden">
           <span className="text-[10px] font-bold uppercase tracking-widest animate-pulse text-black">Sincronizando...</span>
         </div>
       )}
-      <Table className="w-[732px] border-separate border-spacing-0 border-none">
+      <Table className="w-[732px] border-separate border-spacing-0 border-black border-t border-l">
         <TableHeader className="print:table-row-group">
           <TableRow className="bg-white hover:bg-white border-none">
             <TableHead className="w-[28px] border-r border-b border-black p-0"></TableHead>

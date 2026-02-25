@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useEffect, useState } from 'react';
@@ -15,8 +14,6 @@ export default function HistoryPage(props: {
   params: Promise<any>;
   searchParams: Promise<any>;
 }) {
-  const params = use(props.params);
-  const searchParams = use(props.searchParams);
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
   const router = useRouter();
@@ -42,7 +39,7 @@ export default function HistoryPage(props: {
     
     toast({
       title: "Gerando PDF...",
-      description: "Ajustando quebras de página para garantir que nada seja cortado.",
+      description: "Organizando páginas para evitar cortes entre as linhas.",
     });
 
     try {
@@ -53,7 +50,7 @@ export default function HistoryPage(props: {
       const element = document.getElementById('s28-history-content');
       if (!element) throw new Error('Elemento não encontrado');
 
-      // Captura o conteúdo em alta definição
+      // Captura o canvas em alta definição
       const canvas = await html2canvas(element, {
         scale: 3,
         useCORS: true,
@@ -72,31 +69,30 @@ export default function HistoryPage(props: {
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const pxToMm = pdfWidth / canvas.width;
       
-      const rect = element.getBoundingClientRect();
       const rows = Array.from(element.querySelectorAll('tr'));
-      
       const rowData = rows.map(row => {
-        const rRect = row.getBoundingClientRect();
         return {
-          top: rRect.top - rect.top,
-          bottom: rRect.bottom - rect.top,
-          height: rRect.height
+          top: (row as HTMLElement).offsetTop,
+          height: (row as HTMLElement).offsetHeight,
+          bottom: (row as HTMLElement).offsetTop + (row as HTMLElement).offsetHeight
         };
       });
 
       let currentYPx = 0;
       let isFirstPage = true;
-      const bottomMarginPx = 10 / pxToMm;
+      const marginMm = 10;
+      const marginPx = marginMm / pxToMm;
 
       while (currentYPx < canvas.height) {
         if (!isFirstPage) {
           pdf.addPage();
         }
 
-        const availableHeightPx = (pdfHeight / pxToMm) - (isFirstPage ? 0 : bottomMarginPx);
+        // Espaço útil na página (descontando margens)
+        const availableHeightPx = (pdfHeight / pxToMm) - (marginPx * 2);
         let sliceHeightPx = availableHeightPx;
 
-        // Encontrar a última linha que cabe inteira na página
+        // Encontrar a última linha que cabe inteira neste bloco
         const rowsFitting = rowData.filter(r => r.top >= currentYPx && r.bottom <= (currentYPx + availableHeightPx));
         
         if (rowsFitting.length > 0) {
@@ -112,19 +108,18 @@ export default function HistoryPage(props: {
         if (ctx) {
           ctx.drawImage(canvas, 0, currentYPx, canvas.width, sliceHeightPx, 0, 0, canvas.width, sliceHeightPx);
           const pageImgData = tempCanvas.toDataURL('image/png');
-          pdf.addImage(pageImgData, 'PNG', 0, isFirstPage ? 0 : 5, pdfWidth, sliceHeightPx * pxToMm);
+          pdf.addImage(pageImgData, 'PNG', 0, marginMm, pdfWidth, sliceHeightPx * pxToMm);
         }
 
         currentYPx += sliceHeightPx;
         isFirstPage = false;
 
+        // Se o que restar for muito pequeno, encerra
         if (canvas.height - currentYPx < 5) break;
       }
       
       const fileDate = format(new Date(), 'yyyy-MM-dd');
-      const fileName = `S28_T_${fileDate}.pdf`;
-      
-      pdf.save(fileName);
+      pdf.save(`S28_T_${fileDate}.pdf`);
 
       toast({
         title: "Download concluído!",
@@ -175,7 +170,7 @@ export default function HistoryPage(props: {
         </div>
 
         <div className="w-full overflow-x-auto pb-6 scrollbar-thin scrollbar-thumb-primary/20">
-          <div id="s28-history-content" className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 w-max mx-auto">
+          <div id="s28-history-content" className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 w-max mx-auto pdf-export-content">
             <div className="flex justify-between items-baseline border-b-2 border-black pb-1 mb-2">
               <h1 className="text-lg font-black tracking-tight uppercase font-headline">
                 MOVIMENTO MENSAL DE PUBLICAÇÕES
