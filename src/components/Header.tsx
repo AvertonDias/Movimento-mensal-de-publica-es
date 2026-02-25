@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LogOut, User as UserIcon, RefreshCw, Menu, UserCircle } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ export function Header() {
   
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
+  const lastScrollY = useRef(0);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   useEffect(() => {
@@ -36,20 +36,24 @@ export function Header() {
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
+
     const controlHeader = () => {
-      if (typeof window !== 'undefined') {
-        const currentScrollY = window.scrollY;
-        if (currentScrollY > lastScrollY && currentScrollY > 100) {
-          setIsVisible(false);
-        } else {
-          setIsVisible(true);
-        }
-        setLastScrollY(currentScrollY);
+      const currentScrollY = window.scrollY;
+      
+      // Esconde o cabeçalho ao rolar para baixo (mais de 100px) e mostra ao rolar para cima
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
       }
+      
+      lastScrollY.current = currentScrollY;
     };
-    window.addEventListener('scroll', controlHeader);
+
+    window.addEventListener('scroll', controlHeader, { passive: true });
     return () => window.removeEventListener('scroll', controlHeader);
-  }, [lastScrollY]);
+  }, [mounted]);
 
   const handleSignOut = () => {
     initiateSignOut(auth);
@@ -78,8 +82,7 @@ export function Header() {
     window.location.href = window.location.origin + window.location.pathname + '?update=' + Date.now();
   };
 
-  // Se não estiver montado ou o usuário ainda estiver carregando, não renderiza nada 
-  // para manter consistência com o servidor (que não tem acesso ao Auth)
+  // Previne erro de hidratação: o estado de autenticação só é conhecido no cliente
   if (!mounted || isUserLoading || !user || user.isAnonymous) return null;
 
   return (

@@ -12,6 +12,7 @@ export function Footer() {
   }, []);
 
   // Previne erro de hidratação: não renderiza nada no servidor ou no primeiro passo do cliente
+  // A verificação de 'mounted' garante que o estado do usuário só afete a renderização após a hidratação completa no navegador.
   if (!mounted || !user || user.isAnonymous) return null;
 
   return (
