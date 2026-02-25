@@ -377,7 +377,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
       <div className="bg-white p-6 rounded-t-xl shadow-md border-x border-t border-border space-y-4">
         <div className="flex flex-col md:flex-row gap-4 items-start justify-between">
-          <div className="flex flex-col gap-2 items-start">
+          <div className="flex flex-col gap-2 items-start shrink-0">
             <div className="flex items-center gap-2 bg-neutral-100 p-1 rounded-lg border w-fit">
               <Button variant="ghost" size="icon" onClick={() => setSelectedMonth(prev => prev ? subMonths(prev, 1) : null)} className="h-8 w-8">
                 <ChevronLeft className="h-4 w-4" />
@@ -423,14 +423,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             </div>
           </div>
           
-          <div className="flex flex-col items-center gap-2 w-full md:flex-1 md:max-w-2xl">
-            <div className="relative w-full">
+          <div className="flex flex-col items-stretch gap-2 w-full md:flex-1 md:max-w-2xl overflow-hidden">
+            <div className="relative w-full overflow-hidden">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input 
                 placeholder="Pesquisar publicação..." 
                 value={searchTerm} 
                 onChange={(e) => setSearchTerm(e.target.value)} 
-                className="pl-10 pr-10 h-11 w-full font-medium shadow-sm" 
+                className="pl-10 pr-10 h-11 w-full font-medium shadow-sm max-w-full" 
               />
               {searchTerm && (
                 <Button 
