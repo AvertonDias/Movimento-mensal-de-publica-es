@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { LogOut, User as UserIcon, Menu, UserCircle, RefreshCw } from "lucide-react";
+import { LogOut, User as UserIcon, Menu, UserCircle, RefreshCw, RotateCw } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser } from "@/firebase";
@@ -20,16 +20,19 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ProfileModal } from "@/components/ProfileModal";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Header() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isForcedLandscape, setIsForcedLandscape] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -83,6 +86,24 @@ export function Header() {
     }
   };
 
+  const toggleForceLandscape = () => {
+    const newState = !isForcedLandscape;
+    setIsForcedLandscape(newState);
+    if (newState) {
+      document.body.classList.add('force-landscape');
+      toast({
+        title: "Giro Ativado",
+        description: "Gire o celular de lado para usar o modo horizontal.",
+      });
+    } else {
+      document.body.classList.remove('force-landscape');
+      toast({
+        title: "Giro Desativado",
+        description: "A visualização voltou ao padrão vertical.",
+      });
+    }
+  };
+
   if (!mounted || isUserLoading || !user || user.isAnonymous) return null;
 
   return (
@@ -98,6 +119,21 @@ export function Header() {
             <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-primary/5 text-primary border border-primary/10 shrink-0">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
+
+            {isMobile && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={toggleForceLandscape}
+                className={cn(
+                  "h-9 w-9 rounded-lg border shrink-0 transition-all",
+                  isForcedLandscape ? "bg-primary text-primary-foreground border-primary shadow-inner" : "text-primary border-primary/10 hover:bg-primary/5"
+                )}
+                title="Girar Visualização"
+              >
+                <RotateCw className={cn("h-5 w-5 transition-transform duration-500", isForcedLandscape && "rotate-90")} />
+              </Button>
+            )}
             
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0">
               <div className="rounded-xl overflow-hidden w-[36px] h-[36px] sm:w-[38px] sm:h-[38px] border border-primary/10 shrink-0">
@@ -140,6 +176,13 @@ export function Header() {
                   className="font-bold uppercase text-[10px] tracking-widest cursor-pointer text-foreground focus:text-primary"
                 >
                   <UserCircle className="mr-2 h-4 w-4" /> Editar Perfil
+                </DropdownMenuItem>
+
+                <DropdownMenuItem 
+                  onSelect={handleForceLandscape} 
+                  className="hidden"
+                >
+                  {/* Item oculto para manter lógica se necessário */}
                 </DropdownMenuItem>
 
                 <DropdownMenuItem 

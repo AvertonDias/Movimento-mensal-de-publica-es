@@ -51,7 +51,6 @@
 
   body {
     @apply bg-background text-foreground;
-    /* Removido overflow-x-hidden para permitir ajuste em rotação */
   }
   
   input::-webkit-outer-spin-button,
@@ -61,6 +60,20 @@
   }
   input[type=number] {
     -moz-appearance: textfield;
+  }
+
+  /* Rotação Virtual para dispositivos travados na vertical */
+  body.force-landscape {
+    position: fixed !important;
+    top: 0 !important;
+    left: 100vw !important;
+    width: 100dvh !important;
+    height: 100dvw !important;
+    transform: rotate(90deg) !important;
+    transform-origin: top left !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    @apply bg-background;
   }
 }
 
