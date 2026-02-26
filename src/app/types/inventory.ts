@@ -153,5 +153,5 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '', item: 'Sentinela N.º 1 2023*', abbr: 'wp23.1', category: 'Revistas para o público', imageKey: 'wp23.1' },
   { code: '', item: 'Sentinela N.º 1 2024*', abbr: 'wp24.1', category: 'Revistas para o público', imageKey: 'wp24.1' },
   { code: '', item: 'Sentinela N.º 1 2025*', abbr: 'wp25.1', category: 'Revistas para o público', imageKey: 'wp25.1' },
-  { code: '', item: 'Outras Revistas', category: 'Revistas para o público' },
+  { code: '', item: 'Todas as outras revistas para o público', category: 'Revistas para o público' },
 ];
