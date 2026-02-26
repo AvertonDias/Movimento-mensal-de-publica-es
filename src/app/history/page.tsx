@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useEffect, useState } from 'react';
@@ -92,7 +93,7 @@ export default function HistoryPage(props: {
 
       while (currentYPx < canvas.height) {
         const remainingHeightPx = canvas.height - currentYPx;
-        if (remainingHeightPx < 5 && !isFirstPage) break;
+        if (remainingHeightPx < 10 && !isFirstPage) break;
 
         if (!isFirstPage) {
           pdf.addPage();
@@ -101,7 +102,7 @@ export default function HistoryPage(props: {
         const availableHeightPx = (pdfHeight - (topBottomMarginMm * 2)) / pxToMm;
         let sliceHeightPx = Math.min(availableHeightPx, remainingHeightPx);
 
-        // Busca a última linha que cabe inteira neste pedaço
+        // Busca a última linha que cabe inteira neste pedaço para evitar cortes
         const rowsInThisSlice = rowData.filter(r => 
           r.top >= currentYPx - 1 && 
           r.bottom <= currentYPx + availableHeightPx + 1

@@ -10,8 +10,6 @@ import {
   CartesianGrid, 
   Tooltip, 
   ResponsiveContainer,
-  PieChart,
-  Pie,
   Cell,
   Legend
 } from 'recharts';
@@ -155,7 +153,8 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
 
         const categoryDist = Object.entries(categoryMap)
           .map(([name, value]) => ({ name, value }))
-          .filter(c => c.value > 0);
+          .filter(c => c.value > 0)
+          .sort((a, b) => b.value - a.value);
         
         const topItemsList = Object.values(itemUsage)
           .sort((a, b) => b.outgoing - a.outgoing)
@@ -286,31 +285,32 @@ export function StatsDashboard({ targetUserId }: StatsDashboardProps) {
           <div className="h-[280px] md:h-[380px] w-full bg-white p-3 md:p-6 rounded-xl border border-neutral-100 shadow-sm">
             {stats.categoryDistribution.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={stats.categoryDistribution}
-                    cx="50%"
-                    cy="45%"
-                    innerRadius={isMobile ? 50 : 80}
-                    outerRadius={isMobile ? 70 : 110}
-                    paddingAngle={5}
-                    dataKey="value"
-                  >
-                    {stats.categoryDistribution.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
+                <BarChart 
+                  data={stats.categoryDistribution} 
+                  layout="vertical"
+                  margin={{ left: 10, right: 30, top: 10, bottom: 10 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f0f0f0" />
+                  <XAxis type="number" hide />
+                  <YAxis 
+                    dataKey="name" 
+                    type="category" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    width={isMobile ? 80 : 120}
+                    tick={{ fontSize: 9, fontWeight: 'bold', textTransform: 'uppercase' }} 
+                  />
                   <Tooltip 
+                    cursor={{ fill: 'rgba(160, 207, 236, 0.05)' }}
                     contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)', fontSize: '12px', fontWeight: 'bold' }}
                     formatter={(value: any) => [formatNumber(value), "Estoque"]}
                   />
-                  <Legend 
-                    layout={isMobile ? "horizontal" : "vertical"} 
-                    align={isMobile ? "center" : "right"} 
-                    verticalAlign={isMobile ? "bottom" : "middle"}
-                    wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', textTransform: 'uppercase', paddingTop: isMobile ? '10px' : '0' }}
-                  />
-                </PieChart>
+                  <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+                    {stats.categoryDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
             ) : (
               <div className="h-full flex items-center justify-center text-muted-foreground text-[10px] font-bold uppercase tracking-widest">
