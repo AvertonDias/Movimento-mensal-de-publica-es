@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { LogOut, User as UserIcon, Menu, UserCircle, RefreshCw, RotateCw } from "lucide-react";
+import { LogOut, User as UserIcon, Menu, UserCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser } from "@/firebase";
@@ -42,6 +42,22 @@ export function Header() {
   useEffect(() => {
     if (!mounted || !isMobile) return;
 
+    // Tentativa silenciosa de pedir permissão no primeiro toque (necessário para iOS)
+    const handleFirstInteraction = async () => {
+      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+        try {
+          await (DeviceOrientationEvent as any).requestPermission();
+        } catch (e) {
+          // ignora erro silenciosamente
+        }
+      }
+      window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('click', handleFirstInteraction);
+    };
+
+    window.addEventListener('touchstart', handleFirstInteraction);
+    window.addEventListener('click', handleFirstInteraction);
+
     const handleOrientation = (event: DeviceOrientationEvent) => {
       // Se o navegador já estiver em landscape nativo (trava do celular OFF),
       // removemos qualquer giro virtual para não bugar o layout.
@@ -54,7 +70,6 @@ export function Header() {
       }
 
       // Detecção de inclinação lateral (gamma)
-      // gamma varia de -90 a 90. 0 é vertical.
       const tilt = event.gamma;
       if (tilt === null) return;
 
@@ -75,7 +90,11 @@ export function Header() {
     };
 
     window.addEventListener('deviceorientation', handleOrientation);
-    return () => window.removeEventListener('deviceorientation', handleOrientation);
+    return () => {
+      window.removeEventListener('deviceorientation', handleOrientation);
+      window.removeEventListener('touchstart', handleFirstInteraction);
+      window.removeEventListener('click', handleFirstInteraction);
+    };
   }, [mounted, isMobile, isForcedLandscape]);
 
   useEffect(() => {
@@ -126,33 +145,6 @@ export function Header() {
     }
   };
 
-  const toggleForceLandscape = async () => {
-    // Solicitar permissão para sensores no iOS (iPhone precisa de um clique para liberar o sensor)
-    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-      try {
-        await (DeviceOrientationEvent as any).requestPermission();
-      } catch (e) {
-        console.error("Permissão de sensor negada");
-      }
-    }
-
-    const newState = !isForcedLandscape;
-    setIsForcedLandscape(newState);
-    if (newState) {
-      document.body.classList.add('force-landscape');
-      toast({
-        title: "Giro Ativado",
-        description: "Agora o app girará sozinho se você deitar o celular.",
-      });
-    } else {
-      document.body.classList.remove('force-landscape');
-      toast({
-        title: "Giro Automático Desativado",
-        description: "A visualização voltou ao padrão vertical.",
-      });
-    }
-  };
-
   if (!mounted || isUserLoading || !user || user.isAnonymous) return null;
 
   return (
@@ -168,21 +160,6 @@ export function Header() {
             <SidebarTrigger className="h-9 w-9 rounded-lg hover:bg-primary/5 text-primary border border-primary/10 shrink-0">
               <Menu className="h-5 w-5" />
             </SidebarTrigger>
-
-            {isMobile && (
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={toggleForceLandscape}
-                className={cn(
-                  "h-9 w-9 rounded-lg border shrink-0 transition-all",
-                  isForcedLandscape ? "bg-primary text-primary-foreground border-primary shadow-inner" : "text-primary border-primary/10 hover:bg-primary/5"
-                )}
-                title="Giro Inteligente"
-              >
-                <RotateCw className={cn("h-5 w-5 transition-transform duration-500", isForcedLandscape && "rotate-90")} />
-              </Button>
-            )}
             
             <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0">
               <div className="rounded-xl overflow-hidden w-[36px] h-[36px] sm:w-[38px] sm:h-[38px] border border-primary/10 shrink-0">
