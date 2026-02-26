@@ -49,6 +49,7 @@ export const DEFAULT_COLUMNS: InventoryColumn[] = [
 export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'received' | 'current' | 'minStock'>[] = [
   { code: '', item: 'Bíblias', category: 'Bíblias', isCategory: true },
   { code: '3140', item: 'Tradução do Novo Mundo', abbr: 'nwt', category: 'Bíblias', imageKey: 'nwt' },
+  { code: '3141', item: 'Tradução do Novo Mundo - Grande', abbr: 'nwtls', category: 'Bíblias', imageKey: 'nwt' },
   { code: '3142', item: 'Tradução do Novo Mundo (pequena)', abbr: 'nwtpkt', category: 'Bíblias', imageKey: 'nwt' },
   { code: '', item: 'Outras Bíblias', category: 'Bíblias' },
   
