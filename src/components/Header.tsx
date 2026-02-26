@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { LogOut, User as UserIcon, Menu, UserCircle } from "lucide-react";
+import { LogOut, User as UserIcon, Menu, UserCircle, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useAuth, useUser } from "@/firebase";
@@ -41,7 +41,6 @@ export function Header() {
     const controlHeader = () => {
       const currentScrollY = window.scrollY;
       
-      // Esconde o cabeçalho ao rolar para baixo (mais de 100px) e mostra ao rolar para cima
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
         setIsVisible(false);
       } else {
@@ -59,7 +58,32 @@ export function Header() {
     initiateSignOut(auth);
   };
 
-  // Previne erro de hidratação: o estado de autenticação só é conhecido no cliente
+  const handleCheckForUpdates = async () => {
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (registration) {
+          toast({
+            title: "Procurando atualizações...",
+            description: "Verificando se há uma nova versão disponível.",
+          });
+          
+          await registration.update();
+          
+          // Feedback caso não haja mudanças imediatas
+          setTimeout(() => {
+            toast({
+              title: "Sistema Verificado",
+              description: "Se houver uma nova versão, o aplicativo será reiniciado automaticamente.",
+            });
+          }, 2000);
+        }
+      } catch (err) {
+        console.error("Erro ao procurar atualizações:", err);
+      }
+    }
+  };
+
   if (!mounted || isUserLoading || !user || user.isAnonymous) return null;
 
   return (
@@ -117,6 +141,13 @@ export function Header() {
                   className="font-bold uppercase text-[10px] tracking-widest cursor-pointer text-foreground focus:text-primary"
                 >
                   <UserCircle className="mr-2 h-4 w-4" /> Editar Perfil
+                </DropdownMenuItem>
+
+                <DropdownMenuItem 
+                  onSelect={handleCheckForUpdates} 
+                  className="font-bold uppercase text-[10px] tracking-widest cursor-pointer text-foreground focus:text-primary"
+                >
+                  <RefreshCw className="mr-2 h-4 w-4" /> Procurar Atualizações
                 </DropdownMenuItem>
                 
                 <DropdownMenuSeparator />

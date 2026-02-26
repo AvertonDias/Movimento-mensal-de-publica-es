@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useEffect, useState } from 'react';
@@ -77,6 +76,7 @@ export default function HistoryPage(props: {
       const rows = Array.from(element.querySelectorAll('tr'));
       const rect = element.getBoundingClientRect();
       
+      // Mapeamento preciso de cada linha para evitar cortes
       const rowData = rows.map(row => {
         const rowRect = row.getBoundingClientRect();
         return {
@@ -92,6 +92,7 @@ export default function HistoryPage(props: {
       const timestamp = format(now, "dd/MM/yyyy HH:mm");
 
       while (currentYPx < canvas.height) {
+        // Verifica se ainda há conteúdo relevante para processar
         const remainingHeightPx = canvas.height - currentYPx;
         if (remainingHeightPx < 10 && !isFirstPage) break;
 
@@ -102,7 +103,7 @@ export default function HistoryPage(props: {
         const availableHeightPx = (pdfHeight - (topBottomMarginMm * 2)) / pxToMm;
         let sliceHeightPx = Math.min(availableHeightPx, remainingHeightPx);
 
-        // Busca a última linha que cabe inteira neste pedaço para evitar cortes
+        // Identifica a última linha que cabe inteira na página atual
         const rowsInThisSlice = rowData.filter(r => 
           r.top >= currentYPx - 1 && 
           r.bottom <= currentYPx + availableHeightPx + 1
