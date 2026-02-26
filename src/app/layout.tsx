@@ -33,7 +33,7 @@ export const viewport: Viewport = {
   themeColor: '#A0CFEC',
   width: 'device-width',
   initialScale: 1,
-  // Removidas restrições de escala para permitir rotação e zoom fluidos
+  // Mantendo escala fluida para acessibilidade, mas estabilizada pelo globals.css
 };
 
 export default function RootLayout({
