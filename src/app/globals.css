@@ -73,7 +73,8 @@
     transform-origin: top left !important;
     overflow-y: auto !important;
     overflow-x: hidden !important;
-    @apply bg-background;
+    background-color: #F5F5F5 !important;
+    z-index: 9999;
   }
 }
 

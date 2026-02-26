@@ -38,6 +38,46 @@ export function Header() {
     setMounted(true);
   }, []);
 
+  // Lógica de Giro Automático via Sensores
+  useEffect(() => {
+    if (!mounted || !isMobile) return;
+
+    const handleOrientation = (event: DeviceOrientationEvent) => {
+      // Se o navegador já estiver em landscape nativo (trava do celular OFF),
+      // removemos qualquer giro virtual para não bugar o layout.
+      if (window.innerWidth > window.innerHeight) {
+        if (isForcedLandscape) {
+          setIsForcedLandscape(false);
+          document.body.classList.remove('force-landscape');
+        }
+        return;
+      }
+
+      // Detecção de inclinação lateral (gamma)
+      // gamma varia de -90 a 90. 0 é vertical.
+      const tilt = event.gamma;
+      if (tilt === null) return;
+
+      // Se inclinar mais de 70 graus para qualquer lado
+      if (Math.abs(tilt) > 70) {
+        if (!isForcedLandscape) {
+          setIsForcedLandscape(true);
+          document.body.classList.add('force-landscape');
+        }
+      } 
+      // Se voltar para menos de 20 graus de inclinação
+      else if (Math.abs(tilt) < 20) {
+        if (isForcedLandscape) {
+          setIsForcedLandscape(false);
+          document.body.classList.remove('force-landscape');
+        }
+      }
+    };
+
+    window.addEventListener('deviceorientation', handleOrientation);
+    return () => window.removeEventListener('deviceorientation', handleOrientation);
+  }, [mounted, isMobile, isForcedLandscape]);
+
   useEffect(() => {
     if (!mounted) return;
 
@@ -86,19 +126,28 @@ export function Header() {
     }
   };
 
-  const toggleForceLandscape = () => {
+  const toggleForceLandscape = async () => {
+    // Solicitar permissão para sensores no iOS (iPhone precisa de um clique para liberar o sensor)
+    if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      try {
+        await (DeviceOrientationEvent as any).requestPermission();
+      } catch (e) {
+        console.error("Permissão de sensor negada");
+      }
+    }
+
     const newState = !isForcedLandscape;
     setIsForcedLandscape(newState);
     if (newState) {
       document.body.classList.add('force-landscape');
       toast({
         title: "Giro Ativado",
-        description: "Gire o celular de lado para usar o modo horizontal.",
+        description: "Agora o app girará sozinho se você deitar o celular.",
       });
     } else {
       document.body.classList.remove('force-landscape');
       toast({
-        title: "Giro Desativado",
+        title: "Giro Automático Desativado",
         description: "A visualização voltou ao padrão vertical.",
       });
     }
@@ -129,7 +178,7 @@ export function Header() {
                   "h-9 w-9 rounded-lg border shrink-0 transition-all",
                   isForcedLandscape ? "bg-primary text-primary-foreground border-primary shadow-inner" : "text-primary border-primary/10 hover:bg-primary/5"
                 )}
-                title="Girar Visualização"
+                title="Giro Inteligente"
               >
                 <RotateCw className={cn("h-5 w-5 transition-transform duration-500", isForcedLandscape && "rotate-90")} />
               </Button>
@@ -176,13 +225,6 @@ export function Header() {
                   className="font-bold uppercase text-[10px] tracking-widest cursor-pointer text-foreground focus:text-primary"
                 >
                   <UserCircle className="mr-2 h-4 w-4" /> Editar Perfil
-                </DropdownMenuItem>
-
-                <DropdownMenuItem 
-                  onSelect={handleForceLandscape} 
-                  className="hidden"
-                >
-                  {/* Item oculto para manter lógica se necessário */}
                 </DropdownMenuItem>
 
                 <DropdownMenuItem 
