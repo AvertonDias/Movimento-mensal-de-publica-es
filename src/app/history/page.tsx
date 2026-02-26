@@ -92,7 +92,7 @@ export default function HistoryPage(props: {
 
       while (currentYPx < canvas.height) {
         const remainingHeightPx = canvas.height - currentYPx;
-        if (remainingHeightPx < 10 && !isFirstPage) break;
+        if (remainingHeightPx < 5 && !isFirstPage) break;
 
         if (!isFirstPage) {
           pdf.addPage();
@@ -156,7 +156,7 @@ export default function HistoryPage(props: {
   const targetUserId = isHelper ? helperInvite.ownerId : user.uid;
 
   return (
-    <div className="min-h-screen bg-neutral-200 pt-24 pb-6 px-0 sm:px-4 print:p-0 print:bg-white font-body overflow-x-hidden">
+    <div className="min-h-screen bg-neutral-200 pt-24 pb-6 px-0 sm:px-4 print:p-0 print:bg-white font-body">
       <div className="max-w-[850px] mx-auto space-y-4 print:space-y-0 px-4 sm:px-0">
         <div className="flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2 text-left">

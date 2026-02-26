@@ -44,8 +44,6 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Se não estiver montado ou estiver carregando o usuário, exibimos o loader
-  // A estrutura é mantida idêntica para o render inicial no servidor e cliente para evitar divergências de hidratação
   if (!mounted || isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
@@ -80,8 +78,8 @@ export default function Home() {
   const activeUserId = (viewMode === 'shared' && sharedOwnerId) ? sharedOwnerId : user.uid;
 
   return (
-    <div className="min-h-screen pb-12 bg-background/50 font-body overflow-x-hidden">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 space-y-8 overflow-hidden">
+    <div className="min-h-screen pb-12 bg-background/50 font-body">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 space-y-8">
         {isHelper && (
           <div className="bg-accent/10 border border-accent/20 p-4 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-2">
             <div className="flex items-center gap-3">
@@ -93,7 +91,7 @@ export default function Home() {
             </div>
           </div>
         )}
-        <div className="w-full overflow-hidden">
+        <div className="w-full">
           <InventoryTable targetUserId={activeUserId} />
         </div>
       </main>

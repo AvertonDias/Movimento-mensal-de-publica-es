@@ -50,7 +50,8 @@
   }
 
   body {
-    @apply bg-background text-foreground overflow-x-hidden;
+    @apply bg-background text-foreground;
+    /* Removido overflow-x-hidden para permitir ajuste em rotação */
   }
   
   input::-webkit-outer-spin-button,
