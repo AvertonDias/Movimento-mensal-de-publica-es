@@ -59,7 +59,7 @@ export function Header() {
   };
 
   const handleCheckForUpdates = async () => {
-    if ('serviceWorker' in navigator) {
+    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
       try {
         const registration = await navigator.serviceWorker.getRegistration();
         if (registration) {
@@ -70,7 +70,6 @@ export function Header() {
           
           await registration.update();
           
-          // Feedback caso não haja mudanças imediatas
           setTimeout(() => {
             toast({
               title: "Sistema Verificado",
