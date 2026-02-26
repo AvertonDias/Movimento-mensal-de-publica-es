@@ -13,7 +13,7 @@ import {
 } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Loader2, ClipboardList, Info, CheckCircle2, Clock, Send } from "lucide-react";
+import { Plus, Trash2, Loader2, ClipboardList, Info, CheckCircle2, Clock, Send, Smartphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function SpecialOrdersPage() {
   const { user, isUserLoading } = useUser();
@@ -31,6 +32,7 @@ export default function SpecialOrdersPage() {
   const { toast } = useToast();
   const router = useRouter();
   const hasCleanedUp = React.useRef(false);
+  const isMobile = useIsMobile();
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -106,6 +108,18 @@ export default function SpecialOrdersPage() {
     <div className="min-h-screen bg-neutral-50 pt-24 pb-12 px-4 print:p-0 print:bg-white font-body text-black">
       <div className="max-w-[1000px] mx-auto space-y-6 print:space-y-0">
         
+        {/* Dica para mobile */}
+        {isMobile && (
+          <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden">
+            <div className="bg-primary/20 p-2 rounded-lg animate-rotate-phone">
+              <Smartphone className="h-4 w-4 text-primary" />
+            </div>
+            <p className="text-[10px] font-black uppercase text-foreground leading-tight tracking-wider text-left">
+              Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
+            </p>
+          </div>
+        )}
+
         {/* Ações de Topo */}
         <div className="flex justify-between items-center bg-white p-4 rounded-xl border shadow-sm print:hidden text-left">
           <div className="flex items-center gap-3">
