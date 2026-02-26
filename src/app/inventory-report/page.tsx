@@ -244,10 +244,15 @@ export default function InventoryReportPage() {
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body print:bg-white print:p-0">
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="pb-4 pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden text-left">
-          <div className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-primary" />
-            <h1 className="text-xl font-black uppercase tracking-tight font-headline">Relatório de Inventário</h1>
+        <div className="pb-4 pt-2 flex flex-col sm:flex-row sm:items-start justify-between gap-4 print:hidden text-left">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-primary" />
+              <h1 className="text-xl font-black uppercase tracking-tight font-headline">Relatório de Inventário</h1>
+            </div>
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              Esta página irá ajudar a preencher o Relatório de inventário no JW Hub
+            </p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center bg-white p-1 rounded-lg border shadow-sm print:hidden">
