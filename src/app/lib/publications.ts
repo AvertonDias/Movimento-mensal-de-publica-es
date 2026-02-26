@@ -5,6 +5,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '', item: 'Bíblias', category: 'Bíblias', isCategory: true },
   { code: '3140', item: 'Tradução do Novo Mundo', abbr: 'nwt', category: 'Bíblias', imageKey: 'nwt' },
   { code: '3142', item: 'Tradução do Novo Mundo (pequena)', abbr: 'nwtpkt', category: 'Bíblias', imageKey: 'nwt' },
+  { code: '', item: 'Outras Bíblias', category: 'Bíblias' },
   
   { code: '', item: 'Livros', category: 'Livros', isCategory: true },
   { code: '5414', item: 'Beneficie-se', abbr: 'be', category: 'Livros', imageKey: 'be' },
@@ -27,6 +28,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '5442', item: 'Cante de Coração — Apenas Letras', abbr: 'sjjyls', category: 'Livros', imageKey: 'sjj' },
   { code: '5339', item: 'Jovens Perguntam, Volume 1', abbr: 'yp1', category: 'Livros', imageKey: 'yp1' },
   { code: '5336', item: 'Jovens Perguntam, Volume 2', abbr: 'yp2', category: 'Livros', imageKey: 'yp2' },
+  { code: '', item: 'Outros Livros', category: 'Livros' },
   
   { code: '', item: 'Brochuras e livretos', category: 'Brochuras', isCategory: true },
   { code: '6618', item: 'Leitura e Escrita', abbr: 'ay', category: 'Brochuras', imageKey: 'ay' },
@@ -51,6 +53,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '6667', item: 'Melhore', abbr: 'th', category: 'Brochuras', imageKey: 'th' },
   { code: '6670', item: 'Aprenda com a Sabedoria de Jesus', abbr: 'wfg', category: 'Brochuras', imageKey: 'wfg' },
   { code: '6684', item: '10 Perguntas', abbr: 'ypq', category: 'Brochuras', imageKey: 'ypq' },
+  { code: '', item: 'Outras Brochuras e Livretos', category: 'Brochuras' },
   
   { code: '', item: 'Folhetos e convites (1 maço de 2,5 cm = 300)', category: 'Folhetos e convites (1 maço de 2,5 cm = 300)', isCategory: true },
   { code: '7305', item: 'Convite para reuniões cristãs*', abbr: 'inv', category: 'Folhetos e convites (1 maço de 2,5 cm = 300)', imageKey: 'inv' },
@@ -62,12 +65,14 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '7135', item: 'Voltar a Viver*', abbr: 'T-35', category: 'Folhetos e convites (1 maço de 2,5 cm = 300)', imageKey: 'T-35' },
   { code: '7136', item: 'Reino*', abbr: 'T-36', category: 'Folhetos e convites (1 maço de 2,5 cm = 300)', imageKey: 'T-36' },
   { code: '7137', item: 'Respostas Importantes*', abbr: 'T-37', category: 'Folhetos e convites (1 maço de 2,5 cm = 300)', imageKey: 'T-37' },
+  { code: '', item: 'Outros Folhetos e Convites', category: 'Folhetos e convites (1 maço de 2,5 cm = 300)' },
   
   { code: '', item: 'Cartões de visita', category: 'Cartões', isCategory: true },
   { code: '8410', item: 'Cartão de visita (imagem da Bíblia aberta)*', abbr: 'jwcd1', category: 'Cartões', imageKey: 'jwcd1' },
   { code: '8521', item: 'Cartão de visita (logo jw.org)*', abbr: 'jwcd4', category: 'Cartões', imageKey: 'jwcd4' },
   { code: '8569', item: 'Cartão de visita (curso presencial)*', abbr: 'jwcd9', category: 'Cartões', imageKey: 'jwcd9' },
   { code: '8570', item: 'Cartão de visita (curso internet)*', abbr: 'jwcd10', category: 'Cartões', imageKey: 'jwcd10' },
+  { code: '', item: 'Outros Cartões de Visita', category: 'Cartões' },
 
   { code: '', item: 'Revistas para o público', category: 'Revistas para o público', isCategory: true },
   { code: '', item: 'Despertai! N.º 1 2018*', abbr: 'g18.1', category: 'Revistas para o público', imageKey: 'g18.1' },
@@ -103,4 +108,5 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '', item: 'Sentinela N.º 1 2023*', abbr: 'wp23.1', category: 'Revistas para o público', imageKey: 'wp23.1' },
   { code: '', item: 'Sentinela N.º 1 2024*', abbr: 'wp24.1', category: 'Revistas para o público', imageKey: 'wp24.1' },
   { code: '', item: 'Sentinela N.º 1 2025*', abbr: 'wp25.1', category: 'Revistas para o público', imageKey: 'wp25.1' },
+  { code: '', item: 'Outras Revistas', category: 'Revistas para o público' },
 ];
