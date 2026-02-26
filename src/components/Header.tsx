@@ -42,7 +42,6 @@ export function Header() {
   useEffect(() => {
     if (!mounted || !isMobile) return;
 
-    // Tentativa silenciosa de pedir permissão no primeiro toque (necessário para iOS)
     const handleFirstInteraction = async () => {
       if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
         try {
@@ -59,8 +58,7 @@ export function Header() {
     window.addEventListener('click', handleFirstInteraction);
 
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      // Se o navegador já estiver em landscape nativo (trava do celular OFF),
-      // removemos qualquer giro virtual para não bugar o layout.
+      // Se o navegador já estiver em landscape nativo, remove giro virtual
       if (window.innerWidth > window.innerHeight) {
         if (isForcedLandscape) {
           setIsForcedLandscape(false);
@@ -69,7 +67,6 @@ export function Header() {
         return;
       }
 
-      // Detecção de inclinação lateral (gamma)
       const tilt = event.gamma;
       if (tilt === null) return;
 
@@ -80,8 +77,8 @@ export function Header() {
           document.body.classList.add('force-landscape');
         }
       } 
-      // Se voltar para menos de 20 graus de inclinação
-      else if (Math.abs(tilt) < 20) {
+      // Se voltar para menos de 25 graus de inclinação
+      else if (Math.abs(tilt) < 25) {
         if (isForcedLandscape) {
           setIsForcedLandscape(false);
           document.body.classList.remove('force-landscape');
@@ -102,13 +99,11 @@ export function Header() {
 
     const controlHeader = () => {
       const currentScrollY = window.scrollY;
-      
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
         setIsVisible(false);
       } else {
         setIsVisible(true);
       }
-      
       lastScrollY.current = currentScrollY;
     };
 
@@ -129,9 +124,7 @@ export function Header() {
             title: "Procurando atualizações...",
             description: "Verificando se há uma nova versão disponível.",
           });
-          
           await registration.update();
-          
           setTimeout(() => {
             toast({
               title: "Sistema Verificado",

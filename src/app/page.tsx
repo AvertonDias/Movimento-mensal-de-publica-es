@@ -44,6 +44,7 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
+  // Tela de Carregamento Estável (Garante que Servidor e Cliente renderizem o mesmo HTML inicial)
   if (!mounted || isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
