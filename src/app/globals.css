@@ -61,21 +61,6 @@
   input[type=number] {
     -moz-appearance: textfield;
   }
-
-  /* Rotação Virtual para dispositivos travados na vertical */
-  body.force-landscape {
-    position: fixed !important;
-    top: 0 !important;
-    left: 100vw !important;
-    width: 100dvh !important;
-    height: 100dvw !important;
-    transform: rotate(90deg) !important;
-    transform-origin: top left !important;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    background-color: #F5F5F5 !important;
-    z-index: 9999;
-  }
 }
 
 @media print {

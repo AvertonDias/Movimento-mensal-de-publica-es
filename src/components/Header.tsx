@@ -20,79 +20,20 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { ProfileModal } from "@/components/ProfileModal";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Header() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const { toast } = useToast();
-  const isMobile = useIsMobile();
   
   const [mounted, setMounted] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
-  const [isForcedLandscape, setIsForcedLandscape] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Lógica de Giro Automático via Sensores
-  useEffect(() => {
-    if (!mounted || !isMobile) return;
-
-    const handleFirstInteraction = async () => {
-      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-        try {
-          await (DeviceOrientationEvent as any).requestPermission();
-        } catch (e) {
-          // ignora erro silenciosamente
-        }
-      }
-      window.removeEventListener('touchstart', handleFirstInteraction);
-      window.removeEventListener('click', handleFirstInteraction);
-    };
-
-    window.addEventListener('touchstart', handleFirstInteraction);
-    window.addEventListener('click', handleFirstInteraction);
-
-    const handleOrientation = (event: DeviceOrientationEvent) => {
-      // Se o navegador já estiver em landscape nativo, remove giro virtual
-      if (window.innerWidth > window.innerHeight) {
-        if (isForcedLandscape) {
-          setIsForcedLandscape(false);
-          document.body.classList.remove('force-landscape');
-        }
-        return;
-      }
-
-      const tilt = event.gamma;
-      if (tilt === null) return;
-
-      // Se inclinar mais de 70 graus para qualquer lado
-      if (Math.abs(tilt) > 70) {
-        if (!isForcedLandscape) {
-          setIsForcedLandscape(true);
-          document.body.classList.add('force-landscape');
-        }
-      } 
-      // Se voltar para menos de 25 graus de inclinação
-      else if (Math.abs(tilt) < 25) {
-        if (isForcedLandscape) {
-          setIsForcedLandscape(false);
-          document.body.classList.remove('force-landscape');
-        }
-      }
-    };
-
-    window.addEventListener('deviceorientation', handleOrientation);
-    return () => {
-      window.removeEventListener('deviceorientation', handleOrientation);
-      window.removeEventListener('touchstart', handleFirstInteraction);
-      window.removeEventListener('click', handleFirstInteraction);
-    };
-  }, [mounted, isMobile, isForcedLandscape]);
 
   useEffect(() => {
     if (!mounted) return;
