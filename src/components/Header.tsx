@@ -57,26 +57,36 @@ export function Header() {
   };
 
   const handleCheckForUpdates = async () => {
-    if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-      try {
-        const registration = await navigator.serviceWorker.getRegistration();
-        if (registration) {
-          toast({
-            title: "Procurando atualizações...",
-            description: "Verificando se há uma nova versão disponível.",
-          });
-          await registration.update();
-          setTimeout(() => {
-            toast({
-              title: "Sistema Verificado",
-              description: "Se houver uma nova versão, o aplicativo será reiniciado automaticamente.",
-            });
-          }, 2000);
+    toast({
+      title: "Reiniciando sistema...",
+      description: "Limpando cache e buscando atualizações.",
+    });
+
+    // Pequeno delay para o usuário ver a notificação antes de reiniciar
+    setTimeout(async () => {
+      if (typeof window !== 'undefined') {
+        try {
+          // Limpa caches de ativos
+          if ('caches' in window) {
+            const cacheNames = await caches.keys();
+            await Promise.all(cacheNames.map(name => caches.delete(name)));
+          }
+          
+          // Desregistra Service Workers para garantir carga limpa do servidor
+          if ('serviceWorker' in navigator) {
+            const registrations = await navigator.serviceWorker.getRegistrations();
+            for (const registration of registrations) {
+              await registration.unregister();
+            }
+          }
+        } catch (err) {
+          console.error("Erro ao preparar reinicialização:", err);
         }
-      } catch (err) {
-        console.error("Erro ao procurar atualizações:", err);
+        
+        // Recarrega a página forçando bypass do cache do navegador
+        window.location.reload();
       }
-    }
+    }, 1000);
   };
 
   if (!mounted || isUserLoading || !user || user.isAnonymous) return null;
