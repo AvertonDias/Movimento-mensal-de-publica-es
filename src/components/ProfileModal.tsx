@@ -17,6 +17,7 @@ import { useAuth, useUser, useFirestore, setDocumentNonBlocking } from "@/fireba
 import { updateProfile } from "firebase/auth";
 import { doc } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -48,7 +49,6 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         }
       };
       
-      // Executa imediatamente e após a animação de saída
       forceUnlock();
       const timer = setTimeout(forceUnlock, 400);
       return () => clearTimeout(timer);
@@ -80,7 +80,6 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         description: "Seu nome foi alterado com sucesso.",
       });
       
-      // Fecha o modal sem atrasos excessivos para evitar conflitos de estado
       onClose();
     } catch (error: any) {
       console.error(error);
@@ -99,10 +98,15 @@ export function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
       <DialogContent className="sm:max-w-[400px] p-0 overflow-hidden border-none shadow-2xl">
         <DialogHeader className="p-6 bg-primary/5 border-b border-primary/10">
           <div className="flex justify-center mb-4">
-            <div className="bg-white p-3 rounded-2xl shadow-sm border border-primary/10 relative">
-              <UserIcon className="h-10 w-10 text-primary" />
-              <div className="absolute -bottom-1 -right-1 bg-accent p-1 rounded-full border-2 border-white shadow-sm">
-                <CheckCircle2 className="h-3 w-3 text-accent-foreground" />
+            <div className="relative">
+              <Avatar className="h-20 w-20 border-4 border-white shadow-xl">
+                <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || ""} />
+                <AvatarFallback className="bg-white text-primary text-2xl font-black">
+                  {user?.displayName?.charAt(0) || user?.email?.charAt(0).toUpperCase() || <UserIcon className="h-10 w-10" />}
+                </AvatarFallback>
+              </Avatar>
+              <div className="absolute -bottom-1 -right-1 bg-accent p-1.5 rounded-full border-2 border-white shadow-lg">
+                <CheckCircle2 className="h-4 w-4 text-accent-foreground" />
               </div>
             </div>
           </div>
