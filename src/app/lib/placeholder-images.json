@@ -98,6 +98,12 @@
       "imageHint": "pure worship"
     },
     {
+      "id": "wcg",
+      "description": "Ande Corajosamente com Deus",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wcg/T/pt/wcg_T_lg.jpg",
+      "imageHint": "courageous book"
+    },
+    {
       "id": "yp1",
       "description": "Jovens Perguntam Vol 1",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/yp1/T/pt/yp1_T_lg.jpg",
@@ -376,7 +382,7 @@
     {
       "id": "g19.2",
       "description": "Despertai! N.º 2 2019",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201907/T/pt/g_T_201907_lg.jpg",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/g/201905/T/art/g_T_201905_cvr_lg.jpg",
       "imageHint": "awake 19-2"
     },
     {

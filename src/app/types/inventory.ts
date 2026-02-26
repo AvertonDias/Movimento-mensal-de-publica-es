@@ -71,6 +71,7 @@ export const OFFICIAL_PUBLICATIONS: Omit<InventoryItem, 'id' | 'previous' | 'rec
   { code: '5341', item: 'Cante de Coração — Com partituras', abbr: 'sjj', category: 'Livros', imageKey: 'sjj' },
   { code: '5441', item: 'Cante de Coração (tamanho grande)', abbr: 'sjjls', category: 'Livros', imageKey: 'sjj' },
   { code: '5442', item: 'Cante de Coração — Apenas Letras', abbr: 'sjjyls', category: 'Livros', imageKey: 'sjj' },
+  { code: '', item: 'Ande Corajosamente com Deus', abbr: 'wcg', category: 'Livros', imageKey: 'wcg' },
   { code: '5339', item: 'Jovens Perguntam, Volume 1', abbr: 'yp1', category: 'Livros', imageKey: 'yp1' },
   { code: '5336', item: 'Jovens Perguntam, Volume 2', abbr: 'yp2', category: 'Livros', imageKey: 'yp2' },
   { code: '', item: 'Outros Livros', category: 'Livros' },

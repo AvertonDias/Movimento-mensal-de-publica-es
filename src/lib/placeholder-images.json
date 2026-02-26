@@ -97,6 +97,12 @@
       "imageHint": "pure worship"
     },
     {
+      "id": "wcg",
+      "description": "Ande Corajosamente com Deus",
+      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/wcg/T/pt/wcg_T_lg.jpg",
+      "imageHint": "courageous book"
+    },
+    {
       "id": "yp1",
       "description": "Jovens Perguntam Vol 1",
       "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/yp1/T/pt/yp1_T_lg.jpg",
@@ -207,7 +213,7 @@
     {
       "id": "ph",
       "description": "Caminho",
-      "imageUrl": "https://cms-imgp.jw-cdn.org/img/p/ph/T/pt/ph_T_lg.jpg",
+      "imageUrl": "https://akamd1.jw-cdn.org/sg2/p/71a6f7d/2/ir/ph_T_lg.jpg",
       "imageHint": "pathway brochure"
     },
     {
