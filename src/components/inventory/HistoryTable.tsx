@@ -15,6 +15,7 @@ import { format, subMonths, startOfMonth } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { OFFICIAL_PUBLICATIONS, InventoryItem } from "@/app/types/inventory";
 import { cn, formatNumber } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
 interface HistoryTableProps {
   targetUserId?: string;
@@ -25,12 +26,18 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   const db = useFirestore();
   const [historyData, setHistoryData] = useState<Record<string, Record<string, any>>>({});
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const activeUserId = targetUserId || currentUser?.uid;
 
   const allPotentialMonths = useMemo(() => {
     const months = [];
     const baseDate = startOfMonth(new Date()); 
+    // Buscamos 7 meses para decidir quais 6 exibir dinamicamente
     for (let i = 6; i >= 0; i--) {
       const date = subMonths(baseDate, i);
       months.push({
@@ -42,13 +49,18 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   }, []);
 
   const displayedMonths = useMemo(() => {
+    // Pegamos o mês atual (último do array de 7 meses)
     const currentMonth = allPotentialMonths[6]; 
     const currentMonthData = historyData[currentMonth.key];
+    
+    // Verifica se o mês atual tem algum dado de movimentação
     const hasData = currentMonthData && Object.keys(currentMonthData).some(id => {
       const d = currentMonthData[id];
       return (Number(d.received) || 0) > 0 || (Number(d.current) || 0) > 0;
     });
     
+    // Se tem dados no mês atual, mostra o bloco que termina hoje (índices 1 a 6)
+    // Se não tem, mostra o bloco de 6 meses que terminou no mês passado (índices 0 a 5)
     return hasData ? allPotentialMonths.slice(1) : allPotentialMonths.slice(0, 6);
   }, [allPotentialMonths, historyData]);
 
@@ -79,7 +91,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   }, [customDefinitions]);
 
   useEffect(() => {
-    if (!activeUserId || !db) return;
+    if (!activeUserId || !db || !mounted) return;
 
     setLoading(true);
     const unsubscribes: (() => void)[] = [];
@@ -107,7 +119,7 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
     return () => {
       unsubscribes.forEach(unsub => unsub());
     };
-  }, [activeUserId, db, allPotentialMonths]);
+  }, [activeUserId, db, allPotentialMonths, mounted]);
 
   const getValue = (monthKey: string, itemId: string, field: string) => {
     const val = historyData[monthKey]?.[itemId]?.[field];
@@ -125,6 +137,13 @@ export function HistoryTable({ targetUserId }: HistoryTableProps) {
   };
 
   const tableWidth = 228 + (displayedMonths.length * 84);
+
+  // Previne erro de hidratação: renderiza apenas após a montagem no cliente
+  if (!mounted) {
+    return <div className="min-h-[400px] flex items-center justify-center bg-white">
+      <Loader2 className="h-8 w-8 animate-spin text-primary/20" />
+    </div>;
+  }
 
   return (
     <div className="relative mx-auto bg-white overflow-visible" style={{ width: `${tableWidth}px` }}>

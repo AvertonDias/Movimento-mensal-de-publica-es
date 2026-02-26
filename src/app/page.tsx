@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -45,7 +44,8 @@ export default function Home() {
     }
   }, [isHelper, helperInvite]);
 
-  // Estrutura neutra para evitar divergências de hidratação
+  // Se não estiver montado ou estiver carregando o usuário, exibimos o loader
+  // A estrutura é mantida idêntica para o render inicial no servidor e cliente para evitar divergências de hidratação
   if (!mounted || isUserLoading) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
