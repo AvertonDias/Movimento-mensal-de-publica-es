@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
@@ -19,12 +20,15 @@ import {
   AlertTriangle,
   Calendar as CalendarIcon,
   Filter,
-  ShieldCheck
+  ShieldCheck,
+  Hash,
+  Save
 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import {
   AlertDialog,
@@ -36,6 +40,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Popover,
   PopoverContent,
@@ -81,6 +93,16 @@ export default function OrderFormPage() {
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   
+  // Modal de Adição
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newPubForm, setNewPubForm] = useState({
+    name: '',
+    apostilaQty: '0',
+    apostilaGQty: '0',
+    sentinelaQty: '0',
+    sentinelaGQty: '0',
+  });
+
   const [orderedIds, setOrderedIds] = useState<string[]>([]);
 
   const [deleteConfig, setDeleteConfig] = useState<{ id: string, name: string } | null>(null);
@@ -133,7 +155,6 @@ export default function OrderFormPage() {
   const monthKey = format(displayMonth, 'yyyy-MM');
   const monthLabel = format(displayMonth, 'MMMM yyyy', { locale: ptBR });
 
-  // Lógica de Bimestre para Apostilas
   const apostilaPeriod = useMemo(() => {
     const month = displayMonth.getMonth();
     const year = displayMonth.getFullYear();
@@ -146,7 +167,6 @@ export default function OrderFormPage() {
     };
   }, [displayMonth]);
 
-  // Lógica de Acesso Ajudante
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'invites', user.uid);
@@ -176,7 +196,6 @@ export default function OrderFormPage() {
 
   const publishers: Publisher[] = publishersData?.list || [];
   
-  // Mescla os checks de Sentinela (mensal) com Apostila (bimestral)
   const sentinelaChecks = monthlyData?.checks || {};
   const apostilaChecksRaw = apostilaData?.checks || {};
 
@@ -236,18 +255,53 @@ export default function OrderFormPage() {
     }
   }, [user, isUserLoading, router, isMounted]);
 
-  const handleAddPublisher = () => {
-    if (!publishersRef) return;
-    const newPublisher: Publisher = {
-      id: `pub_${Date.now()}`,
-      name: '',
-      apostilaQty: 0,
-      apostilaGQty: 0,
-      sentinelaQty: 0,
-      sentinelaGQty: 0
+  const handleSaveNewPublisher = () => {
+    if (!newPubForm.name.trim() || !publishersRef || !activeUserId || !db) return;
+
+    const pubId = `pub_${Date.now()}`;
+    const newPub: Publisher = {
+      id: pubId,
+      name: newPubForm.name.trim(),
+      apostilaQty: parseInt(newPubForm.apostilaQty) || 0,
+      apostilaGQty: parseInt(newPubForm.apostilaGQty) || 0,
+      sentinelaQty: parseInt(newPubForm.sentinelaQty) || 0,
+      sentinelaGQty: parseInt(newPubForm.sentinelaGQty) || 0,
     };
-    const newList = [...publishers, newPublisher];
+
+    // 1. Salva na lista normal
+    const newList = [...publishers, newPub];
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
+
+    // 2. Salva nos pedidos especiais (S-14-T)
+    const itemsToLog = [
+      { label: 'Apostila (Normal)', qty: newPub.apostilaQty },
+      { label: 'Apostila (Grande)', qty: newPub.apostilaGQty },
+      { label: 'Sentinela (Normal)', qty: newPub.sentinelaQty },
+      { label: 'Sentinela (Grande)', qty: newPub.sentinelaGQty },
+    ].filter(i => i.qty > 0);
+
+    itemsToLog.forEach((item, idx) => {
+      const orderId = `order_${Date.now()}_${idx}`;
+      const orderRef = doc(db, 'users', activeUserId, 'special_orders', orderId);
+      setDocumentNonBlocking(orderRef, {
+        id: orderId,
+        date: new Date().toLocaleDateString('pt-BR'),
+        publisherName: newPub.name,
+        item: item.label,
+        language: 'Português',
+        quantity: String(item.qty),
+        status: 'pend',
+        createdAt: new Date().toISOString()
+      }, { merge: true });
+    });
+
+    toast({
+      title: "Registro Completo!",
+      description: `"${newPub.name}" foi adicionado à lista e registrado no S-14-T.`,
+    });
+
+    setNewPubForm({ name: '', apostilaQty: '0', apostilaGQty: '0', sentinelaQty: '0', sentinelaGQty: '0' });
+    setIsAddModalOpen(false);
   };
 
   const confirmDelete = () => {
@@ -466,7 +520,7 @@ export default function OrderFormPage() {
             </div>
 
             <Button 
-              onClick={handleAddPublisher} 
+              onClick={() => setIsAddModalOpen(true)} 
               className="bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest h-9 px-6 shadow-md transition-all active:scale-95 w-full sm:w-auto"
             >
               <Plus className="h-4 w-4 mr-2" /> Adiciona Periódico
@@ -722,6 +776,103 @@ export default function OrderFormPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal Adicionar Novo */}
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl">
+          <DialogHeader className="p-6 bg-primary/5 border-b border-primary/10 text-left">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="bg-primary/20 p-2 rounded-lg">
+                <Plus className="h-5 w-5 text-primary" />
+              </div>
+              <DialogTitle className="uppercase font-black text-lg tracking-tight">Novo Periódico</DialogTitle>
+            </div>
+            <DialogDescription className="text-xs font-bold uppercase text-muted-foreground">
+              Cadastre um novo publicador e registre o pedido inicial no sistema.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="p-6 space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="new-name" className="text-[10px] font-black uppercase tracking-widest ml-1">Nome do Publicador</Label>
+              <Input 
+                id="new-name"
+                placeholder="Ex: João Silva" 
+                value={newPubForm.name}
+                onChange={(e) => setNewPubForm(prev => ({ ...prev, name: e.target.value }))}
+                className="font-bold uppercase h-11"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                  <Hash className="h-3 w-3 text-primary" /> Apostila (N)
+                </Label>
+                <Input 
+                  type="number" 
+                  value={newPubForm.apostilaQty}
+                  onChange={(e) => setNewPubForm(prev => ({ ...prev, apostilaQty: e.target.value }))}
+                  className="font-black text-center h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                  <Hash className="h-3 w-3 text-primary" /> Apostila (G)
+                </Label>
+                <Input 
+                  type="number" 
+                  value={newPubForm.apostilaGQty}
+                  onChange={(e) => setNewPubForm(prev => ({ ...prev, apostilaGQty: e.target.value }))}
+                  className="font-black text-center h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                  <Hash className="h-3 w-3 text-primary" /> Sentinela (N)
+                </Label>
+                <Input 
+                  type="number" 
+                  value={newPubForm.sentinelaQty}
+                  onChange={(e) => setNewPubForm(prev => ({ ...prev, sentinelaQty: e.target.value }))}
+                  className="font-black text-center h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                  <Hash className="h-3 w-3 text-primary" /> Sentinela (G)
+                </Label>
+                <Input 
+                  type="number" 
+                  value={newPubForm.sentinelaGQty}
+                  onChange={(e) => setNewPubForm(prev => ({ ...prev, sentinelaGQty: e.target.value }))}
+                  className="font-black text-center h-11"
+                />
+              </div>
+            </div>
+
+            <div className="bg-amber-50 border border-amber-100 p-3 rounded-xl flex items-start gap-2">
+              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+              <p className="text-[9px] font-bold text-amber-700 uppercase leading-tight">
+                Nota: Ao salvar, as quantidades preenchidas acima também serão lançadas automaticamente no seu Registro de Pedidos Especiais (S-14-T).
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="p-6 bg-neutral-50 border-t border-neutral-100 flex flex-col gap-3">
+            <Button 
+              onClick={handleSaveNewPublisher}
+              disabled={!newPubForm.name.trim()}
+              className="w-full h-12 bg-primary hover:bg-primary/90 font-black uppercase tracking-widest shadow-lg gap-2"
+            >
+              <Save className="h-4 w-4" /> Salvar e Registrar
+            </Button>
+            <Button variant="ghost" onClick={() => setIsAddModalOpen(false)} className="w-full font-bold uppercase text-[10px] tracking-widest">
+              Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={!!deleteConfig} onOpenChange={(open) => !open && setDeleteConfig(null)}>
         <AlertDialogContent>
