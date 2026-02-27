@@ -1,7 +1,6 @@
-
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFirestore, useUser, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking, useDoc } from '@/firebase';
@@ -53,14 +52,32 @@ export default function HelpersPage() {
   const { data: allInvites } = useCollection(invitesQuery);
   
   // Filtra apenas os convites que eu criei E que não são para mim mesmo (ajudantes externos)
-  const myInvites = allInvites?.filter(inv => {
-    const isMine = inv.ownerId === currentUser?.uid;
-    const isSelfInviteByTokenId = inv.id === currentUser?.uid;
-    const isSelfInviteByHelperId = inv.helperId === currentUser?.uid;
-    const isSelfInviteByLabel = inv.label === currentUser?.displayName;
-    
-    return isMine && !isSelfInviteByTokenId && !isSelfInviteByHelperId && !isSelfInviteByLabel;
-  }) || [];
+  const myInvites = useMemo(() => {
+    if (!allInvites || !currentUser) return [];
+
+    const mine = allInvites.filter(inv => {
+      const isMine = inv.ownerId === currentUser.uid;
+      const isSelfInviteByTokenId = inv.id === currentUser.uid;
+      const isSelfInviteByHelperId = inv.helperId === currentUser.uid;
+      return isMine && !isSelfInviteByTokenId && !isSelfInviteByHelperId;
+    });
+
+    // DEDUPLICAÇÃO:
+    // Quando um ajudante aceita, existem 2 docs: o do Token e o do UID do ajudante (para as rules).
+    // Mostramos apenas o doc do TOKEN (onde id != helperId) pois ele tem o nome correto do ajudante no label.
+    // Se o token foi deletado mas o acesso ficou (erro anterior), mostramos o doc de acesso.
+    const map = new Map();
+    mine.forEach(inv => {
+      const key = inv.helperId || inv.id;
+      const existing = map.get(key);
+      // Prefere o documento que NÃO tem id igual ao helperId (o Token original)
+      if (!existing || (inv.id !== inv.helperId)) {
+        map.set(key, inv);
+      }
+    });
+
+    return Array.from(map.values());
+  }, [allInvites, currentUser]);
 
   const handleCreateInvite = () => {
     if (!currentUser || !db) return;
@@ -93,14 +110,29 @@ export default function HelpersPage() {
   };
 
   const confirmDelete = () => {
-    if (!db || !deleteConfirmId) return;
-    const inviteRef = doc(db, 'invites', deleteConfirmId);
-    deleteDocumentNonBlocking(inviteRef);
+    if (!db || !deleteConfirmId || !allInvites) return;
+    
+    const inviteToDelete = allInvites.find(inv => inv.id === deleteConfirmId);
+    if (!inviteToDelete) return;
+
+    // 1. Deleta o registro clicado
+    deleteDocumentNonBlocking(doc(db, 'invites', inviteToDelete.id));
+
+    // 2. REVOGAÇÃO REAL: Se houver um ajudante conectado, deleta o documento de ACESSO (ID = helperId)
+    // Este é o documento que as Firestore Rules consultam para dar acesso.
+    if (inviteToDelete.helperId) {
+      deleteDocumentNonBlocking(doc(db, 'invites', inviteToDelete.helperId));
+      
+      // Procura outros docs que possam estar sobrando com este helperId
+      const others = allInvites.filter(i => i.helperId === inviteToDelete.helperId && i.id !== inviteToDelete.id && i.ownerId === currentUser?.uid);
+      others.forEach(o => deleteDocumentNonBlocking(doc(db, 'invites', o.id)));
+    }
+
     setDeleteConfirmId(null);
     toast({
       variant: "destructive",
       title: "Ajudante removido",
-      description: "O acesso foi revogado com sucesso.",
+      description: "O acesso foi totalmente revogado.",
     });
   };
 
@@ -154,6 +186,10 @@ export default function HelpersPage() {
             <div className="grid gap-4">
               {myInvites.map((invite) => {
                 const isPending = invite.label === 'Aguardando cadastro...';
+                // Se o doc de acesso ficou órfão (sem o token), o label pode ser o do dono. Ajustamos visualmente.
+                const displayName = (invite.id === invite.helperId && invite.label === invite.ownerName) 
+                  ? "Ajudante Conectado" 
+                  : (invite.helperName || invite.label);
                 
                 return (
                   <Card key={invite.id} className="overflow-hidden border-l-4 border-l-primary hover:shadow-md transition-shadow">
@@ -163,7 +199,7 @@ export default function HelpersPage() {
                           "font-black text-sm uppercase flex items-center gap-2 justify-center sm:justify-start",
                           isPending ? "text-muted-foreground italic" : "text-foreground"
                         )}>
-                          {invite.label}
+                          {displayName}
                           {!isPending && <CheckCircle2 className="h-3.5 w-3.5 text-accent" />}
                         </p>
                         <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">

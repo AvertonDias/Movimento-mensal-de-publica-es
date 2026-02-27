@@ -117,20 +117,24 @@ function HomeContent() {
     setIsProcessingInvite(true);
     
     try {
+      const helperName = user.displayName || user.email?.split('@')[0] || 'Ajudante';
+
       // 1. Atualiza o convite original com o ID do ajudante
       updateDocumentNonBlocking(inviteRef, {
         helperId: user.uid,
-        label: user.displayName || user.email?.split('@')[0] || 'Ajudante'
+        label: helperName
       });
       
       // 2. Cria o registro de acesso do ajudante (usando o UID do ajudante como ID do doc)
+      // Este documento é o que as regras de segurança consultam.
       const myAccessRef = doc(db, 'invites', user.uid);
       setDocumentNonBlocking(myAccessRef, {
         id: user.uid,
         ownerId: invite.ownerId,
         helperId: user.uid,
         ownerName: invite.ownerName,
-        label: invite.ownerName,
+        helperName: helperName, // Salva o nome para o proprietário ver na lista de gestão
+        label: invite.ownerName, // Label para o ajudante ver quem ele está ajudando
         createdAt: new Date().toISOString()
       }, { merge: true });
 
