@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useMemo, useEffect } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { 
   useUser, 
   useFirestore, 
@@ -13,7 +13,24 @@ import {
 } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Loader2, ClipboardList, Info, CheckCircle2, Clock, Send, Smartphone } from "lucide-react";
+import { 
+  Plus, 
+  Trash2, 
+  Loader2, 
+  ClipboardList, 
+  Info, 
+  CheckCircle2, 
+  Clock, 
+  Send, 
+  Smartphone,
+  CalendarDays,
+  User,
+  BookOpen,
+  Globe,
+  Hash,
+  Save,
+  X
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from 'next/navigation';
@@ -24,7 +41,18 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { format } from 'date-fns';
 
 export default function SpecialOrdersPage() {
   const { user, isUserLoading } = useUser();
@@ -33,6 +61,16 @@ export default function SpecialOrdersPage() {
   const router = useRouter();
   const hasCleanedUp = React.useRef(false);
   const isMobile = useIsMobile();
+
+  // Estados do Modal
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [newOrderForm, setNewOrderForm] = useState({
+    date: format(new Date(), 'dd/MM/yyyy'),
+    publisherName: '',
+    item: '',
+    language: 'Português',
+    quantity: '1',
+  });
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
@@ -49,16 +87,13 @@ export default function SpecialOrdersPage() {
 
   const { data: orders, isLoading: isOrdersLoading } = useCollection(ordersQuery);
 
-  // Lógica para filtrar registros e manter a ordem por data de criação
   const filteredOrders = useMemo(() => {
     if (!orders) return [];
-    
     return [...orders].sort((a, b) => 
       new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
     );
   }, [orders]);
 
-  // Limpeza automática do banco de dados para registros órfãos
   useEffect(() => {
     if (!isOrdersLoading && orders && orders.length > 0 && !hasCleanedUp.current && db && activeUserId) {
       orders.forEach(order => {
@@ -72,21 +107,32 @@ export default function SpecialOrdersPage() {
     }
   }, [isOrdersLoading, orders, db, activeUserId]);
 
-  const handleAddRow = () => {
-    if (!activeUserId || !db) return;
+  const handleSaveNewOrder = () => {
+    if (!activeUserId || !db || !newOrderForm.publisherName.trim()) return;
+
     const id = `order_${Date.now()}`;
     const docRef = doc(db, 'users', activeUserId, 'special_orders', id);
     
     setDocumentNonBlocking(docRef, {
+      ...newOrderForm,
       id,
-      date: new Date().toLocaleDateString('pt-BR'),
+      status: 'pend',
+      createdAt: new Date().toISOString()
+    }, { merge: true });
+
+    toast({
+      title: "Registro salvo!",
+      description: `O pedido de "${newOrderForm.item}" foi adicionado com sucesso.`,
+    });
+
+    setNewOrderForm({
+      date: format(new Date(), 'dd/MM/yyyy'),
       publisherName: '',
       item: '',
       language: 'Português',
       quantity: '1',
-      status: 'pend',
-      createdAt: new Date().toISOString()
-    }, { merge: true });
+    });
+    setIsAddModalOpen(false);
   };
 
   const handleUpdate = (id: string, field: string, value: string) => {
@@ -108,7 +154,6 @@ export default function SpecialOrdersPage() {
     <div className="min-h-screen bg-neutral-50 pt-24 pb-12 px-4 print:p-0 print:bg-white font-body text-black">
       <div className="max-w-[1000px] mx-auto space-y-6 print:space-y-0">
         
-        {/* Dica para mobile */}
         {isMobile && (
           <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden">
             <div className="bg-primary/20 p-2 rounded-lg animate-rotate-phone">
@@ -120,7 +165,6 @@ export default function SpecialOrdersPage() {
           </div>
         )}
 
-        {/* Ações de Topo */}
         <div className="flex justify-between items-center bg-white p-4 rounded-xl border shadow-sm print:hidden text-left">
           <div className="flex items-center gap-3">
             <div className="bg-primary p-2 rounded-lg">
@@ -132,21 +176,19 @@ export default function SpecialOrdersPage() {
             </div>
           </div>
           <Button 
-            onClick={handleAddRow}
+            onClick={() => setIsAddModalOpen(true)}
             className="bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest shadow-sm"
           >
             <Plus className="h-4 w-4 mr-2" /> Novo Registro
           </Button>
         </div>
 
-        {/* DOCUMENTO OFICIAL */}
         <div className="bg-white shadow-2xl p-8 rounded-sm border border-neutral-300 print:shadow-none print:border-none print:p-4 space-y-6">
           
           <h2 className="text-center text-xl font-black uppercase tracking-[0.1em]">
             REGISTRO DE ITENS DE PEDIDO ESPECIAL
           </h2>
 
-          {/* Quadro de Avisos Oficial */}
           <div className="border border-black bg-neutral-100 p-4 text-center space-y-1 mx-auto max-w-[80%]">
             <p className="text-[11px] font-medium leading-tight">
               Os itens de pedido especial devem ser enviados somente
@@ -159,7 +201,6 @@ export default function SpecialOrdersPage() {
             </p>
           </div>
 
-          {/* Tabela de Registros */}
           <div className="border-2 border-black">
             <table className="w-full border-collapse text-[10px]">
               <thead>
@@ -190,7 +231,7 @@ export default function SpecialOrdersPage() {
                       <div className="flex flex-col items-center gap-3 opacity-30">
                         <ClipboardList className="h-12 w-12" />
                         <p className="text-[10px] font-black uppercase tracking-widest">Nenhum registro encontrado</p>
-                        <Button variant="outline" size="sm" onClick={handleAddRow} className="mt-2 font-black uppercase text-[9px] print:hidden">
+                        <Button variant="outline" size="sm" onClick={() => setIsAddModalOpen(true)} className="mt-2 font-black uppercase text-[9px] print:hidden">
                           Clique no + para começar
                         </Button>
                       </div>
@@ -282,7 +323,7 @@ export default function SpecialOrdersPage() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={handleAddRow}
+                onClick={() => setIsAddModalOpen(true)}
                 className="h-8 w-8 rounded-full border-2 border-primary text-primary hover:bg-primary hover:text-white p-0 transition-all active:scale-90"
               >
                 <Plus className="h-5 w-5" />
@@ -290,7 +331,6 @@ export default function SpecialOrdersPage() {
             </div>
           </div>
 
-          {/* Rodapé Informativo */}
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t border-black/10">
             <span className="text-[8px] font-bold opacity-40 uppercase tracking-tighter">S-14-T DIGITAL (REGISTRO ESPECIAL)</span>
             <div className="flex items-center gap-2 p-2 bg-primary/5 rounded border border-primary/10 print:hidden text-left">
@@ -302,6 +342,98 @@ export default function SpecialOrdersPage() {
           </div>
         </div>
       </div>
+
+      {/* Modal Adicionar Novo Registro */}
+      <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+        <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none shadow-2xl">
+          <DialogHeader className="p-6 bg-primary/5 border-b border-primary/10 text-left">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="bg-primary/20 p-2 rounded-lg">
+                <Plus className="h-5 w-5 text-primary" />
+              </div>
+              <DialogTitle className="uppercase font-black text-lg tracking-tight">Novo Pedido Especial</DialogTitle>
+            </div>
+            <DialogDescription className="text-xs font-bold uppercase text-muted-foreground">
+              Cadastre um item solicitado especificamente por um publicador.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="p-6 space-y-5">
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                <User className="h-3 w-3 text-primary" /> Nome do Publicador
+              </Label>
+              <Input 
+                placeholder="Ex: João Silva" 
+                value={newOrderForm.publisherName}
+                onChange={(e) => setNewOrderForm(prev => ({ ...prev, publisherName: e.target.value }))}
+                className="font-bold uppercase h-11"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                <BookOpen className="h-3 w-3 text-primary" /> Nome da Publicação
+              </Label>
+              <Input 
+                placeholder="Ex: Examine as Escrituras 2026" 
+                value={newOrderForm.item}
+                onChange={(e) => setNewOrderForm(prev => ({ ...prev, item: e.target.value }))}
+                className="font-bold uppercase h-11"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                  <Globe className="h-3 w-3 text-primary" /> Idioma
+                </Label>
+                <Input 
+                  value={newOrderForm.language}
+                  onChange={(e) => setNewOrderForm(prev => ({ ...prev, language: e.target.value }))}
+                  className="font-bold uppercase h-11"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                  <Hash className="h-3 w-3 text-primary" /> Quantidade
+                </Label>
+                <Input 
+                  type="number"
+                  value={newOrderForm.quantity}
+                  onChange={(e) => setNewOrderForm(prev => ({ ...prev, quantity: e.target.value }))}
+                  className="font-black text-center h-11"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest ml-1 flex items-center gap-1.5">
+                <CalendarDays className="h-3 w-3 text-primary" /> Data do Pedido
+              </Label>
+              <Input 
+                value={newOrderForm.date}
+                onChange={(e) => setNewOrderForm(prev => ({ ...prev, date: e.target.value }))}
+                className="font-bold h-11 text-center"
+                placeholder="dd/mm/aa"
+              />
+            </div>
+          </div>
+
+          <DialogFooter className="p-6 bg-neutral-50 border-t border-neutral-100 flex flex-col gap-3">
+            <Button 
+              onClick={handleSaveNewOrder}
+              disabled={!newOrderForm.publisherName.trim() || !newOrderForm.item.trim()}
+              className="w-full h-12 bg-primary hover:bg-primary/90 font-black uppercase tracking-widest shadow-lg gap-2"
+            >
+              <Save className="h-4 w-4" /> Salvar Registro
+            </Button>
+            <Button variant="ghost" onClick={() => setIsAddModalOpen(false)} className="w-full font-bold uppercase text-[10px] tracking-widest h-10">
+              Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
