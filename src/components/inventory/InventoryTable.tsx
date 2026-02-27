@@ -200,15 +200,21 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const prevRemote = prevMonthItems?.find(i => i.id === id);
       const local = localData[id] || {};
       
-      // Herança: 1. Local, 2. Remoto atual, 3. Atual do mês passado
+      // Herança: 1. Local, 2. Remoto atual, 3. Atual do mês passado, 4. Zero (valor inicial)
       const previousValue = local.previous !== undefined 
         ? local.previous 
         : (remote?.previous !== undefined && remote?.previous !== null 
             ? remote.previous 
-            : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : null));
+            : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : 0));
 
-      const receivedValue = local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null);
-      const currentVal = local.current !== undefined ? local.current : (remote?.current !== undefined && remote?.current !== null ? remote.current : null);
+      // Recebido e Atual iniciam em 0 para preenchimento manual se não houver dados remotos ou locais
+      const receivedValue = local.received !== undefined 
+        ? local.received 
+        : (remote?.received !== undefined && remote?.received !== null ? remote.received : 0);
+
+      const currentVal = local.current !== undefined 
+        ? local.current 
+        : (remote?.current !== undefined && remote?.current !== null ? remote.current : 0);
       
       combined.push({
         ...pub,
@@ -236,10 +242,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             ? localCustom.previous 
             : (remoteCustom?.previous !== undefined && remoteCustom?.previous !== null 
                 ? remoteCustom.previous 
-                : (prevRemoteCustom?.current !== undefined && prevRemoteCustom?.current !== null ? prevRemoteCustom.current : null));
+                : (prevRemoteCustom?.current !== undefined && prevRemoteCustom?.current !== null ? prevRemoteCustom.current : 0));
 
-          const receivedCustomValue = localCustom.received !== undefined ? localCustom.received : (remoteCustom?.received !== undefined ? remoteCustom?.received : null);
-          const currentCustomVal = localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined && remoteCustom?.current !== null ? remoteCustom.current : null);
+          const receivedCustomValue = localCustom.received !== undefined 
+            ? localCustom.received 
+            : (remoteCustom?.received !== undefined && remoteCustom?.received !== null ? remoteCustom.received : 0);
+
+          const currentCustomVal = localCustom.current !== undefined 
+            ? localCustom.current 
+            : (remoteCustom?.current !== undefined && remoteCustom?.current !== null ? remoteCustom.current : 0);
 
           combined.push({
             ...cd,
@@ -287,7 +298,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [items, searchTerm, filterStatus, historicalMinStock]);
 
   const calculateOutgoing = (item: InventoryItem) => {
-    if (item.current === null || item.current === undefined) return '';
     const total = (Number(item.previous) || 0) + (Number(item.received) || 0);
     const current = Number(item.current) || 0;
     return total - current;
@@ -406,7 +416,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <div className="flex items-center gap-2 max-w-full text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
-                Apenas o estoque Anterior é herdado do mês passado. Recebido e Atual devem ser lançados mensalmente.
+                Apenas o estoque Anterior é herdado do mês passado. Recebido e Atual iniciam em 0 para preenchimento manual.
               </p>
             </div>
           </div>
@@ -506,7 +516,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                     {DEFAULT_COLUMNS.map((col) => (
                       <TableCell key={`${item.id}-${col.id}`} className="p-0.5 px-1 border-r last:border-0 h-11">
                         {col.id === 'outgoing' ? (
-                          <div className={cn("py-1.5 font-black rounded text-sm text-center", item.current !== null && typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10")}>
+                          <div className={cn("py-1.5 font-black rounded text-sm text-center", typeof calculateOutgoing(item) === 'number' && (calculateOutgoing(item) as number) < 0 ? "text-destructive bg-destructive/10" : "text-accent-foreground bg-accent/10")}>
                             {formatNumber(calculateOutgoing(item))}
                           </div>
                         ) : col.id === 'code' ? (
