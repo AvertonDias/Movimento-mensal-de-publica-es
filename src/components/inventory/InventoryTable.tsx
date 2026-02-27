@@ -46,13 +46,6 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { 
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { 
   InventoryItem, 
   DEFAULT_COLUMNS
 } from "@/app/types/inventory";
@@ -72,7 +65,6 @@ import { EditCustomItemDialog } from "./EditCustomItemDialog";
 import { RequestItemDialog } from "./RequestItemDialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import Image from "next/image";
-import Link from "next/link";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -108,6 +100,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const displayMonth = selectedMonth || new Date();
   const monthKey = format(displayMonth, 'yyyy-MM');
+  const prevMonthKey = format(subMonths(displayMonth, 1), 'yyyy-MM');
   const monthName = format(displayMonth, 'MMMM yyyy', { locale: ptBR });
   
   const activeUid = targetUserId || user?.uid;
@@ -188,6 +181,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const { data: remoteItems } = useCollection(monthItemsQuery);
 
+  // Consulta do mês anterior para herança
+  const prevMonthItemsQuery = useMemoFirebase(() => {
+    if (!db || !activeUid || !prevMonthKey || !isMounted) return null;
+    return collection(db, 'users', activeUid, 'monthly_records', prevMonthKey, 'items');
+  }, [db, activeUid, prevMonthKey, isMounted]);
+
+  const { data: prevMonthItems } = useCollection(prevMonthItemsQuery);
+
   const items = useMemo(() => {
     const combined: InventoryItem[] = [];
     const officialIds = new Set(OFFICIAL_PUBLICATIONS.map((pub, idx) => pub.code || pub.abbr || `item_${idx}`));
@@ -196,10 +197,16 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const id = pub.code || pub.abbr || `item_${idx}`;
       const customDef = customDefinitions?.find(d => d.id === id);
       const remote = remoteItems?.find(i => i.id === id);
+      const prevRemote = prevMonthItems?.find(i => i.id === id);
       const local = localData[id] || {};
       
-      // Sem herança automática entre meses conforme solicitado
-      const previousValue = local.previous !== undefined ? local.previous : (remote?.previous !== undefined && remote?.previous !== null ? remote.previous : null);
+      // Herança: 1. Local, 2. Remoto atual, 3. Atual do mês passado
+      const previousValue = local.previous !== undefined 
+        ? local.previous 
+        : (remote?.previous !== undefined && remote?.previous !== null 
+            ? remote.previous 
+            : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : null));
+
       const receivedValue = local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null);
       const currentVal = local.current !== undefined ? local.current : (remote?.current !== undefined && remote?.current !== null ? remote.current : null);
       
@@ -222,9 +229,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
         categoryCustomItems.forEach(cd => {
           const remoteCustom = remoteItems?.find(i => i.id === cd.id);
+          const prevRemoteCustom = prevMonthItems?.find(i => i.id === cd.id);
           const localCustom = localData[cd.id] || {};
           
-          const prevCustomValue = localCustom.previous !== undefined ? localCustom.previous : (remoteCustom?.previous !== undefined && remoteCustom?.previous !== null ? remoteCustom.previous : null);
+          const prevCustomValue = localCustom.previous !== undefined 
+            ? localCustom.previous 
+            : (remoteCustom?.previous !== undefined && remoteCustom?.previous !== null 
+                ? remoteCustom.previous 
+                : (prevRemoteCustom?.current !== undefined && prevRemoteCustom?.current !== null ? prevRemoteCustom.current : null));
+
           const receivedCustomValue = localCustom.received !== undefined ? localCustom.received : (remoteCustom?.received !== undefined ? remoteCustom?.received : null);
           const currentCustomVal = localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined && remoteCustom?.current !== null ? remoteCustom.current : null);
 
@@ -242,7 +255,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       }
     });
     return combined;
-  }, [remoteItems, localData, customDefinitions, historicalMinStock]);
+  }, [remoteItems, prevMonthItems, localData, customDefinitions, historicalMinStock]);
 
   const filteredItems = useMemo(() => {
     const matches = items.filter(item => !item.isCategory).filter(item => {
@@ -393,7 +406,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <div className="flex items-center gap-2 max-w-full text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
-                Lance manualmente o estoque Anterior, Recebido e Atual de cada mês.
+                Apenas o estoque Anterior é herdado do mês passado. Recebido e Atual devem ser lançados mensalmente.
               </p>
             </div>
           </div>
