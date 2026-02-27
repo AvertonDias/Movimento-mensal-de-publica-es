@@ -27,7 +27,8 @@ import {
   Truck,
   Smartphone,
   Filter,
-  AlertOctagon
+  AlertOctagon,
+  Bell
 } from "lucide-react";
 import { 
   AlertDialog,
@@ -107,6 +108,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const activeUid = targetUserId || user?.uid;
 
+  // Limpa o estado local ao trocar de mês para evitar "vazamento" de dados entre meses
   useEffect(() => {
     setLocalData({});
   }, [monthKey]);
@@ -215,11 +217,11 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         ? local.current 
         : (remote?.current !== undefined && remote?.current !== null ? remote.current : null);
 
+      // Regra: Recebido só aparece se houver dados no banco ou se o atual for preenchido
+      const hasRemoteReceived = remote?.received !== undefined && remote?.received !== null;
       const receivedValue = local.received !== undefined 
         ? local.received 
-        : (remote?.received !== undefined && remote?.received !== null 
-            ? remote.received 
-            : (currentVal !== null ? 0 : null));
+        : (hasRemoteReceived ? remote.received : (currentVal !== null ? 0 : null));
       
       combined.push({
         ...pub,
@@ -253,11 +255,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             ? localCustom.current 
             : (remoteCustom?.current !== undefined && remoteCustom?.current !== null ? remoteCustom.current : null);
 
+          const hasRemoteCustomReceived = remoteCustom?.received !== undefined && remoteCustom?.received !== null;
           const receivedCustomValue = localCustom.received !== undefined 
             ? localCustom.received 
-            : (remoteCustom?.received !== undefined && remoteCustom?.received !== null 
-                ? remoteCustom.received 
-                : (currentCustomVal !== null ? 0 : null));
+            : (hasRemoteCustomReceived ? remoteCustom.received : (currentCustomVal !== null ? 0 : null));
 
           combined.push({
             ...cd,
@@ -284,9 +285,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       let matchesStatus = true;
       if (filterStatus === 'low-stock') {
         const minVal = historicalMinStock[item.id] || 0;
-        matchesStatus = !item.hidden && minVal > 0 && (
-          (item.current !== null && item.current <= minVal) || 
-          (item.current === null && item.previous !== null && item.previous <= minVal)
+        const effectiveMin = minVal > 0 ? minVal : (item.item?.includes('*') || (Number(item.previous) || 0) > 0 ? 1 : 0);
+        matchesStatus = !item.hidden && effectiveMin > 0 && (
+          (item.current !== null && item.current <= effectiveMin) || 
+          (item.current === null && item.previous !== null && item.previous <= effectiveMin)
         );
       } else if (filterStatus === 'pending') {
         matchesStatus = (item.pendingRequestsCount || 0) > 0;
@@ -331,16 +333,18 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       setPendingConfirmItem({ ...itemData });
     }
     
+    // Lógica de Reativação Automática de Alerta ao Reabastecer
     const minVal = historicalMinStock[id] || 0;
-    const theoreticalStock = checkPrev + checkRec;
-    const isNowAboveMin = (field === 'current' && value !== null && value > minVal) || (theoreticalStock > minVal);
+    const effectiveMin = minVal > 0 ? minVal : (itemData.item?.includes('*') || checkPrev > 0 ? 1 : 0);
+    const theoreticalStock = checkPrev + (field === 'received' ? (value ?? 0) : checkRec);
+    const isNowAboveMin = (field === 'current' && value !== null && value > effectiveMin) || (theoreticalStock > effectiveMin);
 
     if (isNowAboveMin && (itemData.hidden || itemData.silent)) {
       const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
       setDocumentNonBlocking(inventoryDocRef, { hidden: false, silent: false }, { merge: true });
       updates.hidden = false;
       updates.silent = false;
-      if (field === 'current' && value !== null && value > minVal) {
+      if (field === 'current' && value !== null && value > effectiveMin) {
         toast({ title: "Monitoramento Reativado", description: `O item "${itemData.item}" foi reabastecido.`, });
       }
     }
@@ -363,7 +367,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     toast({
       title: !isSilenced ? "Alerta Silenciado" : "Monitoramento Reativado",
       description: !isSilenced 
-        ? `O item "${item.item}" não exibirá mais avisos de estoque baixo.`
+        ? `O item "${item.item}" não exibirá mais avisos de estoque baixo até ser reabastecido.`
         : `O monitoramento de estoque para "${item.item}" foi reativado.`,
     });
   };
@@ -504,9 +508,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   );
                 }
 
+                // Lógica de Identificação de Estoque Baixo
                 const minVal = historicalMinStock[item.id] || 0;
-                const isLowStock = !item.hidden && minVal > 0 && ((item.current !== null && item.current <= minVal) || (item.current === null && item.previous !== null && item.previous <= minVal));
                 const isTeachingKit = itemName.includes('*');
+                const effectiveMin = minVal > 0 ? minVal : (isTeachingKit || (Number(item.previous) || 0) > 0 ? 1 : 0);
+                const isLowStock = !item.hidden && effectiveMin > 0 && (
+                  (item.current !== null && item.current <= effectiveMin) || 
+                  (item.current === null && item.previous !== null && item.previous <= effectiveMin)
+                );
+                
                 const isCriticalTeachingKit = isTeachingKit && isLowStock;
                 const isSelected = selectedRowId === item.id;
                 
@@ -535,38 +545,41 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px] px-2">
                             <div className="flex items-center gap-2 overflow-hidden flex-1">
-                              {isLowStock && (
+                              {(isLowStock || item.silent) && (
                                 <Popover>
                                   <PopoverTrigger asChild>
                                     <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive")}>
-                                      {isCriticalTeachingKit ? <AlertOctagon className="h-4 w-4 text-destructive animate-bounce-slow" /> : <AlertTriangle className="h-3 w-3" />}
+                                      {item.silent ? <BellOff className="h-3 w-3" /> : (isCriticalTeachingKit ? <AlertOctagon className="h-4 w-4 text-destructive animate-bounce-slow" /> : <AlertTriangle className="h-3 w-3" />)}
                                     </Button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3">
-                                    <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest text-left">Ações de Alerta</p>
+                                    <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest text-left">Gerenciar Notificação</p>
                                     <div className="space-y-2">
                                       <Button 
                                         variant="outline" 
                                         size="sm" 
-                                        className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
+                                        className="w-full text-[9px] font-black uppercase tracking-widest h-8 justify-start gap-2" 
                                         onClick={() => handleToggleSilence(item)}
                                       >
-                                        Silenciar este item
+                                        {item.silent ? <Bell className="h-3 w-3" /> : <BellOff className="h-3 w-3" />}
+                                        {item.silent ? "Reativar Alertas" : "Silenciar este item"}
                                       </Button>
-                                      <Button 
-                                        variant="default" 
-                                        size="sm" 
-                                        className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
-                                        onClick={() => setSilencingItem(item)}
-                                      >
-                                        Silenciar Permanente
-                                      </Button>
+                                      {!item.silent && (
+                                        <Button 
+                                          variant="default" 
+                                          size="sm" 
+                                          className="w-full text-[9px] font-black uppercase tracking-widest h-8 justify-start gap-2" 
+                                          onClick={() => setSilencingItem(item)}
+                                        >
+                                          <AlertTriangle className="h-3 w-3" /> Silenciar Permanente
+                                        </Button>
+                                      )}
                                     </div>
                                   </PopoverContent>
                                 </Popover>
                               )}
                               <div className="flex flex-col gap-0.5 overflow-hidden">
-                                {isCriticalTeachingKit && (
+                                {isCriticalTeachingKit && !item.silent && (
                                   <span className="text-[7px] font-black text-destructive uppercase tracking-widest leading-none">CRÍTICO - KIT DE ENSINO</span>
                                 )}
                                 {imagePlaceholder ? (
@@ -723,12 +736,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="uppercase font-black text-left flex items-center gap-2">
               <BellOff className="h-5 w-5 text-primary" />
-              Silenciar Alerta?
+              Silenciar Permanente?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-left font-bold uppercase text-xs leading-relaxed">
-              Deseja silenciar permanentemente os avisos de estoque baixo para <span className="text-foreground font-black">"{silencingItem?.item}"</span>? 
+              Deseja silenciar os avisos de estoque baixo para <span className="text-foreground font-black">"{silencingItem?.item}"</span>? 
               <br/><br/>
-              O item continuará no inventário, mas o sistema não exibirá mais o alerta vermelho quando ele atingir níveis críticos. O monitoramento voltará automaticamente se o estoque for reabastecido.
+              A notificação visual desaparecerá imediatamente. O monitoramento voltará automaticamente se o estoque for reabastecido futuramente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -742,7 +755,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               }}
               className="bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest"
             >
-              Sim, Silenciar Permanente
+              Sim, Silenciar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
