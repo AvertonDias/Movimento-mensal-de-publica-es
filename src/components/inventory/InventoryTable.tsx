@@ -1,3 +1,4 @@
+
 "use client"
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -105,7 +106,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const activeUid = targetUserId || user?.uid;
 
-  // Limpa as alterações locais sempre que o mês mudar para evitar que valores de um mês apareçam em outro
   useEffect(() => {
     setLocalData({});
   }, [monthKey]);
@@ -606,10 +606,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                 : formatNumber(item[col.id])
                             } 
                             onChange={(e) => {
+                              if (col.id === 'previous') return;
                               const val = e.target.value.replace(/\D/g, '');
                               handleUpdateItem(item.id, col.id, val === '' ? null : Number(val));
                             }}
                             onFocus={(e) => {
+                              if (col.id === 'previous') return;
                               e.target.select();
                               setFocusedField({ id: item.id, col: col.id });
                             }} 
@@ -617,10 +619,11 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             onWheel={(e) => e.currentTarget.blur()} 
                             className={cn(
                               "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-0.5", 
-                              isLowStock && col.id === 'current' && "text-destructive scale-110"
+                              isLowStock && col.id === 'current' && "text-destructive scale-110",
+                              col.id === 'previous' && "opacity-60 cursor-not-allowed"
                             )} 
                             placeholder="0" 
-                            disabled={(activeUid !== user?.uid && !targetUserId)} 
+                            disabled={(activeUid !== user?.uid && !targetUserId) || col.id === 'previous'} 
                           />
                         )}
                       </TableCell>
