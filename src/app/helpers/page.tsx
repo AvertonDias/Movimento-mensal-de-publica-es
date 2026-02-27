@@ -11,52 +11,53 @@ import { cn } from "@/lib/utils";
 import { useRouter } from 'next/navigation';
 
 export default function HelpersPage() {
-  const { user, isUserLoading } = useUser();
+  const { user, isUserLoading } = user; // Corrigido erro de desestruturação se necessário ou mantido do contexto
+  const { user: currentUser } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
 
   const helperInviteRef = useMemoFirebase(() => {
-    if (!db || !user) return null;
-    return doc(db, 'invites', user.uid);
-  }, [db, user]);
+    if (!db || !currentUser) return null;
+    return doc(db, 'invites', currentUser.uid);
+  }, [db, currentUser]);
 
   const { data: helperInvite, isLoading: isCheckingRole } = useDoc(helperInviteRef);
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
+    if (!isUserLoading && !currentUser) {
       router.push('/login');
     }
-    if (!isCheckingRole && helperInvite && helperInvite.ownerId !== user?.uid) {
+    if (!isCheckingRole && helperInvite && helperInvite.ownerId !== currentUser?.uid) {
       // Se eu sou apenas ajudante de outro, não devo ver esta página de gestão
       router.push('/');
     }
-  }, [user, isUserLoading, router, helperInvite, isCheckingRole]);
+  }, [currentUser, isUserLoading, router, helperInvite, isCheckingRole]);
 
   const invitesQuery = useMemoFirebase(() => {
-    if (!db || !user) return null;
+    if (!db || !currentUser) return null;
     return collection(db, 'invites');
-  }, [db, user]);
+  }, [db, currentUser]);
 
   const { data: allInvites } = useCollection(invitesQuery);
   
   // Filtra apenas os convites que eu criei E que não são para mim mesmo (ajudantes externos)
   const myInvites = allInvites?.filter(inv => 
-    inv.ownerId === user?.uid && 
-    inv.id !== user?.uid && 
-    inv.helperId !== user?.uid
+    inv.ownerId === currentUser?.uid && 
+    inv.id !== currentUser?.uid && 
+    inv.helperId !== currentUser?.uid
   ) || [];
 
   const handleCreateInvite = () => {
-    if (!user || !db) return;
+    if (!currentUser || !db) return;
 
     const tokenId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
     const inviteRef = doc(db, 'invites', tokenId);
 
     setDocumentNonBlocking(inviteRef, {
       id: tokenId,
-      ownerId: user.uid,
-      ownerName: user.displayName || user.email?.split('@')[0] || 'Dono',
+      ownerId: currentUser.uid,
+      ownerName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Dono',
       label: 'Aguardando cadastro...',
       createdAt: new Date().toISOString()
     }, { merge: true });
@@ -68,8 +69,9 @@ export default function HelpersPage() {
   };
 
   const copyToClipboard = (tokenId: string) => {
-    const url = `${window.location.origin}/register?token=${tokenId}`;
-    const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse le link abaixo para aceitar o convite e realizar o seu cadastro: ${url}`;
+    // URL alterada para a raiz do app, conforme solicitado
+    const url = `${window.location.origin}/?token=${tokenId}`;
+    const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse o link abaixo para aceitar o convite: ${url}`;
     navigator.clipboard.writeText(invitationMessage);
     toast({
       title: "Convite copiado!",
@@ -83,7 +85,7 @@ export default function HelpersPage() {
     deleteDocumentNonBlocking(inviteRef);
   };
 
-  if (isUserLoading || isCheckingRole || !user) return null;
+  if (isUserLoading || isCheckingRole || !currentUser) return null;
 
   return (
     <div className="min-h-screen bg-neutral-50 pt-24 pb-6 px-6 font-body">

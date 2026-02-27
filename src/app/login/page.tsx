@@ -34,8 +34,9 @@ function LoginForm() {
   useEffect(() => {
     if (user && !user.isAnonymous) {
       const pendingToken = localStorage.getItem('pending_invite_token');
+      // Redireciona para a home com o token se houver, para que o banner de aceitação apareça na tela inicial
       if (pendingToken) {
-        router.push(`/register?token=${pendingToken}`);
+        router.push(`/?token=${pendingToken}`);
       } else {
         router.push('/');
       }
