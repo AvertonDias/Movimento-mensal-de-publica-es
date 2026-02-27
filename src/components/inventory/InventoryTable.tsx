@@ -89,6 +89,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const [requestingItem, setRequestingItem] = useState<InventoryItem | null>(null);
   const [pendingConfirmItem, setPendingConfirmItem] = useState<InventoryItem | null>(null);
   const [negativeWarningItem, setNegativeWarningItem] = useState<InventoryItem | null>(null);
+  const [silencingItem, setSilencingItem] = useState<InventoryItem | null>(null);
   const [isMonthPopoverOpen, setIsMonthPopoverOpen] = useState(false);
   const [historicalMinStock, setHistoricalMinStock] = useState<Record<string, number>>({});
   const [focusedField, setFocusedField] = useState<{id: string, col: string} | null>(null);
@@ -118,12 +119,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, []);
 
   useEffect(() => {
-    if (!pendingConfirmItem && !requestingItem && !editingItem && !negativeWarningItem) {
+    if (!pendingConfirmItem && !requestingItem && !editingItem && !negativeWarningItem && !silencingItem) {
       unlockBody();
       const t = setTimeout(unlockBody, 400);
       return () => clearTimeout(t);
     }
-  }, [pendingConfirmItem, requestingItem, editingItem, negativeWarningItem, unlockBody]);
+  }, [pendingConfirmItem, requestingItem, editingItem, negativeWarningItem, silencingItem, unlockBody]);
 
   const isDateRestricted = (date: Date) => {
     const limitDate = startOfMonth(new Date());
@@ -544,9 +545,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                       variant="default" 
                                       size="sm" 
                                       className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
-                                      onClick={() => handleToggleSilence(item)}
+                                      onClick={() => {
+                                        if (item.hidden || item.silent) {
+                                          handleToggleSilence(item);
+                                        } else {
+                                          setSilencingItem(item);
+                                        }
+                                      }}
                                     >
-                                      {item.hidden || item.silent ? "Reativar Monitoramento" : "Silenciar este item"}
+                                      {item.hidden || item.silent ? "Reativar Monitoramento" : "Silenciar Permanente"}
                                     </Button>
                                   </PopoverContent>
                                 </Popover>
@@ -699,6 +706,36 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
               className="bg-primary hover:bg-primary/90 font-black uppercase text-xs"
             >
               Sim, está correto
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={!!silencingItem} onOpenChange={(open) => !open && setSilencingItem(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="uppercase font-black text-left flex items-center gap-2">
+              <BellOff className="h-5 w-5 text-primary" />
+              Silenciar Alerta?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-left font-bold uppercase text-xs leading-relaxed">
+              Deseja silenciar permanentemente os avisos de estoque baixo para <span className="text-foreground font-black">"{silencingItem?.item}"</span>? 
+              <br/><br/>
+              O item continuará no inventário, mas o sistema não exibirá mais o alerta vermelho quando ele atingir níveis críticos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-black uppercase text-[10px] tracking-widest">Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={() => {
+                if (silencingItem) {
+                  handleToggleSilence(silencingItem);
+                  setSilencingItem(null);
+                }
+              }}
+              className="bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest"
+            >
+              Sim, Silenciar Permanente
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
