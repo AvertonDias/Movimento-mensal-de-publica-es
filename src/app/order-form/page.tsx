@@ -258,10 +258,22 @@ export default function OrderFormPage() {
   const handleSaveNewPublisher = () => {
     if (!newPubForm.name.trim() || !publishersRef || !activeUserId || !db) return;
 
+    const trimmedName = newPubForm.name.trim();
+    const isDuplicate = publishers.some(p => p.name.trim().toLowerCase() === trimmedName.toLowerCase());
+
+    if (isDuplicate) {
+      toast({
+        variant: "destructive",
+        title: "Nome Duplicado",
+        description: `O publicador "${trimmedName}" já existe na sua lista.`,
+      });
+      return;
+    }
+
     const pubId = `pub_${Date.now()}`;
     const newPub: Publisher = {
       id: pubId,
-      name: newPubForm.name.trim(),
+      name: trimmedName,
       apostilaQty: parseInt(newPubForm.apostilaQty) || 0,
       apostilaGQty: parseInt(newPubForm.apostilaGQty) || 0,
       sentinelaQty: parseInt(newPubForm.sentinelaQty) || 0,
