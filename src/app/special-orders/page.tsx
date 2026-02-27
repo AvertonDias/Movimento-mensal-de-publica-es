@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo, useEffect, useState } from 'react';
@@ -29,7 +28,8 @@ import {
   Globe,
   Hash,
   Save,
-  X
+  X,
+  AlertTriangle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -49,6 +49,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -64,6 +74,7 @@ export default function SpecialOrdersPage() {
 
   // Estados do Modal
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [newOrderForm, setNewOrderForm] = useState({
     date: format(new Date(), 'dd/MM/yyyy'),
     publisherName: '',
@@ -141,10 +152,11 @@ export default function SpecialOrdersPage() {
     setDocumentNonBlocking(docRef, { [field]: value }, { merge: true });
   };
 
-  const handleDelete = (id: string) => {
-    if (!activeUserId || !db) return;
-    const docRef = doc(db, 'users', activeUserId, 'special_orders', id);
+  const confirmDelete = () => {
+    if (!activeUserId || !db || !deleteConfirmId) return;
+    const docRef = doc(db, 'users', activeUserId, 'special_orders', deleteConfirmId);
     deleteDocumentNonBlocking(docRef);
+    setDeleteConfirmId(null);
     toast({ variant: "destructive", title: "Registro removido" });
   };
 
@@ -305,7 +317,7 @@ export default function SpecialOrdersPage() {
                           </Select>
                           
                           <button 
-                            onClick={() => handleDelete(order.id)}
+                            onClick={() => setDeleteConfirmId(order.id)}
                             className="text-destructive p-1.5 hover:bg-destructive/10 bg-destructive/5 border border-destructive/10 rounded-full print:hidden transition-colors"
                             title="Excluir"
                           >
@@ -434,6 +446,30 @@ export default function SpecialOrdersPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Confirmação de Exclusão */}
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 uppercase font-black text-destructive text-left">
+              <AlertTriangle className="h-5 w-5" />
+              Remover Registro?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
+              Deseja realmente excluir este pedido especial? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-black uppercase text-[10px] tracking-widest">Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive hover:bg-destructive/90 font-black uppercase text-[10px] tracking-widest"
+            >
+              Sim, Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
