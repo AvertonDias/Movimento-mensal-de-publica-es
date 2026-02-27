@@ -133,6 +133,19 @@ export default function OrderFormPage() {
   const monthKey = format(displayMonth, 'yyyy-MM');
   const monthLabel = format(displayMonth, 'MMMM yyyy', { locale: ptBR });
 
+  // Lógica de Bimestre para Apostilas
+  const apostilaPeriod = useMemo(() => {
+    const month = displayMonth.getMonth();
+    const year = displayMonth.getFullYear();
+    const startMonth = Math.floor(month / 2) * 2;
+    const d1 = new Date(year, startMonth, 1);
+    const d2 = new Date(year, startMonth + 1, 1);
+    return {
+      key: format(d1, 'yyyy-MM'),
+      label: `${format(d1, 'MMM', { locale: ptBR })}/${format(d2, 'MMM', { locale: ptBR })}`.toUpperCase()
+    };
+  }, [displayMonth]);
+
   const publishersRef = useMemoFirebase(() => {
     if (!db || !user) return null;
     return doc(db, 'users', user.uid, 'order_form', 'publishers');
@@ -143,11 +156,39 @@ export default function OrderFormPage() {
     return doc(db, 'users', user.uid, 'order_form', `checks_${monthKey}`);
   }, [db, user, monthKey, isMounted]);
 
+  const apostilaChecksRef = useMemoFirebase(() => {
+    if (!db || !user || !apostilaPeriod.key || !isMounted) return null;
+    return doc(db, 'users', user.uid, 'order_form', `checks_${apostilaPeriod.key}`);
+  }, [db, user, apostilaPeriod.key, isMounted]);
+
   const { data: publishersData, isLoading: isLoadingPublishers } = useDoc(publishersRef);
   const { data: monthlyData, isLoading: isLoadingMonthly } = useDoc(monthlyChecksRef);
+  const { data: apostilaData, isLoading: isLoadingApostila } = useDoc(apostilaChecksRef);
 
   const publishers: Publisher[] = publishersData?.list || [];
-  const checks: Record<string, MonthlyChecks> = monthlyData?.checks || {};
+  
+  // Mescla os checks de Sentinela (mensal) com Apostila (bimestral)
+  const sentinelaChecks = monthlyData?.checks || {};
+  const apostilaChecksRaw = apostilaData?.checks || {};
+
+  const checks = useMemo(() => {
+    const combined: Record<string, MonthlyChecks> = {};
+    const allIds = new Set([
+      ...publishers.map(p => p.id),
+      ...Object.keys(sentinelaChecks), 
+      ...Object.keys(apostilaChecksRaw)
+    ]);
+    
+    allIds.forEach(id => {
+      combined[id] = {
+        sentinela: sentinelaChecks[id]?.sentinela || false,
+        sentinelaG: sentinelaChecks[id]?.sentinelaG || false,
+        apostila: apostilaChecksRaw[id]?.apostila || false,
+        apostilaG: apostilaChecksRaw[id]?.apostilaG || false,
+      };
+    });
+    return combined;
+  }, [publishers, sentinelaChecks, apostilaChecksRaw]);
 
   useEffect(() => {
     if (publishers.length > 0) {
@@ -209,24 +250,29 @@ export default function OrderFormPage() {
   };
 
   const confirmToggle = () => {
-    if (!toggleConfig || !monthlyChecksRef) return;
+    if (!toggleConfig) return;
     
     const { publisherId, field, isChecking } = toggleConfig;
-    const current = checks[publisherId] || { 
-      apostila: false, 
-      apostilaG: false, 
-      sentinela: false, 
-      sentinelaG: false 
-    };
+    const isApostilaField = field === 'apostila' || field === 'apostilaG';
+    
+    const targetRef = isApostilaField ? apostilaChecksRef : monthlyChecksRef;
+    const currentChecksSource = isApostilaField ? apostilaChecksRaw : sentinelaChecks;
+
+    if (!targetRef) return;
 
     const updatedChecks = {
-      ...checks,
+      ...currentChecksSource,
       [publisherId]: {
-        ...current,
+        ...(currentChecksSource[publisherId] || { 
+          apostila: false, 
+          apostilaG: false, 
+          sentinela: false, 
+          sentinelaG: false 
+        }),
         [field]: isChecking
       }
     };
-    setDocumentNonBlocking(monthlyChecksRef, { checks: updatedChecks }, { merge: true });
+    setDocumentNonBlocking(targetRef, { checks: updatedChecks }, { merge: true });
     setToggleConfig(null);
   };
 
@@ -452,7 +498,7 @@ export default function OrderFormPage() {
         </div>
 
         <div className="relative min-h-[300px]">
-          {(isLoadingPublishers || isLoadingMonthly) && (
+          {(isLoadingPublishers || isLoadingMonthly || isLoadingApostila) && (
             <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 flex items-center justify-center rounded-xl">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
@@ -484,13 +530,16 @@ export default function OrderFormPage() {
                   const currentLocalValue = localQtyValues[inputKey];
                   const displayValue = currentLocalValue !== undefined ? currentLocalValue : (pub[qtyField] === 0 ? '' : String(pub[qtyField] ?? ''));
 
+                  const isApostilaField = checkField === 'apostila' || checkField === 'apostilaG';
+                  const displayLabel = isApostilaField ? `${label} (${apostilaPeriod.label})` : label;
+
                   return (
                     <div className={cn(
                       "flex flex-col items-center justify-center p-2 rounded-xl border transition-all",
                       hasQty ? "bg-white border-neutral-200" : "bg-neutral-50 border-neutral-100 opacity-40"
                     )}>
                       <span className="text-[10px] font-black uppercase tracking-widest text-foreground mb-2 text-center leading-tight">
-                        {label}
+                        {displayLabel}
                       </span>
                       <div className="flex items-center gap-3">
                         <div className="relative group">
@@ -649,7 +698,7 @@ export default function OrderFormPage() {
           <div className="space-y-1">
             <p className="text-[10px] font-black uppercase text-foreground tracking-widest">Dica de Gestão Digital</p>
             <p className="text-[10px] font-bold text-muted-foreground uppercase leading-relaxed">
-              Exemplo: a apostila do mês de Abril deve ser marcada como entregue com o calendário no topo selecionado em "Abril". As quantidades fixas são permanentes para todos os meses. Já a marcação de entrega (o check) é individual.
+              As Apostilas (N e G) são controladas por bimestre (ex: JAN/FEV). Marcar a entrega em um dos meses atualizará automaticamente o outro. Já as Sentinelas continuam com controle individual para cada mês.
             </p>
           </div>
         </div>
