@@ -268,36 +268,13 @@ export default function OrderFormPage() {
       sentinelaGQty: parseInt(newPubForm.sentinelaGQty) || 0,
     };
 
-    // 1. Salva na lista normal
+    // Salva apenas na lista normal de periódicos
     const newList = [...publishers, newPub];
     setDocumentNonBlocking(publishersRef, { list: newList }, { merge: true });
 
-    // 2. Salva nos pedidos especiais (S-14-T)
-    const itemsToLog = [
-      { label: 'Apostila (Normal)', qty: newPub.apostilaQty },
-      { label: 'Apostila (Grande)', qty: newPub.apostilaGQty },
-      { label: 'Sentinela (Normal)', qty: newPub.sentinelaQty },
-      { label: 'Sentinela (Grande)', qty: newPub.sentinelaGQty },
-    ].filter(i => i.qty > 0);
-
-    itemsToLog.forEach((item, idx) => {
-      const orderId = `order_${Date.now()}_${idx}`;
-      const orderRef = doc(db, 'users', activeUserId, 'special_orders', orderId);
-      setDocumentNonBlocking(orderRef, {
-        id: orderId,
-        date: new Date().toLocaleDateString('pt-BR'),
-        publisherName: newPub.name,
-        item: item.label,
-        language: 'Português',
-        quantity: String(item.qty),
-        status: 'pend',
-        createdAt: new Date().toISOString()
-      }, { merge: true });
-    });
-
     toast({
-      title: "Registro Completo!",
-      description: `"${newPub.name}" foi adicionado à lista e registrado no S-14-T.`,
+      title: "Salvo com sucesso!",
+      description: `"${newPub.name}" foi adicionado à lista de periódicos.`,
     });
 
     setNewPubForm({ name: '', apostilaQty: '0', apostilaGQty: '0', sentinelaQty: '0', sentinelaGQty: '0' });
@@ -788,7 +765,7 @@ export default function OrderFormPage() {
               <DialogTitle className="uppercase font-black text-lg tracking-tight">Novo Periódico</DialogTitle>
             </div>
             <DialogDescription className="text-xs font-bold uppercase text-muted-foreground">
-              Cadastre um novo publicador e registre o pedido inicial no sistema.
+              Cadastre um novo publicador na sua lista de controle mensal.
             </DialogDescription>
           </DialogHeader>
 
@@ -850,13 +827,6 @@ export default function OrderFormPage() {
                 />
               </div>
             </div>
-
-            <div className="bg-amber-50 border border-amber-100 p-3 rounded-xl flex items-start gap-2">
-              <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-              <p className="text-[9px] font-bold text-amber-700 uppercase leading-tight">
-                Nota: Ao salvar, as quantidades preenchidas acima também serão lançadas automaticamente no seu Registro de Pedidos Especiais (S-14-T).
-              </p>
-            </div>
           </div>
 
           <DialogFooter className="p-6 bg-neutral-50 border-t border-neutral-100 flex flex-col gap-3">
@@ -865,7 +835,7 @@ export default function OrderFormPage() {
               disabled={!newPubForm.name.trim()}
               className="w-full h-12 bg-primary hover:bg-primary/90 font-black uppercase tracking-widest shadow-lg gap-2"
             >
-              <Save className="h-4 w-4" /> Salvar e Registrar
+              <Save className="h-4 w-4" /> Salvar Periódico
             </Button>
             <Button variant="ghost" onClick={() => setIsAddModalOpen(false)} className="w-full font-bold uppercase text-[10px] tracking-widest">
               Cancelar
