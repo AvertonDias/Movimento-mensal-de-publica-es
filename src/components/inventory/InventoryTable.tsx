@@ -331,18 +331,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
     const checkRec = field === 'received' ? (value ?? 0) : (Number(itemData.received) || 0);
     const checkCurr = field === 'current' ? (value ?? 0) : (Number(itemData.current) || 0);
 
-    // 1. Verificar Saída Negativa (Dialog)
     const calculatedOutgoing = (Number(checkPrev) + Number(checkRec)) - Number(checkCurr);
     if (calculatedOutgoing < 0 && field === 'current' && value !== null) {
       setNegativeWarningItem({ ...itemData, current: value });
     }
 
-    // 2. Verificar Pedidos Pendentes se Recebido > 0 (Dialog)
     if (field === 'received' && value !== null && value > 0 && (Number(itemData.pendingRequestsCount) || 0) > 0) {
       setPendingConfirmItem({ ...itemData });
     }
 
-    // 3. Lógica de Alerta de Estoque Baixo e Reativação Automática
     const minVal = historicalMinStock[id] || 0;
     const isTeachingKit = (itemData.item || "").includes('*');
     const effectiveMin = minVal > 0 ? minVal : (isTeachingKit || (Number(itemData.previous) || 0) > 0 ? 1 : 0);
@@ -358,7 +355,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       }
     }
 
-    // 4. Notificação personalizada de estoque baixo (Toast)
     if (field === 'current' && value !== null && value <= effectiveMin && !itemData.silent && !itemData.hidden) {
       toast({
         variant: "destructive",
@@ -370,19 +366,34 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const handleToggleSilence = (item: InventoryItem) => {
     if (!activeUid || !db) return;
-    const isSilenced = item.hidden || item.silent;
+    const isCurrentlySilenced = item.silent || item.hidden;
     const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
     
     setDocumentNonBlocking(inventoryDocRef, {
-      hidden: !isSilenced,
-      silent: !isSilenced
+      hidden: false,
+      silent: !isCurrentlySilenced
     }, { merge: true });
 
     toast({
-      title: !isSilenced ? "Alerta Silenciado" : "Monitoramento Reativado",
-      description: !isSilenced 
-        ? `O item "${item.item}" não exibirá mais avisos de estoque baixo até ser reabastecido.`
-        : `O monitoramento de estoque para "${item.item}" foi reativado.`,
+      title: !isCurrentlySilenced ? "Alerta Silenciado" : "Monitoramento Reativado",
+      description: !isCurrentlySilenced 
+        ? `A notificação do item "${item.item}" foi silenciada temporariamente.`
+        : `A notificação do item "${item.item}" foi reativada.`,
+    });
+  };
+
+  const handlePermanentSilence = (item: InventoryItem) => {
+    if (!activeUid || !db) return;
+    const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', item.id);
+    
+    setDocumentNonBlocking(inventoryDocRef, {
+      hidden: true,
+      silent: true
+    }, { merge: true });
+
+    toast({
+      title: "Desativado Permanente",
+      description: `O item "${item.item}" voltou ao normal e não enviará mais notificações de estoque baixo.`,
     });
   };
 
@@ -558,10 +569,10 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px] px-2">
                             <div className="flex items-center gap-2 overflow-hidden flex-1">
-                              {(isLowStock || item.silent) && (
+                              {((isLowStock || item.silent) && !item.hidden) && (
                                 <Popover>
                                   <PopoverTrigger asChild>
-                                    <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive")}>
+                                    <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", item.silent ? "text-neutral-400" : "text-destructive")}>
                                       {item.silent ? <BellOff className="h-3 w-3" /> : (isCriticalTeachingKit ? <AlertOctagon className="h-4 w-4 text-destructive animate-bounce-slow" /> : <AlertTriangle className="h-3 w-3" />)}
                                     </Button>
                                   </PopoverTrigger>
@@ -751,12 +762,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="uppercase font-black text-left flex items-center gap-2">
               <BellOff className="h-5 w-5 text-primary" />
-              Silenciar Permanente?
+              Desativar Permanente?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-left font-bold uppercase text-xs leading-relaxed">
-              Deseja silenciar os avisos de estoque baixo para <span className="text-foreground font-black">"{silencingItem?.item}"</span>? 
+              Deseja silenciar permanentemente os avisos de estoque baixo para <span className="text-foreground font-black">"{silencingItem?.item}"</span>? 
               <br/><br/>
-              A notificação visual desaparecerá imediatamente. O monitoramento voltará automaticamente se o estoque for reabastecido futuramente.
+              O item voltará ao normal visualmente. O monitoramento voltará automaticamente se o estoque for reabastecido futuramente.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -764,13 +775,13 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <AlertDialogAction 
               onClick={() => {
                 if (silencingItem) {
-                  handleToggleSilence(silencingItem);
+                  handlePermanentSilence(silencingItem);
                   setSilencingItem(null);
                 }
               }}
               className="bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest"
             >
-              Sim, Silenciar
+              Sim, Desativar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
