@@ -207,7 +207,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             ? remote.previous 
             : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : 0));
 
-      // Atual inicia vazio (null)
+      // Atual inicia vazio (null) e NÃO herda do mês passado
       const currentVal = local.current !== undefined 
         ? local.current 
         : (remote?.current !== undefined && remote?.current !== null ? remote.current : null);
