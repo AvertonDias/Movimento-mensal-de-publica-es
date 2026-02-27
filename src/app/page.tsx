@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
@@ -11,6 +10,14 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 // Componente de carregamento unificado para evitar erros de hidratação
 function HomeLoading() {
@@ -163,10 +170,10 @@ function HomeContent() {
 
   if (!user) return null;
 
-  // O card aparece se houver um convite que não seja o atual do usuário
-  const showInviteAcceptance = invite && 
-                               invite.ownerId !== user.uid && 
-                               (!isHelper || helperInvite?.ownerId !== invite.ownerId);
+  // O modal aparece se houver um convite que não seja o atual do usuário
+  const showInviteModal = invite && 
+                          invite.ownerId !== user.uid && 
+                          (!isHelper || helperInvite?.ownerId !== invite.ownerId);
 
   const activeUserId = (viewMode === 'shared' && sharedOwnerId) ? sharedOwnerId : user.uid;
 
@@ -174,52 +181,57 @@ function HomeContent() {
     <div className="min-h-screen pb-12 bg-background/50 font-body overflow-x-hidden w-full">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 space-y-8 w-full overflow-x-hidden">
         
-        {/* Banner de Aceitação de Convite - Persistente até ação do usuário */}
-        {showInviteAcceptance && (
-          <div className="w-full px-0 sm:px-0">
-            <Card className="bg-primary/10 border-primary/20 p-4 sm:p-6 animate-in fade-in slide-in-from-top-4 overflow-hidden shadow-sm w-full max-w-full">
-              <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 lg:gap-6 w-full">
+        {/* Modal de Aceitação de Convite - Persistente até ação do usuário */}
+        <Dialog open={!!showInviteModal} onOpenChange={(open) => !open && !isProcessingInvite && handleDismissInvite()}>
+          <DialogContent className="max-w-[95vw] sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
+            <DialogHeader className="p-6 bg-primary/10 border-b border-primary/20 text-left">
+              <div className="flex items-center gap-4">
                 <div className="bg-primary p-3 rounded-2xl shadow-lg shrink-0">
-                  <UserPlus className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
+                  <UserPlus className="h-6 w-6 text-primary-foreground" />
                 </div>
-                <div className="flex-1 text-center lg:text-left space-y-2 min-w-0 w-full">
-                  <div className="space-y-1">
-                    <h3 className="text-base sm:text-lg font-black uppercase tracking-tight break-words">Convite de Ajudante Pendente</h3>
-                    <p className="text-xs sm:text-sm font-bold text-muted-foreground uppercase leading-tight break-words overflow-wrap-anywhere">
-                      <strong className="text-foreground">{invite.ownerName}</strong> convidou você para colaborar no inventário dele.
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-2 justify-center lg:justify-start pt-1">
-                    <AlertTriangle className="h-3 w-3 text-destructive shrink-0 mt-0.5" />
-                    <p className="text-[8px] sm:text-[9px] font-black text-destructive uppercase tracking-widest leading-tight break-words">
-                      Aviso: seu estoque pessoal será substituído pelo de {invite.ownerName}.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto mt-2 lg:mt-0 shrink-0">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={handleDismissInvite} 
-                    disabled={isProcessingInvite}
-                    className="w-full sm:w-auto uppercase font-black text-[10px] tracking-widest hover:bg-white/50 h-10 px-6"
-                  >
-                    <X className="h-3 w-3 mr-1" /> Recusar
-                  </Button>
-                  <Button 
-                    onClick={handleAcceptInvite} 
-                    disabled={isProcessingInvite}
-                    size="sm"
-                    className="w-full sm:w-auto bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest shadow-md gap-2 h-10 px-8"
-                  >
-                    {isProcessingInvite ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
-                    Aceitar Convite
-                  </Button>
+                <div>
+                  <DialogTitle className="text-lg font-black uppercase tracking-tight">Convite de Ajudante</DialogTitle>
+                  <DialogDescription className="text-xs font-bold uppercase text-muted-foreground leading-tight">
+                    Solicitação de colaboração pendente
+                  </DialogDescription>
                 </div>
               </div>
-            </Card>
-          </div>
-        )}
+            </DialogHeader>
+
+            <div className="p-6 space-y-6">
+              <div className="space-y-3">
+                <p className="text-sm font-bold text-foreground leading-relaxed uppercase">
+                  <strong className="text-primary">{invite?.ownerName}</strong> convidou você para gerenciar o estoque de publicações em conjunto.
+                </p>
+                <div className="bg-destructive/5 border border-destructive/10 p-4 rounded-xl flex items-start gap-3">
+                  <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                  <p className="text-[10px] font-black text-destructive uppercase tracking-wide leading-tight">
+                    Ao aceitar, seu inventário pessoal será pausado e você passará a visualizar e editar apenas os dados de {invite?.ownerName}.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="p-6 bg-neutral-50/50 border-t border-neutral-100 flex flex-col sm:flex-row gap-3">
+              <Button 
+                variant="ghost" 
+                onClick={handleDismissInvite} 
+                disabled={isProcessingInvite}
+                className="w-full sm:flex-1 uppercase font-black text-[10px] tracking-widest h-12"
+              >
+                <X className="h-4 w-4 mr-2" /> Recusar
+              </Button>
+              <Button 
+                onClick={handleAcceptInvite} 
+                disabled={isProcessingInvite}
+                className="w-full sm:flex-1 bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest shadow-lg gap-2 h-12"
+              >
+                {isProcessingInvite ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                Aceitar Convite
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {isHelper && (
           <div className="bg-accent/10 border border-accent/20 p-4 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-2 w-full">
@@ -232,6 +244,7 @@ function HomeContent() {
             </div>
           </div>
         )}
+        
         <div className="w-full overflow-hidden">
           <InventoryTable targetUserId={activeUserId} />
         </div>
