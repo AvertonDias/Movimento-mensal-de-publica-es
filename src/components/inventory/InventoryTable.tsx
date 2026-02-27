@@ -108,7 +108,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const activeUid = targetUserId || user?.uid;
 
-  // Limpa o estado local ao trocar de mês para evitar "vazamento" de dados entre meses
   useEffect(() => {
     setLocalData({});
   }, [monthKey]);
@@ -217,7 +216,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         ? local.current 
         : (remote?.current !== undefined && remote?.current !== null ? remote.current : null);
 
-      // Regra: Recebido só aparece se houver dados no banco ou se o atual for preenchido
       const hasRemoteReceived = remote?.received !== undefined && remote?.received !== null;
       const receivedValue = local.received !== undefined 
         ? local.received 
@@ -333,9 +331,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       setPendingConfirmItem({ ...itemData });
     }
     
-    // Lógica de Reativação Automática de Alerta ao Reabastecer
     const minVal = historicalMinStock[id] || 0;
-    const effectiveMin = minVal > 0 ? minVal : (itemData.item?.includes('*') || checkPrev > 0 ? 1 : 0);
+    const isTeachingKit = (itemData.item || "").includes('*');
+    const effectiveMin = minVal > 0 ? minVal : (isTeachingKit || checkPrev > 0 ? 1 : 0);
     const theoreticalStock = checkPrev + (field === 'received' ? (value ?? 0) : checkRec);
     const isNowAboveMin = (field === 'current' && value !== null && value > effectiveMin) || (theoreticalStock > effectiveMin);
 
@@ -347,6 +345,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       if (field === 'current' && value !== null && value > effectiveMin) {
         toast({ title: "Monitoramento Reativado", description: `O item "${itemData.item}" foi reabastecido.`, });
       }
+    }
+
+    // Notificação personalizada de estoque baixo
+    if (field === 'current' && value !== null && value <= effectiveMin && !itemData.silent && !itemData.hidden) {
+      toast({
+        variant: "destructive",
+        title: "Atenção: Estoque Baixo!",
+        description: `O item "${itemData.item}" atingiu o nível crítico (${value} un). Recomendamos solicitar mais.`,
+      });
     }
 
     setLocalData(prev => ({ ...prev, [id]: { ...prev[id], ...updates } }));
@@ -508,7 +515,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                   );
                 }
 
-                // Lógica de Identificação de Estoque Baixo
                 const minVal = historicalMinStock[item.id] || 0;
                 const isTeachingKit = itemName.includes('*');
                 const effectiveMin = minVal > 0 ? minVal : (isTeachingKit || (Number(item.previous) || 0) > 0 ? 1 : 0);
