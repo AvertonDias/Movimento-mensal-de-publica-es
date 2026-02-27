@@ -162,35 +162,37 @@ function HomeContent() {
   const showInviteAcceptance = invite && invite.ownerId !== user.uid && !isHelper;
 
   return (
-    <div className="min-h-screen pb-12 bg-background/50 font-body">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 space-y-8">
+    <div className="min-h-screen pb-12 bg-background/50 font-body overflow-x-hidden w-full">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 space-y-8 w-full overflow-x-hidden">
         
         {/* Banner de Aceitação de Convite */}
         {showInviteAcceptance && (
-          <Card className="bg-primary/10 border-primary/20 p-4 sm:p-6 animate-in fade-in slide-in-from-top-4 overflow-hidden shadow-sm">
-            <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+          <Card className="bg-primary/10 border-primary/20 p-4 sm:p-6 animate-in fade-in slide-in-from-top-4 overflow-hidden shadow-sm w-full">
+            <div className="flex flex-col lg:flex-row items-center lg:items-start gap-4 lg:gap-6 w-full">
               <div className="bg-primary p-3 rounded-2xl shadow-lg shrink-0">
                 <UserPlus className="h-6 w-6 sm:h-8 sm:w-8 text-primary-foreground" />
               </div>
-              <div className="flex-1 text-center sm:text-left space-y-1">
-                <h3 className="text-base sm:text-lg font-black uppercase tracking-tight">Convite de Ajudante</h3>
-                <p className="text-xs sm:text-sm font-bold text-muted-foreground uppercase leading-tight">
-                  <strong>{invite.ownerName}</strong> convidou você para colaborar no inventário dele.
-                </p>
-                <div className="flex items-center gap-2 justify-center sm:justify-start pt-1">
-                  <AlertTriangle className="h-3 w-3 text-destructive" />
-                  <p className="text-[8px] sm:text-[9px] font-black text-destructive uppercase tracking-widest">
+              <div className="flex-1 text-center lg:text-left space-y-2 min-w-0 w-full">
+                <div className="space-y-1">
+                  <h3 className="text-base sm:text-lg font-black uppercase tracking-tight">Convite de Ajudante</h3>
+                  <p className="text-xs sm:text-sm font-bold text-muted-foreground uppercase leading-tight break-words">
+                    <strong>{invite.ownerName}</strong> convidou você para colaborar no inventário dele.
+                  </p>
+                </div>
+                <div className="flex items-start gap-2 justify-center lg:justify-start pt-1">
+                  <AlertTriangle className="h-3 w-3 text-destructive shrink-0 mt-0.5" />
+                  <p className="text-[8px] sm:text-[9px] font-black text-destructive uppercase tracking-widest leading-tight">
                     Aviso: seu estoque pessoal será substituído pelo de {invite.ownerName}.
                   </p>
                 </div>
               </div>
-              <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+              <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto mt-2 lg:mt-0 shrink-0">
                 <Button 
                   variant="ghost" 
                   size="sm"
                   onClick={handleDismissInvite} 
                   disabled={isProcessingInvite}
-                  className="flex-1 sm:flex-none uppercase font-black text-[9px] sm:text-[10px] tracking-widest hover:bg-white/50 h-10 px-4"
+                  className="w-full sm:w-auto uppercase font-black text-[10px] tracking-widest hover:bg-white/50 h-10 px-6"
                 >
                   <X className="h-3 w-3 mr-1" /> Recusar
                 </Button>
@@ -198,7 +200,7 @@ function HomeContent() {
                   onClick={handleAcceptInvite} 
                   disabled={isProcessingInvite}
                   size="sm"
-                  className="flex-1 sm:flex-none bg-primary hover:bg-primary/90 font-black uppercase text-[9px] sm:text-[10px] tracking-widest shadow-md gap-2 h-10 px-6"
+                  className="w-full sm:w-auto bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest shadow-md gap-2 h-10 px-8"
                 >
                   {isProcessingInvite ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
                   Aceitar Convite
@@ -209,7 +211,7 @@ function HomeContent() {
         )}
 
         {isHelper && (
-          <div className="bg-accent/10 border border-accent/20 p-4 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-2">
+          <div className="bg-accent/10 border border-accent/20 p-4 rounded-xl flex items-center justify-between animate-in fade-in slide-in-from-top-2 w-full">
             <div className="flex items-center gap-3">
               <ShieldCheck className="h-5 w-5 text-accent-foreground shrink-0" />
               <div>
@@ -219,7 +221,7 @@ function HomeContent() {
             </div>
           </div>
         )}
-        <div className="w-full">
+        <div className="w-full overflow-hidden">
           <InventoryTable targetUserId={activeUserId} />
         </div>
       </main>
