@@ -9,9 +9,8 @@ O S-28 Digital é uma ferramenta avançada para gestão de inventário de public
 ### 2.1 Gestão de Dados Mensais
 - **Colunas Oficiais**: Suporte total para "Estoque Anterior", "Recebido", "Estoque Atual" e a calculada "Saída".
 - **Cálculo Automático de Saída**: A coluna "Saída" é processada em tempo real pela fórmula: `(Anterior + Recebido) - Estoque Atual`.
-- **Inteligência de Preenchimento (Zero Automático)**: Por padrão, a coluna **Estoque Atual** é preenchida com **0** para agilizar o processo. Além disso, ao clicar no campo, o valor é selecionado automaticamente para substituição rápida.
+- **Independência Mensal**: Para garantir precisão, o estoque não é herdado automaticamente entre os meses. Cada mês deve ter seu "Anterior", "Recebido" e "Atual" preenchidos manualmente.
 - **Navegação Temporal**: Seletor de mês/ano intuitivo, permitindo preparar meses futuros ou consultar o histórico.
-- **Herança de Estoque**: O sistema busca automaticamente o "Estoque Atual" do mês anterior para preencher o "Estoque Anterior" do mês corrente.
 
 ### 2.2 Interface e Usabilidade
 - **Identificação Visual**: Popover com a **capa oficial** ao clicar no nome de uma publicação (integrado com jw.org).

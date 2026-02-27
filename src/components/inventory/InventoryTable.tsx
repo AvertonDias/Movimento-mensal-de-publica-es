@@ -1,4 +1,3 @@
-
 "use client"
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -111,9 +110,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   const monthKey = format(displayMonth, 'yyyy-MM');
   const monthName = format(displayMonth, 'MMMM yyyy', { locale: ptBR });
   
-  const prevMonth = startOfMonth(subMonths(displayMonth, 1));
-  const prevMonthKey = format(prevMonth, 'yyyy-MM');
-
   const activeUid = targetUserId || user?.uid;
 
   const unlockBody = useCallback(() => {
@@ -191,13 +187,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [db, activeUid, monthKey, isMounted]);
 
   const { data: remoteItems } = useCollection(monthItemsQuery);
-  
-  const prevMonthItemsQuery = useMemoFirebase(() => {
-    if (!db || !activeUid || !prevMonthKey || !isMounted) return null;
-    return collection(db, 'users', activeUid, 'monthly_records', prevMonthKey, 'items');
-  }, [db, activeUid, prevMonthKey, isMounted]);
-  
-  const { data: prevRemoteItems } = useCollection(prevMonthItemsQuery);
 
   const items = useMemo(() => {
     const combined: InventoryItem[] = [];
@@ -207,15 +196,12 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const id = pub.code || pub.abbr || `item_${idx}`;
       const customDef = customDefinitions?.find(d => d.id === id);
       const remote = remoteItems?.find(i => i.id === id);
-      const prevRemote = prevRemoteItems?.find(i => i.id === id);
       const local = localData[id] || {};
       
-      // ANTERIOR: Valor do ATUAL do mês passado
-      const previousValue = local.previous !== undefined ? local.previous : (remote?.previous !== undefined && remote?.previous !== null ? remote.previous : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : null));
+      // Sem herança automática entre meses conforme solicitado
+      const previousValue = local.previous !== undefined ? local.previous : (remote?.previous !== undefined && remote?.previous !== null ? remote.previous : null);
       const receivedValue = local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null);
-      
-      // ATUAL: Entrada manual, sem cálculo automático
-      let currentVal = local.current !== undefined ? local.current : (remote?.current !== undefined && remote?.current !== null ? remote.current : null);
+      const currentVal = local.current !== undefined ? local.current : (remote?.current !== undefined && remote?.current !== null ? remote.current : null);
       
       combined.push({
         ...pub,
@@ -236,13 +222,11 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
         categoryCustomItems.forEach(cd => {
           const remoteCustom = remoteItems?.find(i => i.id === cd.id);
-          const prevRemoteCustom = prevRemoteItems?.find(i => i.id === cd.id);
           const localCustom = localData[cd.id] || {};
           
-          const prevCustomValue = localCustom.previous !== undefined ? localCustom.previous : (remoteCustom?.previous !== undefined && remoteCustom?.previous !== null ? remoteCustom.previous : (prevRemoteCustom?.current !== undefined && prevRemoteCustom?.current !== null ? prevRemoteCustom.current : null));
+          const prevCustomValue = localCustom.previous !== undefined ? localCustom.previous : (remoteCustom?.previous !== undefined && remoteCustom?.previous !== null ? remoteCustom.previous : null);
           const receivedCustomValue = localCustom.received !== undefined ? localCustom.received : (remoteCustom?.received !== undefined ? remoteCustom?.received : null);
-          
-          let currentCustomVal = localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined && remoteCustom?.current !== null ? remoteCustom.current : null);
+          const currentCustomVal = localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined && remoteCustom?.current !== null ? remoteCustom.current : null);
 
           combined.push({
             ...cd,
@@ -258,7 +242,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       }
     });
     return combined;
-  }, [remoteItems, localData, customDefinitions, prevRemoteItems, historicalMinStock]);
+  }, [remoteItems, localData, customDefinitions, historicalMinStock]);
 
   const filteredItems = useMemo(() => {
     const matches = items.filter(item => !item.isCategory).filter(item => {
@@ -366,17 +350,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   return (
     <div className="space-y-6 relative max-w-full overflow-x-hidden">
-      {isMobile && (
-        <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden">
-          <div className="bg-primary/20 p-2 rounded-lg animate-rotate-phone">
-            <Smartphone className="h-4 w-4 text-primary" />
-          </div>
-          <p className="text-[10px] font-black uppercase text-foreground leading-tight tracking-wider text-left">
-            Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
-          </p>
-        </div>
-      )}
-
       <div className="bg-white p-4 rounded-t-xl shadow-md border-x border-t border-border space-y-4 overflow-hidden max-w-full">
         <div className="flex flex-col md:flex-row gap-4 items-start justify-between overflow-hidden w-full">
           <div className="flex flex-col gap-2 items-start shrink-0 max-w-full overflow-hidden">
@@ -420,7 +393,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <div className="flex items-center gap-2 max-w-full text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
-                Estoque Anterior herda o Atual do mês passado. Preencha o Estoque Atual manualmente.
+                Lance manualmente o estoque Anterior, Recebido e Atual de cada mês.
               </p>
             </div>
           </div>
@@ -465,47 +438,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       </div>
 
       <div className="bg-white rounded-b-xl shadow-md border-x border-b border-border overflow-hidden max-w-full">
-        <div className="p-2 border-b border-neutral-100 flex justify-end px-6 bg-neutral-50/50">
-          <Dialog>
-            <DialogTrigger asChild>
-              <button className="hover:text-primary transition-colors uppercase font-bold text-[10px] tracking-widest outline-none flex items-center gap-1.5 py-1">
-                <Info className="h-3 w-3 text-primary" />
-                Instruções
-              </button>
-            </DialogTrigger>
-            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle className="uppercase font-black flex items-center gap-2">
-                  <Info className="h-5 w-5 text-primary" />
-                  Instruções do Formulário S-28-T
-                </DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4 text-sm leading-relaxed text-justify pr-2">
-                <p>
-                  <strong>1.</strong> Todas as congregações coordenadoras de idioma devem fazer a contagem real das publicações todo mês. Si a sua congregação envia todo mês um relatório do inventário de publicações pelo JW Hub, você não precisa usar este formulário.
-                </p>
-                <p>
-                  <strong>2.</strong> Antes de fazer a contagem, recapitule a <Link href="/s60" className="text-blue-800 font-bold hover:underline"><em>Lista de Publicações a Serem Descartadas (S-60)</em></Link> e siga as instruções sobre jogar fora os itens que aparecem na lista.
-                </p>
-                <p>
-                  <strong>3.</strong> Se a sua congregação não puder enviar todo mês um relatório do inventário de publicações pelo JW Hub, certifique-se de que as informações a seguir sejam preenchidas abaixo para cada mês:
-                </p>
-                <div className="pl-6 space-y-2">
-                  <p><strong>(1) Estoque:</strong> Anote a quantidade em estoque no fim do mês. Com exceção do livro Organizados, itens de pedido especial não estão listados neste formulário, visto que eles não devem ficar em estoque. Se por algum motivo houver itens de pedido especial in estoque, anote as quantidades em uma das categorias gerais, como, por exemplo, “Outras Bíblias”.</p>
-                  <p><strong>(2) Recebido:</strong> Anote a quantidade de cada item recebido durante o mês.</p>
-                  <p><strong>(3) Saída:</strong> Anote a quantidade de cada item que saiu durante o mês. Pode-se determinar essa quantidade por: (1) somar a quantidade em “Estoque” do mês anterior à quantidade anotada em “Recebido” durante o mês atual e depois (2) subtrair desse total a contagem real que acabou de ser feita (“Estoque”).</p>
-                </div>
-                <p>
-                  <strong>4.</strong> Duas vezes por ano, Betel vai pedir que as congregações coordenadoras de idiomas enviem seu inventário pelo JW Hub, si possível. Para enviar um relatório do inventário de publicações, faça o seguinte: na página inicial do JW Hub, seção “Congregação”, clique em “Publicações” &rarr; “Relatórios de inventário”. Veja na seção “Ajuda” instruções sobre como enviar relatórios.
-                </p>
-                <p>
-                  <strong>5.</strong> Neste formulário, um asterisco (*) depois do título ou da descrição de um item indica que ele faz parte do Kit de Ensino.
-                </p>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-
         <div className="overflow-x-auto w-full">
           <Table>
             <TableHeader className="bg-white shadow-sm border-b">
