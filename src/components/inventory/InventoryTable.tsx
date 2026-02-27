@@ -210,14 +210,22 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const prevRemote = prevRemoteItems?.find(i => i.id === id);
       const local = localData[id] || {};
       
+      // ANTERIOR: Valor do ATUAL do mês passado
       const previousValue = local.previous !== undefined ? local.previous : (remote?.previous !== undefined && remote?.previous !== null ? remote.previous : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : null));
-      const currentVal = local.current !== undefined ? local.current : (remote?.current !== undefined && remote?.current !== null ? remote.current : 0);
+      const receivedValue = local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null);
+      
+      // ATUAL: Se não houver valor local ou remoto, inicia como Anterior + Recebido
+      let currentVal = local.current !== undefined ? local.current : (remote?.current !== undefined && remote?.current !== null ? remote.current : null);
+      
+      if (currentVal === null && (previousValue !== null || receivedValue !== null)) {
+        currentVal = (Number(previousValue) || 0) + (Number(receivedValue) || 0);
+      }
 
       combined.push({
         ...pub,
         id,
         previous: previousValue,
-        received: local.received !== undefined ? local.received : (remote?.received !== undefined ? remote?.received : null),
+        received: receivedValue,
         current: currentVal,
         minStock: historicalMinStock[id] || 0,
         hidden: customDef?.hidden || false,
@@ -234,13 +242,20 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           const remoteCustom = remoteItems?.find(i => i.id === cd.id);
           const prevRemoteCustom = prevRemoteItems?.find(i => i.id === cd.id);
           const localCustom = localData[cd.id] || {};
+          
           const prevCustomValue = localCustom.previous !== undefined ? localCustom.previous : (remoteCustom?.previous !== undefined && remoteCustom?.previous !== null ? remoteCustom.previous : (prevRemoteCustom?.current !== undefined && prevRemoteCustom?.current !== null ? prevRemoteCustom.current : null));
-          const currentCustomVal = localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined && remoteCustom?.current !== null ? remoteCustom.current : 0);
+          const receivedCustomValue = localCustom.received !== undefined ? localCustom.received : (remoteCustom?.received !== undefined ? remoteCustom?.received : null);
+          
+          let currentCustomVal = localCustom.current !== undefined ? localCustom.current : (remoteCustom?.current !== undefined && remoteCustom?.current !== null ? remoteCustom.current : null);
+
+          if (currentCustomVal === null && (prevCustomValue !== null || receivedCustomValue !== null)) {
+            currentCustomVal = (Number(prevCustomValue) || 0) + (Number(receivedCustomValue) || 0);
+          }
 
           combined.push({
             ...cd,
             previous: prevCustomValue,
-            received: localCustom.received !== undefined ? localCustom.received : (remoteCustom?.received !== undefined ? remoteCustom?.received : null),
+            received: receivedCustomValue,
             current: currentCustomVal,
             minStock: historicalMinStock[cd.id] || 0,
             hidden: cd.hidden || false,
@@ -296,9 +311,16 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
     let updates: Record<string, any> = { [field]: value };
 
+    // Se Anterior ou Recebido mudarem, atualizamos o Atual automaticamente
+    if (field === 'previous' || field === 'received') {
+      const p = field === 'previous' ? (value ?? 0) : (Number(itemData.previous) || 0);
+      const r = field === 'received' ? (value ?? 0) : (Number(itemData.received) || 0);
+      updates.current = p + r;
+    }
+
     const checkPrev = field === 'previous' ? (value ?? 0) : (Number(itemData.previous) || 0);
     const checkRec = field === 'received' ? (value ?? 0) : (Number(itemData.received) || 0);
-    const checkCurr = field === 'current' ? (value ?? 0) : (Number(itemData.current) || 0);
+    const checkCurr = updates.current !== undefined ? updates.current : (field === 'current' ? (value ?? 0) : (Number(itemData.current) || 0));
     
     const calculatedOutgoing = (Number(checkPrev) + Number(checkRec)) - Number(checkCurr);
     if (calculatedOutgoing < 0 && value !== null) {
@@ -417,7 +439,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <div className="flex items-center gap-2 max-w-full text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
-                Os valores para o estoque são sempre referentes ao mês anterior.
+                Estoque Anterior herda o Atual do mês passado. Atual inicia como Anterior + Recebido.
               </p>
             </div>
           </div>
