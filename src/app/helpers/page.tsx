@@ -1,21 +1,32 @@
 
 'use client';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useFirestore, useUser, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking, useDoc } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
-import { Copy, Plus, Trash2, Users, LinkIcon, CheckCircle2 } from "lucide-react";
+import { Copy, Plus, Trash2, Users, LinkIcon, CheckCircle2, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useRouter } from 'next/navigation';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function HelpersPage() {
   const { user: currentUser, isUserLoading } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
 
   const helperInviteRef = useMemoFirebase(() => {
     if (!db || !currentUser) return null;
@@ -42,14 +53,12 @@ export default function HelpersPage() {
   const { data: allInvites } = useCollection(invitesQuery);
   
   // Filtra apenas os convites que eu criei E que não são para mim mesmo (ajudantes externos)
-  // Adicionamos filtros extras para garantir que o proprietário não apareça na sua própria lista caso tenha clicado no link por engano
   const myInvites = allInvites?.filter(inv => {
     const isMine = inv.ownerId === currentUser?.uid;
     const isSelfInviteByTokenId = inv.id === currentUser?.uid;
     const isSelfInviteByHelperId = inv.helperId === currentUser?.uid;
     const isSelfInviteByLabel = inv.label === currentUser?.displayName;
     
-    // Mostra apenas se for meu convite E NÃO for um auto-convite
     return isMine && !isSelfInviteByTokenId && !isSelfInviteByHelperId && !isSelfInviteByLabel;
   }) || [];
 
@@ -75,7 +84,7 @@ export default function HelpersPage() {
 
   const copyToClipboard = (tokenId: string) => {
     const url = `${window.location.origin}/?token=${tokenId}`;
-    const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse le link abaixo para aceitar o convite: ${url}`;
+    const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse o link abaixo para aceitar o convite: ${url}`;
     navigator.clipboard.writeText(invitationMessage);
     toast({
       title: "Convite copiado!",
@@ -83,10 +92,16 @@ export default function HelpersPage() {
     });
   };
 
-  const handleDelete = (id: string) => {
-    if (!db) return;
-    const inviteRef = doc(db, 'invites', id);
+  const confirmDelete = () => {
+    if (!db || !deleteConfirmId) return;
+    const inviteRef = doc(db, 'invites', deleteConfirmId);
     deleteDocumentNonBlocking(inviteRef);
+    setDeleteConfirmId(null);
+    toast({
+      variant: "destructive",
+      title: "Ajudante removido",
+      description: "O acesso foi revogado com sucesso.",
+    });
   };
 
   if (isUserLoading || isCheckingRole || !currentUser) return null;
@@ -174,7 +189,7 @@ export default function HelpersPage() {
                           variant="ghost" 
                           size="icon" 
                           className="h-9 w-9 text-destructive hover:bg-destructive/10 transition-colors"
-                          onClick={() => handleDelete(invite.id)}
+                          onClick={() => setDeleteConfirmId(invite.id)}
                           title="Remover Ajudante"
                         >
                           <Trash2 className="h-4 w-4" />
@@ -188,6 +203,29 @@ export default function HelpersPage() {
           )}
         </div>
       </div>
+
+      <AlertDialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 uppercase font-black text-destructive text-left">
+              <AlertTriangle className="h-5 w-5" />
+              Remover Ajudante?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="font-bold uppercase text-xs leading-relaxed text-left">
+              Deseja realmente revogar o acesso deste ajudante? Ele não poderá mais visualizar ou editar o seu inventário.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="font-black uppercase text-[10px] tracking-widest">Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive hover:bg-destructive/90 font-black uppercase text-[10px] tracking-widest"
+            >
+              Sim, Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
