@@ -11,6 +11,36 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
+// Componente de carregamento unificado para evitar erros de hidratação
+function HomeLoading() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
+      <div className="relative">
+        <div className="rounded-2xl overflow-hidden w-[64px] h-[64px] shadow-2xl">
+          <Image 
+            src="/icon.png" 
+            alt="Logo S-28 Digital" 
+            width={64} 
+            height={64} 
+            className="object-cover w-full h-full" 
+            unoptimized 
+            priority 
+          />
+        </div>
+        <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-md">
+          <Loader2 className="h-5 w-5 text-primary animate-spin" />
+        </div>
+      </div>
+      <div className="text-center space-y-2">
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Sincronizando</p>
+        <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">
+          Preparando ambiente...
+        </p>
+      </div>
+    </div>
+  );
+}
+
 function HomeContent() {
   const { user, isUserLoading } = useUser();
   const db = useFirestore();
@@ -28,12 +58,12 @@ function HomeContent() {
     setMounted(true);
     // Verifica se há um token na URL ou no localStorage
     const urlToken = searchParams.get('token');
-    const localToken = localStorage.getItem('pending_invite_token');
+    const localToken = typeof window !== 'undefined' ? localStorage.getItem('pending_invite_token') : null;
     const token = urlToken || localToken;
     
     if (token) {
       setPendingToken(token);
-      if (urlToken) localStorage.setItem('pending_invite_token', urlToken);
+      if (urlToken && typeof window !== 'undefined') localStorage.setItem('pending_invite_token', urlToken);
     }
   }, [searchParams]);
 
@@ -123,32 +153,7 @@ function HomeContent() {
   };
 
   if (!mounted || isUserLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-background gap-6 p-4">
-        <div className="relative">
-          <div className="rounded-2xl overflow-hidden w-[64px] h-[64px] shadow-2xl">
-            <Image 
-              src="/icon.png" 
-              alt="Logo S-28 Digital" 
-              width={64} 
-              height={64} 
-              className="object-cover w-full h-full" 
-              unoptimized 
-              priority 
-            />
-          </div>
-          <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-1 shadow-md">
-            <Loader2 className="h-5 w-5 text-primary animate-spin" />
-          </div>
-        </div>
-        <div className="text-center space-y-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-foreground">Sincronizando</p>
-          <p className="text-[9px] font-bold uppercase text-muted-foreground tracking-widest opacity-60">
-            Preparando ambiente...
-          </p>
-        </div>
-      </div>
-    );
+    return <HomeLoading />;
   }
 
   if (!user) return null;
@@ -224,11 +229,7 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    }>
+    <Suspense fallback={<HomeLoading />}>
       <HomeContent />
     </Suspense>
   );
