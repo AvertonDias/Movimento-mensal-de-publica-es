@@ -11,8 +11,7 @@ import { cn } from "@/lib/utils";
 import { useRouter } from 'next/navigation';
 
 export default function HelpersPage() {
-  const { user, isUserLoading } = user; // Corrigido erro de desestruturação se necessário ou mantido do contexto
-  const { user: currentUser } = useUser();
+  const { user: currentUser, isUserLoading } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
   const router = useRouter();
@@ -71,7 +70,7 @@ export default function HelpersPage() {
   const copyToClipboard = (tokenId: string) => {
     // URL alterada para a raiz do app, conforme solicitado
     const url = `${window.location.origin}/?token=${tokenId}`;
-    const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse o link abaixo para aceitar o convite: ${url}`;
+    const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse le link abaixo para aceitar o convite: ${url}`;
     navigator.clipboard.writeText(invitationMessage);
     toast({
       title: "Convite copiado!",
