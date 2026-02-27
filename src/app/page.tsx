@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, Suspense } from 'react';
@@ -92,7 +93,7 @@ function HomeContent() {
     return doc(db, 'invites', pendingToken);
   }, [db, pendingToken, user]);
 
-  const { data: invite } = useDoc(inviteRef);
+  const { data: invite, isLoading: isInviteLoading } = useDoc(inviteRef);
 
   // Verificação de ajudante atual
   const helperInviteRef = useMemoFirebase(() => {
@@ -174,10 +175,15 @@ function HomeContent() {
 
   if (!user) return null;
 
+  // Verificações de validade do convite
+  const isInviteExpired = (invite && invite.helperId && invite.helperId !== user.uid) || 
+                          (!isInviteLoading && pendingToken && !invite);
+  
   // O modal aparece se houver um convite que não seja o atual do usuário
-  const showInviteModal = invite && 
-                          invite.ownerId !== user.uid && 
-                          (!isHelper || helperInvite?.ownerId !== invite.ownerId);
+  const showInviteModal = !!pendingToken && !isInviteLoading && (
+    (invite && invite.ownerId !== user.uid && (!isHelper || helperInvite?.ownerId !== invite.ownerId)) ||
+    isInviteExpired
+  );
 
   const activeUserId = (viewMode === 'shared' && sharedOwnerId) ? sharedOwnerId : user.uid;
 
@@ -188,52 +194,90 @@ function HomeContent() {
         {/* Modal de Aceitação de Convite - Persistente até ação do usuário */}
         <Dialog open={!!showInviteModal} onOpenChange={(open) => !open && !isProcessingInvite && handleDismissInvite()}>
           <DialogContent className="max-w-[95vw] sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
-            <DialogHeader className="p-6 bg-primary/10 border-b border-primary/20 text-left">
-              <div className="flex items-center gap-4">
-                <div className="bg-primary p-3 rounded-2xl shadow-lg shrink-0">
-                  <UserPlus className="h-6 w-6 text-primary-foreground" />
-                </div>
-                <div>
-                  <DialogTitle className="text-lg font-black uppercase tracking-tight">Convite de Ajudante</DialogTitle>
-                  <DialogDescription className="text-xs font-bold uppercase text-muted-foreground leading-tight">
-                    Solicitação de colaboração pendente
-                  </DialogDescription>
-                </div>
-              </div>
-            </DialogHeader>
-
-            <div className="p-6 space-y-6">
-              <div className="space-y-3">
-                <p className="text-sm font-bold text-foreground leading-relaxed uppercase">
-                  <strong className="text-primary">{invite?.ownerName}</strong> convidou você para gerenciar o estoque de publicações em conjunto.
-                </p>
-                <div className="bg-destructive/5 border border-destructive/10 p-4 rounded-xl flex items-start gap-3">
-                  <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-                  <p className="text-[10px] font-black text-destructive uppercase tracking-wide leading-tight">
-                    Ao aceitar, seu inventário pessoal será pausado e você passará a visualizar e editar apenas os dados de {invite?.ownerName}.
+            {isInviteExpired ? (
+              <>
+                <DialogHeader className="p-6 bg-destructive/10 border-b border-destructive/20 text-left">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-destructive p-3 rounded-2xl shadow-lg shrink-0">
+                      <X className="h-6 w-6 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <DialogTitle className="text-lg font-black uppercase tracking-tight">Convite Expirado</DialogTitle>
+                      <DialogDescription className="text-xs font-bold uppercase text-muted-foreground leading-tight">
+                        Este link não é mais válido
+                      </DialogDescription>
+                    </div>
+                  </div>
+                </DialogHeader>
+                <div className="p-6 space-y-4">
+                  <p className="text-sm font-bold text-foreground leading-relaxed uppercase">
+                    Este convite já foi utilizado por outra pessoa ou foi removido pelo coordenador.
                   </p>
+                  <div className="bg-neutral-50 border border-neutral-200 p-4 rounded-xl">
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-wide leading-tight">
+                      Para continuar ajudando na gestão, solicite ao coordenador de publicações que gere um novo link de convite na página de ajudantes.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </div>
+                <DialogFooter className="p-6 bg-neutral-50/50 border-t border-neutral-100">
+                  <Button 
+                    onClick={handleDismissInvite}
+                    className="w-full bg-foreground text-background hover:bg-foreground/90 font-black uppercase text-[10px] tracking-widest h-12"
+                  >
+                    Entendi
+                  </Button>
+                </DialogFooter>
+              </>
+            ) : (
+              <>
+                <DialogHeader className="p-6 bg-primary/10 border-b border-primary/20 text-left">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-primary p-3 rounded-2xl shadow-lg shrink-0">
+                      <UserPlus className="h-6 w-6 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <DialogTitle className="text-lg font-black uppercase tracking-tight">Convite de Ajudante</DialogTitle>
+                      <DialogDescription className="text-xs font-bold uppercase text-muted-foreground leading-tight">
+                        Solicitação de colaboração pendente
+                      </DialogDescription>
+                    </div>
+                  </div>
+                </DialogHeader>
 
-            <DialogFooter className="p-6 bg-neutral-50/50 border-t border-neutral-100 flex flex-col sm:flex-row gap-3">
-              <Button 
-                variant="ghost" 
-                onClick={handleDismissInvite} 
-                disabled={isProcessingInvite}
-                className="w-full sm:flex-1 uppercase font-black text-[10px] tracking-widest h-12"
-              >
-                <X className="h-4 w-4 mr-2" /> Recusar
-              </Button>
-              <Button 
-                onClick={handleAcceptInvite} 
-                disabled={isProcessingInvite}
-                className="w-full sm:flex-1 bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest shadow-lg gap-2 h-12"
-              >
-                {isProcessingInvite ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
-                Aceitar Convite
-              </Button>
-            </DialogFooter>
+                <div className="p-6 space-y-6">
+                  <div className="space-y-3">
+                    <p className="text-sm font-bold text-foreground leading-relaxed uppercase">
+                      <strong className="text-primary">{invite?.ownerName}</strong> convidou você para gerenciar o estoque de publicações em conjunto.
+                    </p>
+                    <div className="bg-destructive/5 border border-destructive/10 p-4 rounded-xl flex items-start gap-3">
+                      <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                      <p className="text-[10px] font-black text-destructive uppercase tracking-wide leading-tight">
+                        Ao aceitar, seu inventário pessoal será pausado e você passará a visualizar e editar apenas os dados de {invite?.ownerName}.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <DialogFooter className="p-6 bg-neutral-50/50 border-t border-neutral-100 flex flex-col sm:flex-row gap-3">
+                  <Button 
+                    variant="ghost" 
+                    onClick={handleDismissInvite} 
+                    disabled={isProcessingInvite}
+                    className="w-full sm:flex-1 uppercase font-black text-[10px] tracking-widest h-12"
+                  >
+                    <X className="h-4 w-4 mr-2" /> Recusar
+                  </Button>
+                  <Button 
+                    onClick={handleAcceptInvite} 
+                    disabled={isProcessingInvite}
+                    className="w-full sm:flex-1 bg-primary hover:bg-primary/90 font-black uppercase text-[10px] tracking-widest shadow-lg gap-2 h-12"
+                  >
+                    {isProcessingInvite ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                    Aceitar Convite
+                  </Button>
+                </DialogFooter>
+              </>
+            )}
           </DialogContent>
         </Dialog>
 
