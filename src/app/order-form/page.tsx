@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useMemo, useEffect, useRef } from 'react';
@@ -19,7 +18,8 @@ import {
   Loader2,
   AlertTriangle,
   Calendar as CalendarIcon,
-  Filter
+  Filter,
+  ShieldCheck
 } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { cn } from "@/lib/utils";
@@ -146,20 +146,29 @@ export default function OrderFormPage() {
     };
   }, [displayMonth]);
 
-  const publishersRef = useMemoFirebase(() => {
+  // Lógica de Acesso Ajudante
+  const helperInviteRef = useMemoFirebase(() => {
     if (!db || !user) return null;
-    return doc(db, 'users', user.uid, 'order_form', 'publishers');
+    return doc(db, 'invites', user.uid);
   }, [db, user]);
 
+  const { data: helperInvite, isLoading: isCheckingHelper } = useDoc(helperInviteRef);
+  const activeUserId = helperInvite ? helperInvite.ownerId : user?.uid;
+
+  const publishersRef = useMemoFirebase(() => {
+    if (!db || !activeUserId) return null;
+    return doc(db, 'users', activeUserId, 'order_form', 'publishers');
+  }, [db, activeUserId]);
+
   const monthlyChecksRef = useMemoFirebase(() => {
-    if (!db || !user || !monthKey || !isMounted) return null;
-    return doc(db, 'users', user.uid, 'order_form', `checks_${monthKey}`);
-  }, [db, user, monthKey, isMounted]);
+    if (!db || !activeUserId || !monthKey || !isMounted) return null;
+    return doc(db, 'users', activeUserId, 'order_form', `checks_${monthKey}`);
+  }, [db, activeUserId, monthKey, isMounted]);
 
   const apostilaChecksRef = useMemoFirebase(() => {
-    if (!db || !user || !apostilaPeriod.key || !isMounted) return null;
-    return doc(db, 'users', user.uid, 'order_form', `checks_${apostilaPeriod.key}`);
-  }, [db, user, apostilaPeriod.key, isMounted]);
+    if (!db || !activeUserId || !apostilaPeriod.key || !isMounted) return null;
+    return doc(db, 'users', activeUserId, 'order_form', `checks_${apostilaPeriod.key}`);
+  }, [db, activeUserId, apostilaPeriod.key, isMounted]);
 
   const { data: publishersData, isLoading: isLoadingPublishers } = useDoc(publishersRef);
   const { data: monthlyData, isLoading: isLoadingMonthly } = useDoc(monthlyChecksRef);
@@ -344,7 +353,7 @@ export default function OrderFormPage() {
 
   if (!isMounted || !selectedMonth) return null;
 
-  if (isUserLoading || !user) {
+  if (isUserLoading || isCheckingHelper || !user) {
     return <div className="p-20 text-center"><Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" /></div>;
   }
 
@@ -352,6 +361,16 @@ export default function OrderFormPage() {
     <div className="min-h-screen bg-neutral-50 pt-20 pb-12 px-2 sm:px-4 font-body">
       <div className="max-w-6xl mx-auto space-y-4">
         
+        {helperInvite && (
+          <div className="bg-accent/10 border border-accent/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
+            <ShieldCheck className="h-5 w-5 text-accent-foreground shrink-0" />
+            <div className="text-left">
+              <p className="text-xs font-black uppercase text-accent-foreground">Acesso Ajudante</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase">Você está ajudando a gerenciar o controle de {helperInvite.ownerName}.</p>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 bg-white p-3 rounded-xl border shadow-sm">
           <div className="flex items-center gap-2 flex-1">
             <div className="bg-primary/10 p-2 rounded-lg shrink-0">
