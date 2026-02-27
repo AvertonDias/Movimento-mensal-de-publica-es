@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import { InventoryTable } from "@/components/inventory/InventoryTable";
-import { ShieldCheck, Loader2, UserPlus, X, CheckCircle2, AlertTriangle } from "lucide-react";
+import { ShieldCheck, Loader2, UserPlus, X, CheckCircle2, AlertTriangle, Smartphone } from "lucide-react";
 import { useUser, useFirestore, useDoc, useMemoFirebase, updateDocumentNonBlocking, setDocumentNonBlocking } from "@/firebase";
 import Image from "next/image";
 import { doc } from 'firebase/firestore';
@@ -11,6 +11,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
@@ -56,6 +57,7 @@ function HomeContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   
   const [viewMode, setViewMode] = useState<'personal' | 'shared'>('personal');
   const [sharedOwnerId, setSharedOwnerId] = useState<string | null>(null);
@@ -191,6 +193,18 @@ function HomeContent() {
     <div className="min-h-screen pb-12 bg-background/50 font-body overflow-x-hidden w-full">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 pt-24 space-y-8 w-full overflow-x-hidden">
         
+        {/* Aviso de Orientação de Tela */}
+        {isMobile && (
+          <div className="bg-primary/10 border border-primary/20 p-3 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-4 duration-500 landscape:hidden">
+            <div className="bg-primary/20 p-2 rounded-lg animate-rotate-phone">
+              <Smartphone className="h-4 w-4 text-primary" />
+            </div>
+            <p className="text-[10px] font-black uppercase text-foreground leading-tight tracking-wider text-left">
+              Dica: aproveite ao máximo o aplicativo usando o celular na horizontal ou acessando-o pelo computador.
+            </p>
+          </div>
+        )}
+
         {/* Modal de Aceitação de Convite - Persistente até ação do usuário */}
         <Dialog open={!!showInviteModal} onOpenChange={(open) => !open && !isProcessingInvite && handleDismissInvite()}>
           <DialogContent className="max-w-[95vw] sm:max-w-[500px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl">
