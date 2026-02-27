@@ -107,6 +107,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const activeUid = targetUserId || user?.uid;
 
+  // Limpa o cache local ao trocar de mês para evitar que valores "vazem"
   useEffect(() => {
     setLocalData({});
   }, [monthKey]);
@@ -218,8 +219,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const receivedValue = local.received !== undefined 
         ? local.received 
         : (remote?.received !== undefined && remote?.received !== null 
-            ? remote.received 
-            : (currentVal !== null ? 0 : null));
+            ? (currentVal !== null ? 0 : null) 
+            : null);
       
       combined.push({
         ...pub,
@@ -256,8 +257,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           const receivedCustomValue = localCustom.received !== undefined 
             ? localCustom.received 
             : (remoteCustom?.received !== undefined && remoteCustom?.received !== null 
-                ? remoteCustom.received 
-                : (currentCustomVal !== null ? 0 : null));
+                ? (currentCustomVal !== null ? 0 : null) 
+                : null);
 
           combined.push({
             ...cd,
@@ -331,6 +332,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       setPendingConfirmItem({ ...itemData });
     }
     
+    // Lógica para reativar monitoramento se o estoque voltar ao normal
     if (field === 'current' && value !== null) {
       const minVal = historicalMinStock[id] || 0;
       if (value > minVal && (itemData.hidden || itemData.silent)) {
@@ -532,44 +534,34 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px] px-2">
                             <div className="flex items-center gap-2 overflow-hidden flex-1">
-                              {(isLowStock || item.hidden || item.silent) && (
+                              {/* O ícone de alerta agora "some" se estiver silenciado, conforme pedido */}
+                              {isLowStock && (
                                 <Popover>
                                   <PopoverTrigger asChild>
                                     <Button variant="ghost" size="icon" className={cn("h-6 w-6 shrink-0 hover:bg-neutral-100", (item.hidden || item.silent) ? "text-neutral-400" : "text-destructive")}>
-                                      {isCriticalTeachingKit ? <AlertOctagon className="h-4 w-4 text-destructive animate-bounce-slow" /> : (item.hidden || item.silent) ? <BellOff className="h-3 w-3" /> : <AlertTriangle className="h-3 w-3" />}
+                                      {isCriticalTeachingKit ? <AlertOctagon className="h-4 w-4 text-destructive animate-bounce-slow" /> : <AlertTriangle className="h-3 w-3" />}
                                     </Button>
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3">
                                     <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest text-left">Ações de Alerta</p>
-                                    {item.hidden || item.silent ? (
+                                    <div className="space-y-2">
                                       <Button 
-                                        variant="default" 
+                                        variant="outline" 
                                         size="sm" 
                                         className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
                                         onClick={() => handleToggleSilence(item)}
                                       >
-                                        Reativar Monitoramento
+                                        Silenciar este item
                                       </Button>
-                                    ) : (
-                                      <div className="space-y-2">
-                                        <Button 
-                                          variant="outline" 
-                                          size="sm" 
-                                          className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
-                                          onClick={() => handleToggleSilence(item)}
-                                        >
-                                          Silenciar este item
-                                        </Button>
-                                        <Button 
-                                          variant="default" 
-                                          size="sm" 
-                                          className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
-                                          onClick={() => setSilencingItem(item)}
-                                        >
-                                          Silenciar Permanente
-                                        </Button>
-                                      </div>
-                                    )}
+                                      <Button 
+                                        variant="default" 
+                                        size="sm" 
+                                        className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
+                                        onClick={() => setSilencingItem(item)}
+                                      >
+                                        Silenciar Permanente
+                                      </Button>
+                                    </div>
                                   </PopoverContent>
                                 </Popover>
                               )}
