@@ -105,6 +105,11 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const activeUid = targetUserId || user?.uid;
 
+  // Limpa as alterações locais sempre que o mês mudar para evitar que valores de um mês apareçam em outro
+  useEffect(() => {
+    setLocalData({});
+  }, [monthKey]);
+
   const unlockBody = useCallback(() => {
     if (typeof document !== 'undefined') {
       document.body.style.pointerEvents = 'auto';
@@ -181,7 +186,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const { data: remoteItems } = useCollection(monthItemsQuery);
 
-  // Consulta do mês anterior para herança
   const prevMonthItemsQuery = useMemoFirebase(() => {
     if (!db || !activeUid || !prevMonthKey || !isMounted) return null;
     return collection(db, 'users', activeUid, 'monthly_records', prevMonthKey, 'items');
@@ -200,19 +204,16 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const prevRemote = prevMonthItems?.find(i => i.id === id);
       const local = localData[id] || {};
       
-      // Herança: Anterior vem do Atual do mês passado
       const previousValue = local.previous !== undefined 
         ? local.previous 
         : (remote?.previous !== undefined && remote?.previous !== null 
             ? remote.previous 
             : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : 0));
 
-      // Atual inicia vazio (null) e NÃO herda do mês passado
       const currentVal = local.current !== undefined 
         ? local.current 
         : (remote?.current !== undefined && remote?.current !== null ? remote.current : null);
 
-      // Recebido inicia vazio, mostra 0 apenas se o Atual for preenchido
       const receivedValue = local.received !== undefined 
         ? local.received 
         : (remote?.received !== undefined && remote?.received !== null 
