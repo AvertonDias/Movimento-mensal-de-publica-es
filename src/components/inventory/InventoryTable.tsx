@@ -107,7 +107,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   
   const activeUid = targetUserId || user?.uid;
 
-  // Limpa o cache local ao trocar de mês para evitar que valores "vazem"
   useEffect(() => {
     setLocalData({});
   }, [monthKey]);
@@ -332,14 +331,21 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       setPendingConfirmItem({ ...itemData });
     }
     
-    // Lógica para reativar monitoramento se o estoque voltar ao normal
-    if (field === 'current' && value !== null) {
-      const minVal = historicalMinStock[id] || 0;
-      if (value > minVal && (itemData.hidden || itemData.silent)) {
-        const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
-        setDocumentNonBlocking(inventoryDocRef, { hidden: false, silent: false }, { merge: true });
-        updates.hidden = false;
-        updates.silent = false;
+    // Lógica para reativar monitoramento se o estoque voltar ao normal (reabastecimento)
+    const minVal = historicalMinStock[id] || 0;
+    const theoreticalStock = checkPrev + checkRec;
+    
+    // Reativa monitoramento se o estoque atual preenchido OU o estoque teórico for maior que o mínimo
+    const isNowAboveMin = (field === 'current' && value !== null && value > minVal) || 
+                          (theoreticalStock > minVal);
+
+    if (isNowAboveMin && (itemData.hidden || itemData.silent)) {
+      const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
+      setDocumentNonBlocking(inventoryDocRef, { hidden: false, silent: false }, { merge: true });
+      updates.hidden = false;
+      updates.silent = false;
+      // Notificação apenas quando o estoque físico real (Atual) é preenchido
+      if (field === 'current' && value !== null && value > minVal) {
         toast({ title: "Monitoramento Reativado", description: `O item "${itemData.item}" foi reabastecido.`, });
       }
     }
@@ -534,7 +540,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                         ) : col.id === 'item' ? (
                           <div className="flex justify-between items-center gap-2 min-w-[240px] px-2">
                             <div className="flex items-center gap-2 overflow-hidden flex-1">
-                              {/* O ícone de alerta agora "some" se estiver silenciado, conforme pedido */}
                               {isLowStock && (
                                 <Popover>
                                   <PopoverTrigger asChild>
@@ -728,7 +733,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <AlertDialogDescription className="text-left font-bold uppercase text-xs leading-relaxed">
               Deseja silenciar permanentemente os avisos de estoque baixo para <span className="text-foreground font-black">"{silencingItem?.item}"</span>? 
               <br/><br/>
-              O item continuará no inventário, mas o sistema não exibirá mais o alerta vermelho quando ele atingir níveis críticos.
+              O item continuará no inventário, mas o sistema não exibirá mais o alerta vermelho quando ele atingir níveis críticos. O monitoramento voltará automaticamente se o estoque for reabastecido.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
