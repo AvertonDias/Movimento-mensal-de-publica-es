@@ -541,20 +541,35 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                                   </PopoverTrigger>
                                   <PopoverContent className="w-64 p-3">
                                     <p className="text-[10px] font-black uppercase text-foreground mb-2 tracking-widest text-left">Ações de Alerta</p>
-                                    <Button 
-                                      variant="default" 
-                                      size="sm" 
-                                      className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
-                                      onClick={() => {
-                                        if (item.hidden || item.silent) {
-                                          handleToggleSilence(item);
-                                        } else {
-                                          setSilencingItem(item);
-                                        }
-                                      }}
-                                    >
-                                      {item.hidden || item.silent ? "Reativar Monitoramento" : "Silenciar Permanente"}
-                                    </Button>
+                                    {item.hidden || item.silent ? (
+                                      <Button 
+                                        variant="default" 
+                                        size="sm" 
+                                        className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
+                                        onClick={() => handleToggleSilence(item)}
+                                      >
+                                        Reativar Monitoramento
+                                      </Button>
+                                    ) : (
+                                      <div className="space-y-2">
+                                        <Button 
+                                          variant="outline" 
+                                          size="sm" 
+                                          className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
+                                          onClick={() => handleToggleSilence(item)}
+                                        >
+                                          Silenciar este item
+                                        </Button>
+                                        <Button 
+                                          variant="default" 
+                                          size="sm" 
+                                          className="w-full text-[9px] font-black uppercase tracking-widest h-8" 
+                                          onClick={() => setSilencingItem(item)}
+                                        >
+                                          Silenciar Permanente
+                                        </Button>
+                                      </div>
+                                    )}
                                   </PopoverContent>
                                 </Popover>
                               )}
