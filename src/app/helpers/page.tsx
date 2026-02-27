@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect } from 'react';
@@ -41,11 +42,16 @@ export default function HelpersPage() {
   const { data: allInvites } = useCollection(invitesQuery);
   
   // Filtra apenas os convites que eu criei E que não são para mim mesmo (ajudantes externos)
-  const myInvites = allInvites?.filter(inv => 
-    inv.ownerId === currentUser?.uid && 
-    inv.id !== currentUser?.uid && 
-    inv.helperId !== currentUser?.uid
-  ) || [];
+  // Adicionamos filtros extras para garantir que o proprietário não apareça na sua própria lista caso tenha clicado no link por engano
+  const myInvites = allInvites?.filter(inv => {
+    const isMine = inv.ownerId === currentUser?.uid;
+    const isSelfInviteByTokenId = inv.id === currentUser?.uid;
+    const isSelfInviteByHelperId = inv.helperId === currentUser?.uid;
+    const isSelfInviteByLabel = inv.label === currentUser?.displayName;
+    
+    // Mostra apenas se for meu convite E NÃO for um auto-convite
+    return isMine && !isSelfInviteByTokenId && !isSelfInviteByHelperId && !isSelfInviteByLabel;
+  }) || [];
 
   const handleCreateInvite = () => {
     if (!currentUser || !db) return;
@@ -68,7 +74,6 @@ export default function HelpersPage() {
   };
 
   const copyToClipboard = (tokenId: string) => {
-    // URL alterada para a raiz do app, conforme solicitado
     const url = `${window.location.origin}/?token=${tokenId}`;
     const invitationMessage = `Olá! Estou convidando você para ajudar no gerenciamento do estoque de publicações da congregação através do aplicativo S-28 Digital. Acesse le link abaixo para aceitar o convite: ${url}`;
     navigator.clipboard.writeText(invitationMessage);
@@ -91,22 +96,24 @@ export default function HelpersPage() {
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex items-center justify-start">
           <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-primary" />
-            <h1 className="text-xl font-black uppercase tracking-tight font-headline">Ajudantes</h1>
+            <div className="bg-primary/10 p-2 rounded-lg">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+            <h1 className="text-xl font-black uppercase tracking-tight font-headline">Gerenciar Ajudantes</h1>
           </div>
         </div>
 
-        <Card className="border-primary/20 shadow-lg bg-white">
-          <CardHeader>
+        <Card className="border-primary/20 shadow-lg bg-white overflow-hidden">
+          <CardHeader className="bg-primary/5 border-b border-primary/10">
             <CardTitle className="uppercase text-lg flex items-center gap-2">
               <LinkIcon className="h-5 w-5 text-primary" />
-              Novo Link de Convite
+              Novo Convite
             </CardTitle>
-            <CardDescription className="text-xs font-bold uppercase tracking-wider text-left">
-              Gere uma mensagem de convite para que outra pessoa ajude a gerenciar seu inventário.
+            <CardDescription className="text-xs font-bold uppercase tracking-wider text-left text-muted-foreground">
+              Gere um link para que outra pessoa ajude a gerenciar o SEU inventário.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-6">
             <Button 
               onClick={handleCreateInvite} 
               className="w-full bg-primary hover:bg-primary/90 font-bold uppercase text-xs py-6 shadow-md transition-all active:scale-95"
@@ -118,13 +125,15 @@ export default function HelpersPage() {
 
         <div className="space-y-4">
           <h2 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 px-1">
-            Convites Ativos ({myInvites.length})
+            Pessoas que ajudam você ({myInvites.length})
           </h2>
           
           {myInvites.length === 0 ? (
             <div className="bg-white p-12 text-center rounded-xl border border-dashed border-neutral-300">
               <Users className="h-12 w-12 text-neutral-200 mx-auto mb-4" />
-              <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest text-center">Nenhum ajudante cadastrado</p>
+              <p className="text-neutral-400 font-bold uppercase text-[10px] tracking-widest text-center px-4">
+                Ninguém está ajudando você no momento. <br/> Use o botão acima para convidar um irmão.
+              </p>
             </div>
           ) : (
             <div className="grid gap-4">
@@ -143,7 +152,7 @@ export default function HelpersPage() {
                           {!isPending && <CheckCircle2 className="h-3.5 w-3.5 text-accent" />}
                         </p>
                         <p className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">
-                          Criado em {new Date(invite.createdAt).toLocaleDateString('pt-BR')}
+                          {isPending ? "Link enviado em" : "Ajudando desde"} {new Date(invite.createdAt).toLocaleDateString('pt-BR')}
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -154,7 +163,7 @@ export default function HelpersPage() {
                             className="gap-2 h-9 text-[10px] font-black uppercase tracking-widest bg-white"
                             onClick={() => copyToClipboard(invite.id)}
                           >
-                            <Copy className="h-3.5 w-3.5" /> Copiar Convite
+                            <Copy className="h-3.5 w-3.5" /> Copiar Link
                           </Button>
                         ) : (
                           <div className="bg-accent/10 text-accent-foreground text-[9px] font-black uppercase tracking-widest px-3 py-2 rounded-lg border border-accent/20 h-9 flex items-center">
@@ -166,6 +175,7 @@ export default function HelpersPage() {
                           size="icon" 
                           className="h-9 w-9 text-destructive hover:bg-destructive/10 transition-colors"
                           onClick={() => handleDelete(invite.id)}
+                          title="Remover Ajudante"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
