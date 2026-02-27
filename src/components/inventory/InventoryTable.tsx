@@ -240,14 +240,14 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
         categoryCustomItems.forEach(cd => {
           const remoteCustom = remoteItems?.find(i => i.id === cd.id);
-          const prevRemoteCustom = prevMonthItems?.find(i => i.id === cd.id);
+          const prevMonthCustom = prevMonthItems?.find(i => i.id === cd.id);
           const localCustom = localData[cd.id] || {};
           
           const prevCustomValue = localCustom.previous !== undefined 
             ? localCustom.previous 
             : (remoteCustom?.previous !== undefined && remoteCustom?.previous !== null 
                 ? remoteCustom.previous 
-                : (prevRemoteCustom?.current !== undefined && prevRemoteCustom?.current !== null ? prevRemoteCustom.current : 0));
+                : (prevMonthCustom?.current !== undefined && prevMonthCustom?.current !== null ? prevMonthCustom.current : 0));
 
           const currentCustomVal = localCustom.current !== undefined 
             ? localCustom.current 
@@ -272,7 +272,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       }
     });
     return combined;
-  }, [remoteItems, prevMonthItems, localData, customDefinitions, historicalMinStock]);
+  }, [remoteItems, prevMonthItems, localData, customDefinitions, historicalMinStock, monthKey]);
 
   const filteredItems = useMemo(() => {
     const matches = items.filter(item => !item.isCategory).filter(item => {
@@ -313,41 +313,52 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
   const handleUpdateItem = (id: string, field: string, value: number | null) => {
     if (!activeUid || !db || !selectedMonth) return;
+    
+    setLocalData(prev => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
+    
+    const docRef = doc(db, 'users', activeUid, 'monthly_records', monthKey, 'items', id);
+    setDocumentNonBlocking(docRef, { [field]: value, id, updatedAt: new Date().toISOString() }, { merge: true });
+  };
+
+  const handleFieldBlur = (id: string, field: string, value: number | null) => {
+    setFocusedField(null);
+    if (!activeUid || !db || !isMounted) return;
+
     const itemData = items.find(i => i.id === id);
     if (!itemData) return;
 
-    let updates: Record<string, any> = { [field]: value };
-
     const checkPrev = field === 'previous' ? (value ?? 0) : (Number(itemData.previous) || 0);
     const checkRec = field === 'received' ? (value ?? 0) : (Number(itemData.received) || 0);
-    const checkCurr = updates.current !== undefined ? updates.current : (field === 'current' ? (value ?? 0) : (Number(itemData.current) || 0));
-    
+    const checkCurr = field === 'current' ? (value ?? 0) : (Number(itemData.current) || 0);
+
+    // 1. Verificar Saída Negativa (Dialog)
     const calculatedOutgoing = (Number(checkPrev) + Number(checkRec)) - Number(checkCurr);
-    if (calculatedOutgoing < 0 && value !== null && field === 'current') {
-      setNegativeWarningItem({ ...itemData, ...updates });
+    if (calculatedOutgoing < 0 && field === 'current' && value !== null) {
+      setNegativeWarningItem({ ...itemData, current: value });
     }
 
+    // 2. Verificar Pedidos Pendentes se Recebido > 0 (Dialog)
     if (field === 'received' && value !== null && value > 0 && (Number(itemData.pendingRequestsCount) || 0) > 0) {
       setPendingConfirmItem({ ...itemData });
     }
-    
+
+    // 3. Lógica de Alerta de Estoque Baixo e Reativação Automática
     const minVal = historicalMinStock[id] || 0;
     const isTeachingKit = (itemData.item || "").includes('*');
-    const effectiveMin = minVal > 0 ? minVal : (isTeachingKit || checkPrev > 0 ? 1 : 0);
-    const theoreticalStock = checkPrev + (field === 'received' ? (value ?? 0) : checkRec);
-    const isNowAboveMin = (field === 'current' && value !== null && value > effectiveMin) || (theoreticalStock > effectiveMin);
+    const effectiveMin = minVal > 0 ? minVal : (isTeachingKit || (Number(itemData.previous) || 0) > 0 ? 1 : 0);
+    
+    const theoreticalTotal = checkPrev + checkRec;
+    const isNowAboveMin = (field === 'current' && value !== null && value > effectiveMin) || (theoreticalTotal > effectiveMin);
 
     if (isNowAboveMin && (itemData.hidden || itemData.silent)) {
       const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
       setDocumentNonBlocking(inventoryDocRef, { hidden: false, silent: false }, { merge: true });
-      updates.hidden = false;
-      updates.silent = false;
       if (field === 'current' && value !== null && value > effectiveMin) {
         toast({ title: "Monitoramento Reativado", description: `O item "${itemData.item}" foi reabastecido.`, });
       }
     }
 
-    // Notificação personalizada de estoque baixo
+    // 4. Notificação personalizada de estoque baixo (Toast)
     if (field === 'current' && value !== null && value <= effectiveMin && !itemData.silent && !itemData.hidden) {
       toast({
         variant: "destructive",
@@ -355,10 +366,6 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
         description: `O item "${itemData.item}" atingiu o nível crítico (${value} un). Recomendamos solicitar mais.`,
       });
     }
-
-    setLocalData(prev => ({ ...prev, [id]: { ...prev[id], ...updates } }));
-    const docRef = doc(db, 'users', activeUid, 'monthly_records', monthKey, 'items', id);
-    setDocumentNonBlocking(docRef, { ...updates, id, updatedAt: new Date().toISOString() }, { merge: true });
   };
 
   const handleToggleSilence = (item: InventoryItem) => {
@@ -648,7 +655,9 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                               e.target.select();
                               setFocusedField({ id: item.id, col: col.id });
                             }} 
-                            onBlur={() => setFocusedField(null)}
+                            onBlur={() => {
+                              handleFieldBlur(item.id, col.id, (item[col.id] === null || item[col.id] === undefined) ? null : Number(item[col.id]));
+                            }}
                             onWheel={(e) => e.currentTarget.blur()} 
                             className={cn(
                               "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-0.5", 
