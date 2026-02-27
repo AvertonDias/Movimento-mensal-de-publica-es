@@ -218,8 +218,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const receivedValue = local.received !== undefined 
         ? local.received 
         : (remote?.received !== undefined && remote?.received !== null 
-            ? (currentVal !== null ? 0 : null) 
-            : null);
+            ? remote.received 
+            : (currentVal !== null ? 0 : null));
       
       combined.push({
         ...pub,
@@ -256,8 +256,8 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
           const receivedCustomValue = localCustom.received !== undefined 
             ? localCustom.received 
             : (remoteCustom?.received !== undefined && remoteCustom?.received !== null 
-                ? (currentCustomVal !== null ? 0 : null) 
-                : null);
+                ? remoteCustom.received 
+                : (currentCustomVal !== null ? 0 : null));
 
           combined.push({
             ...cd,
@@ -331,20 +331,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       setPendingConfirmItem({ ...itemData });
     }
     
-    // Lógica para reativar monitoramento se o estoque voltar ao normal (reabastecimento)
     const minVal = historicalMinStock[id] || 0;
     const theoreticalStock = checkPrev + checkRec;
-    
-    // Reativa monitoramento se o estoque atual preenchido OU o estoque teórico for maior que o mínimo
-    const isNowAboveMin = (field === 'current' && value !== null && value > minVal) || 
-                          (theoreticalStock > minVal);
+    const isNowAboveMin = (field === 'current' && value !== null && value > minVal) || (theoreticalStock > minVal);
 
     if (isNowAboveMin && (itemData.hidden || itemData.silent)) {
       const inventoryDocRef = doc(db, 'users', activeUid, 'inventory', id);
       setDocumentNonBlocking(inventoryDocRef, { hidden: false, silent: false }, { merge: true });
       updates.hidden = false;
       updates.silent = false;
-      // Notificação apenas quando o estoque físico real (Atual) é preenchido
       if (field === 'current' && value !== null && value > minVal) {
         toast({ title: "Monitoramento Reativado", description: `O item "${itemData.item}" foi reabastecido.`, });
       }
@@ -352,7 +347,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
 
     setLocalData(prev => ({ ...prev, [id]: { ...prev[id], ...updates } }));
     const docRef = doc(db, 'users', activeUid, 'monthly_records', monthKey, 'items', id);
-    setDocumentNonBlocking(docRef, { ...itemData, ...updates, id, updatedAt: new Date().toISOString() }, { merge: true });
+    setDocumentNonBlocking(docRef, { ...updates, id, updatedAt: new Date().toISOString() }, { merge: true });
   };
 
   const handleToggleSilence = (item: InventoryItem) => {
