@@ -200,21 +200,24 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
       const prevRemote = prevMonthItems?.find(i => i.id === id);
       const local = localData[id] || {};
       
-      // Herança: 1. Local, 2. Remoto atual, 3. Atual do mês passado, 4. Zero (valor inicial)
+      // Herança: Anterior vem do Atual do mês passado
       const previousValue = local.previous !== undefined 
         ? local.previous 
         : (remote?.previous !== undefined && remote?.previous !== null 
             ? remote.previous 
             : (prevRemote?.current !== undefined && prevRemote?.current !== null ? prevRemote.current : 0));
 
-      // Recebido e Atual iniciam em 0 para preenchimento manual se não houver dados remotos ou locais
-      const receivedValue = local.received !== undefined 
-        ? local.received 
-        : (remote?.received !== undefined && remote?.received !== null ? remote.received : 0);
-
+      // Atual inicia vazio (null)
       const currentVal = local.current !== undefined 
         ? local.current 
-        : (remote?.current !== undefined && remote?.current !== null ? remote.current : 0);
+        : (remote?.current !== undefined && remote?.current !== null ? remote.current : null);
+
+      // Recebido inicia vazio, mostra 0 apenas se o Atual for preenchido
+      const receivedValue = local.received !== undefined 
+        ? local.received 
+        : (remote?.received !== undefined && remote?.received !== null 
+            ? remote.received 
+            : (currentVal !== null ? 0 : null));
       
       combined.push({
         ...pub,
@@ -244,13 +247,15 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                 ? remoteCustom.previous 
                 : (prevRemoteCustom?.current !== undefined && prevRemoteCustom?.current !== null ? prevRemoteCustom.current : 0));
 
-          const receivedCustomValue = localCustom.received !== undefined 
-            ? localCustom.received 
-            : (remoteCustom?.received !== undefined && remoteCustom?.received !== null ? remoteCustom.received : 0);
-
           const currentCustomVal = localCustom.current !== undefined 
             ? localCustom.current 
-            : (remoteCustom?.current !== undefined && remoteCustom?.current !== null ? remoteCustom.current : 0);
+            : (remoteCustom?.current !== undefined && remoteCustom?.current !== null ? remoteCustom.current : null);
+
+          const receivedCustomValue = localCustom.received !== undefined 
+            ? localCustom.received 
+            : (remoteCustom?.received !== undefined && remoteCustom?.received !== null 
+                ? remoteCustom.received 
+                : (currentCustomVal !== null ? 0 : null));
 
           combined.push({
             ...cd,
@@ -298,6 +303,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
   }, [items, searchTerm, filterStatus, historicalMinStock]);
 
   const calculateOutgoing = (item: InventoryItem) => {
+    if (item.current === null || item.current === undefined) return null;
     const total = (Number(item.previous) || 0) + (Number(item.received) || 0);
     const current = Number(item.current) || 0;
     return total - current;
@@ -416,7 +422,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
             <div className="flex items-center gap-2 max-w-full text-left">
               <Info className="h-3.5 w-3.5 text-primary shrink-0" />
               <p className="text-[10px] font-bold text-muted-foreground uppercase leading-tight">
-                Apenas o estoque Anterior é herdado do mês passado. Recebido e Atual iniciam em 0 para preenchimento manual.
+                Apenas o estoque Anterior é herdado do mês passado. Recebido e Atual iniciam em branco para preenchimento manual.
               </p>
             </div>
           </div>
