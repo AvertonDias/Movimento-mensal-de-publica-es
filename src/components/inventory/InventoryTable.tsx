@@ -620,7 +620,7 @@ export function InventoryTable({ targetUserId }: InventoryTableProps) {
                             className={cn(
                               "border-transparent hover:border-input focus:bg-white focus:ring-1 focus:ring-primary h-8 text-sm text-center font-bold transition-all bg-transparent px-0.5", 
                               isLowStock && col.id === 'current' && "text-destructive scale-110",
-                              col.id === 'previous' && "opacity-60 cursor-not-allowed"
+                              col.id === 'previous' && "disabled:opacity-100 cursor-default"
                             )} 
                             placeholder="0" 
                             disabled={(activeUid !== user?.uid && !targetUserId) || col.id === 'previous'} 
